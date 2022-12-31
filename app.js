@@ -329,7 +329,7 @@ Vue.createApp({
                 this.screenCurrentElement = undefined;
             }
         },
-        getLayerListItem() {
+        getLayerListItem(item) {
             return getLayerListItem(item);
         }
     },
