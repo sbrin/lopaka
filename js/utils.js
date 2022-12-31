@@ -153,3 +153,13 @@ function generateCode(uiArr) {
     }
     return lines;
 };
+
+function getLayerListItem(element) {
+    if (element.type === "str") {
+        return `${element.text || "Empty str"}`;
+    }
+    if (element.type === "icon") {
+        return `${element.name}`;
+    }
+    return `${element.type}`;
+};

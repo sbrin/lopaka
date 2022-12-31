@@ -26,20 +26,12 @@ Vue.createApp({
         };
     },
     computed: {
-        screenRawElements() {
-            return this.screenElements.filter((item) => ["line"].includes(item.type));
-        },
-        screenSimpleElements() {
-            return this.screenElements.filter(
-                (item) => !["line"].includes(item.type)
-            );
-        },
         canvasClassNames() {
             return {
                 'fui-canvas_select': this.activeTool === 'select',
                 'fui-canvas_moving': this.isMoving,
             }
-        }
+        },
     },
     methods: {
         setMainTab(tab) {
@@ -326,15 +318,6 @@ Vue.createApp({
             this.codePreview = "";
             this.screenCurrentElement = undefined;
         },
-        getLayerListItem(element) {
-            if (element.type === "str") {
-                return `${element.text || "Empty str"}`;
-            }
-            if (element.type === "icon") {
-                return `${element.name}`;
-            }
-            return `${element.type}`;
-        },
         copyCode() {
             navigator.clipboard.writeText(this.codePreview);
         },
@@ -345,9 +328,10 @@ Vue.createApp({
             if (this.screenCurrentElement && this.screenCurrentElement.custom) {
                 this.screenCurrentElement = undefined;
             }
+        },
+        getLayerListItem() {
+            return getLayerListItem(item);
         }
-    },
-    created() {
     },
     mounted() {
         this.ctx = this.$refs.screen.getContext("2d");
@@ -426,8 +410,6 @@ Vue.createApp({
                 this.imagesSrc = imagesArr;
                 this.$emit("prepareImages", fuiImages);
             }
-        },
-        created() {
         },
         mounted() {
             this.prepareImages();
