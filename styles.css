@@ -48,8 +48,6 @@ canvas {
 .fui-editor {
   width: 900px;
   background: var(--bg-color);
-  border: 3px solid var(--primary-color);
-  border-radius: 16px;
   padding: 16px;
   display: flex;
   flex-direction: row;
@@ -59,6 +57,10 @@ canvas {
 
 .fui-editor__left {
   width: 178px;
+}
+
+.fui-editor__center {
+  width: 534px;
 }
 
 .fui-editor__right {
@@ -91,8 +93,6 @@ canvas {
 }
 
 .inspector__title {
-  font-size: 12px;
-  font-family: FontPrimary;
   overflow: hidden;
   width: 150px;
 }
@@ -104,12 +104,12 @@ canvas {
 
 .inspector__col > *:first-child {
   margin-right: 8px;
+  font-size: 18px;
 }
 
 .inspector__select {
   background: var(--secondary-color);
   border: none;
-  font-size: 16px;
   font-family: 'FontSecondary';
   color: var(--primary-color);
 }
@@ -118,11 +118,11 @@ canvas {
   background: var(--secondary-color);
   color: var(--primary-color);
   font-family: FontSecondary;
-  font-size: 16px;
+  font-size: 18px;
   border: none;
   padding: 0 2px 2px 2px;
   margin: 4px 0;
-  width: 32px;
+  width: 36px;
   outline: none;
 }
 
@@ -133,12 +133,14 @@ canvas {
 .title {
   margin: 0 0 8px 0;
   font-size: 16px;
-  line-height: 12px;
+  font-family: "FontPrimary";
+  font-weight: normal;
 }
 
 .tools {
   margin: 8px 0 8px 0;
   display: flex;
+  flex-wrap: wrap;
 }
 
 .button {
@@ -217,7 +219,6 @@ canvas {
 }
 
 .fui-code {
-  width: 500px;
   background: var(--primary-color);
   border: 2px solid var(--border-dark-color);
   border-radius: 0 10px 10px 10px;
@@ -240,7 +241,6 @@ canvas {
   flex-wrap: wrap;
   align-items: center;
   overflow-y: auto;
-  width: 500px;
   background: var(--primary-color);
   border: 2px solid var(--border-dark-color);
   border-radius: 0 10px 10px 10px;
@@ -305,6 +305,19 @@ canvas {
 }
 
 .buttons-bottom {
+  height: 32px;
   display: flex;
   justify-content: space-between;
+}
+
+.fui-settings {
+  margin-top: 8px;
+}
+
+.fui-settings__input {
+  font-size: 24px;
+}
+
+.fui-settings__checkbox {
+  width: 16px;
 }

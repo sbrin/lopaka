@@ -1,5 +1,7 @@
+let CTX;
+
 Vue.createApp({
-    template: "#fui-editor",
+    template: fuiEditorTmpl,
     data() {
         return {
             layerIndex: 1,
@@ -22,7 +24,8 @@ Vue.createApp({
             fontSizes: {
                 FontPrimary: "10",
                 FontSecondary: "16",
-            }
+            },
+            isInverted: false,
         };
     },
     computed: {
@@ -32,6 +35,9 @@ Vue.createApp({
                 'fui-canvas_moving': this.isMoving,
             }
         },
+        isEmpty() {
+            return this.screenElements.length === 0
+        }
     },
     methods: {
         setMainTab(tab) {
@@ -114,13 +120,14 @@ Vue.createApp({
             this.screenCurrentElement = undefined;
             this.isDrawing = true;
 
-            if (["frame", "box", "dot"].includes(this.activeTool)) {
+            if (["frame", "box", "dot", "circle", "disc"].includes(this.activeTool)) {
                 this.screenCurrentElement = {
                     type: this.activeTool,
                     x: scaleDown(x),
                     y: scaleDown(y),
                     width: 1,
                     height: 1,
+                    radius: 0,
                     index: this.layerIndex
                 };
                 this.layerIndex += 1;
@@ -153,6 +160,7 @@ Vue.createApp({
                 this.layerIndex += 1;
                 this.screenElements.push(this.screenCurrentElement);
             } else {
+                // Moving otherwise
                 const current = getElementByOffset(this.screenElements, x, y);
                 if (current) {
                     this.isMoving = true;
@@ -173,7 +181,9 @@ Vue.createApp({
                 this.mouseClick_x > canvasBoundX ? canvasBoundX : this.mouseClick_x;
             let y =
                 this.mouseClick_y > canvasBoundY ? canvasBoundY : this.mouseClick_y;
-            if (["line", "frame", "box"].includes(this.activeTool)) {
+            const offsetX = scaleDown(e.offsetX);
+            const offsetY = scaleDown(e.offsetY);
+            if (["line", "frame", "box", "circle", "disc"].includes(this.activeTool)) {
                 if (
                     e.offsetX >= 0 &&
                     e.offsetY >= 0 &&
@@ -188,8 +198,8 @@ Vue.createApp({
                     this.screenCurrentElement.y = scaleDown(y);
 
                     if (["line"].includes(this.activeTool)) {
-                        this.screenCurrentElement.x2 = scaleDown(e.offsetX);
-                        this.screenCurrentElement.y2 = scaleDown(e.offsetY);
+                        this.screenCurrentElement.x2 = offsetX;
+                        this.screenCurrentElement.y2 = offsetY;
                     }
                     if (["frame", "box"].includes(this.activeTool)) {
                         const width = e.offsetX - this.mouseClick_x;
@@ -197,10 +207,29 @@ Vue.createApp({
                         this.screenCurrentElement.width = scaleSize(width);
                         this.screenCurrentElement.height = scaleSize(height);
                     }
+                    if (["circle", "disc"].includes(this.activeTool)) {
+                        let width = e.offsetX - this.mouseClick_x;
+                        let height = e.offsetY - this.mouseClick_y;
+
+                        const absWidth = Math.abs(width);
+                        const absHeight = Math.abs(height);
+
+                        let diameter = absWidth > absHeight ? absWidth : absHeight;
+                        if (width < 0) {
+                            this.screenCurrentElement.x = scaleDown(this.mouseClick_x - diameter);
+                        }
+                        if (height < 0) {
+                            this.screenCurrentElement.y = scaleDown(this.mouseClick_y - diameter);
+                        }
+
+                        this.screenCurrentElement.width = scaleSize(diameter);
+                        this.screenCurrentElement.height = scaleSize(diameter);
+                        this.screenCurrentElement.radius = scaleSize(Math.abs(diameter) / 2);
+                    }
                 }
             } else if (this.activeTool === "dot") {
-                this.screenCurrentElement.x = scaleDown(e.offsetX);
-                this.screenCurrentElement.y = scaleDown(e.offsetY);
+                this.screenCurrentElement.x = offsetX;
+                this.screenCurrentElement.y = offsetY;
             } else {
                 x = e.offsetX - this.mouseClick_dx;
                 y = e.offsetY - this.mouseClick_dy;
@@ -251,7 +280,7 @@ Vue.createApp({
         },
         stopDrawing() {
             if (this.screenCurrentElement) {
-                if (this.activeTool === "frame" || this.activeTool === "box") {
+                if (["frame", "box"].includes(this.activeTool)) {
                     if (this.screenCurrentElement.width < 0) {
                         this.screenCurrentElement.width = Math.abs(
                             this.screenCurrentElement.width
@@ -268,8 +297,8 @@ Vue.createApp({
             }
         },
         redrawCanvas() {
-            this.ctx.save();
-            this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            CTX.save();
+            CTX.clearRect(0, 0, canvasWidth, canvasHeight);
             for (let i = 0; i < this.screenElements.length; i++) {
                 const {
                     name,
@@ -279,38 +308,57 @@ Vue.createApp({
                     y2,
                     width,
                     height,
+                    radius,
                     type,
                     text,
                     font
                 } = this.screenElements[i];
                 if (type === "frame") {
-                    this.ctx.strokeRect(x + 0.5, y + 0.5, width, height);
+                    CTX.strokeRect(x + 0.5, y + 0.5, width, height);
                 } else if (type === "box") {
-                    this.ctx.fillRect(x, y, width, height);
+                    CTX.fillRect(x, y, width, height);
                 } else if (type === "dot") {
-                    this.ctx.fillRect(x, y, 1, 1);
+                    CTX.fillRect(x, y, 1, 1);
                 } else if (type === "icon") {
-                    this.ctx.drawImage(this.fuiImages[name].element, x, y);
+                    CTX.drawImage(this.fuiImages[name].element, x, y);
                 } else if (type === "line") {
-                    const imgData = this.ctx.getImageData(
+                    const imgData = CTX.getImageData(
                         0,
                         0,
                         canvasWidth,
                         canvasHeight
                     );
                     bline(imgData, x, y, x2, y2);
-                    this.ctx.putImageData(imgData, 0, 0);
+                    CTX.putImageData(imgData, 0, 0);
+                } else if (type === "circle") {
+                    const imgData = CTX.getImageData(
+                        0,
+                        0,
+                        canvasWidth,
+                        canvasHeight
+                    );
+                    drawCircle(imgData, x + radius, y + radius, radius);
+                    CTX.putImageData(imgData, 0, 0);
+                } else if (type === "disc") {
+                    const imgData = CTX.getImageData(
+                        0,
+                        0,
+                        canvasWidth,
+                        canvasHeight
+                    );
+                    drawDisc(imgData, x + radius, y + radius, radius);
+                    CTX.putImageData(imgData, 0, 0);
                 } else if (type === "str") {
                     const fontSize = this.fontSizes[font];
-                    this.ctx.font = `${fontSize}px ${font}`;
-                    this.ctx.fillText(text, x, y);
+                    CTX.font = `${fontSize}px ${font}`;
+                    CTX.fillText(text, x, y);
                 }
             }
-            const imgData = this.ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-            const newImgData = maskBlack(imgData);
-            this.ctx.putImageData(newImgData, 0, 0);
-            this.ctx.restore();
-            this.codePreview = generateCode(this.screenElements);
+            const imgData = CTX.getImageData(0, 0, canvasWidth, canvasHeight);
+            const newImgData = maskBlack(imgData, this.isInverted);
+            CTX.putImageData(newImgData, 0, 0);
+            CTX.restore();
+            this.codePreview = generateCode(this.screenElements, this.isInverted);
         },
         resetScreen() {
             this.screenElements = [];
@@ -329,169 +377,25 @@ Vue.createApp({
                 this.screenCurrentElement = undefined;
             }
         },
-        getLayerListItem(item) {
-            return getLayerListItem(item);
+        toggleInvert() {
+            this.isInverted = !this.isInverted;
         }
     },
     mounted() {
-        this.ctx = this.$refs.screen.getContext("2d");
-        this.ctx.strokeWidth = 1;
-        this.ctx.textRendering = "optimizeSpeed";
+        CTX = this.$refs.screen.getContext("2d");
+        CTX.strokeWidth = 1;
+        CTX.textRendering = "optimizeSpeed";
 
         document.addEventListener("mouseup", this.canvasMouseUp);
     }
 })
-    .component("fui-button", {
-        template: "#fui-button",
-        props: {
-            title: String,
-            active: Boolean
-        }
-    })
-    .component("fui-icons", {
-        template: "#fui-icons",
-        data() {
-            return {
-                imagesSrc: [],
-            };
-        },
-        props: {
-            customImages: Array,
-        },
-        watch: {
-            customImages: function (newVal) {
-                this.prepareImages();
-            }
-        },
-        methods: {
-            cleanCustom() {
-                this.$emit("cleanCustomIcons");
-            },
-            iconClick(e) {
-                this.$emit("iconClicked", e.target.dataset.name);
-            },
-            iconDragStart(e) {
-                e.dataTransfer.setData("name", e.srcElement.dataset.name);
-                e.dataTransfer.setData("offset", `${e.offsetX}, ${e.offsetY}`);
-            },
-            prepareImages() {
-                const fuiImages = {};
-                const imagesArr = [];
-                Object.entries(ICONS_SRC).forEach((item) => {
-                    const [name, file] = item;
-                    const matchedSizeArr = name.match(/_([0-9]+)x([0-9]+)/i) ? name.match(/_([0-9]+)x([0-9]+)/i) : [0, 10, 10];
-                    const [, width, height] = matchedSizeArr.map((num) => parseInt(num, 10));
-                    const image = new Image(width, height);
-                    const src = `img/${file}`;
-                    image.src = src;
-                    image.crossOrigin = "Anonymous";
-                    fuiImages[name] = {
-                        element: image,
-                        width: width,
-                        height: height
-                    };
-                    imagesArr.push({
-                        src: src,
-                        name: name,
-                        element: image,
-                        width: width,
-                        height: height
-                    });
-                });
-                this.customImages.forEach(icon => {
-                    fuiImages[icon.name] = {
-                        element: icon.element,
-                        width: icon.width,
-                        height: icon.height,
-                        custom: icon.custom,
-                    };
-                });
-                imagesArr.sort((a, b) => a.width * a.height - b.width * b.height);
-                this.imagesSrc = imagesArr;
-                this.$emit("prepareImages", fuiImages);
-            }
-        },
-        mounted() {
-            this.prepareImages();
-        }
-    })
-    .component("fui-tools", {
-        template: "#fui-tools",
-        props: {
-            callback: Function,
-            activeTool: String
-        },
-        data() {
-            return {
-                toolsList: ["frame", "box", "line", "dot"]
-            };
-        }
-    })
-    .component("fui-inspector", {
-        template: "#fui-inspector",
-        props: {
-            elem: Object
-        },
-        data() {
-            return {};
-        },
-        methods: {
-            redrawCanvas() {
-                this.$emit('redrawCanvas');
-            },
-            isHWVisible(elem) {
-                return !['line', 'str', 'dot', 'icon'].includes(elem.type);
-            }
-        }
-    })
-    .component("fui-code", {
-        template: "#fui-code",
-        props: {
-            content: String
-        },
-    })
-    .component("fui-tabs", {
-        template: "#fui-tabs",
-        props: {
-            activeTab: String
-        },
-        data() {
-            return {
-                tabs: ["icons", "code"],
-            };
-        },
-        methods: {
-            setActiveTab(tab) {
-                this.$emit("setActiveTab", tab);
-            }
-        }
-    })
-    .component("fui-inspector-input", {
-        template: "#fui-inspector-input",
-        props: {
-            element: Object,
-            type: String,
-            field: String,
-            defaultFont: String,
-        },
-        data() {
-            return {
-                fontsList: ["FontPrimary", "FontSecondary"],
-            };
-        },
-        methods: {
-            onInput(e) {
-                const result = ["text"].includes(this.type) ?
-                    e.target.value.replace(/[^0-9a-zA-Z\s\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/]/g, '') :
-                    parseInt(e.target.value.replace(/[^0-9]/g, ''));
-                e.target.value = result;
-                this.element[this.field] = result;
-                this.$emit('redrawCanvas');
-            },
-            onSelect(e) {
-                this.element[this.field] = e.target.value;
-                this.$emit('redrawCanvas');
-            }
-        }
-    })
+    .component("fui-layers", fuiLayersComponent)
+    .component("fui-button", fuiButtonComponent)
+    .component("fui-icons", fuiIconsComponent)
+    .component("fui-tools", fuiToolsComponent)
+    .component("fui-inspector", fuiInspectorComponent)
+    .component("fui-settings", fuiSettingsComponent)
+    .component("fui-code", fuiCodeComponent)
+    .component("fui-tabs", fuiTabsComponent)
+    .component("fui-inspector-input", fuiInspectorInputComponent)
     .mount("#fuigen_app");

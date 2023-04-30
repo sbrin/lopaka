@@ -2,172 +2,143 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Static Template</title>
-    <link rel="preload" href="fonts/Helvetica-Bold-Font.ttf" as="font" type="font/ttf" crossorigin />
-    <link rel="preload" href="fonts/haxrcorp_4089_cyrillic_altgr.ttf" as="font" type="font/ttf" crossorigin />
-    <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Static Template</title>
+  <link rel="preload" href="fonts/Helvetica-Bold-Font.ttf" as="font" type="font/ttf" crossorigin />
+  <link rel="preload" href="fonts/haxrcorp_4089_cyrillic_altgr.ttf" as="font" type="font/ttf" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-    <div id="fuigen_app"></div>
-    <template id="fui-editor">
-        <div class="fui-editor">
-            <div class="fui-editor__left">
-                <div class="layers">
-                    <h2 class="title">Layers</h2>
-                    <ul class="layers__list">
-                        <li v-for="(item, idx) in screenElements"
-                            :key="idx"
-                            class="layer"
-                            :class="{layer_selected: screenCurrentElement && screenCurrentElement.index === item.index}"
-                            @click="setCurrentItem(item)"
-                        >
-                            <div class="layer__name">{{ getLayerListItem(item) }}</div>
-                            <div class="layer__remove" @click="removeLayer(item.index)">×</div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="fui-editor__center">
-                <div class="canvas-wrapper">
-                    <canvas id="screen"
-                        width="128"
-                        height="64"
-                        ref="screen"
-                        :class="canvasClassNames"
-                        @mousedown="canvasMouseDown"
-                        @mouseleave="canvasMouseLeave"
-                        @mousemove="canvasMouseMove" @mouseleave="canvasMouseLeave"
-                        @dragover="(e) => { e.preventDefault() }" @drop="canvasOnDrop"
-                    />
-                </div>
-                <fui-tools :callback="setActiveTool" :active-tool="activeTool"></fui-tools>
-                <fui-tabs :active-tab="mainTab" @set-active-tab="setMainTab"></fui-tabs>
-                <fui-icons
-                    v-show="mainTab === 'icons'"
-                    :custom-images="customImages"
-                    @prepare-images="prepareImages" 
-                    @icon-clicked="addImageToCanvas"
-                    @clean-custom-icons="cleanCustomIcons"
-                    ref="fuiIconsList"
-                ></fui-icons>
-                <fui-code v-show="mainTab === 'code'" :content="codePreview"></fui-code>
-                <div class="buttons-bottom">
-                    <fui-button @click="resetScreen" title="reset" class="button_danger"></fui-button>
-                    <fui-button @click="copyCode" title="copy code" v-show="!!codePreview"></fui-button>
-                </div>
-            </div>
-            <div class="fui-editor__right">
-                <fui-inspector :elem="screenCurrentElement" @redraw-canvas="redrawCanvas"/>
-            </div>
+  <div id="fuigen_app"></div>
+  <template id="fui-editor">
+    <div class="fui-editor">
+      <div class="fui-editor__left">
+        <div class="layers">
+          <h2 class="title">Layers</h2>
+          <ul class="layers__list">
+            <li v-for="(item, idx) in screenElements" :key="idx" class="layer"
+              :class="{layer_selected: screenCurrentElement && screenCurrentElement.index === item.index}"
+              @click="setCurrentItem(item)">
+              <div class="layer__name">{{ getLayerListItem(item) }}</div>
+              <div class="layer__remove" @click="removeLayer(item.index)">×</div>
+            </li>
+          </ul>
         </div>
-    </template>
-    <template id="fui-button">
-        <button class="button" :class="{ button_active: active }">
-            {{ title }}
-        </button>
-    </template>
-    <template id="fui-tools">
-        <div class="tools">
-            <fui-button v-for="(item, idx) in toolsList" :key="idx" class="tools__btn" @click="callback(item)"
-                :title="item" :active="activeTool === item"></fui-button>
-            <fui-button class="tools__btn" @click="callback('str')" title="string" :active="activeTool === 'str'">
-            </fui-button>
-            <fui-button class="tools__btn" @click="callback('select')" title="select" :active="activeTool === 'select'">
-            </fui-button>
+      </div>
+      <div class="fui-editor__center">
+        <div class="canvas-wrapper">
+          <canvas id="screen" width="128" height="64" ref="screen" :class="canvasClassNames"
+            @mousedown="canvasMouseDown" @mouseleave="canvasMouseLeave" @mousemove="canvasMouseMove"
+            @mouseleave="canvasMouseLeave" @dragover="(e) => { e.preventDefault() }" @drop="canvasOnDrop" />
         </div>
-    </template>
-    <template id="fui-icons">
-        <div class="fui-icons">
-            <div v-if="customImages.length > 0" class="fui-icons__header">
-                <div>Custom</div>
-                <div
-                    class="fui-icons__remove-custom"
-                    @click="cleanCustom"
-                    title="Remove all custom icons"
-                >×</div>
-            </div>
-            <img v-for="(item, index) in customImages"
-                @dragstart="iconDragStart"
-                @click="iconClick"
-                draggable="true"
-                :key="index"
-                :src="item.src"
-                :data-name="item.name"
-                :width="item.width * 2"
-                :height="item.height * 2"
-                :alt="item.name" :title="item.name"
-            />
-            <div v-if="customImages.length > 0" class="fui-icons__header">Default</div>
-            <img v-for="(item, index) in imagesSrc"
-                @dragstart="iconDragStart"
-                @click="iconClick"
-                draggable="true"
-                :key="index"
-                :src="item.src"
-                :data-name="item.name"
-                :width="item.width * 2"
-                :height="item.height * 2"
-                :alt="item.name" :title="item.name"
-            />
+        <fui-tools :callback="setActiveTool" :active-tool="activeTool"></fui-tools>
+        <fui-tabs :active-tab="mainTab" @set-active-tab="setMainTab"></fui-tabs>
+        <fui-icons v-show="mainTab === 'icons'" :custom-images="customImages" @prepare-images="prepareImages"
+          @icon-clicked="addImageToCanvas" @clean-custom-icons="cleanCustomIcons" ref="fuiIconsList"></fui-icons>
+        <fui-code v-show="mainTab === 'code'" :content="codePreview"></fui-code>
+        <div class="buttons-bottom">
+          <fui-button @click="resetScreen" title="reset" class="button_danger"></fui-button>
+          <fui-button @click="copyCode" title="copy code" v-show="!!codePreview"></fui-button>
         </div>
-    </template>
-    <template id="fui-inspector">
-        <div class="inspector" v-if="elem">
-            <div class="inspector__title">{{elem.name || elem.type}}</div>
-            <div class="inspector__col">
-                <div>x: <fui-inspector-input :element="elem" field="x" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input></div>
-                <div v-if="typeof elem.x2 === 'number'">x2: <fui-inspector-input :element="elem" field="x2" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input></div>
-                <div v-if="typeof elem.width === 'number' && isHWVisible(elem)">w: <fui-inspector-input :element="elem" field="width" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input></div>
-            </div>
-            <div class="inspector__col">
-                <div>y: <fui-inspector-input :element="elem" field="y" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input></div>
-                <div v-if="typeof elem.y2 === 'number'">y2: <fui-inspector-input :element="elem" field="y2" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input></div>
-                <div v-if="typeof elem.height === 'number' && isHWVisible(elem)">h: <fui-inspector-input :element="elem" field="height" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input></div>
-            </div>
-            <div v-if="elem.font">
-                <fui-inspector-input :element="elem" field="font" type="select" @redraw-canvas="redrawCanvas"></fui-inspector-input>
-            </div>
-            <div v-if="elem.type === 'str'">
-                <fui-inspector-input :element="elem" field="text" type="text" @redraw-canvas="redrawCanvas"></fui-inspector-input>
-            </div>
+      </div>
+      <div class="fui-editor__right">
+        <fui-inspector :elem="screenCurrentElement" @redraw-canvas="redrawCanvas" />
+        <fui-settings :elem="screenCurrentElement" :isInverted="isInverted" @redraw-canvas="redrawCanvas" />
+      </div>
+    </div>
+  </template>
+  <template id="fui-button">
+    <button class="button" :class="{ button_active: active }">
+      {{ title }}
+    </button>
+  </template>
+  <template id="fui-tools">
+    <div class="tools">
+      <fui-button v-for="(item, idx) in toolsList" :key="idx" class="tools__btn" @click="callback(item)" :title="item"
+        :active="activeTool === item"></fui-button>
+      <fui-button class="tools__btn" @click="callback('str')" title="string" :active="activeTool === 'str'">
+      </fui-button>
+      <fui-button class="tools__btn" @click="callback('select')" title="select" :active="activeTool === 'select'">
+      </fui-button>
+    </div>
+  </template>
+  <template id="fui-icons">
+    <div class="fui-icons">
+      <div v-if="customImages.length > 0" class="fui-icons__header">
+        <div>Custom</div>
+        <div class="fui-icons__remove-custom" @click="cleanCustom" title="Remove all custom icons">×</div>
+      </div>
+      <img v-for="(item, index) in customImages" @dragstart="iconDragStart" @click="iconClick" draggable="true"
+        :key="index" :src="item.src" :data-name="item.name" :width="item.width * 2" :height="item.height * 2"
+        :alt="item.name" :title="item.name" />
+      <div v-if="customImages.length > 0" class="fui-icons__header">Default</div>
+      <img v-for="(item, index) in imagesSrc" @dragstart="iconDragStart" @click="iconClick" draggable="true"
+        :key="index" :src="item.src" :data-name="item.name" :width="item.width * 2" :height="item.height * 2"
+        :alt="item.name" :title="item.name" />
+    </div>
+  </template>
+  <template id="fui-inspector">
+    <div class="inspector" v-if="elem">
+      <div class="inspector__title">{{elem.name || elem.type}}</div>
+      <div class="inspector__col">
+        <div>x: <fui-inspector-input :element="elem" field="x" type="number" @redraw-canvas="redrawCanvas">
+          </fui-inspector-input>
         </div>
-    </template>
-    <template id="fui-code">
-        <div class="fui-code">
-            <pre>{{ content }}</pre>
+        <div v-if="typeof elem.x2 === 'number'">x2: <fui-inspector-input :element="elem" field="x2" type="number"
+            @redraw-canvas="redrawCanvas"></fui-inspector-input>
         </div>
-    </template>
-    <template id="fui-tabs">
-        <div class="fui-tabs">
-            <div v-for="(tab, idx) in tabs" :key="idx" class="fui-tab" :class="{'fui-tab_active': activeTab === tab}" @click="setActiveTab(tab)">{{ tab }}</div>
+        <div v-if="typeof elem.width === 'number' && isHWVisible(elem)">w: <fui-inspector-input :element="elem"
+            field="width" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input>
         </div>
-    </template>
-    <template id="fui-inspector-input">
-        <span v-if="['str','dot'].includes(element.type) && ['width','height'].includes(field)">{{ element[field] }}</span>
-        <select class="inspector__select"
-            v-if="field === 'font'"
-            :value="element[field]"
-            @input="onSelect"
-        >
-            <option v-for="(font, idx) in fontsList" :key="idx" :value="font">{{ font }}</option>
-        </select>
-        <input v-else
-            class="inspector__input"
-            @input="onInput"
-            :value="element[field]"
-            :type="type"
-            max="128"
-            step="1"
-        />
-    </template>
-    <script src="https://unpkg.com/vue@3.2.37/dist/vue.global.prod.js" type="text/javascript"></script>
-    <script src="js/const.js" type="text/javascript"></script>
-    <script src="js/utils.js" type="text/javascript"></script>
-    <script src="app.js" type="text/javascript"></script>
+      </div>
+      <div class="inspector__col">
+        <div>y: <fui-inspector-input :element="elem" field="y" type="number" @redraw-canvas="redrawCanvas">
+          </fui-inspector-input>
+        </div>
+        <div v-if="typeof elem.y2 === 'number'">y2: <fui-inspector-input :element="elem" field="y2" type="number"
+            @redraw-canvas="redrawCanvas"></fui-inspector-input>
+        </div>
+        <div v-if="typeof elem.height === 'number' && isHWVisible(elem)">h: <fui-inspector-input :element="elem"
+            field="height" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input>
+        </div>
+      </div>
+      <div v-if="elem.font">
+        <fui-inspector-input :element="elem" field="font" type="select" @redraw-canvas="redrawCanvas">
+        </fui-inspector-input>
+      </div>
+      <div v-if="elem.type === 'str'">
+        <fui-inspector-input :element="elem" field="text" type="text" @redraw-canvas="redrawCanvas">
+        </fui-inspector-input>
+      </div>
+    </div>
+  </template>
+  <template id="fui-code">
+    <div class="fui-code">
+      <pre>{{ content }}</pre>
+    </div>
+  </template>
+  <template id="fui-tabs">
+    <div class="fui-tabs">
+      <div v-for="(tab, idx) in tabs" :key="idx" class="fui-tab" :class="{'fui-tab_active': activeTab === tab}"
+        @click="setActiveTab(tab)">{{ tab }}</div>
+    </div>
+  </template>
+  <template id="fui-inspector-input">
+    <span v-if="['str','dot'].includes(element.type) && ['width','height'].includes(field)">{{ element[field] }}</span>
+    <select class="inspector__select" v-if="field === 'font'" :value="element[field]" @input="onSelect">
+      <option v-for="(font, idx) in fontsList" :key="idx" :value="font">{{ font }}</option>
+    </select>
+    <input v-else class="inspector__input" @input="onInput" :value="element[field]" :type="type" max="128" step="1" />
+  </template>
+  <script src="https://unpkg.com/vue@3.2.37/dist/vue.global.prod.js" type="text/javascript"></script>
+  <script src="js/const.js" type="text/javascript"></script>
+  <script src="js/utils.js" type="text/javascript"></script>
+  <script src="js/templates.js" type="text/javascript"></script>
+  <script src="js/components.js" type="text/javascript"></script>
+  <script src="app.js" type="text/javascript"></script>
 </body>
 
 </html>

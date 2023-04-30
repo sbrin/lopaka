@@ -6,7 +6,9 @@ function bline(imgData, x0, y0, x1, y1) {
         sy = y0 < y1 ? 1 : -1;
     let err = (dx > dy ? dx : -dy) / 2;
     while (true) {
-        resultArr.push([x0, y0]);
+        if (x0 >= 0 && x0 < canvasWidth && y0 >= 0 && y0 < canvasHeight) {
+            resultArr.push([x0, y0]);
+        }
         if (x0 === x1 && y0 === y1) break;
         var e2 = err;
         if (e2 > -dx) {
@@ -29,22 +31,123 @@ function bline(imgData, x0, y0, x1, y1) {
     }
 }
 
-function maskBlack(imgData) {
+function drawCircle(imgData, centerX, centerY, radius) {
+    const resultArr = [];
+    let x = 0;
+    let y = radius;
+    let d = 3 - 2 * radius;
+
+    while (x <= y) {
+        const points = [
+            [centerX + x, centerY + y],
+            [centerX - x, centerY + y],
+            [centerX + x, centerY - y],
+            [centerX - x, centerY - y],
+            [centerX + y, centerY + x],
+            [centerX - y, centerY + x],
+            [centerX + y, centerY - x],
+            [centerX - y, centerY - x],
+        ];
+
+        points.forEach(([x, y]) => {
+            if (x >= 0 && x < canvasWidth && y >= 0 && y < canvasHeight) {
+                resultArr.push([x, y]);
+            }
+        });
+
+        if (d < 0) {
+            d = d + 4 * x + 6;
+        } else {
+            d = d + 4 * (x - y) + 10;
+            y--;
+        }
+        x++;
+    }
+
+    for (let i = 0; i < resultArr.length; i++) {
+        const [x, y] = resultArr[i];
+        const n = (y * canvasWidth + x) * 4;
+
+        imgData.data[n] = 0;
+        imgData.data[n + 1] = 0;
+        imgData.data[n + 2] = 0;
+        imgData.data[n + 3] = 255;
+    }
+}
+
+function drawDisc(imgData, centerX, centerY, radius) {
+    const resultArr = [];
+    let x = 0;
+    let y = radius;
+    let d = 3 - 2 * radius;
+
+    while (x <= y) {
+        for (let i = -x; i <= x; i++) {
+            resultArr.push([centerX + i, centerY + y]);
+            resultArr.push([centerX + i, centerY - y]);
+        }
+
+        for (let i = -y; i <= y; i++) {
+            resultArr.push([centerX + i, centerY + x]);
+            resultArr.push([centerX + i, centerY - x]);
+        }
+
+        if (d < 0) {
+            d = d + 4 * x + 6;
+        } else {
+            d = d + 4 * (x - y) + 10;
+            y--;
+        }
+        x++;
+    }
+
+    for (let i = 0; i < resultArr.length; i++) {
+        const [x, y] = resultArr[i];
+        if (x >= 0 && x < canvasWidth && y >= 0 && y < canvasHeight) {
+            const n = (y * canvasWidth + x) * 4;
+            imgData.data[n] = 0;
+            imgData.data[n + 1] = 0;
+            imgData.data[n + 2] = 0;
+            imgData.data[n + 3] = 255;
+        }
+    }
+}
+
+function maskBlack(imgData, isInverted) {
     for (var i = 0; i < imgData.data.length; i += 4) {
-        if (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] >= 10) {
-            imgData.data[i + 3] = 0; // alpha
+        // for (var i = 0; i < 1000; i += 4) {
+        if (isInverted) {
+            if (
+                // If alpha is 0 
+                imgData.data[i + 3] < 255 ||
+                // Or if color is not black
+                imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] > 75
+            ) {
+                // Make it black
+                imgData.data[i] = 0;
+                imgData.data[i + 1] = 0;
+                imgData.data[i + 2] = 0;
+                imgData.data[i + 3] = 255; // alpha
+            } else {
+                imgData.data[i] = 0;
+                imgData.data[i + 1] = 0;
+                imgData.data[i + 2] = 0;
+                imgData.data[i + 3] = 0;
+            }
+        } else {
+            if (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] >= 3) {
+                imgData.data[i + 3] = 0; // alpha
+            }
         }
     }
     return imgData;
 }
 
 function readFileAsync(file) {
-    console.log("start async reading");
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
 
         reader.onload = () => {
-            console.log("finish async reading");
             resolve(reader.result);
         };
         reader.onerror = reject;
@@ -119,7 +222,6 @@ function getCode(element, isDeclared) {
     const func = `canvas_draw_${element.type}`;
     switch (element.type) {
         case "icon":
-            console.log(element);
             let result = element.custom && !isDeclared ? `extern const Icon I_${element.name};\n` : ``;
             result += `${func}(canvas, ${element.x}, ${element.y}, &I_${element.name})`;
             return result;
@@ -132,15 +234,24 @@ function getCode(element, isDeclared) {
                 }, ${element.height + 1})`;
         case "line":
             return `${func}(canvas, ${element.x}, ${element.y}, ${element.x2}, ${element.y2})`;
+        case "circle":
+        case "disc":
+            return `${func}(canvas, ${element.x + element.radius}, ${element.y + element.radius}, ${element.radius})`;
         case "str":
             return `canvas_set_font(canvas, ${element.font});
 ${func}(canvas, ${element.x}, ${element.y}, "${element.text}")`;
     }
 };
 
-function generateCode(uiArr) {
+function generateCode(uiArr, isInverted) {
     let lines = "";
     const declaredIcons = [];
+    if (isInverted) {
+        lines = `canvas_draw_box(canvas, 0, 0, 127, 63);
+canvas_set_color(canvas, ColorWhite);
+
+`;
+    }
     for (let i = 0; i < uiArr.length; i++) {
         const element = uiArr[i];
         const isDeclared = declaredIcons.indexOf(element.name) >= 0;
