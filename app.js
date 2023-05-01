@@ -21,10 +21,6 @@ Vue.createApp({
             isDrawing: false,
             isMoving: false,
             defaultFont: "FontPrimary",
-            fontSizes: {
-                FontPrimary: "10",
-                FontSecondary: "16",
-            },
             isInverted: false,
         };
     },
@@ -150,11 +146,11 @@ Vue.createApp({
                     type: this.activeTool,
                     x: scaleDown(x),
                     y: scaleDown(y),
-                    yy: scaleDown(y) - 8,
+                    yy: scaleDown(y) - textContainerHeight[this.defaultFont],
                     index: this.layerIndex,
                     text: "Text string",
-                    width: 50,
-                    height: 8,
+                    width: getTextWidth("Text string", this.defaultFont),
+                    height: textContainerHeight[this.defaultFont],
                     font: this.defaultFont,
                 };
                 this.layerIndex += 1;
@@ -234,7 +230,7 @@ Vue.createApp({
                 x = e.offsetX - this.mouseClick_dx;
                 y = e.offsetY - this.mouseClick_dy;
                 if (["str"].includes(this.screenCurrentElement.type)) {
-                    this.screenCurrentElement.yy = scaleDown(y) - 8;
+                    this.screenCurrentElement.yy = scaleDown(y) - textContainerHeight[this.screenCurrentElement.font];
                 }
                 if (["line"].includes(this.screenCurrentElement.type)) {
                     const {
@@ -300,6 +296,12 @@ Vue.createApp({
             CTX.save();
             CTX.clearRect(0, 0, canvasWidth, canvasHeight);
             for (let i = 0; i < this.screenElements.length; i++) {
+                const imgData = CTX.getImageData(
+                    0,
+                    0,
+                    canvasWidth,
+                    canvasHeight
+                );
                 const {
                     name,
                     x,
@@ -322,40 +324,26 @@ Vue.createApp({
                 } else if (type === "icon") {
                     CTX.drawImage(this.fuiImages[name].element, x, y);
                 } else if (type === "line") {
-                    const imgData = CTX.getImageData(
-                        0,
-                        0,
-                        canvasWidth,
-                        canvasHeight
-                    );
                     bline(imgData, x, y, x2, y2);
                     CTX.putImageData(imgData, 0, 0);
                 } else if (type === "circle") {
-                    const imgData = CTX.getImageData(
-                        0,
-                        0,
-                        canvasWidth,
-                        canvasHeight
-                    );
                     drawCircle(imgData, x + radius, y + radius, radius);
                     CTX.putImageData(imgData, 0, 0);
                 } else if (type === "disc") {
-                    const imgData = CTX.getImageData(
-                        0,
-                        0,
-                        canvasWidth,
-                        canvasHeight
-                    );
                     drawDisc(imgData, x + radius, y + radius, radius);
                     CTX.putImageData(imgData, 0, 0);
                 } else if (type === "str") {
-                    const fontSize = this.fontSizes[font];
-                    CTX.font = `${fontSize}px ${font}`;
-                    CTX.fillText(text, x, y);
+                    if (font === "FontBigNumbers") {
+                        drawBigNumbers(imgData, x, y - 16, text);
+                        CTX.putImageData(imgData, 0, 0);
+                    } else {
+                        const fontSize = fontSizes[font];
+                        CTX.font = `${fontSize}px ${font}`;
+                        CTX.fillText(text, x, y);
+                    }
                 }
             }
-            const imgData = CTX.getImageData(0, 0, canvasWidth, canvasHeight);
-            const newImgData = maskBlack(imgData, this.isInverted);
+            const newImgData = maskBlack(CTX, this.isInverted);
             CTX.putImageData(newImgData, 0, 0);
             CTX.restore();
             this.codePreview = generateCode(this.screenElements, this.isInverted);

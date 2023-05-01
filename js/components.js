@@ -128,7 +128,7 @@ const fuiInspectorComponent = {
             this.$emit("redrawCanvas");
         },
         isHWVisible(elem) {
-            return true;
+            // return true;
             return !["line", "str", "dot", "icon", "circle", "disc"].includes(elem.type);
         },
         isRadiusVisible(elem) {
@@ -209,21 +209,38 @@ const fuiInspectorInputComponent = {
     },
     data() {
         return {
-            fontsList: ["FontPrimary", "FontSecondary"],
+            fontsList: ["FontPrimary", "FontSecondary", "FontBigNumbers"],
         };
+    },
+    computed: {
+        charsRegex() {
+            return this.element.font === "FontBigNumbers" ? numberFontsRegex : standardFontsRegex;
+        }
     },
     methods: {
         onInput(e) {
             const result = ["text"].includes(this.type) ?
-                e.target.value.replace(/[^0-9a-zA-Z\s\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/]/g, '') :
+                e.target.value.replace(this.charsRegex, '') :
                 parseInt(e.target.value.replace(/[^0-9]/g, ''));
             e.target.value = result;
             this.element[this.field] = result;
+            if (["text"].includes(this.field)) {
+                this.updateTextWidth();
+            }
             this.$emit('redrawCanvas');
         },
         onSelect(e) {
             this.element[this.field] = e.target.value;
+            if (["font"].includes(this.field)) {
+                this.element.text = this.element.text.replace(this.charsRegex, '').trim();
+                this.updateTextWidth();
+            }
             this.$emit('redrawCanvas');
+        },
+        updateTextWidth() {
+            // recalculate text draggable area size
+            this.element.width = getTextWidth(this.element.text, this.element.font);
+            this.element.height = textContainerHeight[this.element.font];
         }
     }
 }

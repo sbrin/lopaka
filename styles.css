@@ -19,6 +19,7 @@
   --border-color: #955b2f;
   --border-dark-color: #5f2f0d;
   --danger-color: #eb4e27;
+  --input-font-size: 18px;
 }
 
 h1, h2, h3 {
@@ -97,37 +98,35 @@ canvas {
   width: 150px;
 }
 
-.inspector__col {
+.inspector__row {
   display: flex;
   align-items: center;
+  margin-bottom: 8px;
+  font-size: var(--input-font-size);
 }
 
-.inspector__col > *:first-child {
+.inspector__row > *:first-child {
   margin-right: 8px;
-  font-size: 18px;
 }
 
 .inspector__select {
   background: var(--secondary-color);
   border: none;
-  font-family: 'FontSecondary';
+  padding: 2px 0px 2px 4px;
   color: var(--primary-color);
 }
 
 .inspector__input {
   background: var(--secondary-color);
   color: var(--primary-color);
-  font-family: FontSecondary;
-  font-size: 18px;
   border: none;
-  padding: 0 2px 2px 2px;
-  margin: 4px 0;
+  padding: 2px 0px 2px 4px;
   width: 36px;
   outline: none;
 }
 
 .inspector__input[type=text] {
-  width: 128px;
+  width: 112px;
 }
 
 .title {

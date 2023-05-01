@@ -113,7 +113,13 @@ function drawDisc(imgData, centerX, centerY, radius) {
     }
 }
 
-function maskBlack(imgData, isInverted) {
+function maskBlack(CTX, isInverted) {
+    const imgData = CTX.getImageData(
+        0,
+        0,
+        canvasWidth,
+        canvasHeight
+    )
     for (var i = 0; i < imgData.data.length; i += 4) {
         // for (var i = 0; i < 1000; i += 4) {
         if (isInverted) {
@@ -265,12 +271,36 @@ canvas_set_color(canvas, ColorWhite);
     return lines;
 };
 
-function getLayerListItem(element) {
-    if (element.type === "str") {
-        return `${element.text || "Empty str"}`;
+function drawBigNumbers(imgData, x, y, text) {
+    const charWidth = 12;
+    const charHeight = 20;
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const glyph = fontGlyphs[char];
+
+        if (glyph) {
+            for (let row = 0; row < charHeight; row++) {
+                for (let col = 0; col < charWidth; col++) {
+                    const glyphIndex = row * charWidth + col;
+                    const imgDataIndex = ((y + row) * imgData.width + (x + col)) * 4;
+
+                    if (glyph[glyphIndex] &&
+                        x + col >= 0 && x + col < canvasWidth && y + row >= 0 && y + row < canvasHeight
+                    ) {
+                        imgData.data[imgDataIndex] = 0;     // R
+                        imgData.data[imgDataIndex + 1] = 0; // G
+                        imgData.data[imgDataIndex + 2] = 0; // B
+                        imgData.data[imgDataIndex + 3] = 255; // A
+                    }
+                }
+            }
+            x += charWidth;
+        }
     }
-    if (element.type === "icon") {
-        return `${element.name}`;
-    }
-    return `${element.type}`;
 };
+
+function getTextWidth(text, font) {
+    return textCharWidth[font] * text.length;
+}
+

@@ -79,7 +79,7 @@ const fuiButtonTmpl = `
 const fuiInspectorTmpl = `
 <div class="inspector" v-if="elem">
   <div class="title inspector__title">{{elem.name || elem.type}}</div>
-  <div class="inspector__col">
+  <div class="inspector__row">
     <div>x: <fui-inspector-input :element="elem" field="x" type="number" @redraw-canvas="redrawCanvas">
       </fui-inspector-input>
     </div>
@@ -93,7 +93,7 @@ const fuiInspectorTmpl = `
         field="radius" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input>
     </div>
   </div>
-  <div class="inspector__col">
+  <div class="inspector__row">
     <div>y: <fui-inspector-input :element="elem" field="y" type="number" @redraw-canvas="redrawCanvas">
       </fui-inspector-input>
     </div>
@@ -104,13 +104,17 @@ const fuiInspectorTmpl = `
         field="height" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input>
     </div>
   </div>
-  <div v-if="elem.font">
-    <fui-inspector-input :element="elem" field="font" type="select" @redraw-canvas="redrawCanvas">
-    </fui-inspector-input>
+  <div class="inspector__row">
+    <div v-if="elem.font">
+      <fui-inspector-input :element="elem" field="font" type="select" @redraw-canvas="redrawCanvas">
+      </fui-inspector-input>
+    </div>
   </div>
-  <div v-if="elem.type === 'str'">
-    <fui-inspector-input :element="elem" field="text" type="text" @redraw-canvas="redrawCanvas">
-    </fui-inspector-input>
+  <div class="inspector__row">
+    <div v-if="elem.type === 'str'">
+      <fui-inspector-input :element="elem" field="text" type="text" @redraw-canvas="redrawCanvas">
+      </fui-inspector-input>
+    </div>
   </div>
 </div>
 `;
