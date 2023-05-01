@@ -9,7 +9,7 @@ Draw any graphics and use generated code in your Flipper application!
 * drag and drop icons
 * remove, edit elements
 * generate and copy the code
-* you have to place icons images to your app assets directory ([download default icons set](assets/assets.zip))
+* you have to place icons images to your app assets directory ([download default icons set](assets.zip))
 
 ## How to run locally
 
