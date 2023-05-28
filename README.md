@@ -4,6 +4,9 @@
 
 The GUI editor/generator for [Flipper Zero](https://flipperzero.one/).
 
+![Flipper Ui Editor Screenshot](fui-screenshot.png)
+
+
 Draw any graphics and use generated code in your Flipper application!
 
 * drag and drop icons
