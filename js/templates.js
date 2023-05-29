@@ -15,17 +15,20 @@ const fuiEditorTmpl = `
             @mouseleave="canvasMouseLeave" @dragover="(e) => { e.preventDefault() }" @drop="canvasOnDrop" />
         </div>
         <fui-tools :callback="setActiveTool" :active-tool="activeTool"></fui-tools>
-        <fui-tabs :active-tab="mainTab" @set-active-tab="setMainTab"></fui-tabs>
-        <fui-icons v-show="mainTab === 'icons'" :custom-images="customImages" @prepare-images="prepareImages"
+        <div class="fui-editor-header">
+          <fui-tabs :active-tab="activeTab" @set-active-tab="setactiveTab"></fui-tabs>
+          <fui-library @select-library="selectLibrary" :library="library"></fui-library>
+        </div>
+        <fui-icons v-show="activeTab === 'icons'" :custom-images="customImages" @prepare-images="prepareImages"
           @icon-clicked="addImageToCanvas" @clean-custom-icons="cleanCustomIcons" ref="fuiIconsList"></fui-icons>
-        <fui-code v-show="mainTab === 'code'" :content="codePreview"></fui-code>
+        <fui-code v-show="activeTab === 'code'" :content="codePreview"></fui-code>
         <div class="buttons-bottom">
           <fui-button @click="resetScreen" title="reset" class="button_danger" v-show="!isEmpty"></fui-button>
           <fui-button @click="copyCode" title="copy code" v-show="!!codePreview"></fui-button>
         </div>
       </div>
       <div class="fui-editor__right">
-        <fui-inspector :elem="screenCurrentElement" @redraw-canvas="redrawCanvas" />
+        <fui-inspector :elem="screenCurrentElement" :library="library" @redraw-canvas="redrawCanvas" />
         <fui-settings :isInverted="isInverted" @redraw-canvas="redrawCanvas" @toggle-invert="toggleInvert"/>
       </div>
     </div>
@@ -106,13 +109,13 @@ const fuiInspectorTmpl = `
   </div>
   <div class="inspector__row">
     <div v-if="elem.font">
-      <fui-inspector-input :element="elem" field="font" type="select" @redraw-canvas="redrawCanvas">
+      <fui-inspector-input :element="elem" field="font" :library="library" type="select" @redraw-canvas="redrawCanvas">
       </fui-inspector-input>
     </div>
   </div>
   <div class="inspector__row">
     <div v-if="elem.type === 'str'">
-      <fui-inspector-input :element="elem" field="text" type="text" @redraw-canvas="redrawCanvas">
+      <fui-inspector-input :element="elem" field="text" :library="library" type="text" @redraw-canvas="redrawCanvas">
       </fui-inspector-input>
     </div>
   </div>

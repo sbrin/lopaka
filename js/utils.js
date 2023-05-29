@@ -215,6 +215,7 @@ function getElementByOffset(uiArr, x, y) {
         }
     }
 }
+
 function loadImageAsync(src) {
     return new Promise((resolve, reject) => {
         let img = new Image();
@@ -224,80 +225,140 @@ function loadImageAsync(src) {
     })
 }
 
-function getCode(element, isDeclared) {
-    const func = `canvas_draw_${element.type}`;
+function imgDataToXBMP(imgData, xStart, yStart, width, height) {
+    const bytesPerRow = Math.ceil(width / 8);
+    const xbmp = new Array(height * bytesPerRow).fill(0);
+
+    for (let y = yStart; y < yStart + height; y++) {
+        for (let x = xStart; x < xStart + width; x++) {
+            const imgDataIndex = (y * imgData.width + x) * 4;
+            const alphaValue = imgData.data[imgDataIndex + 3];
+
+            if (alphaValue > 128) {
+                const xbmpIndex = (y - yStart) * bytesPerRow + Math.floor((x - xStart) / 8);
+                const bitPosition = (x - xStart) % 8;
+                xbmp[xbmpIndex] |= 1 << bitPosition;
+            }
+        }
+    }
+
+    return xbmp.map(x => '0x' + x.toString(16).padStart(2, '0'));
+}
+
+function getU8g2ArduinoCode(element, isDeclared) {
+    const type = element.type.charAt(0).toUpperCase() + element.type.slice(1);
+    const func = `u8g2.draw${type}`;
+    const { width, height, x, y } = element;
     switch (element.type) {
         case "icon":
-            let result = element.custom && !isDeclared ? `extern const Icon I_${element.name};\n` : ``;
+            let result = ``;
+            const imgData = CTX.getImageData(0, 0, canvasWidth, canvasHeight);
+            const XBMP = imgDataToXBMP(imgData, x, y, width, height);
+            if (!isDeclared) {
+                const iconName = `icon_${element.name}_bits`;
+                result += `static unsigned char ${iconName}[] = {${XBMP}};
+`;
+            }
+            result += `u8g2.drawXBM( ${x}, ${y}, ${width}, ${height}, ${iconName});
+`;
+            return result;
+        case "box":
+            return `${func}(${element.x}, ${element.y}, ${element.width}, ${element.height});`;
+        case "dot":
+            return `u8g2.drawPixel(${element.x}, ${element.y})`;
+        case "frame":
+            return `${func}(${element.x}, ${element.y}, ${element.width + 1}, ${element.height + 1});`;
+        case "line":
+            return `${func}(${element.x}, ${element.y}, ${element.x2}, ${element.y2});`;
+        case "circle":
+        case "disc":
+            return `${func}(${element.x + element.radius}, ${element.y + element.radius}, ${element.radius});`;
+        case "str":
+            return `u8g2.setFont(${element.font});
+${func}(${element.x}, ${element.y}, "${element.text}");`;
+    }
+};
+
+
+function getFlipperCode(element, isDeclared) {
+    const func = `canvas_draw_${element.type}`;
+    const font = fontMap["flipper"][element.font];
+    switch (element.type) {
+        case "icon":
+            let result = element.isCustom && !isDeclared ? `extern const Icon I_${element.name};\n` : ``;
             result += `${func}(canvas, ${element.x}, ${element.y}, &I_${element.name})`;
             return result;
         case "box":
-            return `${func}(canvas, ${element.x}, ${element.y}, ${element.width}, ${element.height})`;
+            return `${func}(canvas, ${element.x}, ${element.y}, ${element.width}, ${element.height});`;
         case "dot":
-            return `${func}(canvas, ${element.x}, ${element.y})`;
+            return `${func}(canvas, ${element.x}, ${element.y});`;
         case "frame":
-            return `${func}(canvas, ${element.x}, ${element.y}, ${element.width + 1
-                }, ${element.height + 1})`;
+            return `${func}(canvas, ${element.x}, ${element.y}, ${element.width + 1}, ${element.height + 1});`;
         case "line":
-            return `${func}(canvas, ${element.x}, ${element.y}, ${element.x2}, ${element.y2})`;
+            return `${func}(canvas, ${element.x}, ${element.y}, ${element.x2}, ${element.y2});`;
         case "circle":
         case "disc":
-            return `${func}(canvas, ${element.x + element.radius}, ${element.y + element.radius}, ${element.radius})`;
+            return `${func}(canvas, ${element.x + element.radius}, ${element.y + element.radius}, ${element.radius});`;
         case "str":
-            return `canvas_set_font(canvas, ${element.font});
+            return `canvas_set_font(canvas, ${font});
 ${func}(canvas, ${element.x}, ${element.y}, "${element.text}")`;
     }
 };
 
-function generateCode(uiArr, isInverted) {
+// function getU8g2Code(element, isDeclared) {
+//     const fontMap = {
+//         "FontPrimary": "u8g2_font_helvB08_tr",
+//         "FontSecondary": "u8g2_font_haxrcorp4089_tr",
+//     }
+//     const type = element.type.charAt(0).toUpperCase() + element.type.slice(1);
+//     const func = `u8g2_draw${type}`;
+//     const fontU8g2 = fontMap[element.font];
+//     const { width, height, x, y } = element;
+//     switch (element.type) {
+//         case "icon":
+//             let result = ``;
+//             const imgData = CTX.getImageData(0, 0, canvasWidth, canvasHeight);
+//             const XBMP = imgDataToXBMP(imgData, x, y, width, height);
+//             const iconName = `icon_${element.name}_bits`;
+//             result += `static unsigned char ${iconName}[] = {${XBMP}};
+// `;
+//             result += `u8g2_drawXBM( ${x}, ${y}, ${width}, ${height}, ${iconName});
+// `;
+//             return result;
+//         case "box":
+//             return `${func}(${element.x}, ${element.y}, ${element.width}, ${element.height});`;
+//         case "dot":
+//             return `u8g2_drawPixel(${element.x}, ${element.y})`;
+//         case "frame":
+//             return `${func}(${element.x}, ${element.y}, ${element.width + 1}, ${element.height + 1});`;
+//         case "line":
+//             return `${func}(${element.x}, ${element.y}, ${element.x2}, ${element.y2});`;
+//         case "circle":
+//         case "disc":
+//             return `${func}(${element.x + element.radius}, ${element.y + element.radius}, ${element.radius});`;
+//         case "str":
+//             return `u8g2_setFont(${fontU8g2});
+// ${func}(${element.x}, ${element.y}, "${element.text}");`;
+//     }
+// };
+
+function generateCode(screenElements, isInverted, library) {
     let lines = "";
     const declaredIcons = [];
     if (isInverted) {
-        lines = `canvas_draw_box(canvas, 0, 0, 127, 63);
-canvas_set_color(canvas, ColorWhite);
-
-`;
+        lines = invertedHeaders[library];
     }
-    for (let i = 0; i < uiArr.length; i++) {
-        const element = uiArr[i];
+    for (let i = 0; i < screenElements.length; i++) {
+        const element = screenElements[i];
+        // avoid duplicate icon declarations
         const isDeclared = declaredIcons.indexOf(element.name) >= 0;
         if (!isDeclared) {
             declaredIcons.push(element.name);
         }
-        lines = `${lines}${getCode(element, isDeclared)};
-
+        lines = `${lines}${codeGenerators[library](element, isDeclared)}
 `;
     }
     return lines;
-};
-
-function drawBigNumbers(imgData, x, y, text) {
-    const charWidth = 12;
-    const charHeight = 20;
-
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const glyph = fontGlyphs[char];
-
-        if (glyph) {
-            for (let row = 0; row < charHeight; row++) {
-                for (let col = 0; col < charWidth; col++) {
-                    const glyphIndex = row * charWidth + col;
-                    const imgDataIndex = ((y + row) * imgData.width + (x + col)) * 4;
-
-                    if (glyph[glyphIndex] &&
-                        x + col >= 0 && x + col < canvasWidth && y + row >= 0 && y + row < canvasHeight
-                    ) {
-                        imgData.data[imgDataIndex] = 0;     // R
-                        imgData.data[imgDataIndex + 1] = 0; // G
-                        imgData.data[imgDataIndex + 2] = 0; // B
-                        imgData.data[imgDataIndex + 3] = 255; // A
-                    }
-                }
-            }
-            x += charWidth;
-        }
-    }
 };
 
 function getTextWidth(text, font) {

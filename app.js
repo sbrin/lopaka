@@ -17,11 +17,12 @@ Vue.createApp({
             oX: 0,
             oY: 0,
             activeTool: "frame",
-            mainTab: "icons",
+            activeTab: "icons",
             isDrawing: false,
             isMoving: false,
-            defaultFont: "FontPrimary",
+            defaultFont: "helvB08_tr",
             isInverted: false,
+            library: "flipper",
         };
     },
     computed: {
@@ -36,8 +37,11 @@ Vue.createApp({
         }
     },
     methods: {
-        setMainTab(tab) {
-            this.mainTab = tab;
+        setactiveTab(tab) {
+            this.activeTab = tab;
+            if (this.activeTab === "code") {
+                this.codePreview = generateCode(this.screenElements, this.isInverted, this.library);
+            }
         },
         prepareImages(e) {
             this.fuiImages = e;
@@ -58,7 +62,7 @@ Vue.createApp({
         addImageToCanvas(name, x = 32, y = 16) {
             this.screenElements.push({
                 type: "icon",
-                custom: this.fuiImages[name].custom,
+                isCustom: this.fuiImages[name].custom,
                 x: x,
                 y: y,
                 width: this.fuiImages[name].width,
@@ -91,7 +95,7 @@ Vue.createApp({
                         width: image.width,
                         height: image.height,
                         element: image,
-                        custom: true,
+                        isCustom: true,
                     };
                     this.customImages = [...this.customImages, {
                         name: name,
@@ -99,7 +103,7 @@ Vue.createApp({
                         height: image.height,
                         element: image,
                         src: image.src,
-                        custom: true,
+                        isCustom: true,
                     }];
                 }
             }
@@ -333,20 +337,18 @@ Vue.createApp({
                     drawDisc(imgData, x + radius, y + radius, radius);
                     CTX.putImageData(imgData, 0, 0);
                 } else if (type === "str") {
-                    if (font === "FontBigNumbers") {
-                        drawBigNumbers(imgData, x, y - 16, text);
-                        CTX.putImageData(imgData, 0, 0);
-                    } else {
-                        const fontSize = fontSizes[font];
-                        CTX.font = `${fontSize}px ${font}`;
-                        CTX.fillText(text, x, y);
-                    }
+                    const fontSize = fontSizes[font];
+                    CTX.font = `${fontSize}px "${font}"`;
+                    console.log(fontSize, font, CTX.font);
+                    CTX.fillText(text, x, y);
                 }
             }
             const newImgData = maskBlack(CTX, this.isInverted);
             CTX.putImageData(newImgData, 0, 0);
             CTX.restore();
-            this.codePreview = generateCode(this.screenElements, this.isInverted);
+            if (this.activeTab === "code") {
+                this.codePreview = generateCode(this.screenElements, this.isInverted, this.library);
+            }
         },
         resetScreen() {
             this.screenElements = [];
@@ -359,14 +361,20 @@ Vue.createApp({
         },
         cleanCustomIcons() {
             this.customImages = [];
-            this.screenElements = this.screenElements.filter(item => !item.custom);
+            this.screenElements = this.screenElements.filter(item => !item.isCustom);
             this.redrawCanvas();
-            if (this.screenCurrentElement && this.screenCurrentElement.custom) {
+            if (this.screenCurrentElement && this.screenCurrentElement.isCustom) {
                 this.screenCurrentElement = undefined;
             }
         },
         toggleInvert() {
             this.isInverted = !this.isInverted;
+        },
+        selectLibrary(lib) {
+            this.library = lib;
+            if (this.activeTab === "code") {
+                this.codePreview = generateCode(this.screenElements, this.isInverted, lib);
+            }
         }
     },
     mounted() {
@@ -386,4 +394,5 @@ Vue.createApp({
     .component("fui-code", fuiCodeComponent)
     .component("fui-tabs", fuiTabsComponent)
     .component("fui-inspector-input", fuiInspectorInputComponent)
+    .component("fui-library", fuiLibraryComponent)
     .mount("#fuigen_app");

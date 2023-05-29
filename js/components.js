@@ -87,7 +87,7 @@ const fuiIconsComponent = {
                     element: icon.element,
                     width: icon.width,
                     height: icon.height,
-                    custom: icon.custom,
+                    isCustom: icon.isCustom,
                 };
             });
             imagesArr.sort((a, b) => a.width * a.height - b.width * b.height);
@@ -118,7 +118,8 @@ const fuiToolsComponent = {
 const fuiInspectorComponent = {
     template: fuiInspectorTmpl,
     props: {
-        elem: Object
+        elem: Object,
+        library: String,
     },
     data() {
         return {};
@@ -170,6 +171,33 @@ const fuiCodeComponent = {
         content: String
     },
 }
+const fuiLibraryComponent = {
+    template: `
+    <div class="fui-library">
+        <label for="library" class="fui-library__label">Library: </label>
+        <select id="library" class="fui-library__select input-select" :value="library" @input="onSelect">
+            <option v-for="(lib, idx) in Object.keys(libs)" :key="idx" :value="lib">{{ libs[lib] }}</option>
+        </select>
+    </div>
+        `,
+    props: {
+        library: String,
+    },
+    data() {
+        return {
+            libs: {
+                "flipper": "Flipper Zero",
+                // "u8g2": "U8g2 Vanilla",
+                "u8g2_arduino": "U8g2 Arduino",
+            },
+        };
+    },
+    methods: {
+        onSelect(e) {
+            this.$emit("selectLibrary", e.target.value);
+        }
+    }
+}
 
 const fuiTabsComponent = {
     template: `
@@ -195,32 +223,51 @@ const fuiTabsComponent = {
 
 const fuiInspectorInputComponent = {
     template: `
-    <span v-if="['str','dot'].includes(element.type) && ['width','height'].includes(field)">{{ element[field] }}</span>
-    <select class="inspector__select" v-if="field === 'font'" :value="element[field]" @input="onSelect">
-      <option v-for="(font, idx) in fontsList" :key="idx" :value="font">{{ font }}</option>
+    <span v-if="hasNoWidth">{{ element[field] }}</span>
+    <select class="input-select" v-if="field === 'font'" :value="element[field]" @input="onSelect">
+      <option v-for="(font, idx) in fontsList[library]" :key="idx" :value="font">{{ font }}</option>
     </select>
-    <input v-else class="inspector__input" @input="onInput" :value="element[field]" :type="type" max="128" step="1" />
+    <input v-else class="inspector__input" @input="onInput" :value="element[field]" :type="type" max="128" step="1"></input>
     `,
     props: {
         element: Object,
         type: String,
         field: String,
         defaultFont: String,
+        library: String,
+    },
+    computed: {
+        hasNoWidth() {
+            return ['str', 'dot'].includes(element.type) && ['width', 'height'].includes(field);
+        }
     },
     data() {
         return {
-            fontsList: ["FontPrimary", "FontSecondary", "FontBigNumbers"],
+            fontsList: {
+                "flipper": [
+                    "helvB08_tr",
+                    "haxrcorp4089_tr",
+                    "profont22_tr",
+                ],
+                "u8g2_arduino": [
+                    "helvB08_tr",
+                    "haxrcorp4089_tr",
+                    "profont22_tr",
+                    "f4x6_tr",
+                ],
+            }
         };
     },
     computed: {
         charsRegex() {
-            return this.element.font === "FontBigNumbers" ? numberFontsRegex : standardFontsRegex;
+            return this.element.font === "profont22_tr" && this.library === "flipper" ? numberFontsRegex : standardFontsRegex;
         }
     },
     methods: {
         onInput(e) {
+            console.log(this.element.font, this.library, this.charsRegex);
             const result = ["text"].includes(this.type) ?
-                e.target.value.replace(this.charsRegex, '') :
+                e.target.value.replace(this.charsRegex, '').trim() :
                 parseInt(e.target.value.replace(/[^0-9]/g, ''));
             e.target.value = result;
             this.element[this.field] = result;

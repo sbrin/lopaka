@@ -1,13 +1,27 @@
 @font-face {
-  font-family: "FontPrimary";
+  font-family: "helvB08_tr";
   src: url("fonts/helvb08.ttf");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "FontSecondary";
+  font-family: "haxrcorp4089_tr";
   src: url("fonts/haxrcorp_4089_cyrillic_altgr.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "profont22_tr";
+  src: url("fonts/profont22.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "4x6_tr";
+  src: url("fonts/4x6.ttf");
   font-weight: normal;
   font-style: normal;
 }
@@ -23,7 +37,7 @@
 }
 
 h1, h2, h3 {
-  font-family: "FontPrimary";
+  font-family: "helvB08_tr";
   font-weight: normal;
 }
 
@@ -31,7 +45,7 @@ body {
   margin: 0;
   padding: 0;
   color: var(--primary-color);
-  font-family: "FontSecondary";
+  font-family: "haxrcorp4089_tr";
   text-transform: uppercase;
 }
 
@@ -109,7 +123,7 @@ canvas {
   margin-right: 8px;
 }
 
-.inspector__select {
+.input-select {
   background: var(--secondary-color);
   border: none;
   padding: 2px 0px 2px 4px;
@@ -132,7 +146,7 @@ canvas {
 .title {
   margin: 0 0 8px 0;
   font-size: 16px;
-  font-family: "FontPrimary";
+  font-family: "helvB08_tr";
   font-weight: normal;
 }
 
@@ -150,7 +164,7 @@ canvas {
   height: 32px;
   vertical-align: middle;
   text-transform: uppercase;
-  font-family: "FontSecondary";
+  font-family: "haxrcorp4089_tr";
   font-size: 32px;
   padding: 0 12px 4px 12px;
   cursor: pointer;
@@ -290,7 +304,7 @@ canvas {
   height: 24px;
   vertical-align: middle;
   text-transform: uppercase;
-  font-family: "FontSecondary";
+  font-family: "haxrcorp4089_tr";
   font-size: 32px;
   padding: 0 12px 4px 12px;
   margin: 0 8px 0 0;
@@ -319,4 +333,13 @@ canvas {
 
 .fui-settings__checkbox {
   width: 16px;
+}
+
+.fui-editor-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.fui-library__label {
+  font-size: 24px;
 }
