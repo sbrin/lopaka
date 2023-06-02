@@ -127,7 +127,7 @@ function maskBlack(CTX, isInverted) {
                 // If alpha is 0 
                 imgData.data[i + 3] < 255 ||
                 // Or if color is not black
-                imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] > 75
+                imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] > 127
             ) {
                 // Make it black
                 imgData.data[i] = 0;
@@ -141,7 +141,7 @@ function maskBlack(CTX, isInverted) {
                 imgData.data[i + 3] = 0;
             }
         } else {
-            if (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] >= 3) {
+            if (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] >= 127) {
                 imgData.data[i + 3] = 0; // alpha
             }
         }
@@ -181,8 +181,6 @@ function getElementByOffset(uiArr, x, y) {
         const scaledX2 = scaleUp(element.x + element.width);
         const scaledY2 = scaleUp(element.yy ? element.yy + element.height : element.y + element.height);
         if (element.type === "line") {
-            const isVertical = element.y === element.y2;
-            const isHorisontal = element.y === element.y2;
             const scaledX1 = scaleUp(element.x);
             const scaledY1 = scaleUp(element.y);
             const scaledX2 = scaleUp(element.x2);
@@ -219,9 +217,9 @@ function getElementByOffset(uiArr, x, y) {
 function loadImageAsync(src) {
     return new Promise((resolve, reject) => {
         let img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
         img.src = src;
+        img.onerror = reject;
+        img.onload = () => resolve(img);
     })
 }
 
@@ -254,8 +252,8 @@ function getU8g2ArduinoCode(element, isDeclared) {
             let result = ``;
             const imgData = CTX.getImageData(0, 0, canvasWidth, canvasHeight);
             const XBMP = imgDataToXBMP(imgData, x, y, width, height);
+            const iconName = `icon_${element.name}_bits`;
             if (!isDeclared) {
-                const iconName = `icon_${element.name}_bits`;
                 result += `static unsigned char ${iconName}[] = {${XBMP}};
 `;
             }
@@ -304,43 +302,6 @@ function getFlipperCode(element, isDeclared) {
 ${func}(canvas, ${element.x}, ${element.y}, "${element.text}")`;
     }
 };
-
-// function getU8g2Code(element, isDeclared) {
-//     const fontMap = {
-//         "FontPrimary": "u8g2_font_helvB08_tr",
-//         "FontSecondary": "u8g2_font_haxrcorp4089_tr",
-//     }
-//     const type = element.type.charAt(0).toUpperCase() + element.type.slice(1);
-//     const func = `u8g2_draw${type}`;
-//     const fontU8g2 = fontMap[element.font];
-//     const { width, height, x, y } = element;
-//     switch (element.type) {
-//         case "icon":
-//             let result = ``;
-//             const imgData = CTX.getImageData(0, 0, canvasWidth, canvasHeight);
-//             const XBMP = imgDataToXBMP(imgData, x, y, width, height);
-//             const iconName = `icon_${element.name}_bits`;
-//             result += `static unsigned char ${iconName}[] = {${XBMP}};
-// `;
-//             result += `u8g2_drawXBM( ${x}, ${y}, ${width}, ${height}, ${iconName});
-// `;
-//             return result;
-//         case "box":
-//             return `${func}(${element.x}, ${element.y}, ${element.width}, ${element.height});`;
-//         case "dot":
-//             return `u8g2_drawPixel(${element.x}, ${element.y})`;
-//         case "frame":
-//             return `${func}(${element.x}, ${element.y}, ${element.width + 1}, ${element.height + 1});`;
-//         case "line":
-//             return `${func}(${element.x}, ${element.y}, ${element.x2}, ${element.y2});`;
-//         case "circle":
-//         case "disc":
-//             return `${func}(${element.x + element.radius}, ${element.y + element.radius}, ${element.radius});`;
-//         case "str":
-//             return `u8g2_setFont(${fontU8g2});
-// ${func}(${element.x}, ${element.y}, "${element.text}");`;
-//     }
-// };
 
 function generateCode(screenElements, isInverted, library) {
     let lines = "";

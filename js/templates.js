@@ -1,35 +1,55 @@
-const fuiEditorTmpl = `
+const fuiRootTmpl = `
     <div class="fui-editor">
       <div class="fui-editor__left">
         <fui-layers
             :screen-elements="screenElements"
-            :screen-current-element="screenCurrentElement"
-            @set-current-item="setCurrentItem"
+            :current-layer="currentLayer"
+            @update-current-layer="updateCurrentLayer"
             @remove-layer="removeLayer"
         ></fui-layers>
+        <fui-button @click="resetScreen" title="reset" class="button_danger" v-show="!isEmpty"></fui-button>
       </div>
       <div class="fui-editor__center">
-        <div class="canvas-wrapper">
-          <canvas id="screen" width="128" height="64" ref="screen" :class="canvasClassNames"
-            @mousedown="canvasMouseDown" @mouseleave="canvasMouseLeave" @mousemove="canvasMouseMove"
-            @mouseleave="canvasMouseLeave" @dragover="(e) => { e.preventDefault() }" @drop="canvasOnDrop" />
-        </div>
+        <fui-canvas
+          ref="fuiCanvas"
+          :screen-elements="screenElements"
+          :current-layer="currentLayer"
+          :active-tool="activeTool"
+          :fui-images="fuiImages"
+          :is-inverted="isInverted"
+          @update-current-layer="updateCurrentLayer"
+          @set-active-tool="setActiveTool"
+          @update-fui-images="updateFuiImages"
+          @update-code="updateCode"
+          @add-screen-layer="addScreenLayer"
+        />
         <fui-tools :callback="setActiveTool" :active-tool="activeTool"></fui-tools>
         <div class="fui-editor-header">
           <fui-tabs :active-tab="activeTab" @set-active-tab="setactiveTab"></fui-tabs>
           <fui-library @select-library="selectLibrary" :library="library"></fui-library>
         </div>
-        <fui-icons v-show="activeTab === 'icons'" :custom-images="customImages" @prepare-images="prepareImages"
-          @icon-clicked="addImageToCanvas" @clean-custom-icons="cleanCustomIcons" ref="fuiIconsList"></fui-icons>
+        <fui-icons
+          v-show="activeTab === 'icons'"
+          :fui-images="fuiImages"
+          :custom-images="customImages"
+          @prepare-images="prepareImages"
+          @icon-clicked="addImageToCanvas"
+          @clean-custom-icons="cleanCustomIcons"
+          ref="fuiIconsList"
+        ></fui-icons>
         <fui-code v-show="activeTab === 'code'" :content="codePreview"></fui-code>
         <div class="buttons-bottom">
-          <fui-button @click="resetScreen" title="reset" class="button_danger" v-show="!isEmpty"></fui-button>
+          <fui-file
+            type="file"
+            title="import image"
+            @update-fui-images="updateFuiImages"
+          ></fui-file>
           <fui-button @click="copyCode" title="copy code" v-show="!!codePreview"></fui-button>
         </div>
       </div>
       <div class="fui-editor__right">
-        <fui-inspector :elem="screenCurrentElement" :library="library" @redraw-canvas="redrawCanvas" />
-        <fui-settings :isInverted="isInverted" @redraw-canvas="redrawCanvas" @toggle-invert="toggleInvert"/>
+        <fui-inspector :elem="currentLayer" :library="library" @redraw-canvas="redrawCanvas" />
+        <!-- <fui-settings :isInverted="isInverted" @redraw-canvas="redrawCanvas" @toggle-invert="toggleInvert"/> -->
       </div>
     </div>
 `;
@@ -38,9 +58,12 @@ const fuiLayersTmpl = `
 <div class="layers">
     <h2 class="title">Layers</h2>
     <ul class="layers__list">
-        <li v-for="(item, idx) in screenElements" :key="idx" class="layer"
-            :class="{layer_selected: screenCurrentElement && screenCurrentElement.index === item.index}"
-            @click="setCurrentItem(item)">
+        <li v-for="(item, idx) in screenElements"
+          :key="idx"
+          class="layer"
+          :class="{layer_selected: currentLayer && currentLayer.index === item.index}"
+          @click.self="updateCurrentLayer(item)"
+        >
             <div class="layer__name">{{ getLayerListItem(item) }}</div>
             <div class="layer__remove" @click="removeLayer(item.index)">×</div>
         </li>
@@ -65,20 +88,45 @@ const fuiIconsTmpl = `
         <div>Custom</div>
         <div class="fui-icons__remove-custom" @click="cleanCustom" title="Remove all custom icons">×</div>
       </div>
-      <img v-for="(item, index) in customImages" @dragstart="iconDragStart" @click="iconClick" draggable="true"
-        :key="index" :src="item.src" :data-name="item.name" :width="item.width * 2" :height="item.height * 2"
-        :alt="item.name" :title="item.name" />
+      <img v-for="(item, index) in customImages"
+        @dragstart="iconDragStart"
+        @click="iconClick"
+        draggable="true"
+        :key="index"
+        :src="item.src"
+        :data-name="item.name"
+        :width="item.width * 2"
+        :height="item.height * 2"
+        :alt="item.name"
+        :title="item.name"
+      />
       <div v-if="customImages.length > 0" class="fui-icons__header">Default</div>
       <img v-for="(item, index) in imagesSrc" @dragstart="iconDragStart" @click="iconClick" draggable="true"
         :key="index" :src="item.src" :data-name="item.name" :width="item.width * 2" :height="item.height * 2"
         :alt="item.name" :title="item.name" />
     </div>
         `
+const fuiFileTmpl = `
+  <label
+    class="button"
+    :class="{ button_active: active }"
+  >
+    <input type="file" style="position: fixed; top: -100%"
+      @change="onFileChange"
+    >
+    {{ title }}
+  </label>
+`;
+
 const fuiButtonTmpl = `
-            <button class="button" :class="{ button_active: active }">
-                {{ title }}
-            </button>
-        `
+  <button
+    class="button"
+    :class="{ button_active: active }"
+  >
+    {{ title }}
+  </button>
+`;
+
 const fuiInspectorTmpl = `
 <div class="inspector" v-if="elem">
   <div class="title inspector__title">{{elem.name || elem.type}}</div>

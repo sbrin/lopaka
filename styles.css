@@ -20,8 +20,8 @@
 }
 
 @font-face {
-  font-family: "4x6_tr";
-  src: url("fonts/4x6.ttf");
+  font-family: "f4x6_tr";
+  src: url("fonts/f4x6.ttf");
   font-weight: normal;
   font-style: normal;
 }
@@ -93,7 +93,7 @@ canvas {
 }
 
 .fui-canvas_select {
-  cursor: grab;
+  cursor: default;
 }
 
 .fui-canvas_moving {
@@ -168,6 +168,7 @@ canvas {
   font-size: 32px;
   padding: 0 12px 4px 12px;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .button:hover,

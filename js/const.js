@@ -7,6 +7,8 @@ const canvasBoundY = canvasHeight * 4;
 const standardFontsRegex = /[^0-9a-zA-Z\s\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/]/g;
 const numberFontsRegex = /[^0-9\s\,\.\/\-\*\+\:]/g;
 
+const defaultFont = "helvB08_tr";
+
 const fontMap = {
     "flipper": {
         helvB08_tr: "FontPrimary",
@@ -25,7 +27,7 @@ const fontSizes = {
     helvB08_tr: 10,
     haxrcorp4089_tr: 16,
     profont22_tr: 22,
-    "f4x6_tr": 16,
+    "f4x6_tr": 6,
 };
 
 const textContainerHeight = {
@@ -39,7 +41,7 @@ const textCharWidth = {
     helvB08_tr: 5,
     haxrcorp4089_tr: 4,
     profont22_tr: 11,
-    "4x6_tr": 4,
+    "f4x6_tr": 4,
 }
 
 const codeGenerators = {

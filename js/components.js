@@ -1,13 +1,12 @@
-
 const fuiLayersComponent = {
     template: fuiLayersTmpl,
     props: {
         screenElements: Array,
-        screenCurrentElement: Object,
+        currentLayer: Object,
     },
     methods: {
-        setCurrentItem(item) {
-            this.$emit("setCurrentItem", item);
+        updateCurrentLayer(item) {
+            this.$emit("updateCurrentLayer", item);
         },
         removeLayer(index) {
             this.$emit("removeLayer", index);
@@ -28,7 +27,31 @@ const fuiButtonComponent = {
     template: fuiButtonTmpl,
     props: {
         title: String,
-        active: Boolean
+        active: Boolean,
+        type: String,
+    }
+}
+
+const fuiFileComponent = {
+    template: fuiFileTmpl,
+    props: {
+        title: String,
+        active: Boolean,
+    },
+    methods: {
+        async onFileChange(e) {
+            const file = e.target.files[0];
+            const name = file.name.substr(0, file.name.lastIndexOf('.')) || file.name; // remove file extension
+            const fileResult = await readFileAsync(file);
+            const image = await loadImageAsync(fileResult);
+            this.$emit("updateFuiImages", {
+                name: name,
+                width: image.width,
+                height: image.height,
+                element: image,
+                isCustom: true,
+            });
+        }
     }
 }
 
@@ -41,10 +64,11 @@ const fuiIconsComponent = {
     },
     props: {
         customImages: Array,
+        fuiImages: Object,
     },
     watch: {
         customImages: function () {
-            this.prepareImages();
+            this.prepareCustomImages();
         }
     },
     methods: {
@@ -57,6 +81,21 @@ const fuiIconsComponent = {
         iconDragStart(e) {
             e.dataTransfer.setData("name", e.srcElement.dataset.name);
             e.dataTransfer.setData("offset", `${e.offsetX}, ${e.offsetY}`);
+        },
+        prepareCustomImages() {
+            const customImages = {};
+            this.customImages.forEach(icon => {
+                customImages[icon.name] = {
+                    element: icon.element,
+                    width: icon.width,
+                    height: icon.height,
+                    isCustom: icon.isCustom,
+                };
+            });
+            this.$emit("prepareImages", {
+                ...this.fuiImages,
+                ...customImages,
+            });
         },
         prepareImages() {
             const fuiImages = {};
@@ -82,18 +121,10 @@ const fuiIconsComponent = {
                     height: height
                 });
             });
-            this.customImages.forEach(icon => {
-                fuiImages[icon.name] = {
-                    element: icon.element,
-                    width: icon.width,
-                    height: icon.height,
-                    isCustom: icon.isCustom,
-                };
-            });
             imagesArr.sort((a, b) => a.width * a.height - b.width * b.height);
             this.imagesSrc = imagesArr;
             this.$emit("prepareImages", fuiImages);
-        }
+        },
     },
     created() {
     },
@@ -156,7 +187,6 @@ const fuiSettingsComponent = {
     methods: {
         toggleInvert() {
             this.$emit("toggleInvert");
-            this.$emit("redrawCanvas");
         },
     }
 }
@@ -211,7 +241,10 @@ const fuiTabsComponent = {
     },
     data() {
         return {
-            tabs: ["icons", "code"],
+            tabs: [
+                "code",
+                "icons",
+            ],
         };
     },
     methods: {
@@ -233,7 +266,6 @@ const fuiInspectorInputComponent = {
         element: Object,
         type: String,
         field: String,
-        defaultFont: String,
         library: String,
     },
     computed: {
@@ -265,7 +297,6 @@ const fuiInspectorInputComponent = {
     },
     methods: {
         onInput(e) {
-            console.log(this.element.font, this.library, this.charsRegex);
             const result = ["text"].includes(this.type) ?
                 e.target.value.replace(this.charsRegex, '').trim() :
                 parseInt(e.target.value.replace(/[^0-9]/g, ''));
