@@ -1,6 +1,6 @@
 # Lopaka - Stunning graphics for embedded screens
 
-The GUI editor/generator for Arduino, ESP32, [Flipper Zero](https://flipperzero.one/) and many other embedded systems.
+The GUI editor/generator for U8g2, Adafruit GFX, [Flipper Zero](https://flipperzero.one/) and many other embedded graphics libraries.
 
 ![Flipper Ui Editor Screenshot](fui-screenshot.png)
 
