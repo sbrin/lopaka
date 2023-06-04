@@ -1,14 +1,22 @@
 const fuiCanvasComponent = {
     template: `<div class="canvas-wrapper">
-          <canvas id="screen" width="128" height="64" ref="screen" :class="canvasClassNames"
+        <canvas id="screen"
+            :width="canvasWidth"
+            :height="canvasHeight"
+            :style="style"
+            ref="screen"
+            :class="canvasClassNames"
             @mousedown="canvasMouseDown"
             @mousemove="canvasMouseMove"
             @mouseleave="canvasMouseLeave"
             @dragover="(e) => { e.preventDefault() }"
             @drop="canvasOnDrop"
+            @resize="redrawCanvas"
         />
-        </div>`,
+    </div>`,
     props: {
+        display: String,
+        layerIndex: Number,
         activeTool: String,
         screenElements: Array,
         currentLayer: Object,
@@ -16,31 +24,63 @@ const fuiCanvasComponent = {
     },
     data() {
         return {
+            // canvasSize: [0, 0],
+            CTX: undefined,
             mouseClick_x: 0,
             mouseClick_y: 0,
             mouseClick_dx: 0,
             mouseClick_dy: 0,
             oX: 0,
             oY: 0,
-            layerIndex: 1,
             isMoving: false,
             isDrawing: false,
         }
     },
+    // watch: {
+    //     canvasSize() {
+
+    //     }
+    // },
     computed: {
+        canvasSize() {
+            return this.display.split("×");
+        },
         canvasClassNames() {
             return {
                 'fui-canvas_select': this.activeTool === 'select',
                 'fui-canvas_moving': this.isMoving,
             }
         },
+        canvasWidth() {
+            return parseInt(this.canvasSize[0]);
+        },
+        canvasHeight() {
+            return parseInt(this.canvasSize[1]);
+        },
+        canvasBoundX() {
+            return this.canvasWidth * 4
+        },
+        canvasBoundY() {
+            return this.canvasHeight * 4
+        },
+        style() {
+            return `width: ${this.canvasBoundX}px; height: ${this.canvasBoundY}px;`
+        }
     },
     mounted() {
-        CTX = this.$refs.screen.getContext("2d", { willReadFrequently: true });
-        CTX.strokeWidth = 1;
-        CTX.textRendering = "optimizeSpeed";
+        this.CTX = this.$refs.screen.getContext("2d", { willReadFrequently: true });
+        // this.CTX.canvas.width = this.canvasWidth;
+        // this.CTX.canvas.height = this.canvasHeight;
+
+        this.CTX.strokeWidth = 1;
+        this.CTX.textRendering = "optimizeSpeed";
 
         document.addEventListener("mouseup", this.canvasMouseUp);
+
+        this.redrawCanvas(this.screenElements);
+    },
+    unmounted() {
+        document.removeEventListener("mouseup", this.canvasMouseUp);
     },
     methods: {
         async canvasOnDrop(e) {
@@ -95,7 +135,6 @@ const fuiCanvasComponent = {
                     radius: 0,
                 });
                 this.$emit("addScreenLayer");
-                this.layerIndex += 1;
             } else if (this.activeTool === "line") {
                 this.$emit("updateCurrentLayer", {
                     ...layerProps,
@@ -105,18 +144,16 @@ const fuiCanvasComponent = {
                     height: 0,
                 });
                 this.$emit("addScreenLayer");
-                this.layerIndex += 1;
             } else if (this.activeTool === "str") {
                 this.$emit("updateCurrentLayer", {
                     ...layerProps,
                     yy: scaleDown(y) - textContainerHeight[defaultFont],
-                    text: "Text string",
+                    text: "Text string 123",
                     width: getTextWidth("Text string", defaultFont),
                     height: textContainerHeight[defaultFont],
                     font: defaultFont,
                 });
                 this.$emit("addScreenLayer");
-                this.layerIndex += 1;
             } else {
                 // Moving otherwise
                 const current = getElementByOffset(this.screenElements, x, y);
@@ -136,9 +173,9 @@ const fuiCanvasComponent = {
                 return;
             }
             let x =
-                this.mouseClick_x > canvasBoundX ? canvasBoundX : this.mouseClick_x;
+                this.mouseClick_x > this.canvasBoundX ? this.canvasBoundX : this.mouseClick_x;
             let y =
-                this.mouseClick_y > canvasBoundY ? canvasBoundY : this.mouseClick_y;
+                this.mouseClick_y > this.canvasBoundY ? this.canvasBoundY : this.mouseClick_y;
             const offsetX = scaleDown(e.offsetX);
             const offsetY = scaleDown(e.offsetY);
             const layerProps = {};
@@ -146,13 +183,13 @@ const fuiCanvasComponent = {
                 && (
                     e.offsetX >= 0 &&
                     e.offsetY >= 0 &&
-                    e.offsetX < canvasBoundX &&
-                    e.offsetY < canvasBoundY
+                    e.offsetX < this.canvasBoundX &&
+                    e.offsetY < this.canvasBoundY
                 )
             ) {
                 if (this.activeTool === "frame") {
-                    x = x >= canvasBoundX - 4 ? canvasBoundX - 4 : x;
-                    y = y >= canvasBoundY - 4 ? canvasBoundY - 4 : y;
+                    x = x >= this.canvasBoundX - 4 ? this.canvasBoundX - 4 : x;
+                    y = y >= this.canvasBoundY - 4 ? this.canvasBoundY - 4 : y;
                 }
 
                 if (["line"].includes(this.activeTool)) {
@@ -277,19 +314,18 @@ const fuiCanvasComponent = {
             };
             this.$emit("updateCurrentLayer", layer);
             this.$emit("addScreenLayer", layer);
-            this.layerIndex += 1;
             this.$emit("setActiveTool", "select");
             this.$emit("updateCode");
         },
         redrawCanvas(screenElements) {
-            CTX.clearRect(0, 0, canvasWidth, canvasHeight);
-            CTX.save();
+            this.CTX.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+            this.CTX.save();
             for (let screenElement of screenElements) {
-                const imgData = CTX.getImageData(
+                const imgData = this.CTX.getImageData(
                     0,
                     0,
-                    canvasWidth,
-                    canvasHeight
+                    this.canvasWidth,
+                    this.canvasHeight
                 );
                 const {
                     name,
@@ -305,31 +341,38 @@ const fuiCanvasComponent = {
                     font
                 } = screenElement;
                 if (type === "frame") {
-                    CTX.strokeRect(x + 0.5, y + 0.5, width, height);
+                    this.CTX.strokeRect(x + 0.5, y + 0.5, width, height);
                 } else if (type === "box") {
-                    CTX.fillRect(x, y, width, height);
+                    this.CTX.fillRect(x, y, width, height);
                 } else if (type === "dot") {
-                    CTX.fillRect(x, y, 1, 1);
+                    this.CTX.fillRect(x, y, 1, 1);
                 } else if (type === "icon") {
-                    CTX.drawImage(this.fuiImages[name].element, x, y);
+                    this.CTX.drawImage(this.fuiImages[name].element, x, y);
                 } else if (type === "line") {
-                    bline(imgData, x, y, x2, y2);
-                    CTX.putImageData(imgData, 0, 0);
+                    bline(imgData, x, y, x2, y2, this.canvasWidth, this.canvasHeight);
+                    this.CTX.putImageData(imgData, 0, 0);
                 } else if (type === "circle") {
-                    drawCircle(imgData, x + radius, y + radius, radius);
-                    CTX.putImageData(imgData, 0, 0);
+                    drawCircle(imgData, x + radius, y + radius, radius, this.canvasWidth, this.canvasHeight);
+                    this.CTX.putImageData(imgData, 0, 0);
                 } else if (type === "disc") {
-                    drawDisc(imgData, x + radius, y + radius, radius);
-                    CTX.putImageData(imgData, 0, 0);
+                    drawDisc(imgData, x + radius, y + radius, radius, this.canvasWidth, this.canvasHeight);
+                    this.CTX.putImageData(imgData, 0, 0);
                 } else if (type === "str") {
                     const fontSize = fontSizes[font];
-                    CTX.font = `${fontSize}px "${font}"`;
-                    CTX.fillText(text, x, y);
+                    this.CTX.font = `${fontSize}px "${font}"`;
+                    this.CTX.fillText(text, x, y);
                 }
             }
-            const newImgData = maskBlack(CTX, this.isInverted);
-            CTX.putImageData(newImgData, 0, 0);
-            CTX.restore();
+
+            console.log(this.CTX.getImageData(
+                0,
+                0,
+                this.canvasWidth,
+                this.canvasHeight
+            ));
+            const newImgData = maskBlack(this.CTX, this.isInverted, this.canvasWidth, this.canvasHeight);
+            this.CTX.putImageData(newImgData, 0, 0);
+            this.CTX.restore();
         },
     }
 }

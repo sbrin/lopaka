@@ -1,8 +1,8 @@
 
-const canvasWidth = 128;
-const canvasHeight = 64;
-const canvasBoundX = canvasWidth * 4;
-const canvasBoundY = canvasHeight * 4;
+// const canvasWidth = 128;
+// const canvasHeight = 64;
+// const canvasBoundX = canvasWidth * 4;
+// const canvasBoundY = canvasHeight * 4;
 
 const standardFontsRegex = /[^0-9a-zA-Z\s\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/]/g;
 const numberFontsRegex = /[^0-9\s\,\.\/\-\*\+\:]/g;
@@ -231,3 +231,56 @@ const ICONS_SRC = {
     "Warning_30x23": "Warning_30x23.png",
     "WarningDolphin_45x42": "WarningDolphin_45x42.png",
 };
+
+const displaySizes = [
+    "8×8",
+    "32×8",
+    "48×64",
+    "64×8",
+    "60×32",
+    "64×32",
+    "64×48",
+    "64×128",
+    "72×40",
+    "84×48",
+    "96×16",
+    "96×32",
+    "96×39",
+    "96×40",
+    "96×65",
+    "96×68",
+    "96×96",
+    "100×64",
+    "102×64",
+    "122×32",
+    "128×32",
+    "128×36",
+    "128×64",
+    "128×80",
+    "128×96",
+    "128×128",
+    "128×160",
+    "144×168",
+    "150×32",
+    "160×16",
+    "160×32",
+    "160×80",
+    "160×132",
+    "160×160",
+    "172×72",
+    "192×32",
+    "192×64",
+    "192×96",
+    "200×200",
+    "206×36",
+    "240×128",
+    "240×128",
+    "240×64",
+    "256×128",
+    "256×32",
+    "256×64",
+    "296×128",
+    "320×200",
+    "320×240",
+    "400×240",
+]

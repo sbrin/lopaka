@@ -203,9 +203,9 @@ const fuiCodeComponent = {
 }
 const fuiLibraryComponent = {
     template: `
-    <div class="fui-library">
-        <label for="library" class="fui-library__label">Library: </label>
-        <select id="library" class="fui-library__select input-select" :value="library" @input="onSelect">
+    <div class="fui-select">
+        <label for="library" class="fui-select__label">Library: </label>
+        <select id="library" class="fui-select__select input-select" :value="library" @input="onSelect">
             <option v-for="(lib, idx) in Object.keys(libs)" :key="idx" :value="lib">{{ libs[lib] }}</option>
         </select>
     </div>
@@ -225,6 +225,33 @@ const fuiLibraryComponent = {
     methods: {
         onSelect(e) {
             this.$emit("selectLibrary", e.target.value);
+        }
+    }
+}
+
+const fuiDisplaysComponent = {
+    template: `
+    <div class="fui-displays fui-select">
+        <label for="display-size" class="fui-select__label">Display: </label>
+        <select id="display-size" class="fui-select__select input-select" :value="display" @input="onSelect">
+            <option v-for="(item, idx) in sizes" :key="idx" :value="item">{{ item }}</option>
+        </select>
+    </div>
+        `,
+    props: {
+        display: String,
+    },
+    data() {
+        return {
+            sizes: displaySizes,
+        };
+    },
+    mounted() {
+        this.$emit("updateDisplay", this.display);
+    },
+    methods: {
+        onSelect(e) {
+            this.$emit("updateDisplay", e.target.value);
         }
     }
 }

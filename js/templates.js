@@ -9,9 +9,13 @@ const fuiRootTmpl = `
         ></fui-layers>
         <fui-button @click="resetScreen" title="reset" class="button_danger" v-show="!isEmpty"></fui-button>
       </div>
-      <div class="fui-editor__center">
+      <div class="">
+        <fui-display @update-display="updateDisplay" :display="display"></fui-display>
         <fui-canvas
           ref="fuiCanvas"
+          :key="display"
+          :display="display"
+          :layer-index="layerIndex"
           :screen-elements="screenElements"
           :current-layer="currentLayer"
           :active-tool="activeTool"
@@ -23,28 +27,30 @@ const fuiRootTmpl = `
           @update-code="updateCode"
           @add-screen-layer="addScreenLayer"
         />
-        <fui-tools :callback="setActiveTool" :active-tool="activeTool"></fui-tools>
-        <div class="fui-editor-header">
-          <fui-tabs :active-tab="activeTab" @set-active-tab="setactiveTab"></fui-tabs>
-          <fui-library @select-library="selectLibrary" :library="library"></fui-library>
-        </div>
-        <fui-icons
-          v-show="activeTab === 'icons'"
-          :fui-images="fuiImages"
-          :custom-images="customImages"
-          @prepare-images="prepareImages"
-          @icon-clicked="addImageToCanvas"
-          @clean-custom-icons="cleanCustomIcons"
-          ref="fuiIconsList"
-        ></fui-icons>
-        <fui-code v-show="activeTab === 'code'" :content="codePreview"></fui-code>
-        <div class="buttons-bottom">
-          <fui-file
-            type="file"
-            title="import image"
-            @update-fui-images="updateFuiImages"
-          ></fui-file>
-          <fui-button @click="copyCode" title="copy code" v-show="!!codePreview"></fui-button>
+        <div class="fui-editor__center">
+          <fui-tools :callback="setActiveTool" :active-tool="activeTool"></fui-tools>
+          <div class="fui-editor-header">
+            <fui-tabs :active-tab="activeTab" @set-active-tab="setactiveTab"></fui-tabs>
+            <fui-library @select-library="selectLibrary" :library="library"></fui-library>
+          </div>
+          <fui-icons
+            v-show="activeTab === 'icons'"
+            :fui-images="fuiImages"
+            :custom-images="customImages"
+            @prepare-images="prepareImages"
+            @icon-clicked="addImageToCanvas"
+            @clean-custom-icons="cleanCustomIcons"
+            ref="fuiIconsList"
+          ></fui-icons>
+          <fui-code v-show="activeTab === 'code'" :content="codePreview"></fui-code>
+          <div class="buttons-bottom">
+            <fui-file
+              type="file"
+              title="import image"
+              @update-fui-images="updateFuiImages"
+            ></fui-file>
+            <fui-button @click="copyCode" title="copy code" v-show="!!codePreview"></fui-button>
+          </div>
         </div>
       </div>
       <div class="fui-editor__right">

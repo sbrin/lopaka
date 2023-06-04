@@ -1,4 +1,4 @@
-function bline(imgData, x0, y0, x1, y1) {
+function bline(imgData, x0, y0, x1, y1, canvasWidth, canvasHeight) {
     const resultArr = [];
     const dx = Math.abs(x1 - x0),
         sx = x0 < x1 ? 1 : -1;
@@ -31,7 +31,7 @@ function bline(imgData, x0, y0, x1, y1) {
     }
 }
 
-function drawCircle(imgData, centerX, centerY, radius) {
+function drawCircle(imgData, centerX, centerY, radius, canvasWidth, canvasHeight) {
     const resultArr = [];
     let x = 0;
     let y = radius;
@@ -75,7 +75,7 @@ function drawCircle(imgData, centerX, centerY, radius) {
     }
 }
 
-function drawDisc(imgData, centerX, centerY, radius) {
+function drawDisc(imgData, centerX, centerY, radius, canvasWidth, canvasHeight) {
     const resultArr = [];
     let x = 0;
     let y = radius;
@@ -113,37 +113,24 @@ function drawDisc(imgData, centerX, centerY, radius) {
     }
 }
 
-function maskBlack(CTX, isInverted) {
-    const imgData = CTX.getImageData(
+function maskBlack(context, isInverted, canvasWidth, canvasHeight) {
+    const imgData = context.getImageData(
         0,
         0,
         canvasWidth,
         canvasHeight
     )
     for (var i = 0; i < imgData.data.length; i += 4) {
-        // for (var i = 0; i < 1000; i += 4) {
-        if (isInverted) {
-            if (
-                // If alpha is 0 
-                imgData.data[i + 3] < 255 ||
-                // Or if color is not black
-                imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] > 127
-            ) {
-                // Make it black
-                imgData.data[i] = 0;
-                imgData.data[i + 1] = 0;
-                imgData.data[i + 2] = 0;
-                imgData.data[i + 3] = 255; // alpha
-            } else {
-                imgData.data[i] = 0;
-                imgData.data[i + 1] = 0;
-                imgData.data[i + 2] = 0;
-                imgData.data[i + 3] = 0;
-            }
+        if (
+            imgData.data[i + 3] === 255
+            &&
+            imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] <= 381) {
+            imgData.data[i] = 0; // R
+            imgData.data[i + 1] = 0; // G
+            imgData.data[i + 2] = 0; // B
+            imgData.data[i + 3] = 255; // alpha
         } else {
-            if (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] >= 127) {
-                imgData.data[i + 3] = 0; // alpha
-            }
+            imgData.data[i + 3] = 0; // alpha
         }
     }
     return imgData;
@@ -232,7 +219,7 @@ function imgDataToXBMP(imgData, xStart, yStart, width, height) {
             const imgDataIndex = (y * imgData.width + x) * 4;
             const alphaValue = imgData.data[imgDataIndex + 3];
 
-            if (alphaValue > 128) {
+            if (alphaValue > 127) {
                 const xbmpIndex = (y - yStart) * bytesPerRow + Math.floor((x - xStart) / 8);
                 const bitPosition = (x - xStart) % 8;
                 xbmp[xbmpIndex] |= 1 << bitPosition;
@@ -243,15 +230,15 @@ function imgDataToXBMP(imgData, xStart, yStart, width, height) {
     return xbmp.map(x => '0x' + x.toString(16).padStart(2, '0'));
 }
 
-function getU8g2ArduinoCode(element, isDeclared) {
+function getU8g2ArduinoCode(element, isDeclared, context) {
     const type = element.type.charAt(0).toUpperCase() + element.type.slice(1);
     const func = `u8g2.draw${type}`;
     const { width, height, x, y } = element;
     switch (element.type) {
         case "icon":
             let result = ``;
-            const imgData = CTX.getImageData(0, 0, canvasWidth, canvasHeight);
-            const XBMP = imgDataToXBMP(imgData, x, y, width, height);
+            const imgData = context.getImageData(x, y, width, height);
+            const XBMP = imgDataToXBMP(imgData, 0, 0, width, height);
             const iconName = `icon_${element.name}_bits`;
             if (!isDeclared) {
                 result += `static unsigned char ${iconName}[] = {${XBMP}};
@@ -303,7 +290,7 @@ ${func}(canvas, ${element.x}, ${element.y}, "${element.text}")`;
     }
 };
 
-function generateCode(screenElements, isInverted, library) {
+function generateCode(screenElements, isInverted, library, context) {
     let lines = "";
     const declaredIcons = [];
     if (isInverted) {
@@ -316,7 +303,7 @@ function generateCode(screenElements, isInverted, library) {
         if (!isDeclared) {
             declaredIcons.push(element.name);
         }
-        lines = `${lines}${codeGenerators[library](element, isDeclared)}
+        lines = `${lines}${codeGenerators[library](element, isDeclared, context)}
 `;
     }
     return lines;

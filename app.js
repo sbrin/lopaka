@@ -1,5 +1,3 @@
-let CTX;
-
 Vue.createApp({
     template: fuiRootTmpl,
     data() {
@@ -15,12 +13,15 @@ Vue.createApp({
 
             isInverted: false,
             library: "flipper",
+
+            display: "128×64",
+            layerIndex: 0,
         };
     },
     computed: {
         isEmpty() {
             return this.screenElements.length === 0
-        }
+        },
     },
     methods: {
         setactiveTab(tab) {
@@ -58,6 +59,7 @@ Vue.createApp({
                 ...this.screenElements,
                 (layer ? layer : this.currentLayer),
             ];
+            this.layerIndex += 1;
             this.redrawCanvas();
         },
         updateCurrentLayer(layerProps) {
@@ -114,11 +116,15 @@ Vue.createApp({
         },
         updateCode() {
             if (this.activeTab === "code") {
-                this.codePreview = generateCode(this.screenElements, this.isInverted, this.library);
+                const context = this.$refs.fuiCanvas.$refs.screen.getContext("2d", { willReadFrequently: true });
+                this.codePreview = generateCode(this.screenElements, this.isInverted, this.library, context);
             }
         },
         addImageToCanvas(name) {
             this.$refs.fuiCanvas.addImageToCanvas(name);
+        },
+        updateDisplay(display) {
+            this.display = display;
         }
     },
 })
@@ -134,4 +140,5 @@ Vue.createApp({
     .component("fui-tabs", fuiTabsComponent)
     .component("fui-inspector-input", fuiInspectorInputComponent)
     .component("fui-library", fuiLibraryComponent)
+    .component("fui-display", fuiDisplaysComponent)
     .mount("#fuigen_app");

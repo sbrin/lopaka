@@ -51,8 +51,6 @@ body {
 
 canvas {
   cursor: crosshair;
-  width: 512px;
-  height: 256px;
   image-rendering: pixelated;
   background: #ed791b;
   text-rendering: "geometricPrecision";
@@ -61,7 +59,6 @@ canvas {
 }
 
 .fui-editor {
-  width: 900px;
   background: var(--bg-color);
   padding: 16px;
   display: flex;
@@ -341,6 +338,9 @@ canvas {
   justify-content: space-between;
 }
 
-.fui-library__label {
+.fui-select {
+  height: 30px;
+}
+.fui-select__label {
   font-size: 24px;
 }
