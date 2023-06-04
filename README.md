@@ -1,18 +1,14 @@
-[![License: CC BY-NC-ND 4.0](https://licensebuttons.net/l/by-nc-nd/4.0/80x15.png)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+# Lopaka - Stunning graphics for embedded screens
 
-# FUI Editor - Flipper Zero user interface editor
-
-The GUI editor/generator for [Flipper Zero](https://flipperzero.one/).
+The GUI editor/generator for Arduino, ESP32, [Flipper Zero](https://flipperzero.one/) and many other embedded systems.
 
 ![Flipper Ui Editor Screenshot](fui-screenshot.png)
 
-
-Draw any graphics and use generated code in your Flipper application!
+Draw any graphics and use generated code in your application!
 
 * drag and drop icons
 * remove, edit elements
 * generate and copy the code
-* you have to place icons images to your app assets directory ([download default icons set](assets.zip))
 
 ## How to run locally
 
@@ -44,13 +40,3 @@ The goal of this approach is to make it easier for users to start using the appl
 - No typings
 
 - No build
-
-#### Custom icons
-
-Drag and drop PNG and use it in your UI prototype.
-
-Requirements:
-* Maximum size 128×64px
-* Black and white
-* PNG
-* Without shades or alpha channel.
