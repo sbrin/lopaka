@@ -12,7 +12,7 @@ Vue.createApp({
             activeTab: "code",
 
             isInverted: false,
-            library: "flipper",
+            library: "u8g2_arduino",
 
             display: "128×64",
             layerIndex: 0,
@@ -22,6 +22,17 @@ Vue.createApp({
         isEmpty() {
             return this.screenElements.length === 0
         },
+        isFlipper() {
+            return this.library === "flipper";
+        },
+    },
+    created() {
+        if (localStorage.getItem("lopaka_library")) {
+            this.library = localStorage.getItem("lopaka_library");
+        }
+        if (localStorage.getItem("lopaka_display")) {
+            this.display = localStorage.getItem("lopaka_display");
+        }
     },
     methods: {
         setactiveTab(tab) {
@@ -99,6 +110,11 @@ Vue.createApp({
             navigator.clipboard.writeText(this.codePreview);
         },
         cleanCustomIcons() {
+            for (let key in this.fuiImages) {
+                if (this.fuiImages[key].isCustom) {
+                    delete this.fuiImages[key];
+                }
+            }
             this.customImages = [];
             this.screenElements = this.screenElements.filter(item => !item.isCustom);
             this.redrawCanvas();
@@ -110,9 +126,14 @@ Vue.createApp({
             this.isInverted = !this.isInverted;
             this.redrawCanvas();
         },
-        selectLibrary(lib) {
-            this.library = lib;
+        selectLibrary(library) {
+            this.library = library;
+            if (library === "flipper") {
+                this.display = "128×64";
+                localStorage.setItem("lopaka_display", this.display);
+            }
             this.updateCode();
+            localStorage.setItem("lopaka_library", library);
         },
         updateCode() {
             if (this.activeTab === "code") {
@@ -120,11 +141,15 @@ Vue.createApp({
                 this.codePreview = generateCode(this.screenElements, this.isInverted, this.library, context);
             }
         },
+        saveLayers() {
+            localStorage.setItem("lopaka_layers", JSON.stringify(this.screenElements));
+        },
         addImageToCanvas(name) {
             this.$refs.fuiCanvas.addImageToCanvas(name);
         },
-        updateDisplay(display) {
+        selectDisplay(display) {
             this.display = display;
+            localStorage.setItem("lopaka_display", display);
         }
     },
 })

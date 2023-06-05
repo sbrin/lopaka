@@ -10,7 +10,10 @@ const fuiRootTmpl = `
         <fui-button @click="resetScreen" title="reset" class="button_danger" v-show="!isEmpty"></fui-button>
       </div>
       <div class="">
-        <fui-display @update-display="updateDisplay" :display="display"></fui-display>
+        <div class="fui-editor-header">
+          <fui-library @select-library="selectLibrary" :library="library"></fui-library>  
+          <fui-display v-show="!isFlipper" @update-display="selectDisplay" :display="display"></fui-display>
+        </div>
         <fui-canvas
           ref="fuiCanvas"
           :key="display"
@@ -31,7 +34,6 @@ const fuiRootTmpl = `
           <fui-tools :callback="setActiveTool" :active-tool="activeTool"></fui-tools>
           <div class="fui-editor-header">
             <fui-tabs :active-tab="activeTab" @set-active-tab="setactiveTab"></fui-tabs>
-            <fui-library @select-library="selectLibrary" :library="library"></fui-library>
           </div>
           <fui-icons
             v-show="activeTab === 'icons'"
@@ -54,7 +56,7 @@ const fuiRootTmpl = `
         </div>
       </div>
       <div class="fui-editor__right">
-        <fui-inspector :elem="currentLayer" :library="library" @redraw-canvas="redrawCanvas" />
+        <fui-inspector :elem="currentLayer" :library="library" @redraw-canvas="redrawCanvas" @update-code="updateCode"/>
         <!-- <fui-settings :isInverted="isInverted" @redraw-canvas="redrawCanvas" @toggle-invert="toggleInvert"/> -->
       </div>
     </div>
@@ -70,7 +72,7 @@ const fuiLayersTmpl = `
           :class="{layer_selected: currentLayer && currentLayer.index === item.index}"
           @click.self="updateCurrentLayer(item)"
         >
-            <div class="layer__name">{{ getLayerListItem(item) }}</div>
+            <div class="layer__name" @click="updateCurrentLayer(item)">{{ getLayerListItem(item) }}</div>
             <div class="layer__remove" @click="removeLayer(item.index)">×</div>
         </li>
     </ul>
@@ -119,6 +121,8 @@ const fuiFileTmpl = `
   >
     <input type="file" style="position: fixed; top: -100%"
       @change="onFileChange"
+      @click="resetFileInput"
+      ref="fileInput"
     >
     {{ title }}
   </label>
@@ -137,47 +141,41 @@ const fuiInspectorTmpl = `
 <div class="inspector" v-if="elem">
   <div class="title inspector__title">{{elem.name || elem.type}}</div>
   <div class="inspector__row">
-    <div>x: <fui-inspector-input :element="elem" field="x" type="number" @redraw-canvas="redrawCanvas">
+    <div>x: <fui-inspector-input :element="elem" field="x" type="number" @redraw-canvas="redrawCanvas" @update-code="updateCode">
       </fui-inspector-input>
     </div>
     <div v-if="typeof elem.x2 === 'number'">x2: <fui-inspector-input :element="elem" field="x2" type="number"
-        @redraw-canvas="redrawCanvas"></fui-inspector-input>
+        @redraw-canvas="redrawCanvas" @update-code="updateCode"></fui-inspector-input>
     </div>
     <div v-if="typeof elem.width === 'number' && isHWVisible(elem)">w: <fui-inspector-input :element="elem"
-        field="width" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input>
+        field="width" type="number" @redraw-canvas="redrawCanvas" @update-code="updateCode"></fui-inspector-input>
     </div>
     <div v-if="typeof elem.radius === 'number' && isRadiusVisible(elem)">r: <fui-inspector-input :element="elem"
-        field="radius" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input>
+        field="radius" type="number" @redraw-canvas="redrawCanvas" @update-code="updateCode"></fui-inspector-input>
     </div>
   </div>
   <div class="inspector__row">
-    <div>y: <fui-inspector-input :element="elem" field="y" type="number" @redraw-canvas="redrawCanvas">
+    <div>y: <fui-inspector-input :element="elem" field="y" type="number" @redraw-canvas="redrawCanvas" @update-code="updateCode">
       </fui-inspector-input>
     </div>
     <div v-if="typeof elem.y2 === 'number'">y2: <fui-inspector-input :element="elem" field="y2" type="number"
-        @redraw-canvas="redrawCanvas"></fui-inspector-input>
+        @redraw-canvas="redrawCanvas" @update-code="updateCode"></fui-inspector-input>
     </div>
     <div v-if="typeof elem.height === 'number' && isHWVisible(elem)">h: <fui-inspector-input :element="elem"
-        field="height" type="number" @redraw-canvas="redrawCanvas"></fui-inspector-input>
+        field="height" type="number" @redraw-canvas="redrawCanvas" @update-code="updateCode"></fui-inspector-input>
     </div>
   </div>
   <div class="inspector__row">
     <div v-if="elem.font">
-      <fui-inspector-input :element="elem" field="font" :library="library" type="select" @redraw-canvas="redrawCanvas">
+      <fui-inspector-input :element="elem" field="font" :library="library" type="select" @redraw-canvas="redrawCanvas" @update-code="updateCode">
       </fui-inspector-input>
     </div>
   </div>
   <div class="inspector__row">
     <div v-if="elem.type === 'str'">
-      <fui-inspector-input :element="elem" field="text" :library="library" type="text" @redraw-canvas="redrawCanvas">
+      <fui-inspector-input :element="elem" field="text" :library="library" type="text" @redraw-canvas="redrawCanvas" @update-code="updateCode">
       </fui-inspector-input>
     </div>
   </div>
 </div>
 `;
-const fuiSettingsTmpl = `
-<div class="fui-settings">
-  <div class="fui-settings__input">
-    <button class="button" :class="settingsClassNames" @click="toggleInvert">Invert color</label>
-  </div>
-</div>`;

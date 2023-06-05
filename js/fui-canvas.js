@@ -275,9 +275,11 @@ const fuiCanvasComponent = {
                 this.stopDrawing(e);
                 this.redrawCanvas(this.screenElements);
             }
+            if (this.isDrawing || this.isMoving) {
+                this.$emit("updateCode");
+            }
             this.isMoving = false;
             this.isDrawing = false;
-            this.$emit("updateCode");
         },
         stopDrawing() {
             if (this.currentLayer) {
@@ -298,7 +300,6 @@ const fuiCanvasComponent = {
                     this.$emit("updateCurrentLayer", layerProps);
                 }
             }
-            this.$emit("updateCode");
         },
         addImageToCanvas(name, x = 32, y = 16) {
             const { isCustom, width, height } = this.fuiImages[name];
@@ -363,13 +364,6 @@ const fuiCanvasComponent = {
                     this.CTX.fillText(text, x, y);
                 }
             }
-
-            console.log(this.CTX.getImageData(
-                0,
-                0,
-                this.canvasWidth,
-                this.canvasHeight
-            ));
             const newImgData = maskBlack(this.CTX, this.isInverted, this.canvasWidth, this.canvasHeight);
             this.CTX.putImageData(newImgData, 0, 0);
             this.CTX.restore();

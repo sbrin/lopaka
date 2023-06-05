@@ -1,9 +1,3 @@
-
-// const canvasWidth = 128;
-// const canvasHeight = 64;
-// const canvasBoundX = canvasWidth * 4;
-// const canvasBoundY = canvasHeight * 4;
-
 const standardFontsRegex = /[^0-9a-zA-Z\s\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/]/g;
 const numberFontsRegex = /[^0-9\s\,\.\/\-\*\+\:]/g;
 

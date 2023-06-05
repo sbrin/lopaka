@@ -160,9 +160,9 @@ function scaleSize(i) {
     return i > 0 ? Math.round(i / 4) : Math.floor(i / 4);
 }
 
-function getElementByOffset(uiArr, x, y) {
-    for (let i = uiArr.length - 1; i >= 0; i--) {
-        const element = uiArr[i];
+function getElementByOffset(layersArr, x, y) {
+    for (let i = layersArr.length - 1; i >= 0; i--) {
+        const element = layersArr[i];
         const scaledX1 = scaleUp(element.x);
         const scaledY1 = scaleUp(element.yy ? element.yy : element.y);
         const scaledX2 = scaleUp(element.x + element.width);
@@ -195,7 +195,7 @@ function getElementByOffset(uiArr, x, y) {
                     }
                 }
             }
-        } else if (scaledX1 <= x && x < scaledX2 && scaledY1 <= y && y < scaledY2) {
+        } else if (scaledX1 <= x && scaledX2 > x && scaledY1 <= y && scaledY2 > y) {
             return element;
         }
     }

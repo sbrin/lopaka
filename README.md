@@ -1,14 +1,24 @@
 # Lopaka - Stunning graphics for embedded screens
 
-The GUI editor/generator for U8g2, Adafruit GFX, [Flipper Zero](https://flipperzero.one/) and many other embedded graphics libraries.
+The GUI editor and code generator for [U8g2](https://github.com/olikraus/u8g2), and [Flipper Zero](https://flipperzero.one/).
 
-![Flipper Ui Editor Screenshot](fui-screenshot.png)
+![Lopaka Graphics Editor Screenshot](fui-screenshot.png)
 
 Draw any graphics and use generated code in your application!
 
-* drag and drop icons
+* select screen size
+* use many draw shapes and tools
+* popular fonts support
+* drag and drop custom icons
+* auto-generate XBMP graphics
 * remove, edit elements
 * generate and copy the code
+
+## Cloud App (no registation required)
+
+[https://lopaka.app](https://lopaka.app)
+
+All data is stored locally.
 
 ## How to run locally
 

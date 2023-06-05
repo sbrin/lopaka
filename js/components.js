@@ -41,6 +41,9 @@ const fuiFileComponent = {
     methods: {
         async onFileChange(e) {
             const file = e.target.files[0];
+            if (!file.name) {
+                return;
+            }
             const name = file.name.substr(0, file.name.lastIndexOf('.')) || file.name; // remove file extension
             const fileResult = await readFileAsync(file);
             const image = await loadImageAsync(fileResult);
@@ -51,6 +54,9 @@ const fuiFileComponent = {
                 element: image,
                 isCustom: true,
             });
+        },
+        resetFileInput() {
+            this.$refs.fileInput.value = null;
         }
     }
 }
@@ -111,7 +117,8 @@ const fuiIconsComponent = {
                 fuiImages[name] = {
                     element: image,
                     width: width,
-                    height: height
+                    height: height,
+                    isCustom: false,
                 };
                 imagesArr.push({
                     src: src,
@@ -159,6 +166,9 @@ const fuiInspectorComponent = {
         redrawCanvas() {
             this.$emit("redrawCanvas");
         },
+        updateCode() {
+            this.$emit("updateCode");
+        },
         isHWVisible(elem) {
             // return true;
             return !["line", "str", "dot", "icon", "circle", "disc"].includes(elem.type);
@@ -170,7 +180,11 @@ const fuiInspectorComponent = {
 }
 
 const fuiSettingsComponent = {
-    template: fuiSettingsTmpl,
+    template: `<div class="fui-settings">
+        <div class="fui-settings__input">
+            <button class="button" :class="settingsClassNames" @click="toggleInvert">Invert color</label>
+        </div>
+    </div>`,
     props: {
         isInverted: Boolean,
     },
@@ -216,9 +230,8 @@ const fuiLibraryComponent = {
     data() {
         return {
             libs: {
-                "flipper": "Flipper Zero",
-                // "u8g2": "U8g2 Vanilla",
                 "u8g2_arduino": "U8g2 Arduino",
+                "flipper": "Flipper Zero",
             },
         };
     },
@@ -287,7 +300,7 @@ const fuiInspectorInputComponent = {
     <select class="input-select" v-if="field === 'font'" :value="element[field]" @input="onSelect">
       <option v-for="(font, idx) in fontsList[library]" :key="idx" :value="font">{{ font }}</option>
     </select>
-    <input v-else class="inspector__input" @input="onInput" :value="element[field]" :type="type" max="128" step="1"></input>
+    <input v-else class="inspector__input" @input="onInput" :value="element[field]" :type="type" max="1024" step="1"></input>
     `,
     props: {
         element: Object,
@@ -332,7 +345,8 @@ const fuiInspectorInputComponent = {
             if (["text"].includes(this.field)) {
                 this.updateTextWidth();
             }
-            this.$emit('redrawCanvas');
+            this.$emit("redrawCanvas");
+            this.$emit("updateCode");
         },
         onSelect(e) {
             this.element[this.field] = e.target.value;
@@ -340,12 +354,14 @@ const fuiInspectorInputComponent = {
                 this.element.text = this.element.text.replace(this.charsRegex, '').trim();
                 this.updateTextWidth();
             }
-            this.$emit('redrawCanvas');
+            this.$emit("redrawCanvas");
+            this.$emit("updateCode");
         },
         updateTextWidth() {
             // recalculate text draggable area size
             this.element.width = getTextWidth(this.element.text, this.element.font);
             this.element.height = textContainerHeight[this.element.font];
+            this.element.yy = this.element.y - textContainerHeight[this.element.font];
         }
     }
 }
