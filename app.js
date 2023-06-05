@@ -166,4 +166,4 @@ Vue.createApp({
     .component("fui-inspector-input", fuiInspectorInputComponent)
     .component("fui-library", fuiLibraryComponent)
     .component("fui-display", fuiDisplaysComponent)
-    .mount("#fuigen_app");
+    .mount("#lopaka_app");

@@ -1,8 +1,6 @@
-# Lopaka - Stunning graphics for embedded screens
+# Lopaka — Stunning graphics for embedded screens
 
 The GUI editor and code generator for [U8g2](https://github.com/olikraus/u8g2), and [Flipper Zero](https://flipperzero.one/).
-
-![Lopaka Graphics Editor Screenshot](fui-screenshot.png)
 
 Draw any graphics and use generated code in your application!
 
@@ -13,6 +11,8 @@ Draw any graphics and use generated code in your application!
 * auto-generate XBMP graphics
 * remove, edit elements
 * generate and copy the code
+
+![Lopaka Graphics Editor Screenshot](lopaka-screenshot.png)
 
 ## Cloud App (no registation required)
 
@@ -50,3 +50,13 @@ The goal of this approach is to make it easier for users to start using the appl
 - No typings
 
 - No build
+
+It was started as a simple tool for Flipper Zero app development. That's why you can see some references here and there. But it is going to become something bigger...
+
+### How can you help?
+
+Like, share and subscribe is the easiest way to endorse this pet project.
+
+If you're really into embedded development or an every day GUI designer or just a person who loves to make Arduino projects — contact me to arrange a quick interview call. I need to know what my audience pain points are to make Lopaka better.
+
+You can become a sponsor — see sponsorship options on my GitHub profile ❤️
