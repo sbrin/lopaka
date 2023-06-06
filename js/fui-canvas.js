@@ -1,5 +1,6 @@
 const fuiCanvasComponent = {
     template: `<div class="canvas-wrapper">
+    <div class="fui-grid">
         <canvas id="screen"
             :width="canvasWidth"
             :height="canvasHeight"
@@ -13,6 +14,7 @@ const fuiCanvasComponent = {
             @drop="canvasOnDrop"
             @resize="redrawCanvas"
         />
+        </div>
     </div>`,
     props: {
         display: String,

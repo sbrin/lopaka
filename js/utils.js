@@ -234,6 +234,7 @@ function getU8g2ArduinoCode(element, isDeclared, context) {
     const type = element.type.charAt(0).toUpperCase() + element.type.slice(1);
     const func = `u8g2.draw${type}`;
     const { width, height, x, y } = element;
+    const font = fontMap["u8g2_arduino"][element.font];
     switch (element.type) {
         case "icon":
             let result = ``;
@@ -259,7 +260,7 @@ function getU8g2ArduinoCode(element, isDeclared, context) {
         case "disc":
             return `${func}(${element.x + element.radius}, ${element.y + element.radius}, ${element.radius});`;
         case "str":
-            return `u8g2.setFont(${element.font});
+            return `u8g2.setFont(${font});
 ${func}(${element.x}, ${element.y}, "${element.text}");`;
     }
 };

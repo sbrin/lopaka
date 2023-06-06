@@ -7,7 +7,7 @@
 
 @font-face {
   font-family: "haxrcorp4089_tr";
-  src: url("fonts/haxrcorp_4089_cyrillic_altgr.ttf");
+  src: url("fonts/haxrcorp4089.ttf");
   font-weight: normal;
   font-style: normal;
 }
@@ -37,7 +37,7 @@
 }
 
 h1, h2, h3 {
-  font-family: "helvB08_tr";
+  /* font-family: "helvB08_tr"; */
   font-weight: normal;
 }
 
@@ -57,27 +57,50 @@ canvas {
   text-rendering: "geometricPrecision";
   font-smooth: never;
   -webkit-font-smoothing : none;
+  opacity: 0.9;
 }
 
 .fui-editor {
   background: var(--bg-color);
   padding: 16px;
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 178px fit-content(1ch) 178px;
+  grid-template-areas: "header header header";
   position: relative;
   box-sizing: border-box;
 }
 
 .fui-editor__left {
-  width: 178px;
+  /* width: 178px; */
+}
+
+#lopaka_app {
+  display: flex;
+  justify-content: center;
+}
+
+.fui-editor__header {
+  grid-area: header;
+  font-size: 3em;
+  padding-bottom: 0.2em;
+  border-bottom: 1px dotted;
+  margin-bottom: 0.2em;
+}
+
+.fui-editor__tools {
+  min-width: 534px;
+  max-width: 768px;
+  align-self: baseline;
 }
 
 .fui-editor__center {
-  width: 534px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .fui-editor__right {
-  width: 178px;
+  /* width: 178px; */
   margin-left: 16px;
 }
 
@@ -86,6 +109,7 @@ canvas {
   border-radius: 10px;
   background: var(--primary-color);
   padding: 8px;
+  margin: 16px 0;
   display: inline-block;
   font-size: 0;
 }
@@ -143,8 +167,8 @@ canvas {
 
 .title {
   margin: 0 0 8px 0;
-  font-size: 16px;
-  font-family: "helvB08_tr";
+  font-size: 32px;
+  /* font-family: "helvB08_tr"; */
   font-weight: normal;
 }
 
@@ -164,9 +188,10 @@ canvas {
   text-transform: uppercase;
   font-family: "haxrcorp4089_tr";
   font-size: 32px;
-  padding: 0 12px 4px 12px;
+  padding: 3px 12px 4px 12px;
   cursor: pointer;
   box-sizing: border-box;
+  line-height: 22px;
 }
 
 .button:hover,
@@ -209,7 +234,7 @@ canvas {
 }
 
 .layer__name {
-  max-width: 108px;
+  max-width: 132px;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -305,9 +330,10 @@ canvas {
   text-transform: uppercase;
   font-family: "haxrcorp4089_tr";
   font-size: 32px;
-  padding: 0 12px 4px 12px;
+  padding: 4px 12px 4px 12px;
   margin: 0 8px 0 0;
   cursor: pointer;
+  line-height: 22px;
 }
 
 .fui-tab:hover,
@@ -337,11 +363,21 @@ canvas {
 .fui-editor-header {
   display: flex;
   justify-content: space-between;
+  width: 100%;
 }
 
 .fui-select {
-  height: 30px;
+  margin: 6px 0 8px 0;
 }
 .fui-select__label {
   font-size: 24px;
+}
+
+.fui-grid {
+  background-size: 4px 4px;
+  background-image: linear-gradient(to right, var(--bg-color) 0.5px, transparent 0), linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 0)
+}
+
+.fui-header__logo {
+  text-align: center;
 }

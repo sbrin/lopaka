@@ -1,7 +1,15 @@
 const fuiRootTmpl = `
     <div class="fui-editor">
+      <div class="fui-editor__header">
+        <div class="fui-header">
+          <div class="fui-header__logo">
+           - LOPAKA - 
+          </div>
+        </div>
+      </div>
       <div class="fui-editor__left">
         <fui-layers
+            v-show="!!screenElements.length"
             :screen-elements="screenElements"
             :current-layer="currentLayer"
             @update-current-layer="updateCurrentLayer"
@@ -9,7 +17,7 @@ const fuiRootTmpl = `
         ></fui-layers>
         <fui-button @click="resetScreen" title="reset" class="button_danger" v-show="!isEmpty"></fui-button>
       </div>
-      <div class="">
+      <div class="fui-editor__center">
         <div class="fui-editor-header">
           <fui-library @select-library="selectLibrary" :library="library"></fui-library>  
           <fui-display v-show="!isFlipper" @update-display="selectDisplay" :display="display"></fui-display>
@@ -30,7 +38,7 @@ const fuiRootTmpl = `
           @update-code="updateCode"
           @add-screen-layer="addScreenLayer"
         />
-        <div class="fui-editor__center">
+        <div class="fui-editor__tools">
           <fui-tools :callback="setActiveTool" :active-tool="activeTool"></fui-tools>
           <div class="fui-editor-header">
             <fui-tabs :active-tab="activeTab" @set-active-tab="setactiveTab"></fui-tabs>
