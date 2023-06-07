@@ -91,7 +91,10 @@ Vue.createApp({
             }
         },
         removeLayer(index) {
-            if (index === this.currentLayer.index) this.currentLayer = undefined;
+            console.log(index);
+            if (this.currentLayer && this.currentLayer.index === index) {
+                this.currentLayer = undefined;
+            };
             this.screenElements = this.screenElements.filter(
                 (item) => item.index !== index
             );
