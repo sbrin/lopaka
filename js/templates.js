@@ -1,12 +1,5 @@
 const fuiRootTmpl = `
     <div class="fui-editor">
-      <div class="fui-editor__header">
-        <div class="fui-header">
-          <div class="fui-header__logo">
-           - LOPAKA - 
-          </div>
-        </div>
-      </div>
       <div class="fui-editor__left">
         <fui-layers
             v-show="!!screenElements.length"

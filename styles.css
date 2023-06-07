@@ -65,7 +65,6 @@ canvas {
   padding: 16px;
   display: grid;
   grid-template-columns: 178px fit-content(1ch) 178px;
-  grid-template-areas: "header header header";
   position: relative;
   box-sizing: border-box;
 }
@@ -77,14 +76,6 @@ canvas {
 #lopaka_app {
   display: flex;
   justify-content: center;
-}
-
-.fui-editor__header {
-  grid-area: header;
-  font-size: 3em;
-  padding-bottom: 0.2em;
-  border-bottom: 1px dotted;
-  margin-bottom: 0.2em;
 }
 
 .fui-editor__tools {
@@ -378,6 +369,39 @@ canvas {
   background-image: linear-gradient(to right, var(--bg-color) 0.5px, transparent 0), linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 0)
 }
 
+a {
+  color: var(--primary-color);
+}
+
+.fui-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 2em;
+}
+.fui-header__right {
+  display: flex;
+  align-items: center;
+}
+
 .fui-header__logo {
   text-align: center;
+  font-size: 1.5em;
+}
+
+.fui-page-header {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 0;
+  border-bottom: 1px dotted;
+}
+
+.fui-nav__menu {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+}
+
+.fui-nav__item {
+  padding: 0 5px;
 }

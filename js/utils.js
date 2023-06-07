@@ -245,8 +245,7 @@ function getU8g2ArduinoCode(element, isDeclared, context) {
                 result += `static unsigned char ${iconName}[] = {${XBMP}};
 `;
             }
-            result += `u8g2.drawXBM( ${x}, ${y}, ${width}, ${height}, ${iconName});
-`;
+            result += `u8g2.drawXBM( ${x}, ${y}, ${width}, ${height}, ${iconName});`;
             return result;
         case "box":
             return `${func}(${element.x}, ${element.y}, ${element.width}, ${element.height});`;
