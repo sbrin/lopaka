@@ -3,6 +3,8 @@ const numberFontsRegex = /[^0-9\s\,\.\/\-\*\+\:]/g;
 
 const defaultFont = "helvB08_tr";
 
+const DEFAULT_STRING = "String 123";
+
 const fontMap = {
     "flipper": {
         helvB08_tr: "FontPrimary",

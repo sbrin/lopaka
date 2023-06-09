@@ -134,9 +134,9 @@ const fuiIconsComponent = {
         },
     },
     created() {
+        this.prepareImages();
     },
     mounted() {
-        this.prepareImages();
     }
 }
 
@@ -163,10 +163,9 @@ const fuiInspectorComponent = {
         return {};
     },
     methods: {
-        redrawCanvas() {
+        update() {
             this.$emit("redrawCanvas");
-        },
-        updateCode() {
+            this.$emit("saveLayers");
             this.$emit("updateCode");
         },
         isHWVisible(elem) {
@@ -179,31 +178,100 @@ const fuiInspectorComponent = {
     }
 }
 
-const fuiSettingsComponent = {
-    template: `<div class="fui-settings">
-        <div class="fui-settings__input">
-            <button class="button" :class="settingsClassNames" @click="toggleInvert">Invert color</label>
-        </div>
-    </div>`,
+const fuiInspectorInputComponent = {
+    template: `
+    <span v-if="hasNoWidth">{{ element[field] }}</span>
+    <select class="input-select" v-if="field === 'font'" :value="element[field]" @input="onSelect">
+      <option v-for="(font, idx) in fontsList[library]" :key="idx" :value="font">{{ font }}</option>
+    </select>
+    <input v-else class="inspector__input" @input="onInput" :value="element[field]" :type="type" max="1024" step="1"></input>
+    `,
     props: {
-        isInverted: Boolean,
-    },
-    data() {
-        return {};
+        element: Object,
+        type: String,
+        field: String,
+        library: String,
     },
     computed: {
-        settingsClassNames() {
-            return {
-                "button_active": this.isInverted,
-            };
-        },
+        hasNoWidth() {
+            return ['str', 'dot'].includes(element.type) && ['width', 'height'].includes(field);
+        }
+    },
+    data() {
+        return {
+            fontsList: {
+                "flipper": [
+                    "helvB08_tr",
+                    "haxrcorp4089_tr",
+                    "profont22_tr",
+                ],
+                "u8g2_arduino": [
+                    "helvB08_tr",
+                    "haxrcorp4089_tr",
+                    "profont22_tr",
+                    "f4x6_tr",
+                ],
+            }
+        };
+    },
+    computed: {
+        charsRegex() {
+            return this.element.font === "profont22_tr" && this.library === "flipper" ? numberFontsRegex : standardFontsRegex;
+        }
     },
     methods: {
-        toggleInvert() {
-            this.$emit("toggleInvert");
+        onInput(e) {
+            const result = ["text"].includes(this.type) ?
+                e.target.value.replace(this.charsRegex, '').trim() :
+                parseInt(e.target.value.replace(/[^0-9]/g, ''));
+            e.target.value = result;
+            this.element[this.field] = result;
+            if (["text"].includes(this.field)) {
+                this.updateTextWidth();
+            }
+            this.$emit("update");
+        },
+        onSelect(e) {
+            this.element[this.field] = e.target.value;
+            if (["font"].includes(this.field)) {
+                this.element.text = this.element.text.replace(this.charsRegex, '').trim();
+                this.updateTextWidth();
+            }
+            this.$emit("update");
+        },
+        updateTextWidth() {
+            // recalculate text draggable area size
+            this.element.width = getTextWidth(this.element.text, this.element.font);
+            this.element.height = textContainerHeight[this.element.font];
+            this.element.yy = this.element.y - textContainerHeight[this.element.font];
         },
     }
 }
+// const fuiSettingsComponent = {
+//     template: `<div class="fui-settings">
+//         <div class="fui-settings__input">
+//             <button class="button" :class="settingsClassNames" @click="toggleInvert">Invert color</label>
+//         </div>
+//     </div>`,
+//     props: {
+//         isInverted: Boolean,
+//     },
+//     data() {
+//         return {};
+//     },
+//     computed: {
+//         settingsClassNames() {
+//             return {
+//                 "button_active": this.isInverted,
+//             };
+//         },
+//     },
+//     methods: {
+//         toggleInvert() {
+//             this.$emit("toggleInvert");
+//         },
+//     }
+// }
 
 const fuiCodeComponent = {
     template: `
@@ -230,7 +298,7 @@ const fuiLibraryComponent = {
     data() {
         return {
             libs: {
-                "u8g2_arduino": "U8g2 Arduino",
+                "u8g2_arduino": "U8g2",
                 "flipper": "Flipper Zero",
             },
         };
@@ -290,78 +358,6 @@ const fuiTabsComponent = {
     methods: {
         setActiveTab(tab) {
             this.$emit("setActiveTab", tab);
-        }
-    }
-}
-
-const fuiInspectorInputComponent = {
-    template: `
-    <span v-if="hasNoWidth">{{ element[field] }}</span>
-    <select class="input-select" v-if="field === 'font'" :value="element[field]" @input="onSelect">
-      <option v-for="(font, idx) in fontsList[library]" :key="idx" :value="font">{{ font }}</option>
-    </select>
-    <input v-else class="inspector__input" @input="onInput" :value="element[field]" :type="type" max="1024" step="1"></input>
-    `,
-    props: {
-        element: Object,
-        type: String,
-        field: String,
-        library: String,
-    },
-    computed: {
-        hasNoWidth() {
-            return ['str', 'dot'].includes(element.type) && ['width', 'height'].includes(field);
-        }
-    },
-    data() {
-        return {
-            fontsList: {
-                "flipper": [
-                    "helvB08_tr",
-                    "haxrcorp4089_tr",
-                    "profont22_tr",
-                ],
-                "u8g2_arduino": [
-                    "helvB08_tr",
-                    "haxrcorp4089_tr",
-                    "profont22_tr",
-                    "f4x6_tr",
-                ],
-            }
-        };
-    },
-    computed: {
-        charsRegex() {
-            return this.element.font === "profont22_tr" && this.library === "flipper" ? numberFontsRegex : standardFontsRegex;
-        }
-    },
-    methods: {
-        onInput(e) {
-            const result = ["text"].includes(this.type) ?
-                e.target.value.replace(this.charsRegex, '').trim() :
-                parseInt(e.target.value.replace(/[^0-9]/g, ''));
-            e.target.value = result;
-            this.element[this.field] = result;
-            if (["text"].includes(this.field)) {
-                this.updateTextWidth();
-            }
-            this.$emit("redrawCanvas");
-            this.$emit("updateCode");
-        },
-        onSelect(e) {
-            this.element[this.field] = e.target.value;
-            if (["font"].includes(this.field)) {
-                this.element.text = this.element.text.replace(this.charsRegex, '').trim();
-                this.updateTextWidth();
-            }
-            this.$emit("redrawCanvas");
-            this.$emit("updateCode");
-        },
-        updateTextWidth() {
-            // recalculate text draggable area size
-            this.element.width = getTextWidth(this.element.text, this.element.font);
-            this.element.height = textContainerHeight[this.element.font];
-            this.element.yy = this.element.y - textContainerHeight[this.element.font];
         }
     }
 }

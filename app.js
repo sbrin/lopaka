@@ -33,6 +33,13 @@ Vue.createApp({
         if (localStorage.getItem("lopaka_display")) {
             this.display = localStorage.getItem("lopaka_display");
         }
+        // this.screenElements = JSON.parse(localStorage.getItem("lopaka_layers")) ?? [];
+    },
+    mounted() {
+        if (this.screenElements.length) {
+            this.updateCode();
+            this.layerIndex = this.screenElements.length;
+        }
     },
     methods: {
         setactiveTab(tab) {
@@ -91,20 +98,22 @@ Vue.createApp({
             }
         },
         removeLayer(index) {
-            console.log(index);
             if (this.currentLayer && this.currentLayer.index === index) {
                 this.currentLayer = undefined;
             };
             this.screenElements = this.screenElements.filter(
                 (item) => item.index !== index
             );
+            this.updateCode();
             this.redrawCanvas();
+            this.saveLayers();
         },
         resetScreen() {
             this.screenElements = [];
             this.codePreview = "";
             this.currentLayer = undefined;
             this.redrawCanvas();
+            this.saveLayers();
         },
         redrawCanvas() {
             this.$refs.fuiCanvas.redrawCanvas(this.screenElements);
@@ -121,14 +130,15 @@ Vue.createApp({
             this.customImages = [];
             this.screenElements = this.screenElements.filter(item => !item.isCustom);
             this.redrawCanvas();
+            this.saveLayers();
             if (this.currentLayer && this.currentLayer.isCustom) {
                 this.currentLayer = undefined;
             }
         },
-        toggleInvert() {
-            this.isInverted = !this.isInverted;
-            this.redrawCanvas();
-        },
+        // toggleInvert() {
+        //     this.isInverted = !this.isInverted;
+        //     this.redrawCanvas();
+        // },
         selectLibrary(library) {
             this.library = library;
             if (library === "flipper") {
@@ -163,7 +173,7 @@ Vue.createApp({
     .component("fui-icons", fuiIconsComponent)
     .component("fui-tools", fuiToolsComponent)
     .component("fui-inspector", fuiInspectorComponent)
-    .component("fui-settings", fuiSettingsComponent)
+    // .component("fui-settings", fuiSettingsComponent)
     .component("fui-code", fuiCodeComponent)
     .component("fui-tabs", fuiTabsComponent)
     .component("fui-inspector-input", fuiInspectorInputComponent)

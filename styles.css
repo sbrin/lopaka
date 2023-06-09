@@ -79,8 +79,7 @@ canvas {
 }
 
 .fui-editor__tools {
-  min-width: 534px;
-  max-width: 768px;
+  width: 600px;
   align-self: baseline;
 }
 
@@ -353,12 +352,11 @@ canvas {
 
 .fui-editor-header {
   display: flex;
-  justify-content: space-between;
   width: 100%;
 }
 
 .fui-select {
-  margin: 6px 0 8px 0;
+  margin: 2px 20px 8px 0;
 }
 .fui-select__label {
   font-size: 24px;
@@ -378,7 +376,8 @@ a {
   justify-content: space-between;
   font-size: 2em;
 }
-.fui-header__right {
+.fui-header__right,
+.fui-header__left {
   display: flex;
   align-items: center;
 }

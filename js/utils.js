@@ -195,7 +195,7 @@ function getElementByOffset(layersArr, x, y) {
                     }
                 }
             }
-        } else if (scaledX1 <= x && scaledX2 > x && scaledY1 <= y && scaledY2 > y) {
+        } else if (scaledX1 <= x && scaledX2 >= x && scaledY1 <= y && scaledY2 >= y) {
             return element;
         }
     }

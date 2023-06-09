@@ -12,7 +12,6 @@ const fuiCanvasComponent = {
             @mouseleave="canvasMouseLeave"
             @dragover="(e) => { e.preventDefault() }"
             @drop="canvasOnDrop"
-            @resize="redrawCanvas"
         />
         </div>
     </div>`,
@@ -150,8 +149,8 @@ const fuiCanvasComponent = {
                 this.$emit("updateCurrentLayer", {
                     ...layerProps,
                     yy: scaleDown(y) - textContainerHeight[defaultFont],
-                    text: "Text string 123",
-                    width: getTextWidth("Text string", defaultFont),
+                    text: DEFAULT_STRING,
+                    width: getTextWidth(DEFAULT_STRING, defaultFont),
                     height: textContainerHeight[defaultFont],
                     font: defaultFont,
                 });
@@ -277,8 +276,10 @@ const fuiCanvasComponent = {
                 this.stopDrawing(e);
                 this.redrawCanvas(this.screenElements);
             }
+            console.log("canvasMouseUp", this.isDrawing, this.isMoving);
             if (this.isDrawing || this.isMoving) {
                 this.$emit("updateCode");
+                this.$emit("saveLayers");
             }
             this.isMoving = false;
             this.isDrawing = false;
@@ -319,6 +320,7 @@ const fuiCanvasComponent = {
             this.$emit("addScreenLayer", layer);
             this.$emit("setActiveTool", "select");
             this.$emit("updateCode");
+            this.$emit("saveLayers");
         },
         redrawCanvas(screenElements) {
             this.CTX.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
