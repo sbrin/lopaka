@@ -222,7 +222,7 @@ const fuiInspectorInputComponent = {
     methods: {
         onInput(e) {
             const result = ["text"].includes(this.type) ?
-                e.target.value.replace(this.charsRegex, '').trim() :
+                e.target.value.replace(this.charsRegex, '') :
                 parseInt(e.target.value.replace(/[^0-9]/g, ''));
             e.target.value = result;
             this.element[this.field] = result;
