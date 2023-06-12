@@ -1,4 +1,4 @@
-const standardFontsRegex = /[^0-9a-zA-Z\s\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/]/g;
+const standardFontsRegex = /[^0-9a-zA-Z\s\:\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/\?]/g;
 const numberFontsRegex = /[^0-9\s\,\.\/\-\*\+\:]/g;
 
 const defaultFont = "helvB08_tr";

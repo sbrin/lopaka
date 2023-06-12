@@ -70,13 +70,12 @@ const fuiCanvasComponent = {
     },
     mounted() {
         this.CTX = this.$refs.screen.getContext("2d", { willReadFrequently: true });
-        // this.CTX.canvas.width = this.canvasWidth;
-        // this.CTX.canvas.height = this.canvasHeight;
 
         this.CTX.strokeWidth = 1;
         this.CTX.textRendering = "optimizeSpeed";
 
         document.addEventListener("mouseup", this.canvasMouseUp);
+        this.$refs.screen.addEventListener("contextmenu", event => { event.preventDefault(); });
 
         this.redrawCanvas(this.screenElements);
     },
@@ -276,7 +275,6 @@ const fuiCanvasComponent = {
                 this.stopDrawing(e);
                 this.redrawCanvas(this.screenElements);
             }
-            console.log("canvasMouseUp", this.isDrawing, this.isMoving);
             if (this.isDrawing || this.isMoving) {
                 this.$emit("updateCode");
                 this.$emit("saveLayers");
