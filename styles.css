@@ -26,6 +26,19 @@
   font-style: normal;
 }
 
+.fonts-helvb08 {
+  font-family: "helvB08_tr";
+}
+.fonts-haxrcorp4089 {
+  font-family: "haxrcorp4089_tr";
+}
+.fonts-profont22 {
+  font-family: "profont22_tr";
+}
+.fonts-f4x6 {
+  font-family: "f4x6_tr";
+}
+
 :root {
   --primary-color: #FF8200;
   --secondary-color: #441f07;
@@ -385,6 +398,8 @@ a {
 .fui-header__logo {
   text-align: center;
   font-size: 1.5em;
+  margin: 0;
+  padding: 0;
 }
 
 .fui-page-header {
