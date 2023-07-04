@@ -12,7 +12,7 @@ Vue.createApp({
             activeTab: "code",
 
             isInverted: false,
-            library: "u8g2_arduino",
+            library: "u8g2",
 
             display: "128×64",
             layerIndex: 0,
@@ -135,10 +135,6 @@ Vue.createApp({
                 this.currentLayer = undefined;
             }
         },
-        // toggleInvert() {
-        //     this.isInverted = !this.isInverted;
-        //     this.redrawCanvas();
-        // },
         selectLibrary(library) {
             this.library = library;
             if (library === "flipper") {

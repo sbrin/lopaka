@@ -35,6 +35,7 @@ const fuiCanvasComponent = {
             oY: 0,
             isMoving: false,
             isDrawing: false,
+            scale: 4,
         }
     },
     // watch: {
@@ -59,10 +60,10 @@ const fuiCanvasComponent = {
             return parseInt(this.canvasSize[1]);
         },
         canvasBoundX() {
-            return this.canvasWidth * 4
+            return this.canvasWidth * this.scale
         },
         canvasBoundY() {
-            return this.canvasHeight * 4
+            return this.canvasHeight * this.scale
         },
         style() {
             return `width: ${this.canvasBoundX}px; height: ${this.canvasBoundY}px;`
@@ -78,6 +79,7 @@ const fuiCanvasComponent = {
         this.$refs.screen.addEventListener("contextmenu", event => { event.preventDefault(); });
 
         this.redrawCanvas(this.screenElements);
+        this.$emit("updateCode");
     },
     unmounted() {
         document.removeEventListener("mouseup", this.canvasMouseUp);
@@ -115,8 +117,8 @@ const fuiCanvasComponent = {
             }
             this.$emit("updateCurrentLayer", undefined);
             const [x, y] = [e.offsetX, e.offsetY];
-            this.mouseClick_x = x - (x % 4);
-            this.mouseClick_y = y - (y % 4);
+            this.mouseClick_x = x - (x % this.scale);
+            this.mouseClick_y = y - (y % this.scale);
             this.isDrawing = true;
 
             const layerProps = {
@@ -188,8 +190,8 @@ const fuiCanvasComponent = {
                 )
             ) {
                 if (this.activeTool === "frame") {
-                    x = x >= this.canvasBoundX - 4 ? this.canvasBoundX - 4 : x;
-                    y = y >= this.canvasBoundY - 4 ? this.canvasBoundY - 4 : y;
+                    x = x >= this.canvasBoundX - this.scale ? this.canvasBoundX - this.scale : x;
+                    y = y >= this.canvasBoundY - this.scale ? this.canvasBoundY - this.scale : y;
                 }
 
                 if (["line"].includes(this.activeTool)) {
@@ -302,7 +304,7 @@ const fuiCanvasComponent = {
                 }
             }
         },
-        addImageToCanvas(name, x = 32, y = 16) {
+        addImageToCanvas(name, x = 0, y = 0) {
             const { isCustom, width, height } = this.fuiImages[name];
             const layer = {
                 type: "icon",
@@ -352,7 +354,7 @@ const fuiCanvasComponent = {
                 } else if (type === "icon") {
                     this.CTX.drawImage(this.fuiImages[name].element, x, y);
                 } else if (type === "line") {
-                    bline(imgData, x, y, x2, y2, this.canvasWidth, this.canvasHeight);
+                    bline(imgData, x, y, x2, y2, this.canvasWidth, this.canvasHeight, this.scale);
                     this.CTX.putImageData(imgData, 0, 0);
                 } else if (type === "circle") {
                     drawCircle(imgData, x + radius, y + radius, radius, this.canvasWidth, this.canvasHeight);

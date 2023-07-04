@@ -1,4 +1,4 @@
-function bline(imgData, x0, y0, x1, y1, canvasWidth, canvasHeight) {
+function bline(imgData, x0, y0, x1, y1, canvasWidth, canvasHeight, scale) {
     const resultArr = [];
     const dx = Math.abs(x1 - x0),
         sx = x0 < x1 ? 1 : -1;
@@ -22,7 +22,7 @@ function bline(imgData, x0, y0, x1, y1, canvasWidth, canvasHeight) {
     }
     for (let i = 0; i < resultArr.length; i++) {
         const [x, y] = resultArr[i];
-        const n = (y * canvasWidth + x) * 4;
+        const n = (y * canvasWidth + x) * scale;
 
         imgData.data[n] = 0;
         imgData.data[n + 1] = 0;
@@ -216,7 +216,7 @@ function imgDataToXBMP(imgData, xStart, yStart, width, height) {
 
     for (let y = yStart; y < yStart + height; y++) {
         for (let x = xStart; x < xStart + width; x++) {
-            const imgDataIndex = (y * imgData.width + x) * 4;
+            const imgDataIndex = (y * width + x) * 4;
             const alphaValue = imgData.data[imgDataIndex + 3];
 
             if (alphaValue > 127) {
@@ -230,11 +230,44 @@ function imgDataToXBMP(imgData, xStart, yStart, width, height) {
     return xbmp.map(x => '0x' + x.toString(16).padStart(2, '0'));
 }
 
-function getU8g2ArduinoCode(element, isDeclared, context) {
+function imgDataToUint32Array(imgData) {
+    const length = imgData.data.length / 4; // number of pixels
+    const arrayLength = Math.ceil(length / 32);
+    let xbmp = new Array(arrayLength).fill(0);
+    for (let y = 0; y < imgData.height; y++) {
+        for (let x = 0; x < imgData.width; x++) {
+            const pixelNumber = y * imgData.width + x; // Overall pixel number in the image
+            const imgDataIndex = pixelNumber * 4;
+            const alphaValue = imgData.data[imgDataIndex + 3];
+    
+            if (alphaValue > 127) {
+                const xbmpIndex = Math.floor(pixelNumber / 32); // Index in the xbmp array
+                const bitPosition = 31 - (pixelNumber % 32); // Position within the 32-bit chunk
+                xbmp[xbmpIndex] |= 1 << bitPosition;
+                xbmp[xbmpIndex] >>>= 0;  // Convert to unsigned integer
+            }
+        }
+    }
+    
+    return xbmp.map(x => '0x' + x.toString(16));
+}
+
+function getUint32Code(context) {
+    let result = ``;
+    const imgData = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+    const UINT32 = imgDataToUint32Array(imgData);
+
+    const iconName = `image_frame`;
+    result += `const uint32_t ${iconName}[] = {${UINT32}};
+`;
+    return result;
+};
+
+function getU8g2Code(element, isDeclared, context) {
     const type = element.type.charAt(0).toUpperCase() + element.type.slice(1);
     const func = `u8g2.draw${type}`;
     const { width, height, x, y } = element;
-    const font = fontMap["u8g2_arduino"][element.font];
+    const font = fontMap["u8g2"][element.font];
     switch (element.type) {
         case "icon":
             let result = ``;
@@ -291,6 +324,9 @@ ${func}(canvas, ${element.x}, ${element.y}, "${element.text}")`;
 };
 
 function generateCode(screenElements, isInverted, library, context) {
+    if (library === "uint32") {
+        return getUint32Code(context);
+    }
     let lines = "";
     const declaredIcons = [];
     if (isInverted) {

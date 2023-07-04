@@ -11,7 +11,13 @@ const fontMap = {
         haxrcorp4089_tr: "FontSecondary",
         profont22_tr: "FontBigNumbers",
     },
-    "u8g2_arduino": {
+    "u8g2": {
+        helvB08_tr: "u8g2_font_helvB08_tr",
+        haxrcorp4089_tr: "u8g2_font_haxrcorp4089_tr",
+        profont22_tr: "u8g2_font_profont22_tr",
+        "f4x6_tr": "u8g2_font_4x6_tr",
+    },
+    "uint32": {
         helvB08_tr: "u8g2_font_helvB08_tr",
         haxrcorp4089_tr: "u8g2_font_haxrcorp4089_tr",
         profont22_tr: "u8g2_font_profont22_tr",
@@ -42,8 +48,8 @@ const textCharWidth = {
 
 const codeGenerators = {
     "flipper": getFlipperCode,
-    // "u8g2": getU8g2Code,
-    "u8g2_arduino": getU8g2ArduinoCode,
+    "u8g2": getU8g2Code,
+    "uint32": getUint32Code,
 };
 const invertedHeaders = {
     "flipper": `canvas_draw_box(canvas, 0, 0, 127, 63);
@@ -230,6 +236,7 @@ const ICONS_SRC = {
 
 const displaySizes = [
     "8×8",
+    "12×8",
     "32×8",
     "48×64",
     "64×8",
