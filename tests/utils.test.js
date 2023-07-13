@@ -35,7 +35,28 @@ describe('bline function', () => {
 });
 
 describe('drawCircle function', () => {
-  // Write your tests here
+  let mockImageData;
+  beforeEach(() => {
+    mockImageData = createMockImageData(10, 10);
+  });
+
+  it('should draw a circle', () => {
+    drawCircle(mockImageData, 5, 5, 5, [255, 255, 255, 255]);
+    // Assert that the pixels within the circle have been colored white
+    for (let y = 0; y < 10; y++) {
+      for (let x = 0; x < 10; x++) {
+        const pixelIndex = (y * 10 + x) * 4;
+        const dx = x - 5;
+        const dy = y - 5;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance <= 5) {
+          expect(mockImageData.data.slice(pixelIndex, pixelIndex + 4)).toEqual([255, 255, 255, 255]);
+        } else {
+          expect(mockImageData.data.slice(pixelIndex, pixelIndex + 4)).toEqual([0, 0, 0, 0]);
+        }
+      }
+    }
+  });
 });
 
 describe('drawDisc function', () => {
