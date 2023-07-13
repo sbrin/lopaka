@@ -10,7 +10,28 @@ function createMockImageData(width, height) {
 }
 
 describe('bline function', () => {
-  // Write your tests here
+  let mockImageData;
+  beforeEach(() => {
+    mockImageData = createMockImageData(10, 10);
+  });
+
+  it('should draw a line from (0,0) to (9,9)', () => {
+    bline(mockImageData, 0, 0, 9, 9, [255, 255, 255, 255]);
+    // Assert that the pixels from (0,0) to (9,9) have been colored white
+    for (let i = 0; i < 10; i++) {
+      const pixelIndex = (i * 10 + i) * 4;
+      expect(mockImageData.data.slice(pixelIndex, pixelIndex + 4)).toEqual([255, 255, 255, 255]);
+    }
+  });
+
+  it('should draw a line from (9,0) to (0,9)', () => {
+    bline(mockImageData, 9, 0, 0, 9, [255, 255, 255, 255]);
+    // Assert that the pixels from (9,0) to (0,9) have been colored white
+    for (let i = 0; i < 10; i++) {
+      const pixelIndex = (i * 10 + (9 - i)) * 4;
+      expect(mockImageData.data.slice(pixelIndex, pixelIndex + 4)).toEqual([255, 255, 255, 255]);
+    }
+  });
 });
 
 describe('drawCircle function', () => {
