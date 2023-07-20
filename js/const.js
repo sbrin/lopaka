@@ -46,11 +46,6 @@ const textCharWidth = {
     "f4x6_tr": 4,
 }
 
-const codeGenerators = {
-    "flipper": getFlipperCode,
-    "u8g2": getU8g2Code,
-    "uint32": getUint32Code,
-};
 const invertedHeaders = {
     "flipper": `canvas_draw_box(canvas, 0, 0, 127, 63);
 canvas_set_color(canvas, ColorWhite);

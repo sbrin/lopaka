@@ -239,7 +239,7 @@ function imgDataToUint32Array(imgData) {
             const pixelNumber = y * imgData.width + x; // Overall pixel number in the image
             const imgDataIndex = pixelNumber * 4;
             const alphaValue = imgData.data[imgDataIndex + 3];
-    
+
             if (alphaValue > 127) {
                 const xbmpIndex = Math.floor(pixelNumber / 32); // Index in the xbmp array
                 const bitPosition = 31 - (pixelNumber % 32); // Position within the 32-bit chunk
@@ -248,7 +248,7 @@ function imgDataToUint32Array(imgData) {
             }
         }
     }
-    
+
     return xbmp.map(x => '0x' + x.toString(16));
 }
 
@@ -324,6 +324,12 @@ ${func}(canvas, ${element.x}, ${element.y}, "${element.text}")`;
 };
 
 function generateCode(screenElements, isInverted, library, context) {
+    const codeGenerators = {
+        "flipper": getFlipperCode,
+        "u8g2": getU8g2Code,
+        "uint32": getUint32Code,
+    };
+
     if (library === "uint32") {
         return getUint32Code(context);
     }
