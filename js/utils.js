@@ -113,7 +113,7 @@ function drawDisc(imgData, centerX, centerY, radius, canvasWidth, canvasHeight) 
     }
 }
 
-function maskBlack(context, isInverted, canvasWidth, canvasHeight) {
+function maskBlack(context, canvasWidth, canvasHeight) {
     const imgData = context.getImageData(
         0,
         0,
@@ -263,7 +263,7 @@ function getUint32Code(context) {
     return result;
 };
 
-function getU8g2Code(element, isDeclared, context) {
+function getU8g2Code(element) {
     const type = element.type.charAt(0).toUpperCase() + element.type.slice(1);
     const func = `u8g2.draw${type}`;
     const { width, height, x, y } = element;
@@ -271,19 +271,13 @@ function getU8g2Code(element, isDeclared, context) {
     switch (element.type) {
         case "icon":
             let result = ``;
-            const imgData = context.getImageData(x, y, width, height);
-            const XBMP = imgDataToXBMP(imgData, 0, 0, width, height);
             const iconName = `icon_${element.name}_bits`;
-            if (!isDeclared) {
-                result += `static unsigned char ${iconName}[] = {${XBMP}};
-`;
-            }
-            result += `u8g2.drawXBM( ${x}, ${y}, ${width}, ${height}, ${iconName});`;
+            result += `u8g2.drawXBMP( ${x}, ${y}, ${width}, ${height}, ${iconName});`;
             return result;
         case "box":
             return `${func}(${element.x}, ${element.y}, ${element.width}, ${element.height});`;
         case "dot":
-            return `u8g2.drawPixel(${element.x}, ${element.y})`;
+            return `u8g2.drawPixel(${element.x}, ${element.y});`;
         case "frame":
             return `${func}(${element.x}, ${element.y}, ${element.width + 1}, ${element.height + 1});`;
         case "line":
@@ -295,6 +289,17 @@ function getU8g2Code(element, isDeclared, context) {
             return `u8g2.setFont(${font});
 ${func}(${element.x}, ${element.y}, "${element.text}");`;
     }
+};
+
+function getU8g2Declarations(element, context) {
+    const { width, height, x, y } = element;
+    let result = ``;
+    const imgData = context.getImageData(x, y, width, height);
+    const XBMP = imgDataToXBMP(imgData, 0, 0, width, height);
+    const iconName = `icon_${element.name}_bits`;
+    result += `static const unsigned char ${iconName}[] U8X8_PROGMEM = {${XBMP}};
+`;
+    return result;
 };
 
 
@@ -323,7 +328,7 @@ ${func}(canvas, ${element.x}, ${element.y}, "${element.text}")`;
     }
 };
 
-function generateCode(screenElements, isInverted, library, context) {
+function generateCode(screenElements, library, context) {
     const codeGenerators = {
         "flipper": getFlipperCode,
         "u8g2": getU8g2Code,
@@ -334,21 +339,22 @@ function generateCode(screenElements, isInverted, library, context) {
         return getUint32Code(context);
     }
     let lines = "";
+    let declarations = "";
     const declaredIcons = [];
-    if (isInverted) {
-        lines = invertedHeaders[library];
-    }
     for (let i = 0; i < screenElements.length; i++) {
         const element = screenElements[i];
-        // avoid duplicate icon declarations
-        const isDeclared = declaredIcons.indexOf(element.name) >= 0;
-        if (!isDeclared) {
-            declaredIcons.push(element.name);
+        if (element.type === "icon" && !!codeDeclarators[library]) {
+            // avoid duplicate icon declarations
+            const isDeclared = declaredIcons.indexOf(element.name) >= 0;
+            if (!isDeclared) {
+                declaredIcons.push(element.name);
+                declarations = `${declarations}${codeDeclarators[library](element, context)}`;
+            }
         }
-        lines = `${lines}${codeGenerators[library](element, isDeclared, context)}
+        lines = `${lines}${codeGenerators[library](element, context)}
 `;
     }
-    return lines;
+    return `${declarations}${lines}`;
 };
 
 function getTextWidth(text, font) {
