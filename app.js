@@ -147,7 +147,7 @@ Vue.createApp({
         updateCode() {
             if (this.activeTab === "code") {
                 const context = this.$refs.fuiCanvas.$refs.screen.getContext("2d", { willReadFrequently: true });
-                this.codePreview = generateCode(this.screenElements, this.isInverted, this.library, context);
+                this.codePreview = generateCode(this.screenElements, this.library, context);
             }
         },
         saveLayers() {
