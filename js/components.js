@@ -303,11 +303,7 @@ const fuiLibraryComponent = {
     },
     data() {
         return {
-            libs: {
-                "u8g2": "U8g2",
-                "flipper": "Flipper Zero",
-                "uint32": "uint32 RAW",
-            },
+            libs: LIBRARIES,
         };
     },
     methods: {

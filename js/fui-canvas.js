@@ -368,7 +368,7 @@ const fuiCanvasComponent = {
                     this.CTX.fillText(text, x, y);
                 }
             }
-            const newImgData = maskBlack(this.CTX, this.isInverted, this.canvasWidth, this.canvasHeight);
+            const newImgData = maskBlack(this.CTX, this.canvasWidth, this.canvasHeight);
             this.CTX.putImageData(newImgData, 0, 0);
             this.CTX.restore();
         },
