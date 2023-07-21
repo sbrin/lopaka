@@ -1,0 +1,34 @@
+{
+  "name": "lopaka",
+  "version": "0.0.1",
+  "description": "Embedded graphics editor with code builder",
+  "main": "index.html",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbrin/lopaka.git"
+  },
+  "keywords": [
+    "embedded",
+    "editor",
+    "graphics",
+    "canvas",
+    "arduino",
+    "u8g2",
+    "flipperzero"
+  ],
+  "author": "sbrin",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/sbrin/lopaka/issues"
+  },
+  "homepage": "https://github.com/sbrin/lopaka#readme",
+  "devDependencies": {
+    "jest": "^29.6.1"
+  }
+}

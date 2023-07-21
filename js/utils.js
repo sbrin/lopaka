@@ -329,6 +329,12 @@ ${func}(canvas, ${element.x}, ${element.y}, "${element.text}")`;
 };
 
 function generateCode(screenElements, library, context) {
+    const codeGenerators = {
+        "flipper": getFlipperCode,
+        "u8g2": getU8g2Code,
+        "uint32": getUint32Code,
+    };
+
     if (library === "uint32") {
         return getUint32Code(context);
     }
