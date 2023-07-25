@@ -1,4 +1,16 @@
-const { bline, drawCircle, drawDisc, maskBlack, getTextWidth, getElementByOffset, imgDataToUint32Array, getUint32Code, getU8g2Code, getFlipperCode, generateCode } = require('../js/utils.js');
+const {
+  bline,
+  drawCircle,
+  drawDisc,
+  maskBlack,
+  getTextWidth,
+  getElementByOffset,
+  imgDataToUint32Array,
+  getUint32Code,
+  getU8g2Code,
+  getFlipperCode,
+  generateCode,
+} = require("../js/utils.js");
 
 // Mocking the ImageData object
 // function createMockImageData(width, height) {
@@ -7,14 +19,14 @@ const { bline, drawCircle, drawDisc, maskBlack, getTextWidth, getElementByOffset
 //   return canvas;
 // }
 
-// describe.only('bline function', () => {
+// describe.only('drawLine function', () => {
 //   let mockImageData;
 //   beforeEach(() => {
 //     mockImageData = createMockImageData(10, 10);
 //   });
 
 //   it('should draw a line from (0,0) to (9,9)', () => {
-//     bline(mockImageData, 0, 0, 9, 9, [255, 255, 255, 255]);
+//     drawLine(mockImageData, 0, 0, 9, 9, [255, 255, 255, 255]);
 //     // Assert that the pixels from (0,0) to (9,9) have been colored white
 //     for (let i = 0; i < 10; i++) {
 //       const pixelIndex = (i * 10 + i) * 4;
@@ -23,7 +35,7 @@ const { bline, drawCircle, drawDisc, maskBlack, getTextWidth, getElementByOffset
 //   });
 
 //   it('should draw a line from (9,0) to (0,9)', () => {
-//     bline(mockImageData, 9, 0, 0, 9, [255, 255, 255, 255]);
+//     drawLine(mockImageData, 9, 0, 0, 9, [255, 255, 255, 255]);
 //     // Assert that the pixels from (9,0) to (0,9) have been colored white
 //     for (let i = 0; i < 10; i++) {
 //       const pixelIndex = (i * 10 + (9 - i)) * 4;
@@ -117,15 +129,15 @@ const { bline, drawCircle, drawDisc, maskBlack, getTextWidth, getElementByOffset
 //   });
 // });
 
-describe('getTextWidth', () => {
-  it('should return the correct width of the text string in the specified font', () => {
-    expect(getTextWidth('Hello', 'helvB08_tr')).toBe(25);
-    expect(getTextWidth('Hello', 'haxrcorp4089_tr')).toBe(20);
-    expect(getTextWidth('Hello', 'profont22_tr')).toBe(55);
-    expect(getTextWidth('Hello', 'f4x6_tr')).toBe(20);
-    expect(getTextWidth('Hello World', 'helvB08_tr')).toBe(55);
-    expect(getTextWidth('Hello World', 'haxrcorp4089_tr')).toBe(44);
-    expect(getTextWidth('Hello World', 'profont22_tr')).toBe(121);
-    expect(getTextWidth('Hello World', 'f4x6_tr')).toBe(44);
+describe("getTextWidth", () => {
+  it("should return the correct width of the text string in the specified font", () => {
+    expect(getTextWidth("Hello", "helvB08_tr")).toBe(25);
+    expect(getTextWidth("Hello", "haxrcorp4089_tr")).toBe(20);
+    expect(getTextWidth("Hello", "profont22_tr")).toBe(55);
+    expect(getTextWidth("Hello", "f4x6_tr")).toBe(20);
+    expect(getTextWidth("Hello World", "helvB08_tr")).toBe(55);
+    expect(getTextWidth("Hello World", "haxrcorp4089_tr")).toBe(44);
+    expect(getTextWidth("Hello World", "profont22_tr")).toBe(121);
+    expect(getTextWidth("Hello World", "f4x6_tr")).toBe(44);
   });
 });

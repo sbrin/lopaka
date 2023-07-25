@@ -24,7 +24,7 @@ const fuiRootTmpl = `
           :current-layer="currentLayer"
           :active-tool="activeTool"
           :fui-images="fuiImages"
-          :is-inverted="isInverted"
+          :imageDataCache="imageDataCache"
           @update-current-layer="updateCurrentLayer"
           @set-active-tool="setActiveTool"
           @update-fui-images="updateFuiImages"
@@ -62,6 +62,7 @@ const fuiRootTmpl = `
           @redraw-canvas="redrawCanvas"
           @update-code="updateCode"
           @save-layers="saveLayers"
+          @update-current-layer="updateCurrentLayer"
         />
         <!-- <fui-settings :isInverted="isInverted" @redraw-canvas="redrawCanvas" @toggle-invert="toggleInvert"/> -->
       </div>
@@ -83,7 +84,7 @@ const fuiLayersTmpl = `
         </li>
     </ul>
 </div>
-`
+`;
 
 const fuiToolsTmpl = `
     <div class="tools">
@@ -119,7 +120,7 @@ const fuiIconsTmpl = `
         :key="index" :src="item.src" :data-name="item.name" :width="item.width * 2" :height="item.height * 2"
         :alt="item.name" :title="item.name" />
     </div>
-        `
+        `;
 const fuiFileTmpl = `
   <label
     class="button"
@@ -171,17 +172,19 @@ const fuiInspectorTmpl = `
         field="height" type="number" @update="update"></fui-inspector-input>
     </div>
   </div>
-  <div class="inspector__row">
-    <div v-if="elem.font">
+  <div class="inspector__row" v-if="elem.font">
       <fui-inspector-input :element="elem" field="font" :library="library" type="select" @update="update">
       </fui-inspector-input>
-    </div>
   </div>
   <div class="inspector__row">
-    <div v-if="elem.type === 'str'">
+    <template v-if="elem.type === 'str'">
       <fui-inspector-input :element="elem" field="text" :library="library" type="text" @update="update">
       </fui-inspector-input>
-    </div>
+    </template>
+    <template v-if="elem.type === 'icon'">
+      <fui-inspector-input :element="elem" field="isOverlay" type="checkbox" @update="update" id="inspector_is_overlay">
+      </fui-inspector-input> <label for="inspector_is_overlay">Overlay (ignore)</label>
+    </template>
   </div>
 </div>
 `;

@@ -7,6 +7,7 @@
     "test": "tests"
   },
   "scripts": {
+    "start": "serve",
     "test": "jest"
   },
   "repository": {
@@ -30,5 +31,8 @@
   "homepage": "https://github.com/sbrin/lopaka#readme",
   "devDependencies": {
     "jest": "^29.6.1"
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
   }
 }

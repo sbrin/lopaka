@@ -40,7 +40,7 @@
 }
 
 :root {
-  --primary-color: #FF8200;
+  --primary-color: #ff8200;
   --secondary-color: #441f07;
   --bg-color: #1c0e02;
   --border-color: #955b2f;
@@ -49,7 +49,9 @@
   --input-font-size: 18px;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   /* font-family: "helvB08_tr"; */
   font-weight: normal;
 }
@@ -69,7 +71,7 @@ canvas {
   background: #ed791b;
   text-rendering: "geometricPrecision";
   font-smooth: never;
-  -webkit-font-smoothing : none;
+  -webkit-font-smoothing: none;
   opacity: 0.9;
 }
 
@@ -160,11 +162,10 @@ canvas {
   color: var(--primary-color);
   border: none;
   padding: 2px 0px 2px 4px;
-  width: 36px;
   outline: none;
 }
 
-.inspector__input[type=text] {
+.inspector__input[type="text"] {
   width: 112px;
 }
 
@@ -298,6 +299,8 @@ canvas {
   margin: 8px;
   mix-blend-mode: darken;
   border: 1px solid var(--border-color);
+  max-width: 128px;
+  height: auto;
 }
 
 .fui-icons__header {
@@ -377,7 +380,12 @@ canvas {
 
 .fui-grid {
   background-size: 4px 4px;
-  background-image: linear-gradient(to right, var(--bg-color) 0.5px, transparent 0), linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 0)
+  background-image: linear-gradient(
+      to right,
+      var(--bg-color) 0.5px,
+      transparent 0
+    ),
+    linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 0);
 }
 
 a {
