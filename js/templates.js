@@ -183,7 +183,7 @@ const fuiInspectorTmpl = `
     </template>
     <template v-if="elem.type === 'icon'">
       <fui-inspector-input :element="elem" field="isOverlay" type="checkbox" @update="update" id="inspector_is_overlay">
-      </fui-inspector-input> <label for="inspector_is_overlay">Overlay (ignore)</label>
+      </fui-inspector-input> <label for="inspector_is_overlay" title="Image will be skipped from b&w masking and code generation, you will not see it on your device">Overlay (ignore)</label>
     </template>
   </div>
 </div>

@@ -140,7 +140,7 @@ const fuiIconsComponent = {
   created() {
     this.prepareImages();
   },
-  mounted() {},
+  mounted() { },
 };
 
 const fuiToolsComponent = {
@@ -187,18 +187,18 @@ const fuiInspectorComponent = {
 const fuiInspectorInputComponent = {
   template: `
     <span v-if="hasNoWidth">{{ element[field] }}</span>
-    <select class="input-select" v-if="field === 'font'" :value="element[field]" @input="onSelect" :name="name">
+    <select class="input-select" v-if="field === 'font'" :value="element[field]" @input="onSelect" :id="id">
       <option v-for="(font, idx) in fontsList[library]" :key="idx" :value="font">{{ font }}</option>
     </select>
-    <input v-else-if="type === 'checkbox'" class="inspector__input" @input="onInput" :type="type" :name="name" :checked="element[field]"></input>
-    <input v-else class="inspector__input" @input="onInput" :value="element[field]" :type="type" :name="name" max="1024" min="-1024" step="1"></input>
+    <input v-else-if="type === 'checkbox'" class="inspector__input" @input="onInput" :type="type" :id="id" :checked="element[field]"></input>
+    <input v-else class="inspector__input" @input="onInput" :value="element[field]" :type="type" :id="id" max="1024" min="-1024" step="1"></input>
     `,
   props: {
     element: Object,
     type: String,
     field: String,
     library: String,
-    name: String,
+    id: String,
   },
   computed: {
     hasNoWidth() {

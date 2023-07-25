@@ -299,3 +299,10 @@ const displaySizes = [
   "320×240",
   "400×240",
 ];
+
+const KEYS = {
+  UP: 38,
+  DOWN: 40,
+  LEFT: 37,
+  RIGHT: 39,
+}

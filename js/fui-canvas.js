@@ -77,12 +77,14 @@ const fuiCanvasComponent = {
         event.preventDefault();
       }
     });
+    document.addEventListener("keydown", this.keyDownHandler);
 
     this.redrawCanvas(this.screenElements);
     this.$emit("updateCode");
   },
   unmounted() {
     document.removeEventListener("mouseup", this.canvasMouseUp);
+    document.removeEventListener("keydown", this.keyDownHandler);
   },
   methods: {
     async canvasOnDrop(e) {
@@ -369,9 +371,9 @@ const fuiCanvasComponent = {
             if (isOverlay) {
               putImageDataWithAlpha(this.CTX, data, x, y, 0.75);
             } else {
-              const maskedData = maskBlack(data);
+              const newImageData = maskAndMixImageData(imgData, data, x, y);
               this.CTX.putImageData(
-                getImageDataMix(imgData, maskedData, x, y),
+                newImageData,
                 0,
                 0
               );
@@ -424,5 +426,32 @@ const fuiCanvasComponent = {
       }
       this.CTX.restore();
     },
+    keyDownHandler(event) {
+      if (event.isComposing) {
+        return;
+      }
+      if (this.currentLayer && Object.values(KEYS).includes(event.keyCode)) {
+        event.preventDefault();
+        switch (event.keyCode) {
+          case KEYS.UP:
+            this.currentLayer.y -= 1;
+            break;
+          case KEYS.DOWN:
+            this.currentLayer.y += 1;
+            break;
+          case KEYS.LEFT:
+            this.currentLayer.x -= 1;
+            break;
+          case KEYS.RIGHT:
+            this.currentLayer.x += 1;
+            break;
+          default:
+            break;
+        }
+        this.$emit("updateCurrentLayer", this.currentLayer);
+        this.redrawCanvas(this.screenElements);
+        this.$emit("saveLayers");
+      }
+    }
   },
 };

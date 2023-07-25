@@ -127,32 +127,6 @@ function drawDisc(
   }
 }
 
-function maskBlack(imgData) {
-  let newImageData = new ImageData(
-    new Uint8ClampedArray(imgData.data.buffer.slice(0)),
-    imgData.width,
-    imgData.height
-  );
-
-  for (var i = 0; i < imgData.data.length; i += 4) {
-    if (
-      imgData.data[i + 3] === 255 &&
-      imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2] <= 381
-    ) {
-      newImageData.data[i] = 0; // R
-      newImageData.data[i + 1] = 0; // G
-      newImageData.data[i + 2] = 0; // B
-      newImageData.data[i + 3] = 255; // alpha
-    } else {
-      newImageData.data[i] = 255; // R
-      newImageData.data[i + 1] = 255; // G
-      newImageData.data[i + 2] = 255; // B
-      newImageData.data[i + 3] = 0; // alpha
-    }
-  }
-  return newImageData;
-}
-
 function readFileAsync(file) {
   return new Promise((resolve, reject) => {
     let reader = new FileReader();
@@ -309,16 +283,14 @@ function getU8g2Code(element) {
     case "dot":
       return `u8g2.drawPixel(${element.x}, ${element.y});`;
     case "frame":
-      return `${func}(${element.x}, ${element.y}, ${element.width + 1}, ${
-        element.height + 1
-      });`;
+      return `${func}(${element.x}, ${element.y}, ${element.width + 1}, ${element.height + 1
+        });`;
     case "line":
       return `${func}(${element.x}, ${element.y}, ${element.x2}, ${element.y2});`;
     case "circle":
     case "disc":
-      return `${func}(${element.x + element.radius}, ${
-        element.y + element.radius
-      }, ${element.radius});`;
+      return `${func}(${element.x + element.radius}, ${element.y + element.radius
+        }, ${element.radius});`;
     case "str":
       return `u8g2.setFont(${font});
 ${func}(${element.x}, ${element.y}, "${element.text}");`;
@@ -352,16 +324,14 @@ function getFlipperCode(element, isDeclared) {
     case "dot":
       return `${func}(canvas, ${element.x}, ${element.y});`;
     case "frame":
-      return `${func}(canvas, ${element.x}, ${element.y}, ${
-        element.width + 1
-      }, ${element.height + 1});`;
+      return `${func}(canvas, ${element.x}, ${element.y}, ${element.width + 1
+        }, ${element.height + 1});`;
     case "line":
       return `${func}(canvas, ${element.x}, ${element.y}, ${element.x2}, ${element.y2});`;
     case "circle":
     case "disc":
-      return `${func}(canvas, ${element.x + element.radius}, ${
-        element.y + element.radius
-      }, ${element.radius});`;
+      return `${func}(canvas, ${element.x + element.radius}, ${element.y + element.radius
+        }, ${element.radius});`;
     case "str":
       return `canvas_set_font(canvas, ${font});
 ${func}(canvas, ${element.x}, ${element.y}, "${element.text}")`;
@@ -425,39 +395,43 @@ function imgToCanvasData(imgElement) {
   return imageData;
 }
 
-function getImageDataMix(originalImageData, newImageData, dx, dy) {
-  let mixedImageData = new ImageData(
+function maskAndMixImageData(originalImageData, newImageData, dx, dy) {
+  let resultImageData = new ImageData(
     new Uint8ClampedArray(originalImageData.data.buffer.slice(0)),
     originalImageData.width,
     originalImageData.height
   );
 
-  for (let y = 0; y < newImageData.height; y++) {
-    for (let x = 0; x < newImageData.width; x++) {
-      // Check that the pixel is within the bounds of the original image
-      if (
-        x + dx < 0 ||
-        x + dx >= originalImageData.width ||
-        y + dy < 0 ||
-        y + dy >= originalImageData.height
-      ) {
-        continue;
-      }
+  for (let y = 0; y < originalImageData.height; y++) {
+    for (let x = 0; x < originalImageData.width; x++) {
+      let newPos = (y * originalImageData.width + x) * 4;
+      let oldPos = ((y - dy) * newImageData.width + (x - dx)) * 4;
 
-      let newPos = ((y + dy) * originalImageData.width + (x + dx)) * 4;
-      let oldPos = (y * newImageData.width + x) * 4;
-
-      if (newImageData.data[oldPos + 3] !== 0) {
-        mixedImageData.data[newPos] = newImageData.data[oldPos]; // Red
-        mixedImageData.data[newPos + 1] = newImageData.data[oldPos + 1]; // Green
-        mixedImageData.data[newPos + 2] = newImageData.data[oldPos + 2]; // Blue
-        mixedImageData.data[newPos + 3] = newImageData.data[oldPos + 3]; // Alpha
+      if (x - dx >= 0 && x - dx < newImageData.width && y - dy >= 0 && y - dy < newImageData.height) {
+        // Masking operation
+        if (
+          newImageData.data[oldPos + 3] < 127 ||
+          newImageData.data[oldPos] + newImageData.data[oldPos + 1] + newImageData.data[oldPos + 2] > 381
+        ) {
+          // Lighter colors, make them transparent
+          resultImageData.data[newPos] = originalImageData.data[newPos]; // R
+          resultImageData.data[newPos + 1] = originalImageData.data[newPos + 1]; // G
+          resultImageData.data[newPos + 2] = originalImageData.data[newPos + 2]; // B
+          resultImageData.data[newPos + 3] = originalImageData.data[newPos + 3]; // alpha
+        } else {
+          // Darker colors, make them black
+          resultImageData.data[newPos] = 0; // R
+          resultImageData.data[newPos + 1] = 0; // G
+          resultImageData.data[newPos + 2] = 0; // B
+          resultImageData.data[newPos + 3] = 255; // alpha
+        }
       }
     }
   }
 
-  return mixedImageData;
+  return resultImageData;
 }
+
 
 function toCppVariableName(str) {
   var cppKeywords = [
