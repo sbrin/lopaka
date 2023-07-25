@@ -427,23 +427,24 @@ const fuiCanvasComponent = {
       this.CTX.restore();
     },
     keyDownHandler(event) {
-      if (event.isComposing) {
+      if (event.isComposing || event.target !== document.body) {
         return;
       }
       if (this.currentLayer && Object.values(KEYS).includes(event.keyCode)) {
         event.preventDefault();
+        const shift = event.shiftKey ? 10 : 1;
         switch (event.keyCode) {
           case KEYS.UP:
-            this.currentLayer.y -= 1;
+            this.currentLayer.y -= shift;
             break;
           case KEYS.DOWN:
-            this.currentLayer.y += 1;
+            this.currentLayer.y += shift;
             break;
           case KEYS.LEFT:
-            this.currentLayer.x -= 1;
+            this.currentLayer.x -= shift;
             break;
           case KEYS.RIGHT:
-            this.currentLayer.x += 1;
+            this.currentLayer.x += shift;
             break;
           default:
             break;
