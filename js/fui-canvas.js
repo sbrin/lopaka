@@ -187,7 +187,7 @@ const fuiCanvasComponent = {
       const offsetY = scaleDown(e.offsetY);
       const layerProps = {};
       if (
-        ["line", "frame", "box", "circle", "disc"].includes(this.activeTool) &&
+        ["line", "frame", "box", "circle", "disc", "str"].includes(this.activeTool) &&
         e.offsetX >= 0 &&
         e.offsetY >= 0 &&
         e.offsetX < this.canvasBoundX &&
