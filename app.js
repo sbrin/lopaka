@@ -8,7 +8,7 @@ Vue.createApp({
       screenElements: [],
       currentLayer: null,
 
-      activeTool: "frame",
+      activeTool: "pen",
       activeTab: "code",
 
       isInverted: false,
@@ -165,10 +165,10 @@ Vue.createApp({
       }
     },
     saveLayers() {
-      localStorage.setItem(
-        "lopaka_layers",
-        JSON.stringify(this.screenElements)
-      );
+      // localStorage.setItem(
+      //   "lopaka_layers",
+      //   JSON.stringify(this.screenElements)
+      // );
     },
     addImageToCanvas(name) {
       this.$refs.fuiCanvas.addImageToCanvas(name);

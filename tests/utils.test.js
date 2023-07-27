@@ -15,7 +15,6 @@ const {
 // Mocking the ImageData object
 // function createMockImageData(width, height) {
 //   const canvas = new CanvasRenderingContext2D();
-//   console.log(canvas);
 //   return canvas;
 // }
 

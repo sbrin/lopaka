@@ -127,6 +127,30 @@ canvas {
   cursor: grabbing;
 }
 
+/* .fui-canvas_draw {
+  cursor: none;
+} 
+
+.fui-cursor {
+  width: 8px;
+  height: 8px;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.canvas-wrapper:hover .fui-cursor {
+  visibility: visible;
+}
+
+.fui-cursor_pixel {
+  width: 4px;
+  height: 4px;
+  background: black;
+} */
+
 .inspector-wrapper {
   background: var(--secondary-color);
   border: 2px solid var(--border-dark-color);

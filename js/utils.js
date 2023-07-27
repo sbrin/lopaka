@@ -1,34 +1,22 @@
-function drawLine(imgData, x0, y0, x1, y1, canvasWidth, canvasHeight, scale) {
-  const resultArr = [];
-  const dx = Math.abs(x1 - x0),
-    sx = x0 < x1 ? 1 : -1;
-  const dy = Math.abs(y1 - y0),
-    sy = y0 < y1 ? 1 : -1;
-  let err = (dx > dy ? dx : -dy) / 2;
+function drawLine(imageData, x1, y1, x2, y2, canvasWidth, canvasHeight, erase) {
+  let pixels = new Uint32Array(imageData.data.buffer);
+  let dx = Math.abs(x2 - x1);
+  let dy = Math.abs(y2 - y1);
+  let sx = (x1 < x2) ? 1 : -1;
+  let sy = (y1 < y2) ? 1 : -1;
+  let err = dx - dy;
   while (true) {
-    if (x0 >= 0 && x0 < canvasWidth && y0 >= 0 && y0 < canvasHeight) {
-      resultArr.push([x0, y0]);
+    let index = (y1 * canvasWidth + x1);
+    if (x1 >= 0 && x1 < canvasWidth && y1 >= 0 && y1 < canvasHeight) {
+      pixels[index] = erase ? null : 0xFF000000; // Black pixel
     }
-    if (x0 === x1 && y0 === y1) break;
-    var e2 = err;
-    if (e2 > -dx) {
-      err -= dy;
-      x0 += sx;
-    }
-    if (e2 < dy) {
-      err += dx;
-      y0 += sy;
-    }
-  }
-  for (let i = 0; i < resultArr.length; i++) {
-    const [x, y] = resultArr[i];
-    const n = (y * canvasWidth + x) * scale;
 
-    imgData.data[n] = 0;
-    imgData.data[n + 1] = 0;
-    imgData.data[n + 2] = 0;
-    imgData.data[n + 3] = 255;
+    if ((x1 === x2) && (y1 === y2)) break;
+    let e2 = 2 * err;
+    if (e2 > -dy) { err -= dy; x1 += sx; }
+    if (e2 < dx) { err += dx; y1 += sy; }
   }
+  return imageData;
 }
 
 function drawCircle(
@@ -160,6 +148,9 @@ function getElementByOffset(layersArr, x, y) {
     const scaledY2 = scaleUp(
       element.yy ? element.yy + element.height : element.y + element.height
     );
+    // if (element.type === "pen") {
+    //   return element;
+    // } else
     if (element.type === "line") {
       const scaledX1 = scaleUp(element.x);
       const scaledY1 = scaleUp(element.y);
@@ -308,17 +299,19 @@ function getU8g2Declarations(element, context) {
   return result;
 }
 
-function getFlipperCode(element, isDeclared) {
+function getFlipperDeclarations(element) {
+  if (element.isCustom) {
+    return `extern const Icon I_${element.name};\n`;
+  }
+  return "";
+}
+
+function getFlipperCode(element) {
   const func = `canvas_draw_${element.type}`;
   const font = fontMap["flipper"][element.font];
   switch (element.type) {
     case "icon":
-      let result =
-        element.isCustom && !isDeclared
-          ? `extern const Icon I_${element.name};\n`
-          : ``;
-      result += `${func}(canvas, ${element.x}, ${element.y}, &I_${element.name})`;
-      return result;
+      return `${func}(canvas, ${element.x}, ${element.y}, &I_${element.name});`;
     case "box":
       return `${func}(canvas, ${element.x}, ${element.y}, ${element.width}, ${element.height});`;
     case "dot":
@@ -334,7 +327,7 @@ function getFlipperCode(element, isDeclared) {
         }, ${element.radius});`;
     case "str":
       return `canvas_set_font(canvas, ${font});
-${func}(canvas, ${element.x}, ${element.y}, "${element.text}")`;
+${func}(canvas, ${element.x}, ${element.y}, "${element.text}");`;
   }
 }
 
@@ -508,3 +501,35 @@ function putImageDataWithAlpha(ctx, newImageData, dx, dy, alpha) {
 
   ctx.putImageData(oldImageData, dx, dy);
 }
+
+function addImageDataPadding(imageData, shiftX, shiftY, frameWidth, frameHeight) {
+  const childWidth = imageData.width;
+  const childHeight = imageData.height;
+  let newWidth = childWidth;
+  let newHeight = childHeight;
+
+  const offsetX = shiftX > 0 ? Math.abs(shiftX) : 0;
+  const offsetY = shiftY > 0 ? Math.abs(shiftY) : 0;
+
+  if (childWidth - Math.abs(shiftX) < frameWidth || shiftX > 0) {
+    newWidth = childWidth + Math.abs(shiftX);
+  }
+  // сюда не попадает потому что childHeight уже выросла сильно больше
+  if (childHeight - Math.abs(shiftY) < frameHeight || shiftY > 0) {
+    newHeight = childHeight + Math.abs(shiftY);
+  }
+
+  const newData = new Uint8ClampedArray(newWidth * newHeight * 4);
+
+  for (let y = 0; y < imageData.height; y++) {
+    for (let x = 0; x < imageData.width; x++) {
+      const position = (y * imageData.width + x) * 4;
+      const newPosition = ((y + offsetY) * newWidth + (x + offsetX)) * 4;
+      newData.set(imageData.data.slice(position, position + 4), newPosition);
+    }
+  }
+  return new ImageData(newData, newWidth, newHeight);
+}
+
+
+

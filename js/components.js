@@ -151,7 +151,7 @@ const fuiToolsComponent = {
   },
   data() {
     return {
-      toolsList: ["frame", "box", "line", "dot", "circle", "disc"],
+      toolsList: ["pen", "frame", "box", "line", "dot", "circle", "disc"],
     };
   },
 };

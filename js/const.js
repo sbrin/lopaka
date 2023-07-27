@@ -61,6 +61,7 @@ const codeGenerators = {
 
 const codeDeclarators = {
   u8g2: getU8g2Declarations,
+  flipper: getFlipperDeclarations,
 };
 
 const invertedHeaders = {
