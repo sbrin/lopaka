@@ -8,7 +8,7 @@ Vue.createApp({
       screenElements: [],
       currentLayer: null,
 
-      activeTool: "pen",
+      activeTool: "draw",
       activeTab: "code",
 
       isInverted: false,
@@ -37,6 +37,9 @@ Vue.createApp({
     // this.screenElements = JSON.parse(localStorage.getItem("lopaka_layers")) ?? [];
   },
   mounted() {
+    if (this.isFlipper) {
+      this.activeTool = "frame";
+    }
     if (this.screenElements.length) {
       this.updateCode();
       this.layerIndex = this.screenElements.length;
@@ -45,7 +48,6 @@ Vue.createApp({
   methods: {
     setactiveTab(tab) {
       this.activeTab = tab;
-      this.updateCode();
     },
     prepareImages(e) {
       this.fuiImages = e;
@@ -146,6 +148,9 @@ Vue.createApp({
     selectLibrary(library) {
       this.library = library;
       if (library === "flipper") {
+        if (this.activeTool === "draw") {
+          this.activeTool = "frame";
+        };
         this.display = "128×64";
         localStorage.setItem("lopaka_display", this.display);
       }
@@ -153,16 +158,15 @@ Vue.createApp({
       localStorage.setItem("lopaka_library", library);
     },
     updateCode() {
-      if (this.activeTab === "code") {
-        const context = this.$refs.fuiCanvas.$refs.screen.getContext("2d", {
-          willReadFrequently: true,
-        });
-        this.codePreview = generateCode(
-          this.screenElements,
-          this.library,
-          context
-        );
-      }
+      const context = this.$refs.fuiCanvas.$refs.screen.getContext("2d", {
+        willReadFrequently: true,
+      });
+      this.codePreview = generateCode(
+        this.screenElements,
+        this.library,
+        context,
+        this.imageDataCache,
+      );
     },
     saveLayers() {
       // localStorage.setItem(

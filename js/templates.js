@@ -25,6 +25,7 @@ const fuiRootTmpl = `
           :active-tool="activeTool"
           :fui-images="fuiImages"
           :imageDataCache="imageDataCache"
+          :library="library"
           @update-current-layer="updateCurrentLayer"
           @set-active-tool="setActiveTool"
           @update-fui-images="updateFuiImages"
@@ -33,7 +34,7 @@ const fuiRootTmpl = `
           @save-layers="saveLayers"
         />
         <div class="fui-editor__tools">
-          <fui-tools :callback="setActiveTool" :active-tool="activeTool"></fui-tools>
+          <fui-tools :callback="setActiveTool" :active-tool="activeTool" :library="library"></fui-tools>
           <div class="fui-editor-header">
             <fui-tabs :active-tab="activeTab" @set-active-tab="setactiveTab"></fui-tabs>
           </div>
@@ -76,7 +77,7 @@ const fuiLayersTmpl = `
         <li v-for="(item, idx) in screenElements"
           :key="idx"
           class="layer"
-          :class="{layer_selected: currentLayer && currentLayer.index === item.index}"
+          :class="classNames(item)"
           @click.self="updateCurrentLayer(item)"
         >
             <div class="layer__name" @click="updateCurrentLayer(item)">{{ getLayerListItem(item) }}</div>
@@ -154,10 +155,10 @@ const fuiInspectorTmpl = `
     <div v-if="typeof elem.x2 === 'number'">x2: <fui-inspector-input :element="elem" field="x2" type="number"
         @update="update"></fui-inspector-input>
     </div>
-    <div v-if="typeof elem.width === 'number' && isHWVisible(elem)">w: <fui-inspector-input :element="elem"
-        field="width" type="number" @update="update"></fui-inspector-input>
+    <div v-if="typeof elem.width === 'number' && isHWVisible">w: <fui-inspector-input :element="elem"
+        field="width" type="number" @update="update" :disabled="isHWDisabled"></fui-inspector-input>
     </div>
-    <div v-if="typeof elem.radius === 'number' && isRadiusVisible(elem)">r: <fui-inspector-input :element="elem"
+    <div v-if="typeof elem.radius === 'number' && isRadiusVisible">r: <fui-inspector-input :element="elem"
         field="radius" type="number" @update="update"></fui-inspector-input>
     </div>
   </div>
@@ -168,8 +169,8 @@ const fuiInspectorTmpl = `
     <div v-if="typeof elem.y2 === 'number'">y2: <fui-inspector-input :element="elem" field="y2" type="number"
         @update="update"></fui-inspector-input>
     </div>
-    <div v-if="typeof elem.height === 'number' && isHWVisible(elem)">h: <fui-inspector-input :element="elem"
-        field="height" type="number" @update="update"></fui-inspector-input>
+    <div v-if="typeof elem.height === 'number' && isHWVisible">h: <fui-inspector-input :element="elem"
+        field="height" type="number" @update="update" :disabled="isHWDisabled"></fui-inspector-input>
     </div>
   </div>
   <div class="inspector__row" v-if="elem.font">

@@ -66,7 +66,7 @@ body {
 }
 
 canvas {
-  cursor: crosshair;
+  /* cursor: crosshair; */
   image-rendering: pixelated;
   background: #ed791b;
   text-rendering: "geometricPrecision";
@@ -265,6 +265,10 @@ canvas {
   max-width: 132px;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.layer_ignored {
+  color: #999;
 }
 
 .layer_selected .layer__name:before {

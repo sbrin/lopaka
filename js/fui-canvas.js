@@ -24,6 +24,7 @@ const fuiCanvasComponent = {
         currentLayer: Object,
         fuiImages: Array,
         imageDataCache: Object,
+        library: String,
     },
     data() {
         return {
@@ -48,7 +49,7 @@ const fuiCanvasComponent = {
             return {
                 "fui-canvas_select": this.activeTool === "select",
                 "fui-canvas_moving": this.isMoving,
-                "fui-canvas_draw": this.activeTool === "pen",
+                "fui-canvas_draw": this.activeTool === "draw",
             };
         },
         canvasWidth() {
@@ -77,7 +78,7 @@ const fuiCanvasComponent = {
 
         document.addEventListener("mouseup", this.canvasMouseUp);
         this.$refs.screen.addEventListener("contextmenu", (event) => {
-            if (this.isDrawing || this.isMoving || this.activeTool === "pen") {
+            if (this.isDrawing || this.isMoving || this.activeTool === "draw") {
                 event.preventDefault();
             }
         });
@@ -118,11 +119,10 @@ const fuiCanvasComponent = {
         },
         canvasMouseDown(e) {
             e.preventDefault();
-            const isRightClickDrawing = this.activeTool === "pen" && e.button === 2;
+            const isRightClickDrawing = this.activeTool === "draw" && e.button === 2;
             if (e.button !== 0 && !isRightClickDrawing || this.isDrawing || this.isMoving) {
                 return;
             }
-            let layerProps = {};
             const [x, y] = [e.offsetX, e.offsetY];
             this.oX = scaleDown(x);
             this.oY = scaleDown(y);
@@ -131,54 +131,28 @@ const fuiCanvasComponent = {
             this.isDrawing = true;
             this.isEraser = e.button === 2;
 
-            if (this.currentLayer && this.currentLayer.type !== "pen" || this.activeTool === "select") {
+            if (this.currentLayer && this.currentLayer.type !== "draw" || this.activeTool === "select") {
                 this.$emit("updateCurrentLayer", undefined);
             }
-            layerProps = {
-                name: "",
+            const uid = generateUID();
+            let layerProps = {
+                name: `${this.activeTool}_${uid}`,
                 type: this.activeTool,
                 index: this.layerIndex,
                 x: scaleDown(x),
                 y: scaleDown(y),
+                id: uid,
             };
 
-            if (["pen"].includes(this.activeTool)) {
-                if (this.currentLayer && this.currentLayer.type === "pen") {
-                    layerProps = {
-                        ...this.currentLayer,
-                        imageData: addImageDataPadding(this.currentLayer.imageData, this.currentLayer.x, this.currentLayer.y, this.canvasWidth, this.canvasHeight),
-                        x: this.currentLayer.x > 0 ? 0 : this.currentLayer.x,
-                        y: this.currentLayer.y > 0 ? 0 : this.currentLayer.y,
-                        width: this.currentLayer.imageData.width,
-                        height: this.currentLayer.imageData.height,
-                    }
-                    this.$emit("updateCurrentLayer", layerProps);
-                } else {
-                    layerProps.x = 0;
-                    layerProps.y = 0;
-                    const imageDataArraylength = 4 * this.canvasWidth * this.canvasHeight;
-                    layerProps.imageData = new ImageData(
-                        new Uint8ClampedArray(imageDataArraylength),
-                        this.canvasWidth,
-                        this.canvasHeight,
-                    );
-                    this.$emit("updateCurrentLayer", {
-                        ...layerProps,
-                        width: layerProps.imageData.width,
-                        height: layerProps.imageData.height,
-                    });
-                    this.$emit("addScreenLayer");
+            if (["draw"].includes(this.activeTool)) {
+                const isDrawingCurrent = this.currentLayer && this.currentLayer.type === "draw";
+
+                layerProps = startDrawing(isDrawingCurrent, layerProps, this.currentLayer, this.canvasWidth, this.canvasHeight, this.oX, this.oY, this.isEraser);
+
+                this.$emit("updateCurrentLayer", layerProps);
+                if (!isDrawingCurrent) {
+                    this.$emit("addScreenLayer", layerProps);
                 }
-                drawingLayer = this.currentLayer ? this.currentLayer : layerProps;
-                drawLine(drawingLayer.imageData,
-                    this.oX - drawingLayer.x,
-                    this.oY - drawingLayer.y,
-                    this.oX - drawingLayer.x,
-                    this.oY - drawingLayer.y,
-                    drawingLayer.imageData.width,
-                    drawingLayer.imageData.height,
-                    this.isEraser,
-                );
             } else if (["frame", "box", "dot", "circle", "disc"].includes(this.activeTool)) {
                 this.$emit("updateCurrentLayer", {
                     ...layerProps,
@@ -281,7 +255,7 @@ const fuiCanvasComponent = {
                     layerProps.x = scaleDown(x);
                     layerProps.y = scaleDown(y);
                 }
-            } else if (this.activeTool === "pen") {
+            } else if (this.activeTool === "draw") {
                 drawLine(this.currentLayer.imageData,
                     this.oX - this.currentLayer.x,
                     this.oY - this.currentLayer.y,
@@ -334,7 +308,7 @@ const fuiCanvasComponent = {
         canvasMouseLeave(e) {
             e.preventDefault();
             // this.$refs.cursor.style.transform = `translate3d(-1000px, -1000px, 0)`;
-            if (["select", "pen"].includes(this.activeTool) && this.isMoving) {
+            if (["select", "draw"].includes(this.activeTool) && this.isMoving) {
                 this.isDrawing = false;
                 this.stopDrawing(e);
             }
@@ -350,7 +324,9 @@ const fuiCanvasComponent = {
                 this.stopDrawing(e);
                 this.isDrawing = false;
             }
-            this.redrawCanvas(this.screenElements);
+            if (this.isDrawing || this.isMoving) {
+                this.redrawCanvas(this.screenElements);
+            }
         },
         stopDrawing() {
             this.isEraser = false;
@@ -377,15 +353,7 @@ const fuiCanvasComponent = {
             }
             const { isCustom, width, height } = this.fuiImages[name];
             const layer = {
-                type: "icon",
-                name: name,
-                index: this.layerIndex,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                isOverlay: false,
-                isCustom: isCustom,
+                type: "icon", name: name, index: this.layerIndex, x: x, y: y, width: width, height: height, isOverlay: false, isCustom: isCustom,
             };
             this.$emit("updateCurrentLayer", layer);
             this.$emit("addScreenLayer", layer);
@@ -419,38 +387,15 @@ const fuiCanvasComponent = {
                         }
                         break;
                     case "line":
-                        drawLine(
-                            imgData,
-                            x,
-                            y,
-                            x2,
-                            y2,
-                            this.canvasWidth,
-                            this.canvasHeight,
-                            this.scale
-                        );
+                        drawLine(imgData, x, y, x2, y2, this.canvasWidth, this.canvasHeight, false);
                         this.CTX.putImageData(imgData, 0, 0);
                         break;
                     case "circle":
-                        drawCircle(
-                            imgData,
-                            x + radius,
-                            y + radius,
-                            radius,
-                            this.canvasWidth,
-                            this.canvasHeight
-                        );
+                        drawCircle(imgData, x + radius, y + radius, radius, this.canvasWidth, this.canvasHeight);
                         this.CTX.putImageData(imgData, 0, 0);
                         break;
                     case "disc":
-                        drawDisc(
-                            imgData,
-                            x + radius,
-                            y + radius,
-                            radius,
-                            this.canvasWidth,
-                            this.canvasHeight
-                        );
+                        drawDisc(imgData, x + radius, y + radius, radius, this.canvasWidth, this.canvasHeight);
                         this.CTX.putImageData(imgData, 0, 0);
                         break;
                     case "str":
@@ -458,7 +403,7 @@ const fuiCanvasComponent = {
                         this.CTX.font = `${fontSize}px ${font}`;
                         this.CTX.fillText(text, x, y);
                         break;
-                    case "pen":
+                    case "draw":
                         const newImageData = maskAndMixImageData(imgData, screenElement.imageData, x, y);
                         this.CTX.putImageData(newImageData, 0, 0);
                         break;
@@ -469,10 +414,17 @@ const fuiCanvasComponent = {
             this.CTX.restore();
         },
         keyDownHandler(event) {
-            if (event.isComposing || event.target !== document.body) {
+            if (event.isComposing || !Object.values(KEYS).includes(event.keyCode)) {
                 return;
             }
-            if (this.currentLayer && Object.values(KEYS).includes(event.keyCode)) {
+            if (event.keyCode === KEYS.ESC) {
+                this.$emit("updateCurrentLayer");
+                return;
+            }
+            if (event.target !== document.body) {
+                return;
+            }
+            if (this.currentLayer) {
                 event.preventDefault();
                 const shift = event.shiftKey ? 10 : 1;
                 switch (event.keyCode) {
