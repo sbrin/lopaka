@@ -117,18 +117,18 @@ function drawDisc(
 
 function imgToCanvasData(imgElement) {
     // Create a new canvas element
-    var canvas = document.createElement("canvas");
+    const canvas = document.createElement("canvas");
     canvas.width = imgElement.width;
     canvas.height = imgElement.height;
 
     // Get the 2D drawing context of the canvas
-    var ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
 
     // Draw the image onto the canvas
     ctx.drawImage(imgElement, 0, 0, imgElement.width, imgElement.height);
 
     // Get the imageData array from the canvas
-    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
     return imageData;
 }
@@ -171,16 +171,16 @@ function maskAndMixImageData(originalImageData, newImageData, dx, dy) {
 }
 
 function putImageDataWithAlpha(ctx, newImageData, dx, dy, alpha) {
-    var oldImageData = ctx.getImageData(
+    const oldImageData = ctx.getImageData(
         dx,
         dy,
         newImageData.width,
         newImageData.height
     );
-    var oldData = oldImageData.data;
-    var newData = newImageData.data;
+    const oldData = oldImageData.data;
+    const newData = newImageData.data;
 
-    for (var i = 0; i < newData.length; i += 4) {
+    for (let i = 0; i < newData.length; i += 4) {
         if (newData[i + 3] > 0) {
             const R = newData[i];
             const G = newData[i + 1];
@@ -256,4 +256,26 @@ function startDrawing(isDrawingCurrent, layerProps, currentLayer, canvasWidth, c
         isEraser,
     );
     return layerProps;
+}
+/*
+/ returns masked and mixed image data
+/ @param imgData - image data to mask and mix
+/ @param x - x coordinate of the text
+/ @param y - y coordinate of the text
+/ @param font - font to use
+/ @param text - text to draw
+/ @return masked and mixed image data
+*/
+function drawTextWithMasking(imgData, x, y, font, text) {
+    const canvas = document.createElement("canvas");
+    canvas.width = imgData.width;
+    canvas.height = imgData.height;
+
+    // Get the 2D drawing context of the canvas
+    const ctx = canvas.getContext("2d");
+    const fontSize = FONT_SIZES[font];
+    ctx.font = `${fontSize}px ${font}`;
+    ctx.fillText(text, x, y);
+    const textImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    return maskAndMixImageData(imgData, textImageData, 0, 0);
 }

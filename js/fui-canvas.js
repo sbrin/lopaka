@@ -70,9 +70,13 @@ const fuiCanvasComponent = {
     },
     mounted() {
         this.CTX = this.$refs.screen.getContext("2d", {
-            willReadFrequently: true
+            willReadFrequently: true,
+            antialias: false,
+            willReadFrequently: true,
         });
 
+        this.CTX.imageSmoothingEnabled = false;
+        this.CTX.mozImageSmoothingEnabled = false;
         this.CTX.strokeWidth = 1;
         this.CTX.textRendering = "optimizeSpeed";
 
@@ -399,9 +403,8 @@ const fuiCanvasComponent = {
                         this.CTX.putImageData(imgData, 0, 0);
                         break;
                     case "str":
-                        const fontSize = fontSizes[font];
-                        this.CTX.font = `${fontSize}px ${font}`;
-                        this.CTX.fillText(text, x, y);
+                        const imageDataWithText = drawTextWithMasking(imgData, x, y, font, text);
+                        this.CTX.putImageData(imageDataWithText, 0, 0);
                         break;
                     case "draw":
                         const newImageData = maskAndMixImageData(imgData, screenElement.imageData, x, y);

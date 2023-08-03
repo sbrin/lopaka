@@ -187,10 +187,11 @@ canvas {
   border: none;
   padding: 2px 0px 2px 4px;
   outline: none;
+  width: 100%;
 }
 
 .inspector__input[type="text"] {
-  width: 112px;
+
 }
 
 .title {

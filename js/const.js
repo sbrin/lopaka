@@ -26,7 +26,7 @@ const fontMap = {
   },
 };
 
-const fontSizes = {
+const FONT_SIZES = {
   helvB08_tr: 8,
   haxrcorp4089_tr: 16,
   profont22_tr: 22,
