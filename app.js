@@ -13,7 +13,6 @@ Vue.createApp({
 
       isInverted: false,
       library: "u8g2",
-
       display: "128×64",
       layerIndex: 0,
       imageDataCache: {},
@@ -35,6 +34,22 @@ Vue.createApp({
       this.display = localStorage.getItem("lopaka_display");
     }
     // this.screenElements = JSON.parse(localStorage.getItem("lopaka_layers")) ?? [];
+    window.addEventListener("message", (event) => {
+      if (event.data && event.data.target === "lopaka_app") {
+        switch (event.data.type) {
+          case "updateLayers":
+            this.screenElements = event.data.layers;
+            break;
+          case "loadProject":
+            this.screenElements = event.data.payload.layers;
+            this.library = event.data.payload.library;
+            this.display = event.data.payload.display;
+            break;
+        }
+        this.layerIndex = this.screenElements.length;
+        this.redrawCanvas();
+      }
+    });
   },
   mounted() {
     if (this.isFlipper) {
@@ -44,6 +59,7 @@ Vue.createApp({
       this.updateCode();
       this.layerIndex = this.screenElements.length;
     }
+    this.postMessage("mounted");
   },
   methods: {
     setactiveTab(tab) {
@@ -168,11 +184,13 @@ Vue.createApp({
         this.imageDataCache,
       );
     },
+    postMessage(type, data) {
+      if (window.top !== window.self) {
+        window.top.postMessage({ target: "lopaka_app", type: type, payload: data }, "*");
+      }
+    },
     saveLayers() {
-      // localStorage.setItem(
-      //   "lopaka_layers",
-      //   JSON.stringify(this.screenElements)
-      // );
+      this.postMessage("updateLayers", JSON.stringify(this.screenElements));
     },
     addImageToCanvas(name) {
       this.$refs.fuiCanvas.addImageToCanvas(name);
