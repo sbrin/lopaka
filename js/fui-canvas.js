@@ -232,9 +232,23 @@ const fuiCanvasComponent = {
                 if (["line"].includes(this.activeTool)) {
                     layerProps.x2 = offsetX;
                     layerProps.y2 = offsetY;
+                    if (e.shiftKey) {
+                      if (Math.abs(this.oX - offsetX) < Math.abs(this.oY - offsetY)) {
+                        layerProps.x2 = this.oX;
+                      } else {
+                        layerProps.y2 = this.oY;
+                      }
+                    }
                 } else if (["frame", "box"].includes(this.activeTool)) {
-                    const width = e.offsetX - this.mouseClick_x;
-                    const height = e.offsetY - this.mouseClick_y;
+                    let width = e.offsetX - this.mouseClick_x;
+                    let height = e.offsetY - this.mouseClick_y;
+                    if (e.shiftKey) {
+                      if (Math.abs(width) > Math.abs(height)) {
+                        height = Math.sign(height) * Math.abs(width);
+                      } else {
+                        width = Math.sign(width) * Math.abs(height);
+                      }
+                    }
                     layerProps.width = scaleSize(width);
                     layerProps.height = scaleSize(height);
                 } else if (["circle", "disc"].includes(this.activeTool)) {
