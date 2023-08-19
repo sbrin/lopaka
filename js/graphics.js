@@ -1,4 +1,4 @@
-function drawLine(imageData, x1, y1, x2, y2, canvasWidth, canvasHeight, erase) {
+function drawLine(imageData, x1, y1, x2, y2, erase) {
     let pixels = new Uint32Array(imageData.data.buffer);
     let dx = Math.abs(x2 - x1);
     let dy = Math.abs(y2 - y1);
@@ -6,8 +6,8 @@ function drawLine(imageData, x1, y1, x2, y2, canvasWidth, canvasHeight, erase) {
     let sy = (y1 < y2) ? 1 : -1;
     let err = dx - dy;
     while (true) {
-        let index = (y1 * canvasWidth + x1);
-        if (x1 >= 0 && x1 < canvasWidth && y1 >= 0 && y1 < canvasHeight) {
+        let index = (y1 * imageData.width + x1);
+        if (x1 >= 0 && x1 < imageData.width && y1 >= 0 && y1 < imageData.height) {
             pixels[index] = erase ? null : 0xFF000000; // Black pixel
         }
 
@@ -224,37 +224,36 @@ function addImageDataPadding(imageData, shiftX, shiftY, frameWidth, frameHeight)
     return new ImageData(newData, newWidth, newHeight);
 }
 
-function startDrawing(isDrawingCurrent, layerProps, currentLayer, canvasWidth, canvasHeight, oX, oY, isEraser) {
+function startDrawing(isDrawingCurrent, layerProps, currentLayer, canvasWidth, canvasHeight, oX, oY, isEraser, imageDataCache) {
     if (isDrawingCurrent) {
+        imageDataCache[currentLayer.name] = addImageDataPadding(imageDataCache[currentLayer.name], currentLayer.x, currentLayer.y, canvasWidth, canvasHeight),
         layerProps = {
             ...currentLayer,
-            imageData: addImageDataPadding(currentLayer.imageData, currentLayer.x, currentLayer.y, canvasWidth, canvasHeight),
             x: currentLayer.x > 0 ? 0 : currentLayer.x,
             y: currentLayer.y > 0 ? 0 : currentLayer.y,
-            width: currentLayer.imageData.width,
-            height: currentLayer.imageData.height,
+            width: imageDataCache[currentLayer.name].width,
+            height: imageDataCache[currentLayer.name].height,
         }
     } else {
         layerProps.x = 0;
         layerProps.y = 0;
         const imageDataArraylength = 4 * canvasWidth * canvasHeight;
-        layerProps.imageData = new ImageData(
+        imageDataCache[layerProps.name] = new ImageData(
             new Uint8ClampedArray(imageDataArraylength),
             canvasWidth,
             canvasHeight,
         );
-        layerProps.width = layerProps.imageData.width;
-        layerProps.height = layerProps.imageData.height;
+        layerProps.width = imageDataCache[layerProps.name].width;
+        layerProps.height = imageDataCache[layerProps.name].height;
     }
-    drawLine(layerProps.imageData,
+    drawLine(imageDataCache[layerProps.name],
         oX - layerProps.x,
         oY - layerProps.y,
         oX - layerProps.x,
         oY - layerProps.y,
-        layerProps.imageData.width,
-        layerProps.imageData.height,
         isEraser,
     );
+    console.log(imageDataCache);
     return layerProps;
 }
 /*

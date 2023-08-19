@@ -149,9 +149,9 @@ const fuiCanvasComponent = {
             };
 
             if (["draw"].includes(this.activeTool)) {
-                const isDrawingCurrent = this.currentLayer && this.currentLayer.type === "draw";
+                const isDrawingCurrent = !!this.currentLayer && this.currentLayer.type === "draw";
 
-                layerProps = startDrawing(isDrawingCurrent, layerProps, this.currentLayer, this.canvasWidth, this.canvasHeight, this.oX, this.oY, this.isEraser);
+                layerProps = startDrawing(isDrawingCurrent, layerProps, this.currentLayer, this.canvasWidth, this.canvasHeight, this.oX, this.oY, this.isEraser, this.imageDataCache);
 
                 this.$emit("updateCurrentLayer", layerProps);
                 if (!isDrawingCurrent) {
@@ -274,13 +274,11 @@ const fuiCanvasComponent = {
                     layerProps.y = scaleDown(y);
                 }
             } else if (this.activeTool === "draw") {
-                drawLine(this.currentLayer.imageData,
+                drawLine(this.imageDataCache[this.currentLayer.name],
                     this.oX - this.currentLayer.x,
                     this.oY - this.currentLayer.y,
                     offsetX - this.currentLayer.x,
                     offsetY - this.currentLayer.y,
-                    this.currentLayer.imageData.width,
-                    this.currentLayer.imageData.height,
                     this.isEraser,
                 );
                 this.oX = scaleDown(e.offsetX);
@@ -405,7 +403,7 @@ const fuiCanvasComponent = {
                         }
                         break;
                     case "line":
-                        drawLine(imgData, x, y, x2, y2, this.canvasWidth, this.canvasHeight, false);
+                        drawLine(imgData, x, y, x2, y2, false);
                         this.CTX.putImageData(imgData, 0, 0);
                         break;
                     case "circle":
@@ -421,7 +419,7 @@ const fuiCanvasComponent = {
                         this.CTX.putImageData(imageDataWithText, 0, 0);
                         break;
                     case "draw":
-                        const newImageData = maskAndMixImageData(imgData, screenElement.imageData, x, y);
+                        const newImageData = maskAndMixImageData(imgData, this.imageDataCache[screenElement.name], x, y);
                         this.CTX.putImageData(newImageData, 0, 0);
                         break;
                     default:

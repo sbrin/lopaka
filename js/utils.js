@@ -253,7 +253,7 @@ function generateCode(screenElements, library, context, imageDataCache) {
             // avoid duplicate icon declarations
             const isDeclared = declaredIcons.indexOf(element.name) >= 0;
             if (!isDeclared) {
-                const imageData = element.type === "icon" ? imageDataCache[element.name] : element.imageData;
+                const imageData = imageDataCache[element.name];
                 declaredIcons.push(element.name);
                 declarations = `${declarations}${codeDeclarators[library](
                     element,
