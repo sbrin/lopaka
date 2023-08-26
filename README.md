@@ -7,7 +7,7 @@ Draw any graphics and use generated code in your application!
 * select screen size
 * use many draw shapes and tools
 * popular fonts support
-* drag and drop custom icons
+* import, drag and drop custom images
 * auto-generate XBMP graphics
 * remove, edit elements
 * generate and copy the code
@@ -22,14 +22,21 @@ All data is stored locally.
 
 ## How to run locally
 
-Use any HTTP server, i.e:
+All you need is any kind of HTTP server to run index.html
+### Using Docker
 
 ```
-yarn global add http-server
-http-server
+docker-compose up --build
 ```
 
-Then go to `http://127.0.0.1:8080/`
+### Using yarn
+
+```
+yarn install
+yarn start
+```
+
+Then go to `http://127.0.0.1:3000/`
 
 ### Disclaimer
 
