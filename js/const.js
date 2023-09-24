@@ -2,7 +2,7 @@ const standardFontsRegex =
   /[^0-9a-zA-Z\s\:\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/\?]/g;
 const numberFontsRegex = /[^0-9\s\,\.\/\-\*\+\:]/g;
 
-const defaultFont = "helvB08_tr";
+const defaultFont = "haxrcorp4089_tr";
 
 const DEFAULT_STRING = "String 123";
 
@@ -13,16 +13,19 @@ const fontMap = {
     profont22_tr: "FontBigNumbers",
   },
   u8g2: {
-    helvB08_tr: "u8g2_font_helvB08_tr",
     haxrcorp4089_tr: "u8g2_font_haxrcorp4089_tr",
+    helvB08_tr: "u8g2_font_helvB08_tr",
     profont22_tr: "u8g2_font_profont22_tr",
     f4x6_tr: "u8g2_font_4x6_tr",
   },
   uint32: {
-    helvB08_tr: "u8g2_font_helvB08_tr",
     haxrcorp4089_tr: "u8g2_font_haxrcorp4089_tr",
+    helvB08_tr: "u8g2_font_helvB08_tr",
     profont22_tr: "u8g2_font_profont22_tr",
     f4x6_tr: "u8g2_font_4x6_tr",
+  },
+  adafruit_gfx: {
+    default: "default",
   },
 };
 
@@ -49,19 +52,22 @@ const textCharWidth = {
 
 const LIBRARIES = {
   u8g2: "U8g2",
+  adafruit_gfx: "Adafruit GFX",
   flipper: "Flipper Zero",
   uint32: "uint32 RAW",
 };
 
-const codeGenerators = {
-  flipper: getFlipperCode,
-  u8g2: getU8g2Code,
-  uint32: getUint32Code,
-};
+// const codeGenerators = {
+//   flipper: getFlipperCode,
+//   u8g2: getU8g2Code,
+//   uint32: getUint32Code,
+//   adafruit_gfx: getAdafruitFGXCode,
+// };
 
 const codeDeclarators = {
   u8g2: getU8g2Declarations,
   flipper: getFlipperDeclarations,
+  adafruit_gfx: getAdafruitFGXDeclarations,
 };
 
 const invertedHeaders = {

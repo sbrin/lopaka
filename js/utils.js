@@ -186,6 +186,12 @@ function getFlipperDeclarations(element) {
     return "";
 }
 
+function getAdafruitFGXDeclarations(element, imageData) {
+    const XBMP = imgDataToUint32Array(imageData);
+    const name = `image_${element.name}_bits`;
+    return `static const unsigned char PROGMEM ${name}[] = {${XBMP}};\n`;
+}
+
 function getFlipperCode(element) {
     const func = `canvas_draw_${element.type}`;
     const font = fontMap["flipper"][element.font];
@@ -216,6 +222,40 @@ ${func}(canvas, ${x}, ${y}, "${element.text}");\n`;
     }
 }
 
+
+function getAdafruitFGXCode(element) {
+    const { width, height, x, y } = element;
+    const color = 1;
+    const fontSize = 1;
+    switch (element.type) {
+        case "icon":
+        case "draw":
+            // 'Screenshot 2023-09-11 at 11', 2562x1666px
+            // const unsigned char epd_bitmap_Screenshot_2023_09_11_at_11 [] PROGMEM = {
+            //     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+            const name = `image_${element.name}_bits`;
+            return `display.drawBitmap( ${x}, ${y}, ${name}, ${width}, ${height}, ${color});\n`;
+        case "dot":
+            return `display.drawPixel(${x}, ${y}, ${color});\n`;
+        case "box":
+            return `display.fillRect(${x}, ${y}, ${width}, ${height}, ${color});\n`;
+        case "frame":
+            return `display.drawRect(${x}, ${y}, ${width + 1}, ${height + 1}, ${color});\n`;
+        case "line":
+            return `display.drawLine(${x}, ${y}, ${element.x2}, ${element.y2}, ${color});\n`;
+        case "circle":
+            return `display.drawCircle(${x + element.radius}, ${y + element.radius}, ${element.radius}, ${color});\n`;
+        case "disc":
+            return `display.fillCircle(${x + element.radius}, ${y + element.radius}, ${element.radius}, ${color});\n`;
+        case "str":
+            return `display.setTextColor(${color});
+display.setTextSize(${fontSize});
+display.setCursor(${x}, ${y});
+display.setTextWrap(false);
+display.print("${element.text}");\n`;
+    }
+}
+
 function getCodeSettings(library) {
     switch (library) {
         case "u8g2":
@@ -232,6 +272,7 @@ function generateCode(screenElements, library, context, imageDataCache) {
         flipper: getFlipperCode,
         u8g2: getU8g2Code,
         uint32: getUint32Code,
+        adafruit_gfx: getAdafruitFGXCode,
     };
 
     if (library === "uint32") {
