@@ -1,3 +1,5 @@
 .DS_Store
 editor.html
 node_modules
+coverage
+dist
