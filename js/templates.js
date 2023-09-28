@@ -1,4 +1,4 @@
-const fuiRootTmpl = `
+export const fuiRootTmpl = `
     <div class="fui-editor">
       <div class="fui-editor__left">
         <fui-layers
@@ -70,7 +70,7 @@ const fuiRootTmpl = `
     </div>
 `;
 
-const fuiLayersTmpl = `
+export const fuiLayersTmpl = `
 <div class="layers">
     <h2 class="title">Layers</h2>
     <ul class="layers__list">
@@ -87,7 +87,7 @@ const fuiLayersTmpl = `
 </div>
 `;
 
-const fuiToolsTmpl = `
+export const fuiToolsTmpl = `
     <div class="tools">
       <fui-button v-for="(item, idx) in toolsList" :key="idx" class="tools__btn" @click="callback(item)" :title="item"
         :active="activeTool === item"></fui-button>
@@ -98,7 +98,7 @@ const fuiToolsTmpl = `
     </div>
         `;
 
-const fuiIconsTmpl = `
+export const fuiIconsTmpl = `
     <div class="fui-icons">
       <div v-if="customImages.length > 0" class="fui-icons__header">
         <div>Custom</div>
@@ -122,7 +122,7 @@ const fuiIconsTmpl = `
         :alt="item.name" :title="item.name" />
     </div>
         `;
-const fuiFileTmpl = `
+export const fuiFileTmpl = `
   <label
     class="button"
     :class="{ button_active: active }"
@@ -136,7 +136,7 @@ const fuiFileTmpl = `
   </label>
 `;
 
-const fuiButtonTmpl = `
+export const fuiButtonTmpl = `
   <button
     class="button"
     :class="{ button_active: active }"
@@ -145,7 +145,7 @@ const fuiButtonTmpl = `
   </button>
 `;
 
-const fuiInspectorTmpl = `
+export const fuiInspectorTmpl = `
 <div class="inspector" v-if="elem">
   <div class="title inspector__title">{{elem.name || elem.type}}</div>
   <div class="inspector__row">

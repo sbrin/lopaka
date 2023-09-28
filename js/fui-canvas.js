@@ -1,4 +1,8 @@
-const fuiCanvasComponent = {
+import { DEFAULT_STRING, KEYS, fontMap, textContainerHeight } from "./const";
+import { drawCircle, drawDisc, drawLine, drawTextWithMasking, imgToCanvasData, maskAndMixImageData, putImageDataWithAlpha, startDrawing } from "./graphics";
+import { generateUID, getElementByOffset, getTextWidth, loadImageAsync, readFileAsync, scaleDown, scaleSize, scaleUp } from "./utils";
+
+export const fuiCanvasComponent = {
     template: `<div class="canvas-wrapper">
     <div class="fui-grid">
         <canvas id="screen"

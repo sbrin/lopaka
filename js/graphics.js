@@ -1,4 +1,6 @@
-function drawLine(imageData, x1, y1, x2, y2, erase) {
+import { FONT_SIZES } from "./const";
+
+export function drawLine(imageData, x1, y1, x2, y2, erase) {
     let pixels = new Uint32Array(imageData.data.buffer);
     let dx = Math.abs(x2 - x1);
     let dy = Math.abs(y2 - y1);
@@ -19,7 +21,7 @@ function drawLine(imageData, x1, y1, x2, y2, erase) {
     return imageData;
 }
 
-function drawCircle(
+export function drawCircle(
     imgData,
     centerX,
     centerY,
@@ -70,7 +72,7 @@ function drawCircle(
     }
 }
 
-function drawDisc(
+export function drawDisc(
     imgData,
     centerX,
     centerY,
@@ -115,7 +117,7 @@ function drawDisc(
     }
 }
 
-function imgToCanvasData(imgElement) {
+export function imgToCanvasData(imgElement) {
     // Create a new canvas element
     const canvas = document.createElement("canvas");
     canvas.width = imgElement.width;
@@ -133,7 +135,7 @@ function imgToCanvasData(imgElement) {
     return imageData;
 }
 
-function maskAndMixImageData(originalImageData, newImageData, dx, dy) {
+export function maskAndMixImageData(originalImageData, newImageData, dx, dy) {
     let resultImageData = new ImageData(
         new Uint8ClampedArray(originalImageData.data.buffer.slice(0)),
         originalImageData.width,
@@ -170,7 +172,7 @@ function maskAndMixImageData(originalImageData, newImageData, dx, dy) {
     return resultImageData;
 }
 
-function putImageDataWithAlpha(ctx, newImageData, dx, dy, alpha) {
+export function putImageDataWithAlpha(ctx, newImageData, dx, dy, alpha) {
     const oldImageData = ctx.getImageData(
         dx,
         dy,
@@ -196,7 +198,7 @@ function putImageDataWithAlpha(ctx, newImageData, dx, dy, alpha) {
     ctx.putImageData(oldImageData, dx, dy);
 }
 
-function addImageDataPadding(imageData, shiftX, shiftY, frameWidth, frameHeight) {
+export function addImageDataPadding(imageData, shiftX, shiftY, frameWidth, frameHeight) {
     const childWidth = imageData.width;
     const childHeight = imageData.height;
     let newWidth = childWidth;
@@ -224,7 +226,7 @@ function addImageDataPadding(imageData, shiftX, shiftY, frameWidth, frameHeight)
     return new ImageData(newData, newWidth, newHeight);
 }
 
-function startDrawing(isDrawingCurrent, layerProps, currentLayer, canvasWidth, canvasHeight, oX, oY, isEraser, imageDataCache) {
+export function startDrawing(isDrawingCurrent, layerProps, currentLayer, canvasWidth, canvasHeight, oX, oY, isEraser, imageDataCache) {
     if (isDrawingCurrent) {
         imageDataCache[currentLayer.name] = addImageDataPadding(imageDataCache[currentLayer.name], currentLayer.x, currentLayer.y, canvasWidth, canvasHeight),
             layerProps = {
@@ -265,7 +267,7 @@ function startDrawing(isDrawingCurrent, layerProps, currentLayer, canvasWidth, c
 / @param text - text to draw
 / @return masked and mixed image data
 */
-function drawTextWithMasking(imgData, x, y, font, text) {
+export function drawTextWithMasking(imgData, x, y, font, text) {
     const canvas = document.createElement("canvas");
     canvas.width = imgData.width;
     canvas.height = imgData.height;

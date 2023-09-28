@@ -1,4 +1,6 @@
-function readFileAsync(file) {
+import { codeDeclarators, fontMap, textCharWidth } from "./const";
+
+export function readFileAsync(file) {
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
 
@@ -10,19 +12,19 @@ function readFileAsync(file) {
     });
 }
 
-function scaleUp(i) {
+export function scaleUp(i) {
     return 4 * i;
 }
 
-function scaleDown(i) {
+export function scaleDown(i) {
     return Math.round(i / 4);
 }
 
-function scaleSize(i) {
+export function scaleSize(i) {
     return i > 0 ? Math.round(i / 4) : Math.floor(i / 4);
 }
 
-function getElementByOffset(layersArr, x, y) {
+export function getElementByOffset(layersArr, x, y) {
     for (let i = layersArr.length - 1; i >= 0; i--) {
         const element = layersArr[i];
         const scaledX1 = scaleUp(element.x);
@@ -70,7 +72,7 @@ function getElementByOffset(layersArr, x, y) {
     }
 }
 
-function loadImageAsync(src) {
+export function loadImageAsync(src) {
     return new Promise((resolve, reject) => {
         let img = new Image();
         img.src = src;
@@ -79,7 +81,7 @@ function loadImageAsync(src) {
     });
 }
 
-function imgDataToXBMP(imgData, xStart, yStart, width, height) {
+export function imgDataToXBMP(imgData, xStart, yStart, width, height) {
     const bytesPerRow = Math.ceil(width / 8);
     const xbmp = new Array(height * bytesPerRow).fill(0);
 
@@ -101,7 +103,7 @@ function imgDataToXBMP(imgData, xStart, yStart, width, height) {
     return xbmp.map((x) => "0x" + x.toString(16).padStart(2, "0"));
 }
 
-function imgDataToUint32Array(imgData) {
+export function imgDataToUint32Array(imgData) {
     const length = imgData.data.length / 4; // number of pixels
     const arrayLength = Math.ceil(length / 32);
     let xbmp = new Array(arrayLength).fill(0);
@@ -123,7 +125,7 @@ function imgDataToUint32Array(imgData) {
     return xbmp.map((x) => "0x" + x.toString(16));
 }
 
-function getUint32Code(context) {
+export function getUint32Code(context) {
     let result = ``;
     const imgData = context.getImageData(
         0,
@@ -139,7 +141,7 @@ function getUint32Code(context) {
     return result;
 }
 
-function getU8g2Code(element) {
+export function getU8g2Code(element) {
     const type = element.type.charAt(0).toUpperCase() + element.type.slice(1);
     const func = `u8g2.draw${type}`;
     const { width, height, x, y } = element;
@@ -168,7 +170,7 @@ ${func}(${x}, ${y}, "${element.text}");\n`;
     }
 }
 
-function getU8g2Declarations(element, imageData) {
+export function getU8g2Declarations(element, imageData) {
     const { width, height } = element;
     const XBMP = imgDataToXBMP(imageData, 0, 0, width, height);
     const name = `image_${element.name}_bits`;
@@ -176,7 +178,7 @@ function getU8g2Declarations(element, imageData) {
 `;
 }
 
-function getFlipperDeclarations(element) {
+export function getFlipperDeclarations(element) {
     if (element.isCustom) {
         return `extern const Icon I_${element.name};\n`;
     }
@@ -186,13 +188,13 @@ function getFlipperDeclarations(element) {
     return "";
 }
 
-function getAdafruitFGXDeclarations(element, imageData) {
+export function getAdafruitFGXDeclarations(element, imageData) {
     const XBMP = imgDataToUint32Array(imageData);
     const name = `image_${element.name}_bits`;
     return `static const unsigned char PROGMEM ${name}[] = {${XBMP}};\n`;
 }
 
-function getFlipperCode(element) {
+export function getFlipperCode(element) {
     const func = `canvas_draw_${element.type}`;
     const font = fontMap["flipper"][element.font];
     const { name, width, height, x, y } = element;
@@ -223,7 +225,7 @@ ${func}(canvas, ${x}, ${y}, "${element.text}");\n`;
 }
 
 
-function getAdafruitFGXCode(element) {
+export function getAdafruitFGXCode(element) {
     const { width, height, x, y } = element;
     const color = 1;
     const fontSize = 1;
@@ -256,7 +258,7 @@ display.print("${element.text}");\n`;
     }
 }
 
-function getCodeSettings(library) {
+export function getCodeSettings(library) {
     switch (library) {
         case "u8g2":
             return "u8g2.setBitmapMode(1);\n";
@@ -267,7 +269,7 @@ function getCodeSettings(library) {
     }
 }
 
-function generateCode(screenElements, library, context, imageDataCache) {
+export function generateCode(screenElements, library, context, imageDataCache) {
     const codeGenerators = {
         flipper: getFlipperCode,
         u8g2: getU8g2Code,
@@ -310,11 +312,11 @@ function generateCode(screenElements, library, context, imageDataCache) {
     return `${declarations}${settings}${lines}`;
 }
 
-function getTextWidth(text, font) {
+export function getTextWidth(text, font) {
     return textCharWidth[font] * text.length;
 }
 
-function toCppVariableName(str) {
+export function toCppVariableName(str) {
     const cppKeywords = [
         "auto",
         "double",
@@ -366,6 +368,6 @@ function toCppVariableName(str) {
     return variableName;
 }
 
-function generateUID() {
+export function generateUID() {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
