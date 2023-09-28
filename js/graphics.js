@@ -227,13 +227,13 @@ function addImageDataPadding(imageData, shiftX, shiftY, frameWidth, frameHeight)
 function startDrawing(isDrawingCurrent, layerProps, currentLayer, canvasWidth, canvasHeight, oX, oY, isEraser, imageDataCache) {
     if (isDrawingCurrent) {
         imageDataCache[currentLayer.name] = addImageDataPadding(imageDataCache[currentLayer.name], currentLayer.x, currentLayer.y, canvasWidth, canvasHeight),
-        layerProps = {
-            ...currentLayer,
-            x: currentLayer.x > 0 ? 0 : currentLayer.x,
-            y: currentLayer.y > 0 ? 0 : currentLayer.y,
-            width: imageDataCache[currentLayer.name].width,
-            height: imageDataCache[currentLayer.name].height,
-        }
+            layerProps = {
+                ...currentLayer,
+                x: currentLayer.x > 0 ? 0 : currentLayer.x,
+                y: currentLayer.y > 0 ? 0 : currentLayer.y,
+                width: imageDataCache[currentLayer.name].width,
+                height: imageDataCache[currentLayer.name].height,
+            }
     } else {
         layerProps.x = 0;
         layerProps.y = 0;
@@ -273,7 +273,7 @@ function drawTextWithMasking(imgData, x, y, font, text) {
     // Get the 2D drawing context of the canvas
     const ctx = canvas.getContext("2d");
     const fontSize = FONT_SIZES[font];
-    ctx.font = `${fontSize}px ${font}`;
+    ctx.font = `${fontSize}px ${font}, monospace`;
     ctx.fillText(text, x, y);
     const textImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     return maskAndMixImageData(imgData, textImageData, 0, 0);

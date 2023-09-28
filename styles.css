@@ -26,6 +26,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "adafruit";
+  src: url("fonts/adafruit.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
 .fonts-helvb08 {
   font-family: "helvB08_tr";
 }
@@ -37,6 +44,9 @@
 }
 .fonts-f4x6 {
   font-family: "f4x6_tr";
+}
+.fonts-adafruit {
+  font-family: "adafruit", monospace;
 }
 
 :root {

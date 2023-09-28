@@ -2,30 +2,32 @@ const standardFontsRegex =
   /[^0-9a-zA-Z\s\:\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/\?]/g;
 const numberFontsRegex = /[^0-9\s\,\.\/\-\*\+\:]/g;
 
-const defaultFont = "haxrcorp4089_tr";
-
 const DEFAULT_STRING = "String 123";
 
 const fontMap = {
   flipper: {
+    default: "helvB08_tr",
     helvB08_tr: "FontPrimary",
     haxrcorp4089_tr: "FontSecondary",
     profont22_tr: "FontBigNumbers",
   },
   u8g2: {
-    haxrcorp4089_tr: "u8g2_font_haxrcorp4089_tr",
+    default: "haxrcorp4089_tr",
     helvB08_tr: "u8g2_font_helvB08_tr",
+    haxrcorp4089_tr: "u8g2_font_haxrcorp4089_tr",
     profont22_tr: "u8g2_font_profont22_tr",
     f4x6_tr: "u8g2_font_4x6_tr",
   },
   uint32: {
-    haxrcorp4089_tr: "u8g2_font_haxrcorp4089_tr",
+    default: "haxrcorp4089_tr",
     helvB08_tr: "u8g2_font_helvB08_tr",
+    haxrcorp4089_tr: "u8g2_font_haxrcorp4089_tr",
     profont22_tr: "u8g2_font_profont22_tr",
     f4x6_tr: "u8g2_font_4x6_tr",
   },
   adafruit_gfx: {
-    default: "default",
+    default: "adafruit",
+    adafruit: "adafruit",
   },
 };
 
@@ -34,6 +36,7 @@ const FONT_SIZES = {
   haxrcorp4089_tr: 16,
   profont22_tr: 22,
   f4x6_tr: 6,
+  adafruit: 8,
 };
 
 const textContainerHeight = {
@@ -41,6 +44,7 @@ const textContainerHeight = {
   haxrcorp4089_tr: 8,
   profont22_tr: 16,
   f4x6_tr: 6,
+  adafruit: 7,
 };
 
 const textCharWidth = {
@@ -48,6 +52,7 @@ const textCharWidth = {
   haxrcorp4089_tr: 4,
   profont22_tr: 11,
   f4x6_tr: 4,
+  adafruit: 5,
 };
 
 const LIBRARIES = {
@@ -56,13 +61,6 @@ const LIBRARIES = {
   flipper: "Flipper Zero",
   uint32: "uint32 RAW",
 };
-
-// const codeGenerators = {
-//   flipper: getFlipperCode,
-//   u8g2: getU8g2Code,
-//   uint32: getUint32Code,
-//   adafruit_gfx: getAdafruitFGXCode,
-// };
 
 const codeDeclarators = {
   u8g2: getU8g2Declarations,

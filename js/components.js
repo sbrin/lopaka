@@ -231,6 +231,7 @@ const fuiInspectorInputComponent = {
         flipper: ["helvB08_tr", "haxrcorp4089_tr", "profont22_tr"],
         u8g2: ["helvB08_tr", "haxrcorp4089_tr", "profont22_tr", "f4x6_tr"],
         uint32: ["helvB08_tr", "haxrcorp4089_tr", "profont22_tr", "f4x6_tr"],
+        adafruit_gfx: ["adafruit"],
       },
     };
   },
