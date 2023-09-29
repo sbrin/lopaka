@@ -1,4 +1,4 @@
-import { LIBRARIES, DEFAULT_STRING, FONT_SIZES,ICONS_SRC,KEYS,codeDeclarators,displaySizes,fontMap,invertedHeaders,numberFontsRegex,standardFontsRegex, textContainerHeight } from "./const";
+import { LIBRARIES, DEFAULT_STRING, FONT_SIZES, ICONS_SRC, KEYS, codeDeclarators, displaySizes, fontMap, numberFontsRegex, standardFontsRegex, textContainerHeight } from "./const";
 import { fuiButtonTmpl, fuiFileTmpl, fuiIconsTmpl, fuiInspectorTmpl, fuiLayersTmpl, fuiToolsTmpl } from "./templates";
 import { getTextWidth, loadImageAsync, readFileAsync } from "./utils";
 

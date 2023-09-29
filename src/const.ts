@@ -74,18 +74,6 @@ export const codeDeclarators = {
   adafruit_gfx: getAdafruitFGXDeclarations,
 };
 
-export const invertedHeaders = {
-  flipper: `canvas_draw_box(canvas, 0, 0, 127, 63);
-canvas_set_color(canvas, ColorWhite);
-
-`,
-  u8g2: `
-u8g2.drawBox(0, 0, 127, 63);
-u8g2.setDrawColor(0);
-
-`,
-};
-
 export const ICONS_SRC = {
   "125_10px": "125_10px.png",
   // "ActiveConnection_50x64": "ActiveConnection_50x64.png",
