@@ -10,3 +10,8 @@ declare module "*.png" {
 declare module "*.ttf" {
   export default string;
 }
+
+declare type TPlatformFont = {
+  name: string;
+  file: string;
+};
