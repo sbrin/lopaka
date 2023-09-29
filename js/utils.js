@@ -232,9 +232,6 @@ export function getAdafruitFGXCode(element) {
     switch (element.type) {
         case "icon":
         case "draw":
-            // 'Screenshot 2023-09-11 at 11', 2562x1666px
-            // const unsigned char epd_bitmap_Screenshot_2023_09_11_at_11 [] PROGMEM = {
-            //     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
             const name = `image_${element.name}_bits`;
             return `display.drawBitmap( ${x}, ${y}, ${name}, ${width}, ${height}, ${color});\n`;
         case "dot":

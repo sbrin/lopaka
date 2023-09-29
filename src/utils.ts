@@ -164,9 +164,8 @@ export function getU8g2Code(element) {
       return `${func}(${x}, ${y}, ${element.x2}, ${element.y2});\n`;
     case "circle":
     case "disc":
-      return `${func}(${x + element.radius}, ${y + element.radius}, ${
-        element.radius
-      });\n`;
+      return `${func}(${x + element.radius}, ${y + element.radius}, ${element.radius
+        });\n`;
     case "str":
       return `u8g2.setFont(${font});
 ${func}(${x}, ${y}, "${element.text}");\n`;
@@ -218,9 +217,8 @@ export function getFlipperCode(element) {
       return `${func}(canvas, ${x}, ${y}, ${element.x2}, ${element.y2});\n`;
     case "circle":
     case "disc":
-      return `${func}(canvas, ${x + element.radius}, ${y + element.radius}, ${
-        element.radius
-      });\n`;
+      return `${func}(canvas, ${x + element.radius}, ${y + element.radius}, ${element.radius
+        });\n`;
     case "str":
       return `canvas_set_font(canvas, ${font});
 ${func}(canvas, ${x}, ${y}, "${element.text}");\n`;
@@ -236,9 +234,6 @@ export function getAdafruitFGXCode(element) {
   switch (element.type) {
     case "icon":
     case "draw":
-      // 'Screenshot 2023-09-11 at 11', 2562x1666px
-      // const unsigned char epd_bitmap_Screenshot_2023_09_11_at_11 [] PROGMEM = {
-      //     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       const name = `image_${element.name}_bits`;
       return `display.drawBitmap( ${x}, ${y}, ${name}, ${width}, ${height}, ${color});\n`;
     case "dot":
@@ -246,19 +241,16 @@ export function getAdafruitFGXCode(element) {
     case "box":
       return `display.fillRect(${x}, ${y}, ${width}, ${height}, ${color});\n`;
     case "frame":
-      return `display.drawRect(${x}, ${y}, ${width + 1}, ${
-        height + 1
-      }, ${color});\n`;
+      return `display.drawRect(${x}, ${y}, ${width + 1}, ${height + 1
+        }, ${color});\n`;
     case "line":
       return `display.drawLine(${x}, ${y}, ${element.x2}, ${element.y2}, ${color});\n`;
     case "circle":
-      return `display.drawCircle(${x + element.radius}, ${
-        y + element.radius
-      }, ${element.radius}, ${color});\n`;
+      return `display.drawCircle(${x + element.radius}, ${y + element.radius
+        }, ${element.radius}, ${color});\n`;
     case "disc":
-      return `display.fillCircle(${x + element.radius}, ${
-        y + element.radius
-      }, ${element.radius}, ${color});\n`;
+      return `display.fillCircle(${x + element.radius}, ${y + element.radius
+        }, ${element.radius}, ${color});\n`;
     case "str":
       return `display.setTextColor(${color});
 display.setTextSize(${fontSize});
