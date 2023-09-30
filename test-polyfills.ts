@@ -13,6 +13,10 @@ const getContextMock = (type: string) => {
                 return () => 10;
             } else if (command == 'backingStorePixelRatio') {
                 return 1;
+            } else if (command == 'getImageData') {
+                return () => ({
+                    data: new Uint8ClampedArray(100 * 100 * 4)
+                });
             }
             return vi.fn();
         },
@@ -75,9 +79,7 @@ function mock(w: any, d: any) {
     vi.stubGlobal(
         'ImageData',
         class {
-            data = {
-                length: this.width * this.height * 4
-            };
+            data = new Uint8ClampedArray(this.width * this.height * 4);
             constructor(
                 private width: number,
                 private height: number

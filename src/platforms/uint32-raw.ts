@@ -1,4 +1,4 @@
-import {imgDataToUint32Array} from 'src/utils';
+import {imgDataToUint32Array} from '../utils';
 import {Platform} from './platform';
 
 export class Uint32RawPlatform extends Platform {
@@ -15,7 +15,7 @@ export class Uint32RawPlatform extends Platform {
     drawBitmap(layer: TLayer, source: TSourceCode): void {}
     drawIcon(layer: TLayer, source: TSourceCode): void {}
 
-    public genereateSourceCode(layers: TLayer[], ctx: OffscreenCanvasRenderingContext2D): TSourceCode {
+    public generateSourceCode(layers: TLayer[], ctx: OffscreenCanvasRenderingContext2D): TSourceCode {
         const source: TSourceCode = {code: [], declarations: []};
         const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
         const UINT32 = imgDataToUint32Array(imageData);
