@@ -1,6 +1,6 @@
-import {Platform} from 'src/platforms/platform';
+import {Platform} from '../platforms/platform';
 import {Tool} from './tool';
-import {drawCircle} from 'src/graphics';
+import {drawCircle} from '../graphics';
 
 export class CircleTool extends Tool {
     draw(ctx: OffscreenCanvasRenderingContext2D, layer: TLayer): void {

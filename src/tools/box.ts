@@ -1,4 +1,4 @@
-import {Platform} from 'src/platforms/platform';
+import {Platform} from '../platforms/platform';
 import {Tool} from './tool';
 
 export class BoxTool extends Tool {

@@ -1,4 +1,4 @@
-import {imgDataToUint32Array} from 'src/utils';
+import {imgDataToUint32Array} from '../utils';
 import adafruitFont from '../../fonts/adafruit.ttf';
 import {Platform} from './platform';
 

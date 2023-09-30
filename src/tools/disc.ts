@@ -1,6 +1,6 @@
-import {Platform} from 'src/platforms/platform';
+import {Platform} from '../platforms/platform';
 import {Tool} from './tool';
-import {drawDisc} from 'src/graphics';
+import {drawDisc} from '../graphics';
 
 export class DiscTool extends Tool {
     draw(ctx: OffscreenCanvasRenderingContext2D, layer: TLayer): void {

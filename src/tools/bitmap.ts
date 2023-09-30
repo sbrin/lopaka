@@ -1,6 +1,6 @@
-import {Platform} from 'src/platforms/platform';
+import {Platform} from '../platforms/platform';
 import {Tool} from './tool';
-import {maskAndMixImageData} from 'src/graphics';
+import {maskAndMixImageData} from '../graphics';
 
 export class BitmapTool extends Tool {
     name = 'Draw';

@@ -1,6 +1,6 @@
-import {Platform} from 'src/platforms/platform';
+import {Platform} from '../platforms/platform';
 import {Tool} from './tool';
-import {drawLine} from 'src/graphics';
+import {drawLine} from '../graphics';
 
 export class LineTool extends Tool {
     name: string = 'Line';

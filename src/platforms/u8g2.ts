@@ -1,4 +1,4 @@
-import {imgDataToXBMP} from 'src/utils';
+import {imgDataToXBMP} from '../utils';
 import f4x6_tr from '../../fonts/f4x6_tr.ttf';
 import haxrcorp4089_tr from '../../fonts/haxrcorp4089_tr.ttf';
 import profont22_tr from '../../fonts/profont22_tr.ttf';

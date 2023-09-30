@@ -1,6 +1,6 @@
-import {Platform} from 'src/platforms/platform';
+import {Platform} from '../platforms/platform';
 import {Tool} from './tool';
-import {maskAndMixImageData, putImageDataWithAlpha} from 'src/graphics';
+import {maskAndMixImageData, putImageDataWithAlpha} from '../graphics';
 
 export class IconTool extends Tool {
     name = 'Icon';

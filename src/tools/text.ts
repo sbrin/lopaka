@@ -1,6 +1,6 @@
-import {Platform} from 'src/platforms/platform';
+import {Platform} from '../platforms/platform';
 import {Tool} from './tool';
-import {drawTextWithMasking} from 'src/graphics';
+import {drawTextWithMasking} from '../graphics';
 
 export class TextTool extends Tool {
     name = 'String';
