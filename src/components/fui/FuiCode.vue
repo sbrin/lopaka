@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { defineProps } from "vue";
+import {defineProps} from 'vue';
 
 const props = defineProps<{
-  content: string;
+    content: string;
 }>();
 </script>
 <template>
-  <div class="fui-code">
-    <pre>{{ content }}</pre>
-  </div>
+    <div class="fui-code">
+        <pre>{{ content }}</pre>
+    </div>
 </template>
 <style lang="css"></style>

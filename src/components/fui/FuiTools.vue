@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { computed, defineProps } from "vue";
-import FuiButton from "./FuiButton.vue";
+import {computed, defineProps} from 'vue';
+import FuiButton from './FuiButton.vue';
 
 const props = defineProps<{
     callback: Function;
@@ -8,16 +8,16 @@ const props = defineProps<{
     library: String;
 }>();
 
-const emit = defineEmits(["toolClicked"]);
+const emit = defineEmits(['toolClicked']);
 
 const toolsList = computed(() => [
-    ...(props.library !== "flipper" ? ["draw"] : []),
-    "frame",
-    "box",
-    "line",
-    "dot",
-    "circle",
-    "disc",
+    ...(props.library !== 'flipper' ? ['draw'] : []),
+    'frame',
+    'box',
+    'line',
+    'dot',
+    'circle',
+    'disc'
 ]);
 </script>
 <template>
@@ -35,15 +35,13 @@ const toolsList = computed(() => [
             @click="callback('str')"
             title="string"
             :active="activeTool === 'str'"
-        >
-        </FuiButton>
+        ></FuiButton>
         <FuiButton
             class="tools__btn"
             @click="callback('select')"
             title="select"
             :active="activeTool === 'select'"
-        >
-        </FuiButton>
+        ></FuiButton>
     </div>
 </template>
 <style lang="css"></style>
