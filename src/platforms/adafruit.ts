@@ -1,51 +1,71 @@
-import { Platform } from "./platform";
-import adafruitFont from "../../fonts/adafruit.ttf";
+import {imgDataToUint32Array} from 'src/utils';
+import adafruitFont from '../../fonts/adafruit.ttf';
+import {Platform} from './platform';
 
 export class Adafruit extends Platform {
-  protected fonts: TPlatformFont[] = [
-    {
-      name: "Adafruit",
-      file: adafruitFont,
-    },
-  ];
+    protected name = 'Adafruit GFX';
+    protected description = 'Adafruit GFX';
+    protected fonts: TPlatformFont[] = [
+        {
+            name: 'Adafruit 5x7',
+            file: adafruitFont,
+            options: {
+                textContainerHeight: 7,
+                textCharWidth: 5,
+                size: 8
+            }
+        }
+    ];
 
-  generate(): string {
-    return ``;
-  }
+    generate(): string {
+        throw new Error('Method not implemented.');
+    }
 
-  drawIcon(): string {
-    return ``;
-  }
+    drawDot(layer: TLayer, source: TSourceCode): void {
+        source.code.push(`display.drawPixel(${layer.x}, ${layer.y}, 1);`);
+    }
 
-  drawText(): string {
-    return ``;
-  }
+    drawText(layer: TLayer, source: TSourceCode): void {
+        source.code.push(`display.setTextColor(1);
+display.setTextSize(1);
+display.setCursor(${layer.x}, ${layer.y});
+display.setTextWrap(false);
+display.print("${layer.text}");`);
+    }
 
-  drawLine(): string {
-    return ``;
-  }
+    drawLine(layer: TLayer, source: TSourceCode): void {
+        source.code.push(`display.drawLine(${layer.x}, ${layer.y}, ${layer.x2}, ${layer.y2}, 1);`);
+    }
 
-  drawRect(): string {
-    return ``;
-  }
+    drawBox(layer: TLayer, source: TSourceCode): void {
+        source.code.push(`display.drawRect(${layer.x}, ${layer.y}, ${layer.width + 1}, ${layer.height + 1}, 1);`);
+    }
 
-  drawCircle(): string {
-    return ``;
-  }
+    drawCircle(layer: TLayer, source: TSourceCode): void {
+        source.code.push(
+            `display.drawCircle(${layer.x + layer.radius}, ${layer.y + layer.radius}, ${layer.radius}, 1);`
+        );
+    }
 
-  drawDot(): string {
-    return ``;
-  }
+    drawDisc(layer: TLayer, source: TSourceCode): void {
+        source.code.push(
+            `display.fillCircle(${layer.x + layer.radius}, ${layer.y + layer.radius}, ${layer.radius}, 1);`
+        );
+    }
 
-  drawFrame(): string {
-    return ``;
-  }
+    drawFrame(layer: TLayer, source: TSourceCode): void {
+        source.code.push(`display.drawRect(${layer.x}, ${layer.y}, ${layer.width + 1}, ${layer.height + 1}, 1);`);
+    }
 
-  drawDisc(): string {
-    return ``;
-  }
+    drawIcon(layer: TLayer, source: TSourceCode): void {
+        this.drawBitmap(layer, source);
+    }
 
-  drawBitmap(): string {
-    return ``;
-  }
+    drawBitmap(layer: TLayer, source: TSourceCode): void {
+        const XBMP = imgDataToUint32Array(layer.data);
+        source.declarations.push(`static const unsigned char PROGMEM image_${layer.name}_bits[] = {${XBMP}};`);
+        source.code.push(
+            `display.drawBitmap( ${layer.x}, ${layer.y}, image_${layer.name}_bits, ${layer.width}, ${layer.height}, 1);`
+        );
+    }
 }

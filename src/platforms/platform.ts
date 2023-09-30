@@ -2,21 +2,30 @@
  * Abstract platform definition.
  */
 export abstract class Platform {
-  protected codeHeading: string[];
-  protected codeBody: string[];
-  protected codeFooter: string[];
+    protected fonts: TPlatformFont[];
+    protected name: string;
+    protected description: string;
 
-  protected fonts: TPlatformFont[];
+    public getFonts(): TPlatformFont[] {
+        return this.fonts;
+    }
 
-  abstract generate(): string;
+    public getName(): string {
+        return this.name;
+    }
 
-  abstract drawIcon(): string;
-  abstract drawText(): string;
-  abstract drawLine(): string;
-  abstract drawRect(): string;
-  abstract drawCircle(): string;
-  abstract drawDot(): string;
-  abstract drawFrame(): string;
-  abstract drawDisc(): string;
-  abstract drawBitmap(): string;
+    public getDescription(): string {
+        return this.description;
+    }
+
+    abstract generate(): string;
+    abstract drawDot(layer: TLayer, source: TSourceCode): void;
+    abstract drawLine(layer: TLayer, source: TSourceCode): void;
+    abstract drawText(layer: TLayer, source: TSourceCode): void;
+    abstract drawBox(layer: TLayer, source: TSourceCode): void;
+    abstract drawFrame(layer: TLayer, source: TSourceCode): void;
+    abstract drawCircle(layer: TLayer, source: TSourceCode): void;
+    abstract drawDisc(layer: TLayer, source: TSourceCode): void;
+    abstract drawBitmap(layer: TLayer, source: TSourceCode): void;
+    abstract drawIcon(layer: TLayer, source: TSourceCode): void;
 }

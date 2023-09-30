@@ -11,7 +11,35 @@ declare module '*.ttf' {
     export default string;
 }
 
+declare type TFontSizes = {
+    textContainerHeight: number;
+    textCharWidth: number;
+    size: number;
+};
+
 declare type TPlatformFont = {
-  name: string;
-  file: string;
+    name: string;
+    file: string;
+    options: TFontSizes;
+};
+
+declare type TLayer = {
+    name: string;
+    x: number;
+    y: number;
+    x2: number;
+    y2: number;
+    width: number;
+    height: number;
+    radius: number;
+    type: string;
+    text: string;
+    font: string;
+    isOverlay: boolean;
+    data: any; // imageData for ex.
+};
+
+declare type TSourceCode = {
+    declarations: string[];
+    code: string[];
 };
