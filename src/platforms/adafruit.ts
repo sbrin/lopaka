@@ -2,7 +2,7 @@ import {imgDataToUint32Array} from '../utils';
 import adafruitFont from '../../fonts/adafruit.ttf';
 import {Platform} from './platform';
 
-export class Adafruit extends Platform {
+export class AdafruitPlatform extends Platform {
     protected name = 'Adafruit GFX';
     protected description = 'Adafruit GFX';
     protected fonts: TPlatformFont[] = [

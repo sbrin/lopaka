@@ -1,6 +1,6 @@
-import haxrcorp4089_tr from '../../fonts/haxrcorp4089_tr.ttf';
-import helvB08_tr from '../../fonts/helvB08_tr.ttf';
-import profont22_tr from '../../fonts/profont22_tr.ttf';
+import haxrcorp4089 from '../../fonts/haxrcorp4089.ttf';
+import helvB08 from '../../fonts/helvB08.ttf';
+import profont22 from '../../fonts/profont22.ttf';
 import {Platform} from './platform';
 
 export class FlipperPlatform extends Platform {
@@ -9,7 +9,7 @@ export class FlipperPlatform extends Platform {
     protected fonts: TPlatformFont[] = [
         {
             name: 'HelvB08',
-            file: helvB08_tr,
+            file: helvB08,
             options: {
                 textContainerHeight: 8,
                 textCharWidth: 6,
@@ -18,7 +18,7 @@ export class FlipperPlatform extends Platform {
         },
         {
             name: 'HaXRcorp4089',
-            file: haxrcorp4089_tr,
+            file: haxrcorp4089,
             options: {
                 textContainerHeight: 8,
                 textCharWidth: 6,
@@ -27,7 +27,7 @@ export class FlipperPlatform extends Platform {
         },
         {
             name: 'Profont22',
-            file: profont22_tr,
+            file: profont22,
             options: {
                 textContainerHeight: 22,
                 textCharWidth: 12,

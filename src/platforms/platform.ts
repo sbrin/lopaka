@@ -6,35 +6,35 @@ export abstract class Platform {
     protected name: string;
     protected description: string;
 
-    public genereateSourceCode(layers: TLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
+    public generateSourceCode(layers: TLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
         const source: TSourceCode = {code: [], declarations: []};
         for (const layer of layers) {
             switch (layer.type) {
-                case ELayerType.dot:
+                case 'dot':
                     this.drawDot(layer, source);
                     break;
-                case ELayerType.line:
+                case 'line':
                     this.drawLine(layer, source);
                     break;
-                case ELayerType.text:
+                case 'text':
                     this.drawText(layer, source);
                     break;
-                case ELayerType.box:
+                case 'box':
                     this.drawBox(layer, source);
                     break;
-                case ELayerType.frame:
+                case 'frame':
                     this.drawFrame(layer, source);
                     break;
-                case ELayerType.circle:
+                case 'circle':
                     this.drawCircle(layer, source);
                     break;
-                case ELayerType.disc:
+                case 'disc':
                     this.drawDisc(layer, source);
                     break;
-                case ELayerType.bitmap:
+                case 'bitmap':
                     this.drawBitmap(layer, source);
                     break;
-                case ELayerType.icon:
+                case 'icon':
                     this.drawIcon(layer, source);
                     break;
                 default:

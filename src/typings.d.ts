@@ -24,32 +24,25 @@ declare type TPlatformFont = {
 };
 
 declare type TLayer = {
-    name: string;
-    x: number;
-    y: number;
-    x2: number;
-    y2: number;
-    width: number;
-    height: number;
-    radius: number;
-    type: ELayerType;
-    text: string;
-    font: string;
-    isOverlay: boolean;
-    data: any; // imageData for ex.
+    name?: string;
+    x?: number;
+    y?: number;
+    x2?: number;
+    y2?: number;
+    yy?: number; //?
+    width?: number;
+    height?: number;
+    radius?: number;
+    type?: ELayerType;
+    text?: string;
+    font?: string;
+    isOverlay?: boolean;
+    index?: number;
+    id?: string;
+    data?: any; // imageData for ex.
 };
 
-declare enum ELayerType {
-    dot = 'dot',
-    line = 'line',
-    text = 'text',
-    box = 'box',
-    frame = 'frame',
-    circle = 'circle',
-    disc = 'disc',
-    bitmap = 'bitmap',
-    icon = 'icon'
-}
+declare type ELayerType = 'dot' | 'line' | 'text' | 'box' | 'frame' | 'circle' | 'disc' | 'bitmap' | 'icon';
 
 declare type TSourceCode = {
     declarations: string[];

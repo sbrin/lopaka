@@ -72,6 +72,18 @@ function mock(w: any, d: any) {
     vi.stubGlobal('requestAnimationFrame', (fn: Function) => w.setTimeout(fn, 0));
     vi.stubGlobal('requestIdleCallback', w.requestAnimationFrame.bind(w));
     vi.stubGlobal('devicePixelRatio', 1);
+    vi.stubGlobal(
+        'ImageData',
+        class {
+            data = {
+                length: this.width * this.height * 4
+            };
+            constructor(
+                private width: number,
+                private height: number
+            ) {}
+        }
+    );
 
     // resize observer mock
     vi.stubGlobal(

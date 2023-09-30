@@ -1,9 +1,8 @@
+import f4x6 from '../../fonts/f4x6.ttf';
+import haxrcorp4089 from '../../fonts/haxrcorp4089.ttf';
+import u8g2_font_helvB08 from '../../fonts/helvb08.ttf';
+import profont22 from '../../fonts/profont22.ttf';
 import {imgDataToXBMP} from '../utils';
-import f4x6_tr from '../../fonts/f4x6_tr.ttf';
-import haxrcorp4089_tr from '../../fonts/haxrcorp4089_tr.ttf';
-import profont22_tr from '../../fonts/profont22_tr.ttf';
-import u8g2_font_haxrcorp4089_tr from '../../fonts/u8g2_font_haxrcorp4089_tr.ttf';
-import u8g2_font_helvB08_tr from '../../fonts/u8g2_font_helvB08_tr.ttf';
 import {Platform} from './platform';
 
 export class U8g2Platform extends Platform {
@@ -12,7 +11,7 @@ export class U8g2Platform extends Platform {
     protected fonts: TPlatformFont[] = [
         {
             name: 'HaXRcorp4089',
-            file: haxrcorp4089_tr,
+            file: haxrcorp4089,
             options: {
                 textContainerHeight: 8,
                 textCharWidth: 6,
@@ -21,25 +20,17 @@ export class U8g2Platform extends Platform {
         },
         {
             name: 'HelvB08',
-            file: u8g2_font_helvB08_tr,
+            file: u8g2_font_helvB08,
             options: {
                 textContainerHeight: 8,
                 textCharWidth: 6,
                 size: 8
             }
         },
-        {
-            name: 'HaXRcorp4089',
-            file: u8g2_font_haxrcorp4089_tr,
-            options: {
-                textContainerHeight: 8,
-                textCharWidth: 6,
-                size: 8
-            }
-        },
+
         {
             name: 'Profont22',
-            file: profont22_tr,
+            file: profont22,
             options: {
                 textContainerHeight: 22,
                 textCharWidth: 12,
@@ -48,7 +39,7 @@ export class U8g2Platform extends Platform {
         },
         {
             name: 'F4x6',
-            file: f4x6_tr,
+            file: f4x6,
             options: {
                 textContainerHeight: 6,
                 textCharWidth: 4,
