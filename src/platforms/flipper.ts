@@ -36,10 +36,6 @@ export class FlipperPlatform extends Platform {
         }
     ];
 
-    generate(): string {
-        throw new Error('Method not implemented.');
-    }
-
     drawDot(layer: TLayer, source: TSourceCode): void {
         source.code.push(`canvas_draw_dot(canvas, ${layer.x}, ${layer.y});`);
     }

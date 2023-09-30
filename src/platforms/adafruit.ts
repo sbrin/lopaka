@@ -17,10 +17,6 @@ export class Adafruit extends Platform {
         }
     ];
 
-    generate(): string {
-        throw new Error('Method not implemented.');
-    }
-
     drawDot(layer: TLayer, source: TSourceCode): void {
         source.code.push(`display.drawPixel(${layer.x}, ${layer.y}, 1);`);
     }

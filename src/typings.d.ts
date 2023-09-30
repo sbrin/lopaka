@@ -32,12 +32,24 @@ declare type TLayer = {
     width: number;
     height: number;
     radius: number;
-    type: string;
+    type: ELayerType;
     text: string;
     font: string;
     isOverlay: boolean;
     data: any; // imageData for ex.
 };
+
+declare enum ELayerType {
+    dot = 'dot',
+    line = 'line',
+    text = 'text',
+    box = 'box',
+    frame = 'frame',
+    circle = 'circle',
+    disc = 'disc',
+    bitmap = 'bitmap',
+    icon = 'icon'
+}
 
 declare type TSourceCode = {
     declarations: string[];

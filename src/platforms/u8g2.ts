@@ -57,9 +57,6 @@ export class U8g2Platform extends Platform {
         }
     ];
 
-    generate(): string {
-        throw new Error('Method not implemented.');
-    }
     drawDot(layer: TLayer, source: TSourceCode): void {
         source.code.push(`u8g2.drawPixel(${layer.x}, ${layer.y});`);
     }
