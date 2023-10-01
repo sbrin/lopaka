@@ -1,4 +1,11 @@
-import {codeDeclarators, fontMap, textCharWidth} from './const';
+import { codeDeclarators, fontMap, textCharWidth } from './const';
+
+function bitswap(b) {
+    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+    b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+    b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+    return b;
+}
 
 export function readFileAsync(file) {
     return new Promise((resolve, reject) => {
@@ -74,27 +81,33 @@ export async function loadImageAsync(src): Promise<HTMLImageElement> {
     });
 }
 
-export function imgDataToXBMP(imgData, xStart, yStart, width, height) {
+export function imgDataToXBMP(imgData, xStart, yStart, width, height, swapBits = false) {
     const bytesPerRow = Math.ceil(width / 8);
     const xbmp = new Array(height * bytesPerRow).fill(0);
 
     for (let y = yStart; y < yStart + height; y++) {
         for (let x = xStart; x < xStart + width; x++) {
             const imgDataIndex = (y * width + x) * 4;
-            const rgbSumValue =
-                imgData.data[imgDataIndex] + imgData.data[imgDataIndex + 1] + imgData.data[imgDataIndex + 2];
+            const rgbSumValue = imgData.data[imgDataIndex] + imgData.data[imgDataIndex + 1] + imgData.data[imgDataIndex + 2];
             const alphaValue = imgData.data[imgDataIndex + 3];
             // b&w + alpha masking
             if (alphaValue > 127 && rgbSumValue < 381) {
-                const xbmpIndex = (y - yStart) * bytesPerRow + Math.floor((x - xStart) / 8);
+                const xbmpIndex =
+                    (y - yStart) * bytesPerRow + Math.floor((x - xStart) / 8);
                 const bitPosition = (x - xStart) % 8;
                 xbmp[xbmpIndex] |= 1 << bitPosition;
             }
         }
     }
 
-    return xbmp.map((x) => '0x' + x.toString(16).padStart(2, '0'));
+    for (let i = 0; i < xbmp.length; i++) {
+        xbmp[i] = swapBits ? bitswap(xbmp[i]) : xbmp[i];
+        xbmp[i] = "0x" + xbmp[i].toString(16).padStart(2, "0");
+    }
+
+    return xbmp;
 }
+
 
 export function imgDataToUint32Array(imgData) {
     const length = imgData.data.length / 4; // number of pixels
@@ -175,7 +188,8 @@ export function getFlipperDeclarations(element) {
 }
 
 export function getAdafruitFGXDeclarations(element, imageData) {
-    const XBMP = imgDataToUint32Array(imageData);
+    const { width, height } = element;
+    const XBMP = imgDataToXBMP(imageData, 0, 0, width, height, true);
     const name = `image_${element.name}_bits`;
     return `static const unsigned char PROGMEM ${name}[] = {${XBMP}};\n`;
 }
