@@ -1,10 +1,11 @@
+import basicSsl from '@vitejs/plugin-basic-ssl';
 import vue from '@vitejs/plugin-vue';
 import {resolve} from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig({
     base: '',
-    plugins: [vue()],
+    plugins: [vue(), basicSsl()],
     esbuild: {
         keepNames: true
     },
@@ -32,7 +33,7 @@ export default defineConfig({
     },
     define: {},
     server: {
-        https: false,
+        https: true,
         port: 3000,
         host: '0.0.0.0'
     }
