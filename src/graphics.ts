@@ -1,34 +1,33 @@
-import { FONT_SIZES } from "./const";
+import {FONT_SIZES} from './const';
 
 export function drawLine(imageData, x1, y1, x2, y2, erase) {
     let pixels = new Uint32Array(imageData.data.buffer);
     let dx = Math.abs(x2 - x1);
     let dy = Math.abs(y2 - y1);
-    let sx = (x1 < x2) ? 1 : -1;
-    let sy = (y1 < y2) ? 1 : -1;
+    let sx = x1 < x2 ? 1 : -1;
+    let sy = y1 < y2 ? 1 : -1;
     let err = dx - dy;
     while (true) {
-        let index = (y1 * imageData.width + x1);
+        let index = y1 * imageData.width + x1;
         if (x1 >= 0 && x1 < imageData.width && y1 >= 0 && y1 < imageData.height) {
-            pixels[index] = erase ? null : 0xFF000000; // Black pixel
+            pixels[index] = erase ? null : 0xff000000; // Black pixel
         }
 
-        if ((x1 === x2) && (y1 === y2)) break;
+        if (x1 === x2 && y1 === y2) break;
         let e2 = 2 * err;
-        if (e2 > -dy) { err -= dy; x1 += sx; }
-        if (e2 < dx) { err += dx; y1 += sy; }
+        if (e2 > -dy) {
+            err -= dy;
+            x1 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y1 += sy;
+        }
     }
     return imageData;
 }
 
-export function drawCircle(
-    imgData,
-    centerX,
-    centerY,
-    radius,
-    canvasWidth,
-    canvasHeight
-) {
+export function drawCircle(imgData, centerX, centerY, radius, canvasWidth, canvasHeight) {
     const resultArr = [];
     let x = 0;
     let y = radius;
@@ -43,7 +42,7 @@ export function drawCircle(
             [centerX + y, centerY + x],
             [centerX - y, centerY + x],
             [centerX + y, centerY - x],
-            [centerX - y, centerY - x],
+            [centerX - y, centerY - x]
         ];
 
         points.forEach(([x, y]) => {
@@ -72,14 +71,7 @@ export function drawCircle(
     }
 }
 
-export function drawDisc(
-    imgData,
-    centerX,
-    centerY,
-    radius,
-    canvasWidth,
-    canvasHeight
-) {
+export function drawDisc(imgData, centerX, centerY, radius, canvasWidth, canvasHeight) {
     const resultArr = [];
     let x = 0;
     let y = radius;
@@ -119,12 +111,12 @@ export function drawDisc(
 
 export function imgToCanvasData(imgElement) {
     // Create a new canvas element
-    const canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     canvas.width = imgElement.width;
     canvas.height = imgElement.height;
 
     // Get the 2D drawing context of the canvas
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
 
     // Draw the image onto the canvas
     ctx.drawImage(imgElement, 0, 0, imgElement.width, imgElement.height);
@@ -173,12 +165,7 @@ export function maskAndMixImageData(originalImageData, newImageData, dx, dy) {
 }
 
 export function putImageDataWithAlpha(ctx, newImageData, dx, dy, alpha) {
-    const oldImageData = ctx.getImageData(
-        dx,
-        dy,
-        newImageData.width,
-        newImageData.height
-    );
+    const oldImageData = ctx.getImageData(dx, dy, newImageData.width, newImageData.height);
     const oldData = oldImageData.data;
     const newData = newImageData.data;
 
@@ -226,16 +213,32 @@ export function addImageDataPadding(imageData, shiftX, shiftY, frameWidth, frame
     return new ImageData(newData, newWidth, newHeight);
 }
 
-export function startDrawing(isDrawingCurrent, layerProps, currentLayer, canvasWidth, canvasHeight, oX, oY, isEraser, imageDataCache) {
+export function startDrawing(
+    isDrawingCurrent,
+    layerProps,
+    currentLayer,
+    canvasWidth,
+    canvasHeight,
+    oX,
+    oY,
+    isEraser,
+    imageDataCache
+) {
     if (isDrawingCurrent) {
-        imageDataCache[currentLayer.name] = addImageDataPadding(imageDataCache[currentLayer.name], currentLayer.x, currentLayer.y, canvasWidth, canvasHeight),
-            layerProps = {
+        (imageDataCache[currentLayer.name] = addImageDataPadding(
+            imageDataCache[currentLayer.name],
+            currentLayer.x,
+            currentLayer.y,
+            canvasWidth,
+            canvasHeight
+        )),
+            (layerProps = {
                 ...currentLayer,
                 x: currentLayer.x > 0 ? 0 : currentLayer.x,
                 y: currentLayer.y > 0 ? 0 : currentLayer.y,
                 width: imageDataCache[currentLayer.name].width,
-                height: imageDataCache[currentLayer.name].height,
-            }
+                height: imageDataCache[currentLayer.name].height
+            });
     } else {
         layerProps.x = 0;
         layerProps.y = 0;
@@ -243,17 +246,18 @@ export function startDrawing(isDrawingCurrent, layerProps, currentLayer, canvasW
         imageDataCache[layerProps.name] = new ImageData(
             new Uint8ClampedArray(imageDataArraylength),
             canvasWidth,
-            canvasHeight,
+            canvasHeight
         );
         layerProps.width = imageDataCache[layerProps.name].width;
         layerProps.height = imageDataCache[layerProps.name].height;
     }
-    drawLine(imageDataCache[layerProps.name],
+    drawLine(
+        imageDataCache[layerProps.name],
         oX - layerProps.x,
         oY - layerProps.y,
         oX - layerProps.x,
         oY - layerProps.y,
-        isEraser,
+        isEraser
     );
     console.log(imageDataCache);
     return layerProps;
@@ -268,12 +272,12 @@ export function startDrawing(isDrawingCurrent, layerProps, currentLayer, canvasW
 / @return masked and mixed image data
 */
 export function drawTextWithMasking(imgData, x, y, font, text) {
-    const canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     canvas.width = imgData.width;
     canvas.height = imgData.height;
 
     // Get the 2D drawing context of the canvas
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     const fontSize = FONT_SIZES[font];
     ctx.font = `${fontSize}px ${font}, monospace`;
     ctx.fillText(text, x, y);

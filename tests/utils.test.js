@@ -1,16 +1,19 @@
-const {
-  bline,
-  drawCircle,
-  drawDisc,
-  maskBlack,
-  getTextWidth,
-  getElementByOffset,
-  imgDataToUint32Array,
-  getUint32Code,
-  getU8g2Code,
-  getFlipperCode,
-  generateCode,
-} = require("../js/utils.js");
+// const {
+//   bline,
+//   drawCircle,
+//   drawDisc,
+//   maskBlack,
+//   getTextWidth,
+//   getElementByOffset,
+//   imgDataToUint32Array,
+//   getUint32Code,
+//   getU8g2Code,
+//   getFlipperCode,
+//   generateCode,
+// } = require("../js/utils.js");
+
+import { describe, expect, it } from "vitest";
+import { getTextWidth } from "../js/utils";
 
 // Mocking the ImageData object
 // function createMockImageData(width, height) {

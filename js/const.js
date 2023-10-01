@@ -1,82 +1,76 @@
-const standardFontsRegex =
+import { getAdafruitFGXDeclarations, getFlipperDeclarations, getU8g2Declarations } from "./utils";
+
+export const standardFontsRegex =
   /[^0-9a-zA-Z\s\:\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/\?]/g;
-const numberFontsRegex = /[^0-9\s\,\.\/\-\*\+\:]/g;
+export const numberFontsRegex = /[^0-9\s\,\.\/\-\*\+\:]/g;
 
-const defaultFont = "helvB08_tr";
+export const DEFAULT_STRING = "String 123";
 
-const DEFAULT_STRING = "String 123";
-
-const fontMap = {
+export const fontMap = {
   flipper: {
+    default: "helvB08_tr",
     helvB08_tr: "FontPrimary",
     haxrcorp4089_tr: "FontSecondary",
     profont22_tr: "FontBigNumbers",
   },
   u8g2: {
+    default: "haxrcorp4089_tr",
     helvB08_tr: "u8g2_font_helvB08_tr",
     haxrcorp4089_tr: "u8g2_font_haxrcorp4089_tr",
     profont22_tr: "u8g2_font_profont22_tr",
     f4x6_tr: "u8g2_font_4x6_tr",
   },
   uint32: {
+    default: "haxrcorp4089_tr",
     helvB08_tr: "u8g2_font_helvB08_tr",
     haxrcorp4089_tr: "u8g2_font_haxrcorp4089_tr",
     profont22_tr: "u8g2_font_profont22_tr",
     f4x6_tr: "u8g2_font_4x6_tr",
   },
+  adafruit_gfx: {
+    default: "adafruit",
+    adafruit: "adafruit",
+  },
 };
 
-const FONT_SIZES = {
+export const FONT_SIZES = {
   helvB08_tr: 8,
   haxrcorp4089_tr: 16,
   profont22_tr: 22,
   f4x6_tr: 6,
+  adafruit: 8,
 };
 
-const textContainerHeight = {
+export const textContainerHeight = {
   helvB08_tr: 8,
   haxrcorp4089_tr: 8,
   profont22_tr: 16,
   f4x6_tr: 6,
+  adafruit: 7,
 };
 
-const textCharWidth = {
+export const textCharWidth = {
   helvB08_tr: 5,
   haxrcorp4089_tr: 4,
   profont22_tr: 11,
   f4x6_tr: 4,
+  adafruit: 5,
 };
 
-const LIBRARIES = {
+export const LIBRARIES = {
   u8g2: "U8g2",
+  adafruit_gfx: "Adafruit GFX",
   flipper: "Flipper Zero",
   uint32: "uint32 RAW",
 };
 
-const codeGenerators = {
-  flipper: getFlipperCode,
-  u8g2: getU8g2Code,
-  uint32: getUint32Code,
-};
-
-const codeDeclarators = {
+export const codeDeclarators = {
   u8g2: getU8g2Declarations,
   flipper: getFlipperDeclarations,
+  adafruit_gfx: getAdafruitFGXDeclarations,
 };
 
-const invertedHeaders = {
-  flipper: `canvas_draw_box(canvas, 0, 0, 127, 63);
-canvas_set_color(canvas, ColorWhite);
-
-`,
-  u8g2: `
-u8g2.drawBox(0, 0, 127, 63);
-u8g2.setDrawColor(0);
-
-`,
-};
-
-const ICONS_SRC = {
+export const ICONS_SRC = {
   "125_10px": "125_10px.png",
   // "ActiveConnection_50x64": "ActiveConnection_50x64.png",
   Alert_9x8: "Alert_9x8.png",
@@ -247,7 +241,7 @@ const ICONS_SRC = {
   // "WarningDolphin_45x42": "WarningDolphin_45x42.png",
 };
 
-const displaySizes = [
+export const displaySizes = [
   "8×8",
   "12×8",
   "32×8",
@@ -301,7 +295,7 @@ const displaySizes = [
   "400×240",
 ];
 
-const KEYS = {
+export const KEYS = {
   UP: 38,
   DOWN: 40,
   LEFT: 37,

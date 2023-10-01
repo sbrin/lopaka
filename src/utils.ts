@@ -1,4 +1,4 @@
-import { codeDeclarators, fontMap, textCharWidth } from "./const";
+import {codeDeclarators, fontMap, textCharWidth} from './const';
 
 export function readFileAsync(file) {
     return new Promise((resolve, reject) => {
@@ -30,10 +30,8 @@ export function getElementByOffset(layersArr, x, y) {
         const scaledX1 = scaleUp(element.x);
         const scaledY1 = scaleUp(element.yy ? element.yy : element.y);
         const scaledX2 = scaleUp(element.x + element.width);
-        const scaledY2 = scaleUp(
-            element.yy ? element.yy + element.height : element.y + element.height
-        );
-        if (element.type === "line") {
+        const scaledY2 = scaleUp(element.yy ? element.yy + element.height : element.y + element.height);
+        if (element.type === 'line') {
             const scaledX1 = scaleUp(element.x);
             const scaledY1 = scaleUp(element.y);
             const scaledX2 = scaleUp(element.x2);
@@ -61,18 +59,13 @@ export function getElementByOffset(layersArr, x, y) {
                     }
                 }
             }
-        } else if (
-            scaledX1 <= x &&
-            scaledX2 >= x &&
-            scaledY1 <= y &&
-            scaledY2 >= y
-        ) {
+        } else if (scaledX1 <= x && scaledX2 >= x && scaledY1 <= y && scaledY2 >= y) {
             return element;
         }
     }
 }
 
-export function loadImageAsync(src) {
+export async function loadImageAsync(src): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
         let img = new Image();
         img.src = src;
@@ -88,19 +81,19 @@ export function imgDataToXBMP(imgData, xStart, yStart, width, height) {
     for (let y = yStart; y < yStart + height; y++) {
         for (let x = xStart; x < xStart + width; x++) {
             const imgDataIndex = (y * width + x) * 4;
-            const rgbSumValue = imgData.data[imgDataIndex] + imgData.data[imgDataIndex + 1] + imgData.data[imgDataIndex + 2];
+            const rgbSumValue =
+                imgData.data[imgDataIndex] + imgData.data[imgDataIndex + 1] + imgData.data[imgDataIndex + 2];
             const alphaValue = imgData.data[imgDataIndex + 3];
             // b&w + alpha masking
             if (alphaValue > 127 && rgbSumValue < 381) {
-                const xbmpIndex =
-                    (y - yStart) * bytesPerRow + Math.floor((x - xStart) / 8);
+                const xbmpIndex = (y - yStart) * bytesPerRow + Math.floor((x - xStart) / 8);
                 const bitPosition = (x - xStart) % 8;
                 xbmp[xbmpIndex] |= 1 << bitPosition;
             }
         }
     }
 
-    return xbmp.map((x) => "0x" + x.toString(16).padStart(2, "0"));
+    return xbmp.map((x) => '0x' + x.toString(16).padStart(2, '0'));
 }
 
 export function imgDataToUint32Array(imgData) {
@@ -122,17 +115,12 @@ export function imgDataToUint32Array(imgData) {
         }
     }
 
-    return xbmp.map((x) => "0x" + x.toString(16));
+    return xbmp.map((x) => '0x' + x.toString(16));
 }
 
 export function getUint32Code(context) {
     let result = ``;
-    const imgData = context.getImageData(
-        0,
-        0,
-        context.canvas.width,
-        context.canvas.height
-    );
+    const imgData = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
     const UINT32 = imgDataToUint32Array(imgData);
 
     const iconName = `image_frame`;
@@ -144,34 +132,32 @@ export function getUint32Code(context) {
 export function getU8g2Code(element) {
     const type = element.type.charAt(0).toUpperCase() + element.type.slice(1);
     const func = `u8g2.draw${type}`;
-    const { width, height, x, y } = element;
-    const font = fontMap["u8g2"][element.font];
+    const {width, height, x, y} = element;
+    const font = fontMap['u8g2'][element.font];
     switch (element.type) {
-        case "icon":
-        case "draw":
-            const name = `image_${element.name}_bits`;;
+        case 'icon':
+        case 'draw':
+            const name = `image_${element.name}_bits`;
             return `u8g2.drawXBMP( ${x}, ${y}, ${width}, ${height}, ${name});\n`;
-        case "box":
+        case 'box':
             return `${func}(${x}, ${y}, ${width}, ${height});\n`;
-        case "dot":
+        case 'dot':
             return `u8g2.drawPixel(${x}, ${y});\n`;
-        case "frame":
-            return `${func}(${x}, ${y}, ${width + 1}, ${height + 1
-                });\n`;
-        case "line":
+        case 'frame':
+            return `${func}(${x}, ${y}, ${width + 1}, ${height + 1});\n`;
+        case 'line':
             return `${func}(${x}, ${y}, ${element.x2}, ${element.y2});\n`;
-        case "circle":
-        case "disc":
-            return `${func}(${x + element.radius}, ${y + element.radius
-                }, ${element.radius});\n`;
-        case "str":
+        case 'circle':
+        case 'disc':
+            return `${func}(${x + element.radius}, ${y + element.radius}, ${element.radius});\n`;
+        case 'str':
             return `u8g2.setFont(${font});
 ${func}(${x}, ${y}, "${element.text}");\n`;
     }
 }
 
 export function getU8g2Declarations(element, imageData) {
-    const { width, height } = element;
+    const {width, height} = element;
     const XBMP = imgDataToXBMP(imageData, 0, 0, width, height);
     const name = `image_${element.name}_bits`;
     return `static const unsigned char ${name}[] U8X8_PROGMEM = {${XBMP}};
@@ -185,7 +171,7 @@ export function getFlipperDeclarations(element) {
     // if (element.type === "draw") {
     //   return getU8g2Declarations(element);
     // }
-    return "";
+    return '';
 }
 
 export function getAdafruitFGXDeclarations(element, imageData) {
@@ -196,27 +182,27 @@ export function getAdafruitFGXDeclarations(element, imageData) {
 
 export function getFlipperCode(element) {
     const func = `canvas_draw_${element.type}`;
-    const font = fontMap["flipper"][element.font];
-    const { name, width, height, x, y } = element;
+    const font = fontMap['flipper'][element.font];
+    const {name, width, height, x, y} = element;
     switch (element.type) {
-        case "draw":
-            return "";
+        case 'draw':
+            return '';
         //   const varName = `image_${name}_bits`;
         //   return `u8g2.drawXBMP( ${x}, ${y}, ${width}, ${height}, ${varName});`;
-        case "icon":
+        case 'icon':
             return `${func}(canvas, ${x}, ${y}, &I_${name});\n`;
-        case "box":
+        case 'box':
             return `${func}(canvas, ${x}, ${y}, ${width}, ${height});\n`;
-        case "dot":
+        case 'dot':
             return `${func}(canvas, ${x}, ${y});\n`;
-        case "frame":
+        case 'frame':
             return `${func}(canvas, ${x}, ${y}, ${width + 1}, ${height + 1});\n`;
-        case "line":
+        case 'line':
             return `${func}(canvas, ${x}, ${y}, ${element.x2}, ${element.y2});\n`;
-        case "circle":
-        case "disc":
+        case 'circle':
+        case 'disc':
             return `${func}(canvas, ${x + element.radius}, ${y + element.radius}, ${element.radius});\n`;
-        case "str":
+        case 'str':
             return `canvas_set_font(canvas, ${font});
 ${func}(canvas, ${x}, ${y}, "${element.text}");\n`;
         default:
@@ -224,29 +210,28 @@ ${func}(canvas, ${x}, ${y}, "${element.text}");\n`;
     }
 }
 
-
 export function getAdafruitFGXCode(element) {
-    const { width, height, x, y } = element;
+    const {width, height, x, y} = element;
     const color = 1;
     const fontSize = 1;
     switch (element.type) {
-        case "icon":
-        case "draw":
+        case 'icon':
+        case 'draw':
             const name = `image_${element.name}_bits`;
             return `display.drawBitmap( ${x}, ${y}, ${name}, ${width}, ${height}, ${color});\n`;
-        case "dot":
+        case 'dot':
             return `display.drawPixel(${x}, ${y}, ${color});\n`;
-        case "box":
+        case 'box':
             return `display.fillRect(${x}, ${y}, ${width}, ${height}, ${color});\n`;
-        case "frame":
+        case 'frame':
             return `display.drawRect(${x}, ${y}, ${width + 1}, ${height + 1}, ${color});\n`;
-        case "line":
+        case 'line':
             return `display.drawLine(${x}, ${y}, ${element.x2}, ${element.y2}, ${color});\n`;
-        case "circle":
+        case 'circle':
             return `display.drawCircle(${x + element.radius}, ${y + element.radius}, ${element.radius}, ${color});\n`;
-        case "disc":
+        case 'disc':
             return `display.fillCircle(${x + element.radius}, ${y + element.radius}, ${element.radius}, ${color});\n`;
-        case "str":
+        case 'str':
             return `display.setTextColor(${color});
 display.setTextSize(${fontSize});
 display.setCursor(${x}, ${y});
@@ -257,12 +242,12 @@ display.print("${element.text}");\n`;
 
 export function getCodeSettings(library) {
     switch (library) {
-        case "u8g2":
-            return "u8g2.setBitmapMode(1);\n";
-        case "flipper":
-            return "canvas_set_bitmap_mode(canvas, 1);\n";
+        case 'u8g2':
+            return 'u8g2.setBitmapMode(1);\n';
+        case 'flipper':
+            return 'canvas_set_bitmap_mode(canvas, 1);\n';
         default:
-            return "";
+            return '';
     }
 }
 
@@ -271,17 +256,18 @@ export function generateCode(screenElements, library, context, imageDataCache) {
         flipper: getFlipperCode,
         u8g2: getU8g2Code,
         uint32: getUint32Code,
-        adafruit_gfx: getAdafruitFGXCode,
+        adafruit_gfx: getAdafruitFGXCode
     };
 
-    if (library === "uint32") {
+    if (library === 'uint32') {
         return getUint32Code(context);
     }
-    let lines = "";
-    let settings = "";
-    let declarations = "";
-    if (library === "flipper" && screenElements.find(i => i.type === "draw")) {
-        declarations += "// DRAW tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output\n";
+    let lines = '';
+    let settings = '';
+    let declarations = '';
+    if (library === 'flipper' && screenElements.find((i) => i.type === 'draw')) {
+        declarations +=
+            '// DRAW tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output\n';
     }
     const declaredIcons = [];
     for (let i = 0; i < screenElements.length; i++) {
@@ -289,16 +275,13 @@ export function generateCode(screenElements, library, context, imageDataCache) {
         if (element.isOverlay) {
             continue;
         }
-        if (["icon", "draw"].includes(element.type) && !!codeDeclarators[library]) {
+        if (['icon', 'draw'].includes(element.type) && !!codeDeclarators[library]) {
             // avoid duplicate icon declarations
             const isDeclared = declaredIcons.indexOf(element.name) >= 0;
             if (!isDeclared) {
                 const imageData = imageDataCache[element.name];
                 declaredIcons.push(element.name);
-                declarations = `${declarations}${codeDeclarators[library](
-                    element,
-                    imageData
-                )}`;
+                declarations = `${declarations}${codeDeclarators[library](element, imageData)}`;
             }
         }
         lines = `${lines}${codeGenerators[library](element)}`;
@@ -315,51 +298,51 @@ export function getTextWidth(text, font) {
 
 export function toCppVariableName(str) {
     const cppKeywords = [
-        "auto",
-        "double",
-        "int",
-        "struct",
-        "break",
-        "else",
-        "long",
-        "switch",
-        "case",
-        "enum",
-        "register",
-        "typedef",
-        "char",
-        "extern",
-        "return",
-        "union",
-        "const",
-        "float",
-        "short",
-        "unsigned",
-        "continue",
-        "for",
-        "signed",
-        "void",
-        "default",
-        "goto",
-        "sizeof",
-        "volatile",
-        "do",
-        "if",
-        "static",
-        "while",
+        'auto',
+        'double',
+        'int',
+        'struct',
+        'break',
+        'else',
+        'long',
+        'switch',
+        'case',
+        'enum',
+        'register',
+        'typedef',
+        'char',
+        'extern',
+        'return',
+        'union',
+        'const',
+        'float',
+        'short',
+        'unsigned',
+        'continue',
+        'for',
+        'signed',
+        'void',
+        'default',
+        'goto',
+        'sizeof',
+        'volatile',
+        'do',
+        'if',
+        'static',
+        'while'
     ];
 
     // Replace non-alphanumeric characters with underscores
-    let variableName = str.replace(/[^a-z0-9]/gi, "_");
+    let variableName = str.replace(/[^a-z0-9]/gi, '_');
 
     // Prepend an underscore if the first character is a digit
     if (/[0-9]/.test(variableName[0])) {
-        variableName = "_" + variableName;
+        variableName = '_' + variableName;
     }
 
     // If name is a C++ keyword, append an underscore
     if (cppKeywords.includes(variableName)) {
-        variableName += "_";
+        variableName += '_';
     }
 
     return variableName;

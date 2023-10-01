@@ -1,4 +1,8 @@
-const fuiLayersComponent = {
+import { LIBRARIES, DEFAULT_STRING, FONT_SIZES, ICONS_SRC, KEYS, codeDeclarators, displaySizes, fontMap, numberFontsRegex, standardFontsRegex, textContainerHeight } from "./const";
+import { fuiButtonTmpl, fuiFileTmpl, fuiIconsTmpl, fuiInspectorTmpl, fuiLayersTmpl, fuiToolsTmpl } from "./templates";
+import { getTextWidth, loadImageAsync, readFileAsync } from "./utils";
+
+export const fuiLayersComponent = {
   template: fuiLayersTmpl,
   props: {
     screenElements: Array,
@@ -31,7 +35,7 @@ const fuiLayersComponent = {
   },
 };
 
-const fuiButtonComponent = {
+export const fuiButtonComponent = {
   template: fuiButtonTmpl,
   props: {
     title: String,
@@ -40,7 +44,7 @@ const fuiButtonComponent = {
   },
 };
 
-const fuiFileComponent = {
+export const fuiFileComponent = {
   template: fuiFileTmpl,
   props: {
     title: String,
@@ -69,7 +73,7 @@ const fuiFileComponent = {
   },
 };
 
-const fuiIconsComponent = {
+export const fuiIconsComponent = {
   template: fuiIconsTmpl,
   data() {
     return {
@@ -151,7 +155,7 @@ const fuiIconsComponent = {
   mounted() { },
 };
 
-const fuiToolsComponent = {
+export const fuiToolsComponent = {
   template: fuiToolsTmpl,
   props: {
     callback: Function,
@@ -165,7 +169,7 @@ const fuiToolsComponent = {
   },
 };
 
-const fuiInspectorComponent = {
+export const fuiInspectorComponent = {
   template: fuiInspectorTmpl,
   props: {
     elem: Object,
@@ -200,7 +204,7 @@ const fuiInspectorComponent = {
   },
 };
 
-const fuiInspectorInputComponent = {
+export const fuiInspectorInputComponent = {
   template: `
     <span v-if="hasNoWidth">{{ element[field] }}</span>
     <select class="input-select" v-if="field === 'font'" :value="element[field]" @input="onSelect" :id="id">
@@ -231,6 +235,7 @@ const fuiInspectorInputComponent = {
         flipper: ["helvB08_tr", "haxrcorp4089_tr", "profont22_tr"],
         u8g2: ["helvB08_tr", "haxrcorp4089_tr", "profont22_tr", "f4x6_tr"],
         uint32: ["helvB08_tr", "haxrcorp4089_tr", "profont22_tr", "f4x6_tr"],
+        adafruit_gfx: ["adafruit"],
       },
     };
   },
@@ -301,7 +306,7 @@ const fuiInspectorInputComponent = {
 //     }
 // }
 
-const fuiCodeComponent = {
+export const fuiCodeComponent = {
   template: `
     <div class="fui-code">
       <pre>{{ content }}</pre>
@@ -311,7 +316,7 @@ const fuiCodeComponent = {
     content: String,
   },
 };
-const fuiLibraryComponent = {
+export const fuiLibraryComponent = {
   template: `
     <div class="fui-select">
         <label for="library" class="fui-select__label">Library: </label>
@@ -335,7 +340,7 @@ const fuiLibraryComponent = {
   },
 };
 
-const fuiDisplaysComponent = {
+export const fuiDisplaysComponent = {
   template: `
     <div class="fui-displays fui-select">
         <label for="display-size" class="fui-select__label">Display: </label>
@@ -362,7 +367,7 @@ const fuiDisplaysComponent = {
   },
 };
 
-const fuiTabsComponent = {
+export const fuiTabsComponent = {
   template: `
     <div class="fui-tabs">
       <div v-for="(tab, idx) in tabs" :key="idx" class="fui-tab" :class="{'fui-tab_active': activeTab === tab}"

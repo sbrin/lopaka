@@ -1,4 +1,8 @@
-const fuiCanvasComponent = {
+import { DEFAULT_STRING, KEYS, fontMap, textContainerHeight } from "./const";
+import { drawCircle, drawDisc, drawLine, drawTextWithMasking, imgToCanvasData, maskAndMixImageData, putImageDataWithAlpha, startDrawing } from "./graphics";
+import { generateUID, getElementByOffset, getTextWidth, loadImageAsync, readFileAsync, scaleDown, scaleSize, scaleUp } from "./utils";
+
+export const fuiCanvasComponent = {
     template: `<div class="canvas-wrapper">
     <div class="fui-grid">
         <canvas id="screen"
@@ -67,6 +71,9 @@ const fuiCanvasComponent = {
         style() {
             return `width: ${this.canvasBoundX}px; height: ${this.canvasBoundY}px;`;
         },
+        defaultFont() {
+            return fontMap[this.library].default;
+        }
     },
     mounted() {
         this.CTX = this.$refs.screen.getContext("2d", {
@@ -177,11 +184,11 @@ const fuiCanvasComponent = {
             } else if (this.activeTool === "str") {
                 this.$emit("updateCurrentLayer", {
                     ...layerProps,
-                    yy: scaleDown(y) - textContainerHeight[defaultFont],
+                    yy: scaleDown(y) - textContainerHeight[this.defaultFont],
                     text: DEFAULT_STRING,
-                    width: getTextWidth(DEFAULT_STRING, defaultFont),
-                    height: textContainerHeight[defaultFont],
-                    font: defaultFont,
+                    width: getTextWidth(DEFAULT_STRING, this.defaultFont),
+                    height: textContainerHeight[this.defaultFont],
+                    font: this.defaultFont,
                 });
                 this.$emit("addScreenLayer");
                 this.$emit("setActiveTool", "select");
@@ -233,21 +240,21 @@ const fuiCanvasComponent = {
                     layerProps.x2 = offsetX;
                     layerProps.y2 = offsetY;
                     if (e.shiftKey) {
-                      if (Math.abs(this.oX - offsetX) < Math.abs(this.oY - offsetY)) {
-                        layerProps.x2 = this.oX;
-                      } else {
-                        layerProps.y2 = this.oY;
-                      }
+                        if (Math.abs(this.oX - offsetX) < Math.abs(this.oY - offsetY)) {
+                            layerProps.x2 = this.oX;
+                        } else {
+                            layerProps.y2 = this.oY;
+                        }
                     }
                 } else if (["frame", "box"].includes(this.activeTool)) {
                     let width = e.offsetX - this.mouseClick_x;
                     let height = e.offsetY - this.mouseClick_y;
                     if (e.shiftKey) {
-                      if (Math.abs(width) > Math.abs(height)) {
-                        height = Math.sign(height) * Math.abs(width);
-                      } else {
-                        width = Math.sign(width) * Math.abs(height);
-                      }
+                        if (Math.abs(width) > Math.abs(height)) {
+                            height = Math.sign(height) * Math.abs(width);
+                        } else {
+                            width = Math.sign(width) * Math.abs(height);
+                        }
                     }
                     layerProps.width = scaleSize(width);
                     layerProps.height = scaleSize(height);

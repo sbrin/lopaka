@@ -1,4 +1,12 @@
-Vue.createApp({
+import {createApp} from "vue";
+import './styles.css';
+import { fuiRootTmpl } from "./js/templates";
+import { fuiCanvasComponent } from "./js/fui-canvas";
+import { fuiButtonComponent, fuiCodeComponent, fuiDisplaysComponent, fuiFileComponent, fuiIconsComponent, fuiInspectorComponent, fuiInspectorInputComponent, fuiLayersComponent, fuiLibraryComponent, fuiTabsComponent, fuiToolsComponent } from "./js/components";
+import { generateCode, toCppVariableName } from "./js/utils";
+
+
+createApp({
   template: fuiRootTmpl,
   data() {
     return {
