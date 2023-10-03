@@ -1,13 +1,15 @@
 import {imgDataToUint32Array} from '../utils';
 import adafruitFont from '../../fonts/adafruit.ttf';
 import {Platform} from './platform';
+import {Layer} from 'src/core/layer';
 
 export class AdafruitPlatform extends Platform {
+    public static id = 'adafruit_gfx';
     protected name = 'Adafruit GFX';
     protected description = 'Adafruit GFX';
     protected fonts: TPlatformFont[] = [
         {
-            name: 'Adafruit 5x7',
+            name: 'adafruit',
             file: adafruitFont,
             options: {
                 textContainerHeight: 7,
@@ -17,51 +19,59 @@ export class AdafruitPlatform extends Platform {
         }
     ];
 
-    drawDot(layer: TLayer, source: TSourceCode): void {
-        source.code.push(`display.drawPixel(${layer.x}, ${layer.y}, 1);`);
+    addDot(layer: Layer, source: TSourceCode): void {
+        source.code.push(`display.drawPixel(${layer.position.x}, ${layer.position.y}, 1);`);
     }
 
-    drawText(layer: TLayer, source: TSourceCode): void {
+    addText(layer: Layer, source: TSourceCode): void {
         source.code.push(`display.setTextColor(1);
 display.setTextSize(1);
-display.setCursor(${layer.x}, ${layer.y});
+display.setCursor(${layer.position.x}, ${layer.position.y});
 display.setTextWrap(false);
-display.print("${layer.text}");`);
+display.print("${layer.data.text}");`);
     }
 
-    drawLine(layer: TLayer, source: TSourceCode): void {
-        source.code.push(`display.drawLine(${layer.x}, ${layer.y}, ${layer.x2}, ${layer.y2}, 1);`);
-    }
-
-    drawBox(layer: TLayer, source: TSourceCode): void {
-        source.code.push(`display.drawRect(${layer.x}, ${layer.y}, ${layer.width + 1}, ${layer.height + 1}, 1);`);
-    }
-
-    drawCircle(layer: TLayer, source: TSourceCode): void {
+    addLine(layer: Layer, source: TSourceCode): void {
         source.code.push(
-            `display.drawCircle(${layer.x + layer.radius}, ${layer.y + layer.radius}, ${layer.radius}, 1);`
+            `display.drawLine(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, 1);`
         );
     }
 
-    drawDisc(layer: TLayer, source: TSourceCode): void {
+    addBox(layer: Layer, source: TSourceCode): void {
         source.code.push(
-            `display.fillCircle(${layer.x + layer.radius}, ${layer.y + layer.radius}, ${layer.radius}, 1);`
+            `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x + 1}, ${layer.size.y + 1}, 1);`
         );
     }
 
-    drawFrame(layer: TLayer, source: TSourceCode): void {
-        source.code.push(`display.drawRect(${layer.x}, ${layer.y}, ${layer.width + 1}, ${layer.height + 1}, 1);`);
+    addCircle(layer: Layer, source: TSourceCode): void {
+        const radius = layer.size.x / 2;
+        source.code.push(
+            `display.drawCircle(${layer.position.x + radius}, ${layer.position.y + radius}, ${radius}, 1);`
+        );
     }
 
-    drawIcon(layer: TLayer, source: TSourceCode): void {
-        this.drawBitmap(layer, source);
+    addDisc(layer: Layer, source: TSourceCode): void {
+        const radius = layer.size.x / 2;
+        source.code.push(
+            `display.fillCircle(${layer.position.x + radius}, ${layer.position.y + radius}, ${radius}, 1);`
+        );
     }
 
-    drawBitmap(layer: TLayer, source: TSourceCode): void {
+    addFrame(layer: Layer, source: TSourceCode): void {
+        source.code.push(
+            `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x + 1}, ${layer.size.y + 1}, 1);`
+        );
+    }
+
+    addImage(layer: Layer, source: TSourceCode): void {
         const XBMP = imgDataToUint32Array(layer.data);
         source.declarations.push(`static const unsigned char PROGMEM image_${layer.name}_bits[] = {${XBMP}};`);
         source.code.push(
-            `display.drawBitmap( ${layer.x}, ${layer.y}, image_${layer.name}_bits, ${layer.width}, ${layer.height}, 1);`
+            `display.drawBitmap( ${layer.position.x}, ${layer.position.y}, image_${layer.name}_bits, ${layer.size.x}, ${layer.size.y}, 1);`
         );
+    }
+
+    addIcon(layer: Layer, source: TSourceCode): void {
+        this.addImage(layer, source);
     }
 }

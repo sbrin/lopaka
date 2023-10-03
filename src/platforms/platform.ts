@@ -1,3 +1,5 @@
+import {Layer} from 'src/core/layer';
+
 /**
  * Abstract platform definition.
  */
@@ -6,36 +8,37 @@ export abstract class Platform {
     protected name: string;
     protected description: string;
 
-    public generateSourceCode(layers: TLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
+    public generateSourceCode(layers: Layer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
         const source: TSourceCode = {code: [], declarations: []};
         for (const layer of layers) {
             switch (layer.type) {
                 case 'dot':
-                    this.drawDot(layer, source);
+                    this.addDot(layer, source);
                     break;
                 case 'line':
-                    this.drawLine(layer, source);
+                    this.addLine(layer, source);
                     break;
-                case 'text':
-                    this.drawText(layer, source);
+                case 'string':
+                    this.addText(layer, source);
                     break;
                 case 'box':
-                    this.drawBox(layer, source);
+                    this.addBox(layer, source);
                     break;
                 case 'frame':
-                    this.drawFrame(layer, source);
+                    this.addFrame(layer, source);
                     break;
                 case 'circle':
-                    this.drawCircle(layer, source);
+                    this.addCircle(layer, source);
                     break;
                 case 'disc':
-                    this.drawDisc(layer, source);
+                    this.addDisc(layer, source);
                     break;
+                case 'paint':
                 case 'bitmap':
-                    this.drawBitmap(layer, source);
+                    this.addImage(layer, source);
                     break;
                 case 'icon':
-                    this.drawIcon(layer, source);
+                    this.addIcon(layer, source);
                     break;
                 default:
                     throw new Error(`Unknown layer type: ${layer.type}`);
@@ -56,13 +59,13 @@ export abstract class Platform {
         return this.description;
     }
 
-    abstract drawDot(layer: TLayer, source: TSourceCode): void;
-    abstract drawLine(layer: TLayer, source: TSourceCode): void;
-    abstract drawText(layer: TLayer, source: TSourceCode): void;
-    abstract drawBox(layer: TLayer, source: TSourceCode): void;
-    abstract drawFrame(layer: TLayer, source: TSourceCode): void;
-    abstract drawCircle(layer: TLayer, source: TSourceCode): void;
-    abstract drawDisc(layer: TLayer, source: TSourceCode): void;
-    abstract drawBitmap(layer: TLayer, source: TSourceCode): void;
-    abstract drawIcon(layer: TLayer, source: TSourceCode): void;
+    abstract addDot(layer: Layer, source: TSourceCode): void;
+    abstract addLine(layer: Layer, source: TSourceCode): void;
+    abstract addText(layer: Layer, source: TSourceCode): void;
+    abstract addBox(layer: Layer, source: TSourceCode): void;
+    abstract addFrame(layer: Layer, source: TSourceCode): void;
+    abstract addCircle(layer: Layer, source: TSourceCode): void;
+    abstract addDisc(layer: Layer, source: TSourceCode): void;
+    abstract addImage(layer: Layer, source: TSourceCode): void;
+    abstract addIcon(layer: Layer, source: TSourceCode): void;
 }

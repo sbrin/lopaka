@@ -1,9 +1,16 @@
 <script lang="ts" setup>
-import {defineProps} from 'vue';
+import {useSession} from '../../core/session';
+import {computed, toRefs} from 'vue';
+const {platform, layers, virtualScreen} = toRefs(useSession());
 
-const props = defineProps<{
-    content: string;
-}>();
+const content = computed(() => {
+    if (virtualScreen.value) {
+        const sourceCode = platform.value.generateSourceCode(layers.value, virtualScreen.value.ctx);
+        return sourceCode.declarations.join('\n') + '\n' + sourceCode.code.join('\n');
+    } else {
+        return '';
+    }
+});
 </script>
 <template>
     <div class="fui-code">

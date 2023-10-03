@@ -1,35 +1,32 @@
 <script lang="ts" setup>
-import {generateCode, toCppVariableName} from '../utils';
-import {computed, onMounted, ref} from 'vue';
+import {computed, onMounted, ref, toRefs} from 'vue';
+import {useSession} from '../core/session';
+import {toCppVariableName} from '../utils';
 import FuiButton from './fui/FuiButton.vue';
 import FuiCanvas from './fui/FuiCanvas.vue';
+import FuiCode from './fui/FuiCode.vue';
 import FuiDisplays from './fui/FuiDisplays.vue';
+import FuiFile from './fui/FuiFile.vue';
+import FuiIcons from './fui/FuiIcons.vue';
+import FuiInspector from './fui/FuiInspector.vue';
 import FuiLayers from './fui/FuiLayers.vue';
 import FuiLibrary from './fui/FuiLibrary.vue';
-import FuiTools from './fui/FuiTools.vue';
 import FuiTabs from './fui/FuiTabs.vue';
-import FuiIcons from './fui/FuiIcons.vue';
-import FuiCode from './fui/FuiCode.vue';
-import FuiFile from './fui/FuiFile.vue';
-import FuiInspector from './fui/FuiInspector.vue';
+import FuiTools from './fui/FuiTools.vue';
+
 let fuiImages = {},
-    isInverted = false,
     imageDataCache = {};
 
 const fuiCanvas = ref(null),
-    currentLayer = ref(null),
-    activeTool = ref('draw'),
     activeTab = ref('code'),
-    library = ref('u8g2'),
-    display = ref('128×64'),
     codePreview = ref(''),
-    customImages = ref([]),
-    screenElements = ref([]),
-    layerIndex = ref(0);
+    customImages = ref([]);
+
+const {display, platform, layers, activeLayer, activeTool} = toRefs(useSession());
 
 // computed
-const isEmpty = computed(() => screenElements.value.length === 0);
-const isFlipper = computed(() => library.value === 'flipper');
+const isEmpty = computed(() => layers.value.length === 0);
+const isFlipper = computed(() => platform.value.getName() === 'Flipper Zero');
 // methods
 function setactiveTab(tab) {
     activeTab.value = tab;
@@ -61,52 +58,15 @@ function updateFuiImages(layer) {
     }
     setactiveTab('icons');
 }
-function setActiveTool(tool) {
-    activeTool.value = tool;
-}
-function addScreenLayer(layer) {
-    screenElements.value = [...screenElements.value, layer ? layer : currentLayer.value];
-    layerIndex.value += 1;
-    redrawCanvas();
-}
-function updateCurrentLayer(layerProps) {
-    if (layerProps) {
-        const layer = {
-            ...currentLayer.value,
-            ...layerProps
-        };
-        screenElements.value = screenElements.value.map((item) => {
-            if (item.index === layer.index) {
-                return layer;
-            }
-            return item;
-        });
-        currentLayer.value = layer;
-    } else {
-        currentLayer.value = null;
-    }
-}
-function removeLayer(index) {
-    if (currentLayer.value && currentLayer.value.index === index) {
-        currentLayer.value = null;
-    }
-    screenElements.value = screenElements.value.filter((item) => item.index !== index);
-    updateCode();
-    redrawCanvas();
-    saveLayers();
-}
+
 function resetScreen() {
-    screenElements.value = [];
-    codePreview.value = '';
-    currentLayer.value = null;
-    redrawCanvas();
-    saveLayers();
-}
-function redrawCanvas() {
-    fuiCanvas.value.redrawCanvas(screenElements.value);
+    layers.value = [];
 }
 function copyCode() {
     navigator.clipboard.writeText(codePreview.value);
+}
+function addImageToCanvas(name) {
+    // TODO
 }
 function cleanCustomIcons() {
     for (let key in fuiImages) {
@@ -116,116 +76,35 @@ function cleanCustomIcons() {
         }
     }
     customImages.value = [];
-    screenElements.value = screenElements.value.filter((item) => !item.isCustom);
-    redrawCanvas();
-    saveLayers();
-    if (currentLayer.value && currentLayer.value.isCustom) {
-        currentLayer.value = null;
-    }
 }
-function selectLibrary(l) {
-    library.value = l;
-    if (library.value === 'flipper') {
-        if (activeTool.value === 'draw') {
-            activeTool.value = 'frame';
-        }
-        display.value = '128×64';
-    }
-    updateCode();
-}
-function updateCode() {
-    const context = fuiCanvas.value.screen.getContext('2d', {
-        willReadFrequently: true
-    });
-    codePreview.value = generateCode(screenElements.value, library.value, context, imageDataCache);
-}
+
 function postMessage(type, data) {
     if (window.top !== window.self) {
         window.top.postMessage({target: 'lopaka_app', type: type, payload: data}, '*');
     }
 }
-function saveLayers() {
-    postMessage('updateLayers', JSON.stringify(screenElements.value));
-}
-function addImageToCanvas(name) {
-    fuiCanvas.value.addImageToCanvas(name);
-}
-function selectDisplay(d) {
-    display.value = d;
-}
 
 onMounted(() => {
     if (isFlipper) {
-        activeTool.value = 'frame';
-    }
-    if (screenElements.value.length) {
-        updateCode();
-        layerIndex.value = screenElements.value.length;
+        // activeTool.value = getToolByLayerType('frame');
     }
     postMessage('mounted', {});
-});
-
-if (localStorage.getItem('lopaka_library')) {
-    library.value = localStorage.getItem('lopaka_library');
-}
-if (localStorage.getItem('lopaka_display')) {
-    display.value = localStorage.getItem('lopaka_display');
-}
-// screenElements = JSON.parse(localStorage.getItem("lopaka_layers")) ?? [];
-window.addEventListener('message', (event) => {
-    if (event.data && event.data.target === 'lopaka_app') {
-        switch (event.data.type) {
-            case 'updateLayers':
-                screenElements.value = event.data.layers;
-                break;
-            case 'loadProject':
-                screenElements.value = event.data.payload.layers;
-                library.value = event.data.payload.library;
-                display.value = event.data.payload.display;
-                break;
-        }
-        layerIndex.value = screenElements.value.length;
-        redrawCanvas();
-    }
 });
 </script>
 <template>
     <div class="fui-editor">
         <div class="fui-editor__left">
-            <FuiLayers
-                v-show="!!screenElements.length"
-                :screen-elements="screenElements"
-                :current-layer="currentLayer"
-                @update-current-layer="updateCurrentLayer"
-                @remove-layer="removeLayer"
-            ></FuiLayers>
+            <FuiLayers v-show="!!layers.length"></FuiLayers>
             <FuiButton @click="resetScreen" title="reset" class="button_danger" v-show="!isEmpty"></FuiButton>
         </div>
         <div class="fui-editor__center">
             <div class="fui-editor-header">
-                <FuiLibrary @select-library="selectLibrary" :library="library"></FuiLibrary>
-                <FuiDisplays v-show="!isFlipper" @update-display="selectDisplay" :display="display"></FuiDisplays>
+                <FuiLibrary></FuiLibrary>
+                <FuiDisplays></FuiDisplays>
             </div>
-            <FuiCanvas
-                ref="fuiCanvas"
-                :key="display"
-                :display="display"
-                :layer-index="layerIndex"
-                :screen-elements="screenElements"
-                :current-layer="currentLayer"
-                :active-tool="activeTool"
-                :fui-images="fuiImages"
-                :imageDataCache="imageDataCache"
-                :library="library"
-                @update-current-layer="updateCurrentLayer"
-                @set-active-tool="setActiveTool"
-                @update-fui-images="updateFuiImages"
-                @update-code="updateCode"
-                @add-screen-layer="addScreenLayer"
-                @save-layers="saveLayers"
-            />
+            <FuiCanvas ref="fuiCanvas" :fui-images="fuiImages" :imageDataCache="imageDataCache" />
             <div class="fui-editor__tools">
-                <FuiTools :callback="setActiveTool" :active-tool="activeTool" :library="library"></FuiTools>
+                <FuiTools></FuiTools>
                 <div class="fui-editor-header">
                     <FuiTabs :active-tab="activeTab" @set-active-tab="setactiveTab"></FuiTabs>
                 </div>
@@ -246,14 +125,7 @@ window.addEventListener('message', (event) => {
             </div>
         </div>
         <div class="fui-editor__right">
-            <FuiInspector
-                :elem="currentLayer"
-                :library="library"
-                @redraw-canvas="redrawCanvas"
-                @update-code="updateCode"
-                @save-layers="saveLayers"
-                @update-current-layer="updateCurrentLayer"
-            />
+            <FuiInspector />
             <!-- <fui-settings :isInverted="isInverted" @redraw-canvas="redrawCanvas" @toggle-invert="toggleInvert"/> -->
         </div>
     </div>

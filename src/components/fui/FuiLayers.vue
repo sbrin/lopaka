@@ -1,26 +1,19 @@
 <script lang="ts" setup>
-import {defineEmits, defineProps} from 'vue';
+import {toRefs} from 'vue';
+import {useSession} from '../../core/session';
+import {Layer} from '../../core/layer';
 
-const props = defineProps<{
-    screenElements: any[];
-    currentLayer: any;
-}>();
+const {layers, activeLayer, removeLayer} = toRefs(useSession());
 
-const emit = defineEmits(['updateCurrentLayer', 'removeLayer']);
-
-function classNames(item) {
+function classNames(layer) {
     return {
-        layer_selected: props.currentLayer && props.currentLayer.index === item.index,
-        layer_ignored: item.isOverlay
+        layer_selected: activeLayer.value && activeLayer.value.index === layer.index,
+        layer_ignored: layer.isOverlay
     };
 }
 
-function updateCurrentLayer(item: any) {
-    emit('updateCurrentLayer', item);
-}
-
-function removeLayer(index: number) {
-    emit('removeLayer', index);
+function setActive(layer: Layer) {
+    activeLayer.value = layer;
 }
 
 function getLayerListItem(element: any) {
@@ -38,16 +31,16 @@ function getLayerListItem(element: any) {
         <h2 class="title">Layers</h2>
         <ul class="layers__list">
             <li
-                v-for="(item, idx) in screenElements"
+                v-for="(item, idx) in layers"
                 :key="idx"
                 class="layer"
                 :class="classNames(item)"
-                @click.self="updateCurrentLayer(item)"
+                @click.self="setActive(item as any)"
             >
-                <div class="layer__name" @click="updateCurrentLayer(item)">
+                <div class="layer__name" @click="setActive(item as any)">
                     {{ getLayerListItem(item) }}
                 </div>
-                <div class="layer__remove" @click="removeLayer(item.index)">×</div>
+                <div class="layer__remove" @click="removeLayer(item as any)">×</div>
             </li>
         </ul>
     </div>

@@ -1,65 +1,69 @@
 <script lang="ts" setup>
-import {computed, defineProps} from 'vue';
-import FuiInspectorInput from './FuiInspectorInput.vue';
+import {computed, toRefs} from 'vue';
+import {useSession} from '../../core/session';
+import {ToolParamType} from '../../draw/tools/tool';
 
-const props = defineProps<{
-    elem: any;
-    library: string;
-}>();
+const {platform, activeLayer, activeTool} = toRefs(useSession());
 
-const emit = defineEmits(['updateCurrentLayer', 'redrawCanvas', 'saveLayers', 'updateCode']);
-
-// computed
-const isHWVisible = computed(() => {
-    // return true;
-    return ['frame', 'box', 'draw', 'icon'].includes(props.elem.type);
+const params = computed(() => {
+    return activeTool.value.getParams();
 });
-
-const isHWDisabled = computed(() => {
-    return ['draw', 'icon'].includes(props.elem.type);
-});
-
-const isRadiusVisible = computed(() => {
-    return ['circle', 'disc'].includes(props.elem.type);
-});
-
-// methods
-function update(element) {
-    emit('updateCurrentLayer', element);
-    emit('redrawCanvas');
-    emit('saveLayers');
-    emit('updateCode');
-}
 </script>
 <template>
-    <div class="inspector" v-if="elem">
-        <div class="title inspector__title">{{ elem.name || elem.type }}</div>
+    <div class="inspector" v-if="activeLayer">
+        <div class="title inspector__title">{{ activeLayer.name || activeLayer.type }}</div>
         <div class="inspector__row">
-            <div>
-                x:
-                <FuiInspectorInput :element="elem" field="x" type="number" @update="update"></FuiInspectorInput>
-            </div>
-            <div v-if="typeof elem.x2 === 'number'">
-                x2:
-                <FuiInspectorInput :element="elem" field="x2" type="number" @update="update"></FuiInspectorInput>
-            </div>
-            <div v-if="typeof elem.width === 'number' && isHWVisible">
-                w:
-                <FuiInspectorInput
-                    :element="elem"
-                    field="width"
+            <div v-for="param in params">
+                <span>{{ param.name }}</span>
+                <input
+                    class="inspector__input"
+                    v-if="param.type == ToolParamType.number"
                     type="number"
-                    @update="update"
-                    :disabled="isHWDisabled"
-                ></FuiInspectorInput>
+                    :value="param.value"
+                    @change="param.onChange($event.target.value)"
+                />
+                <input
+                    class="inspector__input"
+                    v-else-if="param.type == ToolParamType.string"
+                    type="text"
+                    :value="param.value"
+                    @change="param.onChange($event.target.value)"
+                />
+                <input
+                    class="inspector__input"
+                    v-else-if="param.type == ToolParamType.boolean"
+                    type="checkbox"
+                    :checked="param.value"
+                    @change="param.onChange($event.target.checked)"
+                />
+                <select
+                    class="inspector__input"
+                    v-else-if="param.type == ToolParamType.font"
+                    :value="param.value"
+                    @change="param.onChange($event.target.value)"
+                >
+                    <option v-for="font in platform.getFonts()" :value="font.name">{{ font.name }}</option>
+                </select>
             </div>
-            <div v-if="typeof elem.radius === 'number' && isRadiusVisible">
+            <!-- <div>
+                x:
+                <FuiInspectorInput field="x" type="number"></FuiInspectorInput>
+            </div>
+            <div v-if="typeof activeLayer.size.x === 'number'">
+                x2:
+                <FuiInspectorInput field="x2" type="number"></FuiInspectorInput>
+            </div>
+            <div v-if="typeof activeLayer.size.x === 'number' && isHWVisible">
+                w:
+                <FuiInspectorInput field="width" type="number" :disabled="isHWDisabled"></FuiInspectorInput>
+            </div>
+            <div v-if="typeof activeLayer.size.x === 'number' && isRadiusVisible">
                 r:
-                <FuiInspectorInput :element="elem" field="radius" type="number" @update="update"></FuiInspectorInput>
-            </div>
+                <FuiInspectorInput field="radius" type="number" @update="update"></FuiInspectorInput>
+            </div> -->
         </div>
         <div class="inspector__row">
-            <div>
+            <!-- <div>
                 y:
                 <FuiInspectorInput :element="elem" field="y" type="number" @update="update"></FuiInspectorInput>
             </div>
@@ -76,9 +80,9 @@ function update(element) {
                     @update="update"
                     :disabled="isHWDisabled"
                 ></FuiInspectorInput>
-            </div>
+            </div> -->
         </div>
-        <div class="inspector__row" v-if="elem.font">
+        <!-- <div class="inspector__row" v-if="elem.font">
             <FuiInspectorInput
                 :element="elem"
                 field="font"
@@ -112,7 +116,7 @@ function update(element) {
                     Overlay (ignore)
                 </label>
             </template>
-        </div>
+        </div> -->
     </div>
 </template>
 <style lang="css"></style>

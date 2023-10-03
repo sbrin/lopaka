@@ -1,71 +1,78 @@
 <script lang="ts" setup>
+import {useSession} from '../../core/session';
 import {numberFontsRegex, standardFontsRegex, textContainerHeight} from '../../const';
 import {getTextWidth} from '../../utils';
-import {computed, defineProps} from 'vue';
+import {computed, defineProps, toRefs} from 'vue';
 
 const props = defineProps<{
-    element: any;
-    type: string;
     field: string;
-    library?: string;
-    id?: string;
     disabled?: boolean;
+    type: string;
 }>();
+const {activeLayer, platform} = toRefs(useSession());
 
 const emit = defineEmits(['update']);
 
 const hasNoWidth = computed(() => {
-    return ['str', 'dot'].includes(props.element.type) && ['width', 'height'].includes(props.field);
+    return ['str', 'dot'].includes(activeLayer.value.type) && ['width', 'height'].includes(props.field);
 });
 
 const charsRegex = computed(() => {
-    return props.element.font === 'profont22_tr' && props.library === 'flipper' ? numberFontsRegex : standardFontsRegex;
+    return activeLayer.value?.data?.font === 'profont22_tr' && platform.value.getName() === 'Flipper zero'
+        ? numberFontsRegex
+        : standardFontsRegex;
 });
 
-const fontsList = {
-    flipper: ['helvB08_tr', 'haxrcorp4089_tr', 'profont22_tr'],
-    u8g2: ['helvB08_tr', 'haxrcorp4089_tr', 'profont22_tr', 'f4x6_tr'],
-    uint32: ['helvB08_tr', 'haxrcorp4089_tr', 'profont22_tr', 'f4x6_tr'],
-    adafruit_gfx: ['adafruit']
-};
+// const fontsList = {
+//     flipper: ['helvB08_tr', 'haxrcorp4089_tr', 'profont22_tr'],
+//     u8g2: ['helvB08_tr', 'haxrcorp4089_tr', 'profont22_tr', 'f4x6_tr'],
+//     uint32: ['helvB08_tr', 'haxrcorp4089_tr', 'profont22_tr', 'f4x6_tr'],
+//     adafruit_gfx: ['adafruit']
+// };
 
 function onInput(e) {
     if (['checkbox'].includes(props.type)) {
-        props.element[props.field] = e.target.checked;
+        activeLayer.value[props.field] = e.target.checked;
     } else {
         const result = ['text'].includes(props.type)
             ? e.target.value.replace(charsRegex.value, '')
             : parseInt(e.target.value.replace(/[^0-9\-]/g, ''));
         e.target.value = result;
-        props.element[props.field] = result;
+        activeLayer.value[props.field] = result;
         if (['text'].includes(props.field)) {
             updateTextWidth();
         }
     }
-    emit('update', props.element);
 }
 
 function onSelect(e) {
-    props.element[props.field] = e.target.value;
+    activeLayer.value[props.field] = e.target.value;
     if (['font'].includes(props.field)) {
-        props.element.text = props.element.text.replace(charsRegex.value, '').trim();
+        activeLayer.value.data.text = activeLayer.value.data.text.replace(charsRegex.value, '').trim();
         updateTextWidth();
     }
-    emit('update', props.element);
 }
 
 function updateTextWidth() {
     // recalculate text draggable area size
-    props.element.width = getTextWidth(props.element.text, props.element.font);
-    props.element.height = textContainerHeight[props.element.font];
-    props.element.yy = props.element.y - textContainerHeight[props.element.font];
+
+    activeLayer.value.size.x = getTextWidth(activeLayer.value.data.text, activeLayer.value.data.font);
+    activeLayer.value.size.y = textContainerHeight[activeLayer.value.data.font];
+    // todo
+    // props.element.yy = props.element.y - textContainerHeight[props.element.font];
 }
 </script>
 <template>
-    <span v-if="hasNoWidth">{{ element[field] }}</span>
-    <select class="input-select" v-if="field === 'font'" :value="element[field]" @input="onSelect" :id="id">
-        <option v-for="(font, idx) in fontsList[library]" :key="idx" :value="font">
-            {{ font }}
+    <span v-if="hasNoWidth">{{ activeLayer[field] }}</span>
+    <select
+        class="input-select"
+        v-if="field === 'font'"
+        :value="activeLayer[field]"
+        @input="onSelect"
+        :id="activeLayer.id"
+    >
+        <option v-for="(font, idx) in platform.getFonts()" :key="idx" :value="font.name">
+            {{ font.name }}
         </option>
     </select>
     <input
@@ -73,16 +80,16 @@ function updateTextWidth() {
         class="inspector__input"
         @input="onInput"
         :type="type"
-        :id="id"
-        :checked="element[field]"
+        :id="activeLayer.id"
+        :checked="activeLayer[field]"
     />
     <input
         v-else
         class="inspector__input"
         @input="onInput"
-        :value="element[field]"
+        :value="activeLayer[field]"
         :type="type"
-        :id="id"
+        :id="activeLayer.id"
         max="1024"
         min="-1024"
         step="1"

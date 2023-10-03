@@ -1,14 +1,16 @@
+import {Layer} from 'src/core/layer';
 import haxrcorp4089 from '../../fonts/haxrcorp4089.ttf';
 import helvB08 from '../../fonts/helvB08.ttf';
 import profont22 from '../../fonts/profont22.ttf';
 import {Platform} from './platform';
 
 export class FlipperPlatform extends Platform {
+    public static id = 'flipper';
     protected name = 'Flipper Zero';
     protected description = 'Flipper Zero';
     protected fonts: TPlatformFont[] = [
         {
-            name: 'HelvB08',
+            name: 'helvB08_tr',
             file: helvB08,
             options: {
                 textContainerHeight: 8,
@@ -17,7 +19,7 @@ export class FlipperPlatform extends Platform {
             }
         },
         {
-            name: 'HaXRcorp4089',
+            name: 'HaXRcorp4089_tr',
             file: haxrcorp4089,
             options: {
                 textContainerHeight: 8,
@@ -26,7 +28,7 @@ export class FlipperPlatform extends Platform {
             }
         },
         {
-            name: 'Profont22',
+            name: 'Profont22_tr',
             file: profont22,
             options: {
                 textContainerHeight: 22,
@@ -36,37 +38,47 @@ export class FlipperPlatform extends Platform {
         }
     ];
 
-    drawDot(layer: TLayer, source: TSourceCode): void {
-        source.code.push(`canvas_draw_dot(canvas, ${layer.x}, ${layer.y});`);
+    addDot(layer: Layer, source: TSourceCode): void {
+        source.code.push(`canvas_draw_dot(canvas, ${layer.position.x}, ${layer.position.y});`);
     }
-    drawLine(layer: TLayer, source: TSourceCode): void {
-        source.code.push(`canvas_draw_line(canvas, ${layer.x}, ${layer.y}, ${layer.x2}, ${layer.y2});`);
-    }
-    drawText(layer: TLayer, source: TSourceCode): void {
-        source.code.push(`canvas_draw_text(canvas, ${layer.x}, ${layer.y}, "${layer.text}", &F_${layer.font});`);
-    }
-    drawBox(layer: TLayer, source: TSourceCode): void {
-        source.code.push(`canvas_draw_box(canvas, ${layer.x}, ${layer.y}, ${layer.width}, ${layer.height});`);
-    }
-    drawFrame(layer: TLayer, source: TSourceCode): void {
-        source.code.push(`canvas_draw_frame(canvas, ${layer.x}, ${layer.y}, ${layer.width}, ${layer.height});`);
-    }
-    drawCircle(layer: TLayer, source: TSourceCode): void {
+    addLine(layer: Layer, source: TSourceCode): void {
         source.code.push(
-            `canvas_draw_circle(canvas, ${layer.x + layer.radius}, ${layer.y + layer.radius}, ${layer.radius});`
+            `canvas_draw_line(canvas, ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`
         );
     }
-    drawDisc(layer: TLayer, source: TSourceCode): void {
+    addText(layer: Layer, source: TSourceCode): void {
         source.code.push(
-            `canvas_draw_disc(canvas, ${layer.x + layer.radius}, ${layer.y + layer.radius}, ${layer.radius});`
+            `canvas_draw_text(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.data.text}", &F_${layer.data.font});`
         );
     }
-    drawBitmap(layer: TLayer, source: TSourceCode): void {
+    addBox(layer: Layer, source: TSourceCode): void {
+        source.code.push(
+            `canvas_draw_box(canvas, ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`
+        );
+    }
+    addFrame(layer: Layer, source: TSourceCode): void {
+        source.code.push(
+            `canvas_draw_frame(canvas, ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`
+        );
+    }
+    addCircle(layer: Layer, source: TSourceCode): void {
+        const radius = layer.size.x / 2;
+        source.code.push(
+            `canvas_draw_circle(canvas, ${layer.position.x + radius}, ${layer.position.y + radius}, ${radius});`
+        );
+    }
+    addDisc(layer: Layer, source: TSourceCode): void {
+        const radius = layer.size.x / 2;
+        source.code.push(
+            `canvas_draw_disc(canvas, ${layer.position.x + radius}, ${layer.position.y + radius}, ${radius});`
+        );
+    }
+    addImage(layer: Layer, source: TSourceCode): void {
         source.declarations.push(
-            `// DRAW tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output`
+            `// add tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output`
         );
     }
-    drawIcon(layer: TLayer, source: TSourceCode): void {
-        source.code.push(`canvas_draw_icon(canvas, ${layer.x}, ${layer.y}, &I_${layer.name});`);
+    addIcon(layer: Layer, source: TSourceCode): void {
+        source.code.push(`canvas_draw_icon(canvas, ${layer.position.x}, ${layer.position.y}, &I_${layer.name});`);
     }
 }

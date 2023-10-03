@@ -1,3 +1,7 @@
+import {AdafruitPlatform} from './platforms/adafruit';
+import {FlipperPlatform} from './platforms/flipper';
+import {U8g2Platform} from './platforms/u8g2';
+import {Uint32RawPlatform} from './platforms/uint32-raw';
 import {getAdafruitFGXDeclarations, getFlipperDeclarations, getU8g2Declarations} from './utils';
 
 export const standardFontsRegex = /[^0-9a-zA-Z\s\:\!\"\.\#\$\%\&\'\(\)\*\+\,\-\.\/\?]/g;
@@ -57,10 +61,10 @@ export const textCharWidth = {
 };
 
 export const LIBRARIES = {
-    u8g2: 'U8g2',
-    adafruit_gfx: 'Adafruit GFX',
-    flipper: 'Flipper Zero',
-    uint32: 'uint32 RAW'
+    u8g2: U8g2Platform,
+    adafruit_gfx: AdafruitPlatform,
+    flipper: FlipperPlatform,
+    uint32: Uint32RawPlatform
 };
 
 export const codeDeclarators = {
