@@ -53,7 +53,7 @@ export const textCharWidth = {
     haxrcorp4089_tr: 4,
     profont22_tr: 11,
     f4x6_tr: 4,
-    adafruit: 5
+    adafruit: 6
 };
 
 export const LIBRARIES = {
