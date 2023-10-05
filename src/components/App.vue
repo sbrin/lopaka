@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {generateCode, toCppVariableName} from '../utils';
-import {computed, onMounted, ref} from 'vue';
+import {Ref, ShallowRef, computed, onMounted, ref} from 'vue';
 import FuiButton from './fui/FuiButton.vue';
 import FuiCanvas from './fui/FuiCanvas.vue';
 import FuiDisplays from './fui/FuiDisplays.vue';
@@ -12,6 +12,8 @@ import FuiIcons from './fui/FuiIcons.vue';
 import FuiCode from './fui/FuiCode.vue';
 import FuiFile from './fui/FuiFile.vue';
 import FuiInspector from './fui/FuiInspector.vue';
+import {FlipperRPC} from '../flipper-rpc';
+
 let fuiImages = {},
     isInverted = false,
     imageDataCache = {};
@@ -30,7 +32,30 @@ const fuiCanvas = ref(null),
 // computed
 const isEmpty = computed(() => screenElements.value.length === 0);
 const isFlipper = computed(() => library.value === 'flipper');
+const flipperPreviewBtnText = computed(() => flipper.value ? "Disconnect" : "Live View");
+
+const flipper: ShallowRef<FlipperRPC> = ref(null);
+
 // methods
+
+function flipperDisconnect() {
+    flipper.value.disconnect();
+    flipper.value = null;
+}
+
+async function toggleFlipperPreview() {
+    if (flipper.value) {
+        flipperDisconnect()
+    } else {
+        const flipperRPC = new FlipperRPC();
+        const isConnected = await flipperRPC.connect();
+        if (isConnected) {
+            flipper.value = flipperRPC;
+            sendFlipperImage();
+        }
+    }
+}
+
 function setactiveTab(tab) {
     activeTab.value = tab;
 }
@@ -123,6 +148,7 @@ function cleanCustomIcons() {
         currentLayer.value = null;
     }
 }
+
 function selectLibrary(l) {
     library.value = l;
     if (library.value === 'flipper') {
@@ -133,23 +159,35 @@ function selectLibrary(l) {
     }
     updateCode();
 }
+
 function updateCode() {
     const context = fuiCanvas.value.screen.getContext('2d', {
         willReadFrequently: true
     });
     codePreview.value = generateCode(screenElements.value, library.value, context, imageDataCache);
+    if (flipper.value) {
+        sendFlipperImage();
+    }
 }
+
+function sendFlipperImage() {
+    flipper.value.sendImage(fuiCanvas.value.screen.getContext('2d').getImageData(0, 0, 128, 64));
+}
+
 function postMessage(type, data) {
     if (window.top !== window.self) {
         window.top.postMessage({target: 'lopaka_app', type: type, payload: data}, '*');
     }
 }
+
 function saveLayers() {
     postMessage('updateLayers', JSON.stringify(screenElements.value));
 }
+
 function addImageToCanvas(name) {
     fuiCanvas.value.addImageToCanvas(name);
 }
+
 function selectDisplay(d) {
     display.value = d;
 }
@@ -188,6 +226,7 @@ window.addEventListener('message', (event) => {
         redrawCanvas();
     }
 });
+navigator.serial.addEventListener('disconnect', flipperDisconnect);
 </script>
 <template>
     <div class="fui-editor">
@@ -199,12 +238,13 @@ window.addEventListener('message', (event) => {
                 @update-current-layer="updateCurrentLayer"
                 @remove-layer="removeLayer"
             ></FuiLayers>
-            <FuiButton @click="resetScreen" title="reset" class="button_danger" v-show="!isEmpty"></FuiButton>
+            <FuiButton @click="resetScreen" text="reset" class="button_danger" v-show="!isEmpty"></FuiButton>
         </div>
         <div class="fui-editor__center">
             <div class="fui-editor-header">
                 <FuiLibrary @select-library="selectLibrary" :library="library"></FuiLibrary>
                 <FuiDisplays v-show="!isFlipper" @update-display="selectDisplay" :display="display"></FuiDisplays>
+                <FuiButton v-if="isFlipper" :text="flipperPreviewBtnText" @click="toggleFlipperPreview()" title="Connect your Flipper to USB port"></FuiButton>
             </div>
             <FuiCanvas
                 ref="fuiCanvas"
@@ -241,7 +281,7 @@ window.addEventListener('message', (event) => {
                 <FuiCode v-show="activeTab === 'code'" :content="codePreview"></FuiCode>
                 <div class="buttons-bottom">
                     <FuiFile type="file" title="import image" @update-fui-images="updateFuiImages"></FuiFile>
-                    <FuiButton @click="copyCode" title="copy code" v-show="!!codePreview"></FuiButton>
+                    <FuiButton @click="copyCode" text="copy code" v-show="!!codePreview"></FuiButton>
                 </div>
             </div>
         </div>
@@ -259,3 +299,4 @@ window.addEventListener('message', (event) => {
     </div>
 </template>
 <style lang="css"></style>
+../flipper-rpc

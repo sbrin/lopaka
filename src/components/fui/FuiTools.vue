@@ -27,19 +27,19 @@ const toolsList = computed(() => [
             :key="idx"
             class="tools__btn"
             @click="callback(item)"
-            :title="item"
+            :text="item"
             :active="activeTool === item"
         ></FuiButton>
         <FuiButton
             class="tools__btn"
             @click="callback('str')"
-            title="string"
+            text="string"
             :active="activeTool === 'str'"
         ></FuiButton>
         <FuiButton
             class="tools__btn"
             @click="callback('select')"
-            title="select"
+            text="select"
             :active="activeTool === 'select'"
         ></FuiButton>
     </div>
