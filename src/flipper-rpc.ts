@@ -18,16 +18,22 @@ export class FlipperRPC {
         this.flipper = new FlipperAPI();
     }
 
-    async connect() {
+    async connect(): Promise<boolean> {
         // Try to get ports
         let ports = await serial.getPorts();
-        console.log(ports);
         // maybe need to request
         if (!ports.length) {
-            await serial.requestPort({
-                filters: [FLIPPER_DEVICE_ID]
-            });
-            ports = await serial.getPorts();
+            try {
+                // const requestedPort =
+                await serial.requestPort({
+                    filters: [FLIPPER_DEVICE_ID]
+                });
+            } catch (e) {
+                console.log(e);
+            }
+            // if (requestedPort) {
+                ports = await serial.getPorts();
+            // }
             if (!ports.length) {
                 throw new Error('No ports found');
             }
@@ -37,9 +43,6 @@ export class FlipperRPC {
             await this.flipper.connect();
             console.log('Connected to Flipper');
             this.connected = true;
-            navigator.serial.addEventListener('disconnect', () => {
-                this.connected = false;
-            });
             await wait(300);
             await this.start();
             this.reconnectionLoop = setInterval(async () => {
@@ -48,6 +51,7 @@ export class FlipperRPC {
                 }
             }, 1000);
         }
+        return this.connected;
     }
 
     async disconnect() {

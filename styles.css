@@ -116,7 +116,7 @@ canvas {
 
 .fui-editor__right {
   /* width: 178px; */
-  margin-left: 16px;
+  margin-left: 20px;
 }
 
 .canvas-wrapper {
@@ -408,6 +408,7 @@ canvas {
 .fui-editor-header {
   display: flex;
   width: 100%;
+  justify-content: space-between;
 }
 
 .fui-select {
