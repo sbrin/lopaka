@@ -1,140 +1,140 @@
 @font-face {
-  font-family: "helvB08_tr";
-  src: url("fonts/helvb08.ttf");
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'helvB08_tr';
+    src: url('fonts/helvb08.ttf');
+    font-weight: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "haxrcorp4089_tr";
-  src: url("fonts/haxrcorp4089.ttf");
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'haxrcorp4089_tr';
+    src: url('fonts/haxrcorp4089.ttf');
+    font-weight: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "profont22_tr";
-  src: url("fonts/profont22.ttf");
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'profont22_tr';
+    src: url('fonts/profont22.ttf');
+    font-weight: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "f4x6_tr";
-  src: url("fonts/f4x6.ttf");
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'f4x6_tr';
+    src: url('fonts/f4x6.ttf');
+    font-weight: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "adafruit";
-  src: url("fonts/adafruit.ttf");
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'adafruit';
+    src: url('fonts/adafruit.ttf');
+    font-weight: normal;
+    font-style: normal;
 }
 
 .fonts-helvb08 {
-  font-family: "helvB08_tr";
+    font-family: 'helvB08_tr';
 }
 .fonts-haxrcorp4089 {
-  font-family: "haxrcorp4089_tr";
+    font-family: 'haxrcorp4089_tr';
 }
 .fonts-profont22 {
-  font-family: "profont22_tr";
+    font-family: 'profont22_tr';
 }
 .fonts-f4x6 {
-  font-family: "f4x6_tr";
+    font-family: 'f4x6_tr';
 }
 .fonts-adafruit {
-  font-family: "adafruit", monospace;
+    font-family: 'adafruit', monospace;
 }
 
 :root {
-  --primary-color: #ff8200;
-  --secondary-color: #441f07;
-  --bg-color: #1c0e02;
-  --border-color: #955b2f;
-  --border-dark-color: #5f2f0d;
-  --danger-color: #eb4e27;
-  --input-font-size: 18px;
+    --primary-color: #ff8200;
+    --secondary-color: #441f07;
+    --bg-color: #1c0e02;
+    --border-color: #955b2f;
+    --border-dark-color: #5f2f0d;
+    --danger-color: #eb4e27;
+    --input-font-size: 18px;
 }
 
 h1,
 h2,
 h3 {
-  /* font-family: "helvB08_tr"; */
-  font-weight: normal;
+    /* font-family: "helvB08_tr"; */
+    font-weight: normal;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  background: var(--bg-color);
-  color: var(--primary-color);
-  font-family: "haxrcorp4089_tr";
-  text-transform: uppercase;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-color);
+    color: var(--primary-color);
+    font-family: 'haxrcorp4089_tr';
+    text-transform: uppercase;
 }
 
 canvas {
-  /* cursor: crosshair; */
-  image-rendering: pixelated;
-  background: #ed791b;
-  text-rendering: "geometricPrecision";
-  font-smooth: never;
-  -webkit-font-smoothing: none;
-  opacity: 0.9;
+    /* cursor: crosshair; */
+    image-rendering: pixelated;
+    background: #ed791b;
+    text-rendering: 'geometricPrecision';
+    font-smooth: never;
+    -webkit-font-smoothing: none;
+    opacity: 0.9;
 }
 
 .fui-editor {
-  background: var(--bg-color);
-  padding: 16px;
-  display: grid;
-  grid-template-columns: 178px fit-content(1ch) 178px;
-  position: relative;
-  box-sizing: border-box;
+    background: var(--bg-color);
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 178px fit-content(1ch) 178px;
+    position: relative;
+    box-sizing: border-box;
 }
 
 .fui-editor__left {
-  /* width: 178px; */
+    /* width: 178px; */
 }
 
 #lopaka_app {
-  display: flex;
-  justify-content: center;
+    display: flex;
+    justify-content: center;
 }
 
 .fui-editor__tools {
-  width: 600px;
-  align-self: baseline;
+    width: 600px;
+    align-self: baseline;
 }
 
 .fui-editor__center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .fui-editor__right {
-  /* width: 178px; */
-  margin-left: 16px;
+    /* width: 178px; */
+    margin-left: 16px;
 }
 
 .canvas-wrapper {
-  border: 3px solid var(--border-color);
-  border-radius: 10px;
-  background: var(--primary-color);
-  padding: 8px;
-  margin: 16px 0;
-  display: inline-block;
-  font-size: 0;
+    border: 3px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--primary-color);
+    padding: 8px;
+    margin: 16px 0;
+    display: inline-block;
+    font-size: 0;
 }
 
 .fui-canvas_select {
-  cursor: default;
+    cursor: default;
 }
 
 .fui-canvas_moving {
-  cursor: grabbing;
+    cursor: grabbing;
 }
 
 /* .fui-canvas_draw {
@@ -162,271 +162,267 @@ canvas {
 } */
 
 .inspector-wrapper {
-  background: var(--secondary-color);
-  border: 2px solid var(--border-dark-color);
-  border-radius: 10px;
-  width: 100%;
+    background: var(--secondary-color);
+    border: 2px solid var(--border-dark-color);
+    border-radius: 10px;
+    width: 100%;
 }
 
 .inspector__title {
-  overflow: hidden;
-  width: 150px;
+    overflow: hidden;
+    width: 150px;
 }
 
 .inspector__row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: var(--input-font-size);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: var(--input-font-size);
 }
 
 .inspector__row > *:first-child {
-  margin-right: 8px;
+    margin-right: 8px;
 }
 
 .input-select {
-  background: var(--secondary-color);
-  border: none;
-  padding: 2px 0px 2px 4px;
-  color: var(--primary-color);
+    background: var(--secondary-color);
+    border: none;
+    padding: 2px 0px 2px 4px;
+    color: var(--primary-color);
 }
 
 .inspector__input {
-  background: var(--secondary-color);
-  color: var(--primary-color);
-  border: none;
-  padding: 2px 0px 2px 4px;
-  outline: none;
-  width: 100%;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    border: none;
+    padding: 2px 0px 2px 4px;
+    outline: none;
+    width: 100%;
 }
 
-.inspector__input[type="text"] {
-
+.inspector__input[type='text'] {
 }
 
 .title {
-  margin: 0 0 8px 0;
-  font-size: 32px;
-  /* font-family: "helvB08_tr"; */
-  font-weight: normal;
+    margin: 0 0 8px 0;
+    font-size: 32px;
+    /* font-family: "helvB08_tr"; */
+    font-weight: normal;
 }
 
 .tools {
-  margin: 8px 0 8px 0;
-  display: flex;
-  flex-wrap: wrap;
+    margin: 8px 0 8px 0;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .button {
-  background: var(--secondary-color);
-  border: 2px solid var(--primary-color);
-  border-radius: 6px;
-  color: var(--primary-color);
-  height: 32px;
-  vertical-align: middle;
-  text-transform: uppercase;
-  font-family: "haxrcorp4089_tr";
-  font-size: 32px;
-  padding: 3px 12px 4px 12px;
-  cursor: pointer;
-  box-sizing: border-box;
-  line-height: 22px;
+    background: var(--secondary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 6px;
+    color: var(--primary-color);
+    height: 32px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    font-family: 'haxrcorp4089_tr';
+    font-size: 32px;
+    padding: 3px 12px 4px 12px;
+    cursor: pointer;
+    box-sizing: border-box;
+    line-height: 22px;
 }
 
 .button:hover,
 .button_active {
-  background-color: var(--primary-color);
-  color: var(--secondary-color);
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
 }
 
 .button_danger {
-  color: var(--danger-color);
-  border-color: var(--danger-color);
+    color: var(--danger-color);
+    border-color: var(--danger-color);
 }
 
 .button_danger:hover {
-  background-color: var(--danger-color);
+    background-color: var(--danger-color);
 }
 
 .tools__btn {
-  margin: 0 8px 8px 0;
+    margin: 0 8px 8px 0;
 }
 
 .layers__list {
-  font-size: 24px;
-  overflow: hidden;
-  margin: 0 16px 16px 0;
-  padding: 0;
+    font-size: 24px;
+    overflow: hidden;
+    margin: 0 16px 16px 0;
+    padding: 0;
 }
 
 .layer {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  height: 24px;
-  margin: 4px 0;
-  justify-content: space-between;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    height: 24px;
+    margin: 4px 0;
+    justify-content: space-between;
 }
 
 .layer:hover .layer__remove {
-  display: block;
+    display: block;
 }
 
 .layer__name {
-  max-width: 132px;
-  overflow: hidden;
-  white-space: nowrap;
+    max-width: 132px;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .layer_ignored {
-  color: #999;
+    color: #999;
 }
 
 .layer_selected .layer__name:before {
-  display: inline-block;
-  content: "";
-  background: #cddc39;
-  transform: translateY(-4px);
-  width: 4px;
-  height: 4px;
-  margin-right: 4px;
+    display: inline-block;
+    content: '';
+    background: #cddc39;
+    transform: translateY(-4px);
+    width: 4px;
+    height: 4px;
+    margin-right: 4px;
 }
 
 .layer__remove {
-  display: none;
-  color: var(--danger-color);
-  margin: 0 8px;
+    display: none;
+    color: var(--danger-color);
+    margin: 0 8px;
 }
 
 .fui-code {
-  background: var(--primary-color);
-  border: 2px solid var(--border-dark-color);
-  border-radius: 0 10px 10px 10px;
-  border-top: 0;
-  margin: 0 0 8px 0;
-  padding: 16px;
-  height: 256px;
-  color: var(--secondary-color);
-  text-transform: none;
-  overflow-y: auto;
+    background: var(--primary-color);
+    border: 2px solid var(--border-dark-color);
+    border-radius: 0 10px 10px 10px;
+    border-top: 0;
+    margin: 0 0 8px 0;
+    padding: 16px;
+    height: 256px;
+    color: var(--secondary-color);
+    text-transform: none;
+    overflow-y: auto;
 }
 
 .fui-code pre {
-  margin: 0;
+    margin: 0;
 }
 
 .fui-icons {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  overflow-y: auto;
-  background: var(--primary-color);
-  border: 2px solid var(--border-dark-color);
-  border-radius: 0 10px 10px 10px;
-  border-top: 0;
-  margin: 0 0 8px 0;
-  padding: 16px;
-  height: 256px;
-  color: var(--secondary-color);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    overflow-y: auto;
+    background: var(--primary-color);
+    border: 2px solid var(--border-dark-color);
+    border-radius: 0 10px 10px 10px;
+    border-top: 0;
+    margin: 0 0 8px 0;
+    padding: 16px;
+    height: 256px;
+    color: var(--secondary-color);
 }
 
 .fui-icons img {
-  cursor: pointer;
-  image-rendering: pixelated;
-  display: block;
-  margin: 8px;
-  mix-blend-mode: darken;
-  border: 1px solid var(--border-color);
-  max-width: 128px;
-  height: auto;
+    cursor: pointer;
+    image-rendering: pixelated;
+    display: block;
+    margin: 8px;
+    mix-blend-mode: darken;
+    border: 1px solid var(--border-color);
+    max-width: 128px;
+    height: auto;
 }
 
 .fui-icons__header {
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  height: 24px;
-  width: 100%;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    height: 24px;
+    width: 100%;
 }
 .fui-icons__header:hover .fui-icons__remove-custom {
-  display: block;
+    display: block;
 }
 
 .fui-icons__remove-custom {
-  display: none;
-  cursor: pointer;
-  color: var(--danger-color);
-  margin: 0 8px;
+    display: none;
+    cursor: pointer;
+    color: var(--danger-color);
+    margin: 0 8px;
 }
 
 .fui-tabs {
-  display: flex;
+    display: flex;
 }
 
 .fui-tab {
-  background: var(--secondary-color);
-  border: 2px solid var(--border-dark-color);
-  border-bottom: 0;
-  border-radius: 6px 6px 0 0;
-  color: var(--primary-color);
-  height: 24px;
-  vertical-align: middle;
-  text-transform: uppercase;
-  font-family: "haxrcorp4089_tr";
-  font-size: 32px;
-  padding: 4px 12px 4px 12px;
-  margin: 0 8px 0 0;
-  cursor: pointer;
-  line-height: 22px;
+    background: var(--secondary-color);
+    border: 2px solid var(--border-dark-color);
+    border-bottom: 0;
+    border-radius: 6px 6px 0 0;
+    color: var(--primary-color);
+    height: 24px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    font-family: 'haxrcorp4089_tr';
+    font-size: 32px;
+    padding: 4px 12px 4px 12px;
+    margin: 0 8px 0 0;
+    cursor: pointer;
+    line-height: 22px;
 }
 
 .fui-tab:hover,
 .fui-tab_active {
-  background-color: var(--primary-color);
-  color: var(--secondary-color);
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
 }
 
 .buttons-bottom {
-  height: 32px;
-  display: flex;
-  justify-content: space-between;
+    height: 32px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .fui-settings {
-  margin-top: 8px;
+    margin-top: 8px;
 }
 
 .fui-settings__input {
-  font-size: 24px;
+    font-size: 24px;
 }
 
 .fui-settings__checkbox {
-  width: 16px;
+    width: 16px;
 }
 
 .fui-editor-header {
-  display: flex;
-  width: 100%;
+    display: flex;
+    width: 100%;
 }
 
 .fui-select {
-  margin: 2px 20px 8px 0;
+    margin: 2px 20px 8px 0;
 }
 .fui-select__label {
-  font-size: 24px;
+    font-size: 24px;
 }
 
 .fui-grid {
-  background-size: 4px 4px;
-  background-image: linear-gradient(
-      to right,
-      var(--bg-color) 0.5px,
-      transparent 0
-    ),
-    linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 0);
+    background-size: 4px 4px;
+    background-image: linear-gradient(to right, var(--bg-color) 0.5px, transparent 0),
+        linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 0);
 }
 
 a {
-  color: var(--primary-color);
+    color: var(--primary-color);
 }

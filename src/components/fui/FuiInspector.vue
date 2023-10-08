@@ -15,35 +15,35 @@ const params = computed(() => {
         <div class="inspector__row">
             <div v-for="param in params">
                 <span>{{ param.name }}</span>
-                <input
-                    class="inspector__input"
-                    v-if="param.type == ToolParamType.number"
-                    type="number"
-                    :value="param.value"
-                    @change="param.onChange($event.target.value)"
-                />
-                <input
-                    class="inspector__input"
-                    v-else-if="param.type == ToolParamType.string"
-                    type="text"
-                    :value="param.value"
-                    @change="param.onChange($event.target.value)"
-                />
-                <input
-                    class="inspector__input"
-                    v-else-if="param.type == ToolParamType.boolean"
-                    type="checkbox"
-                    :checked="param.value"
-                    @change="param.onChange($event.target.checked)"
-                />
-                <select
-                    class="inspector__input"
-                    v-else-if="param.type == ToolParamType.font"
-                    :value="param.value"
-                    @change="param.onChange($event.target.value)"
-                >
-                    <option v-for="font in platform.getFonts()" :value="font.name">{{ font.name }}</option>
-                </select>
+                <div v-if="param.type == ToolParamType.number">
+                    <input
+                        class="inspector__input"
+                        type="number"
+                        :value="param.value"
+                        @change="param.onChange($event.target.value)"
+                    />
+                </div>
+                <div v-else-if="param.type == ToolParamType.string">
+                    <input
+                        class="inspector__input"
+                        type="text"
+                        :value="param.value"
+                        @change="param.onChange($event.target.value)"
+                    />
+                </div>
+                <div v-else-if="param.type == ToolParamType.boolean">
+                    <input
+                        class="inspector__input"
+                        type="checkbox"
+                        :checked="param.value"
+                        @change="param.onChange($event.target.checked)"
+                    />
+                </div>
+                <div v-else-if="param.type == ToolParamType.font">
+                    <select class="inspector__input" :value="param.value" @change="param.onChange($event.target.value)">
+                        <option v-for="font in platform.getFonts()" :value="font.name">{{ font.name }}</option>
+                    </select>
+                </div>
             </div>
             <!-- <div>
                 x:

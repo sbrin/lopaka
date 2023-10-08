@@ -12,7 +12,8 @@ const size: symbol = Symbol('size');
 
 export class Rect {
     constructor();
-    constructor(rect: Rect | Point | HTMLElement | SVGRectElement | DOMRect);
+    constructor(rect: Rect | Point | Point | HTMLElement | SVGRectElement | DOMRect);
+    constructor(position: Point | number[], size: Point | number[]);
     constructor(x: number, y: number, w: number, h: number);
     constructor(...args: any[]) {
         if (args.length) {
@@ -39,9 +40,12 @@ export class Rect {
                     this[pos] = new Point(args[0]);
                     this[size] = new Point(args[0]);
                 }
-            } else {
+            } else if (args.length == 4) {
                 this[pos] = new Point(args[0], args[1]);
                 this[size] = new Point(args[2], args[3]);
+            } else if (args.length == 2) {
+                this[pos] = new Point(args[0]);
+                this[size] = new Point(args[1]);
             }
         } else {
             this[pos] = new Point(0);

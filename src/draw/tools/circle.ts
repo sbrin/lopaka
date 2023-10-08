@@ -1,6 +1,7 @@
 import {Layer} from 'src/core/layer';
 import {Tool, ToolParamType} from './tool';
 import {Point} from '../../core/point';
+import {Rect} from '../../core/rect';
 
 export class CircleTool extends Tool {
     name = 'circle';
@@ -56,5 +57,7 @@ export class CircleTool extends Tool {
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone().min(layer.position);
         layer.size = position.clone().subtract(layer.position).abs();
+        layer.bounds = new Rect(layer.position.clone().subtract(layer.size.x), new Point().add(layer.size.x * 2));
+        // layer.dc.rect(layer.bounds.pos, layer.bounds.size, false);
     }
 }

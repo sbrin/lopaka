@@ -68,9 +68,11 @@ export abstract class Tool {
     }
 
     onMouseUp(position: Point, originalEvent: MouseEvent): void {
-        const {activeLayer} = this.session;
+        const {activeLayer, virtualScreen} = this.session;
         this.isDrawing = false;
         this.stopEdit(activeLayer, this.mousePos.clone(), originalEvent);
+        activeLayer.edititng = false;
+        // virtualScreen.redraw();
     }
 
     getFont() {
@@ -94,6 +96,11 @@ export abstract class Tool {
                 }
             };
         });
+    }
+
+    getBounds(): Rect {
+        const {activeLayer} = this.session;
+        return activeLayer.bounds;
     }
 
     redraw() {

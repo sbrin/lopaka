@@ -1,6 +1,7 @@
 import {DrawContext} from '../draw/draw-context';
 import {generateUID} from '../utils';
 import {Point} from './point';
+import {Rect} from './rect';
 
 async function packImageData(imageData: ImageData): Promise<string> {
     // todo
@@ -16,12 +17,13 @@ export class Layer {
     name: string;
     position: Point = new Point();
     size: Point = new Point();
-    data: any;
+    data: any = {};
     id: string = generateUID();
     isOverlay: boolean = false;
     edititng: boolean = false;
     buffer: OffscreenCanvas = new OffscreenCanvas(0, 0);
     dc: DrawContext = new DrawContext(this.buffer);
+    bounds: Rect = new Rect();
 
     constructor(
         public type: string,

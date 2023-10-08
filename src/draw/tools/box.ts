@@ -1,6 +1,6 @@
 import {Layer} from 'src/core/layer';
-import {Tool, ToolParamType} from './tool';
 import {Point} from '../../core/point';
+import {Tool, ToolParamType} from './tool';
 
 export class BoxTool extends Tool {
     name = 'box';
