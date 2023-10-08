@@ -21,8 +21,8 @@ const fuiCanvas = ref(null),
     activeTab = ref('code'),
     codePreview = ref(''),
     customImages = ref([]);
-
-const {display, platform, layers, activeLayer, activeTool} = toRefs(useSession());
+const session = useSession();
+const {display, platform, layers, activeLayer, activeTool} = toRefs(session);
 
 // computed
 const isEmpty = computed(() => layers.value.length === 0);

@@ -13,7 +13,7 @@ const params = computed(() => {
     <div class="inspector" v-if="activeLayer">
         <div class="title inspector__title">{{ activeLayer.name || activeLayer.type }}</div>
         <div class="inspector__row">
-            <div v-for="param in params">
+            <div v-if="activeLayer" v-for="param in params">
                 <span>{{ param.name }}</span>
                 <div v-if="param.type == ToolParamType.number">
                     <input

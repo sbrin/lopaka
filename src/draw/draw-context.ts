@@ -24,15 +24,19 @@ export class DrawContext {
         this.ctx.moveTo(from.x, from.y);
         this.ctx.lineTo(to.x, to.y);
         this.ctx.stroke();
+        this.ctx.closePath();
         return this;
     }
 
     rect(position: Point, size: Point, fill: boolean): DrawContext {
+        this.ctx.beginPath();
+        this.ctx.rect(position.x, position.y, size.x, size.y);
         if (fill) {
-            this.ctx.fillRect(position.x, position.y, size.x, size.y);
+            this.ctx.fill();
         } else {
-            this.ctx.strokeRect(position.x, position.y, size.x, size.y);
+            this.ctx.stroke();
         }
+        this.ctx.closePath();
         return this;
     }
 
@@ -56,26 +60,54 @@ export class DrawContext {
     }
 
     pixelateLine(from: Point, to: Point, size: number): DrawContext {
-        const distance = from.distanceTo(to);
-        const steps = Math.ceil(distance / size);
-        const step = to.clone().subtract(from).divide(steps);
-        for (let i = 0; i < steps; i++) {
-            this.rect(from.clone().add(step.clone().multiply(i)), new Point(size, size), true);
+        const a = from.clone().round();
+        const b = to.clone().round();
+        const dx = Math.abs(a.x - b.x);
+        const dy = Math.abs(a.y - b.y);
+        const sx = a.x < b.x ? 1 : -1;
+        const sy = a.y < b.y ? 1 : -1;
+        let err = dx - dy;
+        this.ctx.beginPath();
+        while (true) {
+            this.ctx.rect(a.x, a.y, size, size);
+            if (a.x === b.x && a.y === b.y) break;
+            const e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                a.x += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                a.y += sy;
+            }
         }
+        this.ctx.fill();
+        this.ctx.closePath();
         return this;
     }
 
-    pixelateCircle(position: Point, size: Point, fill: boolean): DrawContext {
-        const radius = size.x / 2;
-        const steps = Math.ceil((2 * Math.PI * radius) / size.x);
-        const step = (2 * Math.PI) / steps;
-        for (let i = 0; i < steps; i++) {
-            this.rect(
-                new Point(position.x + radius * Math.cos(step * i), position.y + radius * Math.sin(step * i)),
-                size.clone(),
-                fill
-            );
+    pixelateCircle(center: Point, radius: number, fill: boolean): DrawContext {
+        this.ctx.beginPath();
+        for (let n = 0; n < radius; n++) {
+            const x = n;
+            const y = Math.round(Math.sqrt(radius * radius - x * x));
+            this.ctx.rect(center.x - x, center.y - y, 1, 1);
+            this.ctx.rect(center.x - x, center.y + y, 1, 1);
+            this.ctx.rect(center.x + x, center.y - y, 1, 1);
+            this.ctx.rect(center.x + x, center.y + y, 1, 1);
+            this.ctx.rect(center.x - y, center.y - x, 1, 1);
+            this.ctx.rect(center.x - y, center.y + x, 1, 1);
+            this.ctx.rect(center.x + y, center.y - x, 1, 1);
+            this.ctx.rect(center.x + y, center.y + x, 1, 1);
+            if (fill) {
+                this.ctx.rect(center.x - x, center.y - y, 1, y * 2);
+                this.ctx.rect(center.x + x, center.y - y, 1, y * 2);
+                this.ctx.rect(center.x - y, center.y - x, 1, x * 2);
+                this.ctx.rect(center.x + y, center.y - x, 1, x * 2);
+            }
         }
+        this.ctx.fill();
+        this.ctx.closePath();
         return this;
     }
 }

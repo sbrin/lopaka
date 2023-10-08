@@ -1,6 +1,7 @@
 import {EffectScope, watch} from 'vue';
 import {Session} from '../core/session';
 import {Layer} from '../core/layer';
+import {Point} from '../core/point';
 
 export class VirtualScreen {
     private screen: OffscreenCanvas = null;
@@ -30,6 +31,13 @@ export class VirtualScreen {
         this.canvas = canvas;
         this.resize();
         this.redraw();
+    }
+
+    getLayersInPoint(position: Point): Layer[] {
+        const point = position.clone().divide(this.session.scale).round();
+        return this.session.layers.filter(
+            (layer) => layer.dc.ctx.isPointInStroke(point.x, point.y) || layer.dc.ctx.isPointInPath(point.x, point.y)
+        );
     }
 
     public resize() {
@@ -66,7 +74,7 @@ export class VirtualScreen {
         });
         // create data without alpha channel
         const data = this.ctx.getImageData(0, 0, this.screen.width, this.screen.height).data.map((v, i) => {
-            if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;
+            // if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;
             return v;
         });
         canvasContext.putImageData(

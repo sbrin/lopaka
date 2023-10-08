@@ -41,7 +41,7 @@ export abstract class Platform {
                     this.addIcon(layer, source);
                     break;
                 default:
-                    throw new Error(`Unknown layer type: ${layer.type}`);
+                    console.warn(`Unknown layer type: ${layer.type}`);
             }
         }
         return source;

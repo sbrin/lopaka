@@ -14,6 +14,7 @@ import {DiscTool} from '../draw/tools/disc';
 import {LineTool} from '../draw/tools/line';
 import {DotTool} from '../draw/tools/dot';
 import {TextTool} from '../draw/tools/text';
+import {SelectTool} from '../draw/tools/select';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -108,6 +109,7 @@ export class Session {
         this.tools.line = new LineTool(this);
         this.tools.dot = new DotTool(this);
         this.tools.string = new TextTool(this);
+        this.tools.select = new SelectTool(this);
     }
 }
 
@@ -116,7 +118,7 @@ export function useSession(id?: string) {
         return sessions.get(currentSessionId);
     } else {
         const session = new Session();
-        session.activeTool = session.tools.frame;
+        session.activeTool = session.tools.circle;
         sessions.set(session.id, reactive(session));
         currentSessionId = session.id;
         return session;

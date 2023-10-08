@@ -6,7 +6,7 @@ import {Point} from '../../core/point';
 
 export class LineTool extends Tool {
     name: string = 'line';
-
+    brushSize: Point = new Point(1, 1);
     params = [
         {
             name: 'x1',
@@ -50,21 +50,26 @@ export class LineTool extends Tool {
         }
     ];
 
+    private firstPoint: Point;
+
     draw(layer: Layer): void {
         const {dc, position, size} = layer;
-        dc.clear().line(position, size);
+        dc.clear().pixelateLine(position, position.clone().add(size), this.brushSize.x);
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        const {dc} = layer;
-        dc.clear().line(layer.position, position);
+        const points = [this.firstPoint, position];
+        layer.position = position.clone().min(this.firstPoint);
+        layer.size = position.clone().subtract(this.firstPoint);
+        this.draw(layer);
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
+        this.firstPoint = position.clone();
         layer.position = position.clone();
     }
 
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        layer.size = position.clone();
+        // layer.size = position.clone();
     }
 }

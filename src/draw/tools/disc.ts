@@ -2,6 +2,7 @@ import {Layer} from 'src/core/layer';
 import {drawDisc} from '../../graphics';
 import {Tool, ToolParamType} from './tool';
 import {Point} from '../../core/point';
+import {Rect} from '../../core/rect';
 
 export class DiscTool extends Tool {
     name = 'disc';
@@ -39,24 +40,29 @@ export class DiscTool extends Tool {
         }
     ];
 
+    private firstPoint: Point;
+
     draw(layer: Layer): void {
         const {dc, position, size} = layer;
-        dc.clear().circle(position, size.x / 2, true);
+        const radius = Math.round(size.x / 2);
+        dc.clear().pixelateCircle(position.clone().add(radius), radius, true);
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        const {dc} = layer;
-        dc.clear().circle(layer.position.clone(), position.clone().subtract(layer.position).abs().x, true);
+        layer.position = position.clone().min(this.firstPoint);
+        const radius = position.clone().subtract(this.firstPoint).abs().x;
+        layer.size = new Point(radius);
+        this.draw(layer);
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        layer.dc.ctx.translate(0.5, 0.5);
+        this.firstPoint = position.clone();
         layer.position = position.clone();
     }
 
-    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        console.log(this.mousePos, position, layer);
-        layer.position = position.clone().min(layer.position);
-        layer.size = position.clone().subtract(layer.position).abs();
+    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
+
+    protected getBounds(layer: Layer): Rect {
+        return super.getBounds(layer).add(0, 0, 1, 1);
     }
 }

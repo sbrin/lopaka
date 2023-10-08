@@ -39,25 +39,29 @@ export class CircleTool extends Tool {
         }
     ];
 
+    private firstPoint: Point;
+
     draw(layer: Layer): void {
         const {dc, position, size} = layer;
-        dc.clear().circle(position, size.x, false);
+        const radius = Math.round(size.x / 2);
+        dc.clear().pixelateCircle(position.clone().add(radius), radius, false);
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        const {dc} = layer;
-        dc.clear().circle(layer.position, position.clone().subtract(layer.position).abs().x, false);
+        layer.position = position.clone().min(this.firstPoint);
+        const radius = position.clone().subtract(this.firstPoint).abs().x;
+        layer.size = new Point(radius);
+        this.draw(layer);
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        layer.dc.ctx.translate(0.5, 0.5);
+        this.firstPoint = position.clone();
         layer.position = position.clone();
     }
 
-    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        layer.position = position.clone().min(layer.position);
-        layer.size = position.clone().subtract(layer.position).abs();
-        layer.bounds = new Rect(layer.position.clone().subtract(layer.size.x), new Point().add(layer.size.x * 2));
-        // layer.dc.rect(layer.bounds.pos, layer.bounds.size, false);
+    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
+
+    protected getBounds(layer: Layer): Rect {
+        return super.getBounds(layer).add(0, 0, 1, 1);
     }
 }
