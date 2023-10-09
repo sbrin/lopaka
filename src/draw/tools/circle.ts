@@ -40,6 +40,7 @@ export class CircleTool extends Tool {
     ];
 
     private firstPoint: Point;
+    private altMode = false;
 
     draw(layer: Layer): void {
         const {dc, position, size} = layer;
@@ -49,14 +50,21 @@ export class CircleTool extends Tool {
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        layer.position = position.clone().min(this.firstPoint);
-        const radius = position.clone().subtract(this.firstPoint).abs().divide(2).round().x;
-        layer.size = new Point(radius * 2).add(1);
+        if (this.altMode) {
+            const radius = position.clone().subtract(this.firstPoint).abs().divide(2).round().x;
+            layer.size = new Point(radius * 2).add(1);
+            layer.position = this.firstPoint.clone().subtract(radius);
+        } else {
+            layer.position = position.clone().min(this.firstPoint);
+            const radius = position.clone().subtract(this.firstPoint).abs().divide(2).round().x;
+            layer.size = new Point(radius * 2).add(1);
+        }
         layer.bounds = this.getBounds(layer);
         this.draw(layer);
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
+        this.altMode = originalEvent.altKey;
         this.firstPoint = position.clone();
         layer.position = position.clone();
     }
