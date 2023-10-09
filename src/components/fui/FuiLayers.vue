@@ -2,8 +2,8 @@
 import {toRefs} from 'vue';
 import {useSession} from '../../core/session';
 import {Layer} from '../../core/layer';
-
-const {layers, activeLayer, removeLayer} = toRefs(useSession());
+const session = useSession();
+const {layers, activeLayer} = toRefs(session.state);
 
 function classNames(layer) {
     return {
@@ -40,7 +40,7 @@ function getLayerListItem(element: any) {
                 <div class="layer__name" @click="setActive(item as any)">
                     {{ getLayerListItem(item) }}
                 </div>
-                <div class="layer__remove" @click="removeLayer(item as any)">×</div>
+                <div class="layer__remove" @click="session.removeLayer(item as any)">×</div>
             </li>
         </ul>
     </div>

@@ -2,8 +2,8 @@
 import {computed, toRefs} from 'vue';
 import {useSession} from '../../core/session';
 import {ToolParamType} from '../../draw/tools/tool';
-
-const {platform, activeLayer, activeTool} = toRefs(useSession());
+const session = useSession();
+const {platform, activeLayer, activeTool} = toRefs(session.state);
 
 const params = computed(() => {
     return activeTool.value.getParams();
@@ -13,7 +13,7 @@ const params = computed(() => {
     <div class="inspector" v-if="activeLayer">
         <div class="title inspector__title">{{ activeLayer.name || activeLayer.type }}</div>
         <div class="inspector__row">
-            <div v-if="activeLayer" v-for="param in params">
+            <div v-for="param in params">
                 <span>{{ param.name }}</span>
                 <div v-if="param.type == ToolParamType.number">
                     <input

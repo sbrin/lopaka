@@ -1,11 +1,16 @@
 <script lang="ts" setup>
+import {Layer} from '../../core/layer';
 import {useSession} from '../../core/session';
 import {computed, toRefs} from 'vue';
-const {platform, layers, virtualScreen} = toRefs(useSession());
+const session = useSession();
+const {platform, layers} = toRefs(session.state);
 
 const content = computed(() => {
-    if (virtualScreen.value) {
-        const sourceCode = platform.value.generateSourceCode(layers.value, virtualScreen.value.ctx);
+    if (session.virtualScreen) {
+        const sourceCode = session.platforms[platform.value].generateSourceCode(
+            layers.value as Layer[],
+            session.virtualScreen.ctx
+        );
         return sourceCode.declarations.join('\n') + '\n' + sourceCode.code.join('\n');
     } else {
         return '';

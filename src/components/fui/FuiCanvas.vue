@@ -16,11 +16,11 @@ const session = useSession();
 
 const hoveredLayer: ShallowRef<Layer> = ref(null);
 
-const {display, virtualScreen, activeTool, scale, activeLayer} = toRefs(session);
+const {display, activeTool, scale, activeLayer} = toRefs(session.state);
 let mouseClickPosition: Point;
 
 onMounted(() => {
-    virtualScreen.value.setCanvas(screen.value);
+    session.virtualScreen.setCanvas(screen.value);
     document.addEventListener('mouseup', onMouseUp);
 });
 

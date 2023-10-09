@@ -4,13 +4,13 @@ import {Point} from '../../core/point';
 import {useSession} from '../../core/session';
 
 const session = useSession();
-const {setDisplay} = session;
-const {displays, display, scale} = toRefs(session);
-const selectedDisplay = ref(displays.value.findIndex((d) => d.equals(display.value)));
+const {displays, setDisplay} = session;
+const {display, scale} = toRefs(session.state);
+const selectedDisplay = ref(displays.findIndex((d) => d.equals(display.value)));
 const scales = ref([100, 200, 400, 500, 600, 800, 1000]);
 const selectedScale = ref(200);
 watch(selectedDisplay, (val) => {
-    setDisplay(displays.value[val]);
+    setDisplay(displays[val]);
 });
 watch(selectedScale, (val) => {
     scale.value = new Point(val / 100, val / 100);

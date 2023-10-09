@@ -15,15 +15,30 @@ import {LineTool} from '../draw/tools/line';
 import {DotTool} from '../draw/tools/dot';
 import {TextTool} from '../draw/tools/text';
 import {SelectTool} from '../draw/tools/select';
+import {U8g2Platform} from '../platforms/u8g2';
+import {AdafruitPlatform} from '../platforms/adafruit';
+import {Uint32RawPlatform} from '../platforms/uint32-raw';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
 
+type TSessionState = {
+    platform: string;
+    display: Point;
+    layers: Layer[];
+    activeLayer: Layer | null;
+    activeTool: Tool | null;
+    scale: Point;
+};
+
 export class Session {
     id: string = generateUID();
-    layers: Layer[] = [];
-    platform: Platform = new FlipperPlatform();
-    display: Point = new Point(32, 32); //new Point(128, 64);
+    platforms: {[key: string]: Platform} = {
+        [FlipperPlatform.id]: new FlipperPlatform(),
+        [U8g2Platform.id]: new U8g2Platform(),
+        [AdafruitPlatform.id]: new AdafruitPlatform(),
+        [Uint32RawPlatform.id]: new Uint32RawPlatform()
+    };
     displays: Point[] = [
         new Point(8, 8),
         new Point(12, 8),
@@ -77,40 +92,47 @@ export class Session {
         new Point(320, 240),
         new Point(400, 240)
     ];
-    // size of pixel
-    scale: Point = new Point(20, 20);
-    activeTool: Tool = null;
-    activeLayer: Layer = null;
+
+    state: TSessionState = reactive({
+        platform: FlipperPlatform.id,
+        display: new Point(128, 64),
+        layers: [],
+        activeLayer: null,
+        activeTool: null,
+        scale: new Point(4, 4)
+    });
+
     virtualScreen: VirtualScreen = new VirtualScreen(this);
-    tools: {[key: string]: Tool} = {};
+    tools: {[key: string]: Tool} = {
+        paint: new PaintTool(this),
+        box: new BoxTool(this),
+        frame: new FrameTool(this),
+        circle: new CircleTool(this),
+        disc: new DiscTool(this),
+        line: new LineTool(this),
+        dot: new DotTool(this),
+        string: new TextTool(this),
+        select: new SelectTool(this)
+    };
     removeLayer = (layer: Layer) => {
-        const index = this.layers.indexOf(layer);
-        if (index > -1) {
-            this.layers.splice(index, 1);
-        }
+        this.state.layers = this.state.layers.filter((l) => l !== layer);
     };
     setActiveLayer = (layer: Layer) => {
-        this.activeLayer = layer;
+        this.state.activeLayer = layer;
     };
     setActiveTool = (tool: Tool) => {
-        this.activeTool = tool;
+        this.state.activeTool = tool;
     };
     setDisplay = (display: Point) => {
-        this.display = display;
+        this.state.display = display;
         this.virtualScreen.resize();
         this.virtualScreen.redraw();
     };
-    constructor() {
-        this.tools.paint = new PaintTool(this);
-        this.tools.box = new BoxTool(this);
-        this.tools.frame = new FrameTool(this);
-        this.tools.circle = new CircleTool(this);
-        this.tools.disc = new DiscTool(this);
-        this.tools.line = new LineTool(this);
-        this.tools.dot = new DotTool(this);
-        this.tools.string = new TextTool(this);
-        this.tools.select = new SelectTool(this);
-    }
+    setPlatform = (name: string) => {
+        this.state.platform = name;
+        this.state.layers = [...this.state.layers];
+    };
+    constructor() {}
 }
 
 export function useSession(id?: string) {
@@ -118,8 +140,8 @@ export function useSession(id?: string) {
         return sessions.get(currentSessionId);
     } else {
         const session = new Session();
-        session.activeTool = session.tools.circle;
-        sessions.set(session.id, reactive(session));
+        session.state.activeTool = session.tools.frame;
+        sessions.set(session.id, session);
         currentSessionId = session.id;
         return session;
     }

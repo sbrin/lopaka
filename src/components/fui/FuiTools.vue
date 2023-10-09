@@ -6,7 +6,7 @@ import FuiButton from './FuiButton.vue';
 const emit = defineEmits(['toolClicked']);
 const session = useSession();
 const {tools} = session;
-const {activeTool} = toRefs(session);
+const {activeTool} = toRefs(session.state);
 
 function isActive(name: string) {
     return activeTool.value.getName() === name;
@@ -37,4 +37,3 @@ function isActive(name: string) {
     </div>
 </template>
 <style lang="css"></style>
-../../draw/tools/tools

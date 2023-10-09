@@ -1,3 +1,4 @@
+import {toRefs} from 'vue';
 import {Layer} from '../../core/layer';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
@@ -34,56 +35,57 @@ export abstract class Tool {
 
     onMouseDown(position: Point, originalEvent: MouseEvent): void {
         this.isDrawing = true;
-        const {platform, layers, display, scale, virtualScreen} = this.session;
+        const {platform, layers, display, scale, activeLayer} = toRefs(this.session.state);
         position
-            .divide(scale)
+            .divide(scale.value)
             .round()
-            .boundTo(new Rect(0, 0, display.x, display.y));
+            .boundTo(new Rect(0, 0, display.value.x, display.value.y));
         if (!this.isModifier) {
-            const layer = new Layer(this.name, layers.length + 1);
-            layer.name = 'Layer ' + (layers.length + 1);
+            const layer = new Layer(this.name, layers.value.length + 1);
+            layer.name = 'Layer ' + (layers.value.length + 1);
             layer.position = position.clone();
             layer.edititng = true;
-            layer.buffer.width = display.x;
-            layer.buffer.height = display.y;
+            layer.buffer.width = display.value.x;
+            layer.buffer.height = display.value.y;
             // layer.ctx.scale(scale.x, scale.y);
             layer.dc.ctx.fillStyle = '#000';
             layer.dc.ctx.strokeStyle = '#000';
             // layer.dc.ctx.translate(0.5, 0.5);
-            this.session.layers = [...layers, layer];
-            this.session.activeLayer = layer;
+            layers.value = [...layers.value, layer];
+            activeLayer.value = layer;
             // }
             this.startEdit(layer, position.clone(), originalEvent);
         } else {
-            this.startEdit(this.session.activeLayer, position.clone(), originalEvent);
+            this.startEdit(activeLayer.value, position.clone(), originalEvent);
         }
         this.mousePos = position.clone();
-        virtualScreen.redraw();
+        this.session.virtualScreen.redraw();
     }
 
     onMouseMove(position: Point, originalEvent: MouseEvent) {
-        const {scale, display, activeLayer, virtualScreen} = this.session;
+        const {scale, display, activeLayer} = toRefs(this.session.state);
         position
-            .divide(scale)
+            .divide(scale.value)
             .round()
-            .boundTo(new Rect(0, 0, display.x, display.y));
-        this.edit(activeLayer, position.clone(), originalEvent);
+            .boundTo(new Rect(0, 0, display.value.x, display.value.y));
+        this.edit(activeLayer.value, position.clone(), originalEvent);
         this.mousePos = position.clone();
-        virtualScreen.redraw();
+        this.session.virtualScreen.redraw();
     }
 
     onMouseUp(position: Point, originalEvent: MouseEvent): void {
-        const {activeLayer, virtualScreen} = this.session;
+        const {activeLayer} = toRefs(this.session.state);
         this.isDrawing = false;
-        this.stopEdit(activeLayer, this.mousePos.clone(), originalEvent);
+        this.stopEdit(activeLayer.value, this.mousePos.clone(), originalEvent);
         this.mousePos = null;
-        activeLayer.edititng = false;
+        activeLayer.value.edititng = false;
 
         // virtualScreen.redraw();
     }
 
     protected getFont() {
-        const fonts = this.session.platform.getFonts();
+        const {platform} = toRefs(this.session.state);
+        const fonts = this.session.platforms[platform.value].getFonts();
         return fonts[0];
     }
 
@@ -100,14 +102,14 @@ export abstract class Tool {
     }
 
     getParams() {
-        const {activeLayer} = this.session;
+        const {activeLayer} = toRefs(this.session.state);
         return this.params.map((param: ToolParam) => {
             return {
                 ...param,
-                value: param.getValue(activeLayer),
+                value: param.getValue(activeLayer.value),
                 onChange: (value: any) => {
-                    param.setValue(activeLayer, value);
-                    activeLayer.bounds = this.getBounds(activeLayer);
+                    param.setValue(activeLayer.value, value);
+                    activeLayer.value.bounds = this.getBounds(activeLayer.value);
                     this.redraw();
                 }
             };
@@ -115,26 +117,26 @@ export abstract class Tool {
     }
 
     checkIntersectionWithPath(position: Point): boolean {
-        const point = position.clone().divide(this.session.scale);
-        const {activeLayer} = this.session;
+        const {activeLayer, scale} = toRefs(this.session.state);
+        const point = position.clone().divide(scale.value);
         if (activeLayer) {
-            return activeLayer.dc.ctx.isPointInPath(point.x, point.y);
+            return activeLayer.value.dc.ctx.isPointInPath(point.x, point.y);
         }
         return false;
     }
 
     checkIntersection(position: Point): boolean {
-        const {activeLayer} = this.session;
+        const {activeLayer} = toRefs(this.session.state);
         if (activeLayer) {
-            return this.getBounds(activeLayer).contains(position);
+            return this.getBounds(activeLayer.value).contains(position);
         }
         return false;
     }
 
     redraw() {
-        const {activeLayer} = this.session;
+        const {activeLayer} = toRefs(this.session.state);
         if (activeLayer) {
-            this.draw(activeLayer);
+            this.draw(activeLayer.value);
             this.session.virtualScreen.redraw();
         }
     }

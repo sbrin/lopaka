@@ -22,11 +22,11 @@ const fuiCanvas = ref(null),
     codePreview = ref(''),
     customImages = ref([]);
 const session = useSession();
-const {display, platform, layers, activeLayer, activeTool} = toRefs(session);
+const {display, platform, layers, activeLayer, activeTool} = toRefs(session.state);
 
 // computed
 const isEmpty = computed(() => layers.value.length === 0);
-const isFlipper = computed(() => platform.value.getName() === 'Flipper Zero');
+const isFlipper = computed(() => platform.value === 'Flipper Zero');
 // methods
 function setactiveTab(tab) {
     activeTab.value = tab;

@@ -4,6 +4,7 @@ import {Layer} from 'src/core/layer';
  * Abstract platform definition.
  */
 export abstract class Platform {
+    static id: string;
     protected fonts: TPlatformFont[];
     protected name: string;
     protected description: string;

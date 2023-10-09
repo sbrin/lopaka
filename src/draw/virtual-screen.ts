@@ -1,4 +1,4 @@
-import {EffectScope, watch} from 'vue';
+import {EffectScope, toRefs, watch} from 'vue';
 import {Session} from '../core/session';
 import {Layer} from '../core/layer';
 import {Point} from '../core/point';
@@ -11,12 +11,13 @@ export class VirtualScreen {
     canvas: HTMLCanvasElement;
 
     constructor(private session: Session) {
-        this.screen = new OffscreenCanvas(session.display.x, session.display.y);
+        const {display, layers, platform} = toRefs(session.state);
+        this.screen = new OffscreenCanvas(session.state.display.x, session.state.display.y);
         this.ctx = this.screen.getContext('2d');
         this.scope = new EffectScope();
         this.scope.run(() => {
             watch(
-                () => session.layers,
+                [layers, display, platform],
                 () => {
                     this.redraw();
                 },
@@ -34,14 +35,14 @@ export class VirtualScreen {
     }
 
     getLayersInPoint(position: Point): Layer[] {
-        const point = position.clone().divide(this.session.scale).round();
-        return this.session.layers.filter(
+        const point = position.clone().divide(this.session.state.scale).round();
+        return this.session.state.layers.filter(
             (layer) => layer.dc.ctx.isPointInStroke(point.x, point.y) || layer.dc.ctx.isPointInPath(point.x, point.y)
         );
     }
 
     public resize() {
-        const {display, scale, layers, tools} = this.session;
+        const {display, scale, layers} = this.session.state;
         const size = display.clone();
         this.screen.width = size.x;
         this.screen.height = size.y;
@@ -56,7 +57,7 @@ export class VirtualScreen {
         layers.forEach((layer: Layer) => {
             layer.buffer.width = size.x;
             layer.buffer.height = size.y;
-            tools[layer.type].draw(layer);
+            this.session.tools[layer.type].draw(layer);
         });
     }
 
@@ -69,7 +70,7 @@ export class VirtualScreen {
             alpha: true
         }) as CanvasRenderingContext2D;
 
-        this.session.layers.forEach((layer) => {
+        this.session.state.layers.forEach((layer) => {
             this.ctx.drawImage(layer.buffer, 0, 0);
         });
         // create data without alpha channel

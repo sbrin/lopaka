@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import {useSession} from '../../core/session';
-import {numberFontsRegex, standardFontsRegex, textCharHeight} from '../../const';
-import {getTextWidth} from '../../utils';
 import {computed, defineProps, toRefs} from 'vue';
+import {numberFontsRegex, standardFontsRegex} from '../../const';
+import {useSession} from '../../core/session';
 
 const props = defineProps<{
     field: string;
     disabled?: boolean;
     type: string;
 }>();
-const {activeLayer, platform} = toRefs(useSession());
+const session = useSession();
+const {activeLayer, platform} = toRefs(session.state);
 
 const emit = defineEmits(['update']);
 
@@ -17,18 +17,15 @@ const hasNoWidth = computed(() => {
     return ['str', 'dot'].includes(activeLayer.value.type) && ['width', 'height'].includes(props.field);
 });
 
+const fonts = computed(() => {
+    return session.platforms[platform.value].getFonts();
+});
+
 const charsRegex = computed(() => {
-    return activeLayer.value?.data?.font === 'profont22_tr' && platform.value.getName() === 'Flipper zero'
+    return activeLayer.value?.data?.font === 'profont22_tr' && platform.value === 'Flipper zero'
         ? numberFontsRegex
         : standardFontsRegex;
 });
-
-// const fontsList = {
-//     flipper: ['helvB08_tr', 'haxrcorp4089_tr', 'profont22_tr'],
-//     u8g2: ['helvB08_tr', 'haxrcorp4089_tr', 'profont22_tr', 'f4x6_tr'],
-//     uint32: ['helvB08_tr', 'haxrcorp4089_tr', 'profont22_tr', 'f4x6_tr'],
-//     adafruit_gfx: ['adafruit']
-// };
 
 function onInput(e) {
     if (['checkbox'].includes(props.type)) {
@@ -48,16 +45,15 @@ function onInput(e) {
 function onSelect(e) {
     activeLayer.value[props.field] = e.target.value;
     if (['font'].includes(props.field)) {
-        activeLayer.value.data.text = activeLayer.value.data.text.replace(charsRegex.value, '').trim();
-        updateTextWidth();
+        // activeLayer.value.data.text = activeLayer.value.data.text.replace(charsRegex.value, '').trim();
+        session.virtualScreen.redraw();
     }
 }
 
 function updateTextWidth() {
     // recalculate text draggable area size
-
-    activeLayer.value.size.x = getTextWidth(activeLayer.value.data.text, activeLayer.value.data.font);
-    activeLayer.value.size.y = textCharHeight[activeLayer.value.data.font];
+    // activeLayer.value.size.x = getTextWidth(activeLayer.value.data.text, activeLayer.value.data.font);
+    // activeLayer.value.size.y = textCharHeight[activeLayer.value.data.font];
     // todo
     // props.element.yy = props.element.y - textCharHeight[props.element.font];
 }
@@ -71,7 +67,7 @@ function updateTextWidth() {
         @input="onSelect"
         :id="activeLayer.id"
     >
-        <option v-for="(font, idx) in platform.getFonts()" :key="idx" :value="font.name">
+        <option v-for="(font, idx) in fonts" :key="idx" :value="font.name">
             {{ font.name }}
         </option>
     </select>

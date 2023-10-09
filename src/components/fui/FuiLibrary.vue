@@ -1,21 +1,16 @@
 <script lang="ts" setup>
-import {useSession} from '../../core/session';
 import {toRefs} from 'vue';
-import {LIBRARIES} from '../../const';
+import {useSession} from '../../core/session';
 
-const libs = LIBRARIES;
-const {platform} = toRefs(useSession());
-
-function onSelect(e) {
-    platform.value = new LIBRARIES[e.target.value]();
-}
+const session = useSession();
+const {platform} = toRefs(session.state);
 </script>
 <template>
     <div class="fui-select">
         <label for="library" class="fui-select__label">Library:</label>
-        <select id="library" class="fui-select__select input-select" :value="platform.getName()" @input="onSelect">
-            <option v-for="(lib, idx) in Object.keys(libs)" :key="idx" :value="lib">
-                {{ libs[lib].id }}
+        <select id="library" class="fui-select__select input-select" v-model="platform">
+            <option v-for="(p, idx) in session.platforms" :key="idx" :value="idx">
+                {{ p.getName() }}
             </option>
         </select>
     </div>
