@@ -48,29 +48,44 @@ export class TextTool extends Tool {
         }
     ];
 
+    private getTextSize(layer: Layer): Point {
+        const {dc, data} = layer;
+        const {name, options} = this.getFont();
+        dc.ctx.save();
+        dc.ctx.font = `${options.size}px ${name}`;
+        const size = new Point(dc.ctx.measureText(data.text).width, options.textCharHeight);
+        dc.ctx.restore();
+        return size;
+    }
+
     draw(layer: Layer): void {
         const {dc, data} = layer;
         dc.clear().text(layer.position, data.text, data.font);
+        dc.ctx.save();
+        dc.ctx.beginPath();
+        dc.ctx.rect(layer.position.x, layer.position.y, layer.size.x, layer.size.y);
+        dc.ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+        dc.ctx.fill();
+        dc.ctx.restore();
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        const {dc, data} = layer;
-        dc.text(position, data.text, data.font);
         layer.position = position.clone();
+        layer.bounds = this.getBounds(layer);
+        this.draw(layer);
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         const {dc} = layer;
         const {name, options} = this.getFont();
         layer.position = position.clone();
+        layer.size = this.getTextSize(layer);
         layer.data = {};
         layer.data.text = 'String 123';
         layer.data.font = `${options.size}px ${name}`;
-        dc.text(layer.position, layer.data.text, layer.data.font);
+        layer.bounds = this.getBounds(layer);
+        this.draw(layer);
     }
 
-    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        layer.position = position.clone().min(layer.position);
-        layer.size = position.clone().subtract(layer.position).abs();
-    }
+    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
 }

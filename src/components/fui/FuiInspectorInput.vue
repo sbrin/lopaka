@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {useSession} from '../../core/session';
-import {numberFontsRegex, standardFontsRegex, textContainerHeight} from '../../const';
+import {numberFontsRegex, standardFontsRegex, textCharHeight} from '../../const';
 import {getTextWidth} from '../../utils';
 import {computed, defineProps, toRefs} from 'vue';
 
@@ -57,9 +57,9 @@ function updateTextWidth() {
     // recalculate text draggable area size
 
     activeLayer.value.size.x = getTextWidth(activeLayer.value.data.text, activeLayer.value.data.font);
-    activeLayer.value.size.y = textContainerHeight[activeLayer.value.data.font];
+    activeLayer.value.size.y = textCharHeight[activeLayer.value.data.font];
     // todo
-    // props.element.yy = props.element.y - textContainerHeight[props.element.font];
+    // props.element.yy = props.element.y - textCharHeight[props.element.font];
 }
 </script>
 <template>

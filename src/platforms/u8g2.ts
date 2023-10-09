@@ -15,7 +15,7 @@ export class U8g2Platform extends Platform {
             name: 'HaXRcorp4089_tr',
             file: haxrcorp4089,
             options: {
-                textContainerHeight: 8,
+                textCharHeight: 8,
                 textCharWidth: 6,
                 size: 8
             }
@@ -24,7 +24,7 @@ export class U8g2Platform extends Platform {
             name: 'HelvB08_tr',
             file: u8g2_font_helvB08,
             options: {
-                textContainerHeight: 8,
+                textCharHeight: 8,
                 textCharWidth: 6,
                 size: 8
             }
@@ -34,7 +34,7 @@ export class U8g2Platform extends Platform {
             name: 'Profont22_tr',
             file: profont22,
             options: {
-                textContainerHeight: 22,
+                textCharHeight: 22,
                 textCharWidth: 12,
                 size: 22
             }
@@ -43,7 +43,7 @@ export class U8g2Platform extends Platform {
             name: 'F4x6_tr',
             file: f4x6,
             options: {
-                textContainerHeight: 6,
+                textCharHeight: 6,
                 textCharWidth: 4,
                 size: 6
             }

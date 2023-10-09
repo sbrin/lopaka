@@ -12,7 +12,7 @@ declare module '*.ttf' {
 }
 
 declare type TFontSizes = {
-    textContainerHeight: number;
+    textCharHeight: number;
     textCharWidth: number;
     size: number;
 };

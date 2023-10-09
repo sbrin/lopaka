@@ -13,7 +13,7 @@ export class FlipperPlatform extends Platform {
             name: 'helvB08_tr',
             file: helvB08,
             options: {
-                textContainerHeight: 8,
+                textCharHeight: 8,
                 textCharWidth: 6,
                 size: 8
             }
@@ -22,7 +22,7 @@ export class FlipperPlatform extends Platform {
             name: 'HaXRcorp4089_tr',
             file: haxrcorp4089,
             options: {
-                textContainerHeight: 8,
+                textCharHeight: 8,
                 textCharWidth: 6,
                 size: 8
             }
@@ -31,7 +31,7 @@ export class FlipperPlatform extends Platform {
             name: 'Profont22_tr',
             file: profont22,
             options: {
-                textContainerHeight: 22,
+                textCharHeight: 22,
                 textCharWidth: 12,
                 size: 22
             }

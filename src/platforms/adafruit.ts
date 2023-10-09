@@ -12,7 +12,7 @@ export class AdafruitPlatform extends Platform {
             name: 'adafruit',
             file: adafruitFont,
             options: {
-                textContainerHeight: 7,
+                textCharHeight: 7,
                 textCharWidth: 5,
                 size: 8
             }
