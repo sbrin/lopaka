@@ -8,7 +8,7 @@ const {displays, setDisplay} = session;
 const {display, scale} = toRefs(session.state);
 const selectedDisplay = ref(displays.findIndex((d) => d.equals(display.value)));
 const scales = ref([100, 200, 400, 500, 600, 800, 1000]);
-const selectedScale = ref(200);
+const selectedScale = ref(scale.value ? scale.value.x * 100 : 100);
 watch(selectedDisplay, (val) => {
     setDisplay(displays[val]);
 });

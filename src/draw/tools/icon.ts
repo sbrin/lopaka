@@ -1,7 +1,6 @@
 import {Layer} from 'src/core/layer';
-import {maskAndMixImageData, putImageDataWithAlpha} from '../../graphics';
-import {Tool} from './tool';
 import {Point} from '../../core/point';
+import {Tool} from './tool';
 
 export class IconTool extends Tool {
     name = 'icon';
@@ -16,12 +15,12 @@ export class IconTool extends Tool {
         // }
     }
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        throw new Error('Method not implemented.');
+        // throw new Error('Method not implemented.');
     }
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        throw new Error('Method not implemented.');
+        // throw new Error('Method not implemented.');
     }
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        throw new Error('Method not implemented.');
+        // throw new Error('Method not implemented.');
     }
 }

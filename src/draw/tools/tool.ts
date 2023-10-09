@@ -103,14 +103,15 @@ export abstract class Tool {
 
     getParams() {
         const {activeLayer} = toRefs(this.session.state);
-        return this.params.map((param: ToolParam) => {
+        const tool = this.session.tools[activeLayer.value.type];
+        return tool.params.map((param: ToolParam) => {
             return {
                 ...param,
                 value: param.getValue(activeLayer.value),
                 onChange: (value: any) => {
                     param.setValue(activeLayer.value, value);
-                    activeLayer.value.bounds = this.getBounds(activeLayer.value);
-                    this.redraw();
+                    activeLayer.value.bounds = tool.getBounds(activeLayer.value);
+                    tool.redraw();
                 }
             };
         });

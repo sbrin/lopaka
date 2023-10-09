@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import {Ref, ShallowRef, computed, defineProps, onBeforeUnmount, onMounted, ref, toRefs, watch, watchEffect} from 'vue';
+import {ShallowRef, computed, defineProps, onBeforeUnmount, onMounted, ref, toRefs} from 'vue';
+import {Layer} from '../../core/layer';
 import {Point} from '../../core/point';
 import {useSession} from '../../core/session';
-import {Rect} from '../../core/rect';
-import {Layer} from '../../core/layer';
 
 const props = defineProps<{
     fuiImages: any;
@@ -139,14 +138,14 @@ function onDrop(e: DragEvent) {}
 }
 .edit-frame,
 .hovered-frame {
-    border: 1px solid rgb(0, 249, 216);
-    box-shadow: 0px 0px 2px 0px black;
+    border: 1px dashed rgba(0, 249, 216, 1);
+    box-shadow: 0px 0px 2px 0px rgba(0, 249, 216, 0.5);
     position: absolute;
     box-sizing: content-box;
     z-index: 2;
     pointer-events: none;
 }
 .hovered-frame {
-    border-style: dashed;
+    border: 1px solid rgba(0, 249, 216, 0.5);
 }
 </style>

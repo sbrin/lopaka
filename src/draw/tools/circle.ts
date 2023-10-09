@@ -31,10 +31,10 @@ export class CircleTool extends Tool {
             name: 'radius',
             type: ToolParamType.number,
             setValue(layer: Layer, value: number) {
-                layer.size.x = value;
+                layer.size = new Point(value * 2).add(1);
             },
             getValue(layer: Layer) {
-                return layer.size.x;
+                return (layer.size.x - 1) / 2;
             }
         }
     ];
@@ -52,6 +52,7 @@ export class CircleTool extends Tool {
         layer.position = position.clone().min(this.firstPoint);
         const radius = position.clone().subtract(this.firstPoint).abs().divide(2).round().x;
         layer.size = new Point(radius * 2).add(1);
+        layer.bounds = this.getBounds(layer);
         this.draw(layer);
     }
 
