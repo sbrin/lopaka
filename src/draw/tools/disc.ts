@@ -1,8 +1,7 @@
 import {Layer} from 'src/core/layer';
-import {drawDisc} from '../../graphics';
-import {Tool, ToolParamType} from './tool';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
+import {Tool, ToolParamType} from './tool';
 
 export class DiscTool extends Tool {
     name = 'disc';

@@ -1,3 +1,4 @@
+import {toRefs} from 'vue';
 import {Layer} from '../../core/layer';
 import {Point} from '../../core/point';
 import {Tool} from './tool';
@@ -26,6 +27,23 @@ export class SelectTool extends Tool {
     }
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         this.getTool(layer.type).stopEdit(layer, position, originalEvent);
-        // throw new Error('Method not implemented.');
+    }
+    onKeyDown(event: KeyboardEvent): void {
+        const {activeLayer, layers} = toRefs(this.session.state);
+        console.log('select keydown', event.key);
+        switch (event.key) {
+            case 'Escape':
+                // reset selection
+                activeLayer.value = null;
+                event.stopPropagation();
+                break;
+            case 'Backspace':
+            case 'Delete':
+                // remove layer
+                layers.value = layers.value.filter((layer: Layer) => layer !== activeLayer.value);
+                activeLayer.value = null;
+                event.stopPropagation();
+                break;
+        }
     }
 }

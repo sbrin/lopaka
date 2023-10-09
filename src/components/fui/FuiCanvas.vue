@@ -16,15 +16,16 @@ const session = useSession();
 const hoveredLayer: ShallowRef<Layer> = ref(null);
 
 const {display, activeTool, scale, activeLayer} = toRefs(session.state);
-let mouseClickPosition: Point;
 
 onMounted(() => {
     session.virtualScreen.setCanvas(screen.value);
     document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('keydown', onKeyDown);
 });
 
 onBeforeUnmount(() => {
     document.removeEventListener('mouseup', onMouseUp);
+    document.addEventListener('keydown', onKeyDown);
 });
 
 function isSelectTool() {
@@ -64,14 +65,12 @@ function onMouseDown(e: MouseEvent) {
     } else {
         activeTool.value.onMouseDown(position.clone(), e);
     }
-    mouseClickPosition = position;
 }
 
 function onMouseMove(e: MouseEvent) {
     const position = new Point(e.offsetX, e.offsetY);
     if (activeTool.value.isDrawing) {
         activeTool.value.onMouseMove(position.clone(), e);
-        mouseClickPosition = position;
     } else {
         const layers = session.virtualScreen.getLayersInPoint(position);
         hoveredLayer.value = layers.sort((a, b) => a.index - b.index)[0];
@@ -86,13 +85,21 @@ function onMouseUp(e: MouseEvent) {
     activeTool.value = session.tools.select;
 }
 
+function onKeyDown(e: KeyboardEvent) {
+    if (activeTool.value) {
+        activeTool.value.onKeyDown(e);
+    }
+}
+
 function onMouseLeave(e: MouseEvent) {
     // const position = new Point(e.offsetX, e.offsetY);
     // if (activeTool.value.isDrawing) {
     // }
 }
 
-function onDrop(e: DragEvent) {}
+function onDrop(e: DragEvent) {
+    console.log(e);
+}
 </script>
 <template>
     <div class="canvas-wrapper">

@@ -83,6 +83,8 @@ export abstract class Tool {
         // virtualScreen.redraw();
     }
 
+    onKeyDown(event: KeyboardEvent): void {}
+
     protected getFont() {
         const {platform} = toRefs(this.session.state);
         const fonts = this.session.platforms[platform.value].getFonts();
