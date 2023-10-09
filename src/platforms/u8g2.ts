@@ -54,7 +54,9 @@ export class U8g2Platform extends Platform {
         source.code.push(`u8g2.drawPixel(${layer.position.x}, ${layer.position.y});`);
     }
     addLine(layer: Layer, source: TSourceCode): void {
-        source.code.push(`u8g2.drawLine(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`);
+        const from = layer.position.clone();
+        const to = layer.position.clone().add(layer.size);
+        source.code.push(`u8g2.drawLine(${from.x}, ${from.y}, ${to.x}, ${to.y});`);
     }
     addText(layer: Layer, source: TSourceCode): void {
         source.code.push(`u8g2.setFont(${layer.data.font});
@@ -67,12 +69,14 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.data.text}");`);
         source.code.push(`u8g2.drawFrame(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`);
     }
     addCircle(layer: Layer, source: TSourceCode): void {
-        const radius = layer.size.x / 2;
-        source.code.push(`u8g2.drawCircle(${layer.position.x + radius}, ${layer.position.y + radius}, ${radius});`);
+        const radius = (layer.size.x + 1) / 2;
+        const center = layer.position.clone().add(radius).add(1);
+        source.code.push(`u8g2.drawCircle(${center.x}, ${center.y}, ${radius});`);
     }
     addDisc(layer: Layer, source: TSourceCode): void {
-        const radius = layer.size.x / 2;
-        source.code.push(`u8g2.drawDisc(${layer.position.x + radius}, ${layer.position.y + radius}, ${radius});`);
+        const radius = (layer.size.x + 1) / 2;
+        const center = layer.position.clone().add(radius).add(1);
+        source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radius});`);
     }
     addImage(layer: Layer, source: TSourceCode): void {
         const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y);

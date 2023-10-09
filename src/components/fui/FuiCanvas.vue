@@ -28,25 +28,12 @@ onBeforeUnmount(() => {
     document.removeEventListener('mouseup', onMouseUp);
 });
 
-// watch(
-//     [activeLayer, scale],
-//     ([layer, s]) => {
-//         if (layer) {
-//             editFrame.value = layer.bounds.clone().multiply(s.x);
-//         }
-//     },
-//     {
-//         deep: true
-//     }
-// );
-
 function isSelectTool() {
-    return false; //activeTool.() === 'select';
+    return hoveredLayer.value;
 }
 
 function isMoving() {
-    // return  && activeTool.value.isDrawing;
-    return false;
+    return activeTool.value.getName() === 'select' && activeTool.value.isDrawing;
 }
 
 function isDrawingTool() {
@@ -59,7 +46,6 @@ const canvasClassNames = computed(() => {
         'fui-canvas_moving': isMoving(),
         'fui-canvas_draw': isDrawingTool()
     };
-    return {};
 });
 
 function onMouseDown(e: MouseEvent) {
@@ -72,6 +58,9 @@ function onMouseDown(e: MouseEvent) {
             const layer = layersInPoint.sort((a, b) => a.index - b.index)[0];
             activeLayer.value = layer;
             activeTool.value.onMouseDown(position.clone(), e);
+        } else {
+            // reset selection
+            activeLayer.value = null;
         }
     } else {
         activeTool.value.onMouseDown(position.clone(), e);
@@ -87,7 +76,6 @@ function onMouseMove(e: MouseEvent) {
     } else {
         const layers = session.virtualScreen.getLayersInPoint(position);
         hoveredLayer.value = layers.sort((a, b) => a.index - b.index)[0];
-        // console.log(layers);
     }
 }
 
@@ -100,9 +88,9 @@ function onMouseUp(e: MouseEvent) {
 }
 
 function onMouseLeave(e: MouseEvent) {
-    const position = new Point(e.offsetX, e.offsetY);
-    if (activeTool.value.isDrawing) {
-    }
+    // const position = new Point(e.offsetX, e.offsetY);
+    // if (activeTool.value.isDrawing) {
+    // }
 }
 
 function onDrop(e: DragEvent) {}
@@ -149,21 +137,16 @@ function onDrop(e: DragEvent) {}
 .fui-grid {
     position: relative;
 }
-.edit-frame {
-    border: 1px dashed #fff;
-    position: absolute;
-    box-sizing: content-box;
-    box-shadow: 0px 0px 2px 0px black;
-    position: absolute;
-    pointer-events: none;
-    display: none;
-}
+.edit-frame,
 .hovered-frame {
-    border: 1px solid yellow;
+    border: 1px solid rgb(0, 249, 216);
+    box-shadow: 0px 0px 2px 0px black;
     position: absolute;
     box-sizing: content-box;
     z-index: 2;
     pointer-events: none;
-    display: none;
+}
+.hovered-frame {
+    border-style: dashed;
 }
 </style>

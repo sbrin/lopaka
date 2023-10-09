@@ -1,8 +1,7 @@
-import {Platform} from '../../platforms/platform';
-import {Tool, ToolParamType} from './tool';
-import {drawLine} from '../../graphics';
 import {Layer} from 'src/core/layer';
 import {Point} from '../../core/point';
+import {Tool, ToolParamType} from './tool';
+import {Rect} from '../../core/rect';
 
 export class LineTool extends Tool {
     name: string = 'line';
@@ -58,9 +57,8 @@ export class LineTool extends Tool {
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        const points = [this.firstPoint, position];
-        layer.position = position.clone().min(this.firstPoint);
         layer.size = position.clone().subtract(this.firstPoint);
+        layer.bounds = this.getBounds(layer);
         this.draw(layer);
     }
 
@@ -69,7 +67,12 @@ export class LineTool extends Tool {
         layer.position = position.clone();
     }
 
-    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        // layer.size = position.clone();
+    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
+
+    getBounds(layer: Layer): Rect {
+        const {position, size} = layer;
+        const min = position.min(position.clone().add(size));
+        const boundSize = size.clone().abs().add(1);
+        return new Rect(min, boundSize);
     }
 }

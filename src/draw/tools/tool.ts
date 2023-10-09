@@ -48,6 +48,7 @@ export abstract class Tool {
             layer.buffer.height = display.y;
             // layer.ctx.scale(scale.x, scale.y);
             layer.dc.ctx.fillStyle = '#000';
+            layer.dc.ctx.strokeStyle = '#000';
             // layer.dc.ctx.translate(0.5, 0.5);
             this.session.layers = [...layers, layer];
             this.session.activeLayer = layer;
@@ -77,7 +78,7 @@ export abstract class Tool {
         this.stopEdit(activeLayer, this.mousePos.clone(), originalEvent);
         this.mousePos = null;
         activeLayer.edititng = false;
-        activeLayer.bounds = this.getBounds(activeLayer);
+
         // virtualScreen.redraw();
     }
 
@@ -86,7 +87,7 @@ export abstract class Tool {
         return fonts[0];
     }
 
-    protected getBounds(layer: Layer): Rect {
+    getBounds(layer: Layer): Rect {
         return new Rect(layer.position, layer.size);
     }
 

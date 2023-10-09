@@ -23,7 +23,7 @@ export class Session {
     id: string = generateUID();
     layers: Layer[] = [];
     platform: Platform = new FlipperPlatform();
-    display: Point = new Point(128, 64);
+    display: Point = new Point(32, 32); //new Point(128, 64);
     displays: Point[] = [
         new Point(8, 8),
         new Point(12, 8),
@@ -78,7 +78,7 @@ export class Session {
         new Point(400, 240)
     ];
     // size of pixel
-    scale: Point = new Point(4, 4);
+    scale: Point = new Point(20, 20);
     activeTool: Tool = null;
     activeLayer: Layer = null;
     virtualScreen: VirtualScreen = new VirtualScreen(this);

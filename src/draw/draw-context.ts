@@ -30,11 +30,22 @@ export class DrawContext {
 
     rect(position: Point, size: Point, fill: boolean): DrawContext {
         this.ctx.beginPath();
-        this.ctx.rect(position.x, position.y, size.x, size.y);
         if (fill) {
-            this.ctx.fill();
+            this.ctx.rect(position.x, position.y, size.x, size.y);
         } else {
-            this.ctx.stroke();
+            this.ctx.rect(position.x, position.y, size.x, 1);
+            this.ctx.rect(position.x, position.y + size.y - 1, size.x, 1);
+            this.ctx.rect(position.x, position.y, 1, size.y);
+            this.ctx.rect(position.x + size.x - 1, position.y, 1, size.y);
+        }
+        this.ctx.fill();
+        if (!fill) {
+            this.ctx.save();
+            this.ctx.fillStyle = 'rgba(0,0,0,0)';
+            this.ctx.beginPath();
+            this.ctx.rect(position.x, position.y, size.x, size.y);
+            this.ctx.fill();
+            this.ctx.restore();
         }
         this.ctx.closePath();
         return this;
@@ -107,6 +118,14 @@ export class DrawContext {
             }
         }
         this.ctx.fill();
+        if (!fill) {
+            this.ctx.save();
+            this.ctx.fillStyle = 'rgba(0,0,0,0)';
+            this.ctx.beginPath();
+            this.ctx.arc(center.x + 0.5, center.y + 0.5, radius + 0.5, 0, 2 * Math.PI);
+            this.ctx.fill();
+            this.ctx.restore();
+        }
         this.ctx.closePath();
         return this;
     }

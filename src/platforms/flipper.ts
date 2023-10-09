@@ -42,9 +42,9 @@ export class FlipperPlatform extends Platform {
         source.code.push(`canvas_draw_dot(canvas, ${layer.position.x}, ${layer.position.y});`);
     }
     addLine(layer: Layer, source: TSourceCode): void {
-        source.code.push(
-            `canvas_draw_line(canvas, ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`
-        );
+        const from = layer.position.clone();
+        const to = layer.position.clone().add(layer.size);
+        source.code.push(`canvas_draw_line(canvas, ${from.x}, ${from.y}, ${to.x}, ${to.y});`);
     }
     addText(layer: Layer, source: TSourceCode): void {
         source.code.push(
@@ -62,16 +62,14 @@ export class FlipperPlatform extends Platform {
         );
     }
     addCircle(layer: Layer, source: TSourceCode): void {
-        const radius = layer.size.x / 2;
-        source.code.push(
-            `canvas_draw_circle(canvas, ${layer.position.x + radius}, ${layer.position.y + radius}, ${radius});`
-        );
+        const radius = (layer.size.x + 1) / 2;
+        const center = layer.position.clone().add(radius).add(1);
+        source.code.push(`canvas_draw_circle(canvas, ${center.x}, ${center.y}, ${radius});`);
     }
     addDisc(layer: Layer, source: TSourceCode): void {
-        const radius = layer.size.x / 2;
-        source.code.push(
-            `canvas_draw_disc(canvas, ${layer.position.x + radius}, ${layer.position.y + radius}, ${radius});`
-        );
+        const radius = (layer.size.x + 1) / 2;
+        const center = layer.position.clone().add(radius).add(1);
+        source.code.push(`canvas_draw_disc(canvas, ${center.x}, ${center.y}, ${radius});`);
     }
     addImage(layer: Layer, source: TSourceCode): void {
         source.declarations.push(

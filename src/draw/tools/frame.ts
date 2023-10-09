@@ -48,23 +48,23 @@ export class FrameTool extends Tool {
         }
     ];
 
+    private firstPoint: Point;
+
     draw(layer: Layer): void {
-        const {dc, position} = layer;
-        dc.clear().rect(position.clone().min(layer.position), position.clone().subtract(layer.position).abs(), false);
+        const {dc, position, size} = layer;
+        dc.clear().rect(position, size, false);
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        const {dc} = layer;
-        dc.clear().rect(position.clone().min(layer.position), position.clone().subtract(layer.position).abs(), false);
+        layer.position = position.clone().min(this.firstPoint);
+        layer.size = position.clone().subtract(this.firstPoint).abs();
+        this.draw(layer);
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        layer.dc.ctx.translate(0.5, 0.5);
-        layer.position = position.clone().subtract(1);
+        layer.position = position.clone();
+        this.firstPoint = position.clone();
     }
 
-    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        layer.position = position.clone().min(layer.position);
-        layer.size = position.clone().subtract(layer.position).abs();
-    }
+    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
 }

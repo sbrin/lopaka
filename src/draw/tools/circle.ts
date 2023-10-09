@@ -43,14 +43,15 @@ export class CircleTool extends Tool {
 
     draw(layer: Layer): void {
         const {dc, position, size} = layer;
-        const radius = Math.round(size.x / 2);
-        dc.clear().pixelateCircle(position.clone().add(radius), radius, false);
+        const radius = (size.x + 1) / 2;
+        const center = position.clone().add(radius);
+        dc.clear().pixelateCircle(center, radius, false);
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone().min(this.firstPoint);
-        const radius = position.clone().subtract(this.firstPoint).abs().x;
-        layer.size = new Point(radius);
+        const radius = position.clone().subtract(this.firstPoint).abs().divide(2).round().x;
+        layer.size = new Point(radius * 2).add(1);
         this.draw(layer);
     }
 
@@ -59,9 +60,11 @@ export class CircleTool extends Tool {
         layer.position = position.clone();
     }
 
-    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
+    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
+        layer.bounds = this.getBounds(layer);
+    }
 
-    protected getBounds(layer: Layer): Rect {
-        return super.getBounds(layer).add(0, 0, 1, 1);
+    getBounds(layer: Layer): Rect {
+        return super.getBounds(layer).add(0, 0, 2, 2);
     }
 }

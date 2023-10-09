@@ -1,7 +1,6 @@
 import {Layer} from 'src/core/layer';
 import {Point} from '../../core/point';
 import {Tool, ToolParamType} from './tool';
-import {Rect} from '../../core/rect';
 
 export class BoxTool extends Tool {
     name = 'box';
@@ -49,22 +48,23 @@ export class BoxTool extends Tool {
         }
     ];
 
+    private firstPoint: Point;
+
     draw(layer: Layer): void {
         const {dc, position, size} = layer;
         dc.clear().rect(position, size, true);
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        const {dc} = layer;
-        dc.clear().rect(position.clone().min(layer.position), position.clone().subtract(layer.position).abs(), true);
+        layer.position = position.clone().min(this.firstPoint);
+        layer.size = position.clone().subtract(this.firstPoint).abs();
+        this.draw(layer);
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone();
+        this.firstPoint = position.clone();
     }
 
-    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        layer.position = position.clone().min(layer.position);
-        layer.size = position.clone().subtract(layer.position).abs();
-    }
+    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
 }

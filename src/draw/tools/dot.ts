@@ -35,13 +35,17 @@ export class DotTool extends Tool {
         dc.clear().rect(position.clone(), size.clone(), true);
     }
 
-    edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
+    edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
+        layer.position = position.clone().subtract(this.brushSize.clone());
+        layer.bounds = this.getBounds(layer);
+        this.draw(layer);
+    }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        const {dc, size} = layer;
         layer.position = position.clone().subtract(this.brushSize.clone());
         layer.size = this.brushSize.clone();
-        dc.rect(layer.position, layer.size, true);
+        layer.bounds = this.getBounds(layer);
+        this.draw(layer);
     }
 
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}

@@ -32,9 +32,9 @@ display.print("${layer.data.text}");`);
     }
 
     addLine(layer: Layer, source: TSourceCode): void {
-        source.code.push(
-            `display.drawLine(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, 1);`
-        );
+        const from = layer.position.clone();
+        const to = layer.position.clone().add(layer.size);
+        source.code.push(`display.drawLine(${from.x}, ${from.y}, ${to.x}, ${to.y}, 1);`);
     }
 
     addBox(layer: Layer, source: TSourceCode): void {
@@ -44,17 +44,15 @@ display.print("${layer.data.text}");`);
     }
 
     addCircle(layer: Layer, source: TSourceCode): void {
-        const radius = layer.size.x / 2;
-        source.code.push(
-            `display.drawCircle(${layer.position.x + radius}, ${layer.position.y + radius}, ${radius}, 1);`
-        );
+        const radius = (layer.size.x + 1) / 2;
+        const center = layer.position.clone().add(radius).add(1);
+        source.code.push(`display.drawCircle(${center.x}, ${center.y}, ${radius}, 1);`);
     }
 
     addDisc(layer: Layer, source: TSourceCode): void {
-        const radius = layer.size.x / 2;
-        source.code.push(
-            `display.fillCircle(${layer.position.x + radius}, ${layer.position.y + radius}, ${radius}, 1);`
-        );
+        const radius = (layer.size.x + 1) / 2;
+        const center = layer.position.clone().add(radius).add(1);
+        source.code.push(`display.fillCircle(${center.x}, ${center.y}, ${radius}, 1);`);
     }
 
     addFrame(layer: Layer, source: TSourceCode): void {
