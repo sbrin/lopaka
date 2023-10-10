@@ -2,6 +2,7 @@ import {toRefs} from 'vue';
 import {Layer} from '../../core/layer';
 import {Point} from '../../core/point';
 import {Tool} from './tool';
+import {Keys} from '../../core/keys.enum';
 
 export class SelectTool extends Tool {
     name = 'select';
@@ -30,20 +31,37 @@ export class SelectTool extends Tool {
     }
     onKeyDown(event: KeyboardEvent): void {
         const {activeLayer, layers} = toRefs(this.session.state);
-        console.log('select keydown', event.key);
-        switch (event.key) {
-            case 'Escape':
+        if (activeLayer.value === null) return;
+        switch (event.code) {
+            case Keys.ESC:
                 // reset selection
                 activeLayer.value = null;
-                event.stopPropagation();
                 break;
-            case 'Backspace':
-            case 'Delete':
+            case Keys.BACKSPACE:
+            case Keys.DELETE:
                 // remove layer
                 layers.value = layers.value.filter((layer: Layer) => layer !== activeLayer.value);
                 activeLayer.value = null;
-                event.stopPropagation();
+                break;
+            case Keys.UP:
+                // move layer up
+                activeLayer.value.position.add(0, -1);
+                break;
+            case Keys.DOWN:
+                // move layer down
+                activeLayer.value.position.add(0, 1);
+                break;
+            case Keys.LEFT:
+                // move layer left
+                activeLayer.value.position.add(-1, 0);
+                break;
+            case Keys.RIGHT:
+                // move layer right
+                activeLayer.value.position.add(1, 0);
                 break;
         }
+        activeLayer.value.bounds = this.getTool(activeLayer.value.type).getBounds(activeLayer.value);
+        this.getTool(activeLayer.value.type).draw(activeLayer.value);
+        this.session.virtualScreen.redraw();
     }
 }
