@@ -3,6 +3,7 @@ import {Layer} from '../../core/layer';
 import {Point} from '../../core/point';
 import {Tool} from './tool';
 import {Keys} from '../../core/keys.enum';
+import {Rect} from '../../core/rect';
 
 export class SelectTool extends Tool {
     name = 'select';
@@ -30,7 +31,9 @@ export class SelectTool extends Tool {
         this.getTool(layer.type).stopEdit(layer, position, originalEvent);
     }
     onKeyDown(event: KeyboardEvent): void {
-        const {activeLayer, layers} = toRefs(this.session.state);
+        const {activeLayer, layers, display} = toRefs(this.session.state);
+        const displayBound = new Rect(new Point(0), display.value.clone().subtract(activeLayer.value.size));
+        const shiftSize = event.shiftKey ? 5 : 1;
         if (activeLayer.value === null) return;
         switch (event.code) {
             case Keys.ESC:
@@ -45,19 +48,19 @@ export class SelectTool extends Tool {
                 break;
             case Keys.UP:
                 // move layer up
-                activeLayer.value.position.add(0, -1);
+                activeLayer.value.position.add(0, -shiftSize).boundTo(displayBound);
                 break;
             case Keys.DOWN:
                 // move layer down
-                activeLayer.value.position.add(0, 1);
+                activeLayer.value.position.add(0, shiftSize).boundTo(displayBound);
                 break;
             case Keys.LEFT:
                 // move layer left
-                activeLayer.value.position.add(-1, 0);
+                activeLayer.value.position.add(-shiftSize, 0).boundTo(displayBound);
                 break;
             case Keys.RIGHT:
                 // move layer right
-                activeLayer.value.position.add(1, 0);
+                activeLayer.value.position.add(shiftSize, 0).boundTo(displayBound);
                 break;
         }
         activeLayer.value.bounds = this.getTool(activeLayer.value.type).getBounds(activeLayer.value);
