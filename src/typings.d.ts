@@ -11,6 +11,10 @@ declare module '*.ttf' {
     export default string;
 }
 
+declare module '*?url' {
+    export default string;
+}
+
 declare type TFontSizes = {
     textCharHeight: number;
     textCharWidth: number;

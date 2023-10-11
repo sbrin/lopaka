@@ -1,9 +1,14 @@
 import {Layer} from 'src/core/layer';
 import {Point} from '../../core/point';
+import {BDFFont} from '../fonts/bdf.font';
+import {Font} from '../fonts/font';
 import {Tool, ToolParamType} from './tool';
 
 export class TextTool extends Tool {
     name = 'string';
+
+    font: Font = new BDFFont(); // TODO support multiple fonts
+    private scaleFactor: number = 1;
 
     params = [
         {
@@ -50,23 +55,21 @@ export class TextTool extends Tool {
 
     private getTextSize(layer: Layer): Point {
         const {dc, data} = layer;
-        const {name, options} = this.getFont();
-        dc.ctx.save();
-        dc.ctx.font = `${options.size}px ${name}`;
-        const size = new Point(dc.ctx.measureText(data.text).width, options.textCharHeight);
-        dc.ctx.restore();
-        return size;
+        // const {name, options} = this.getFont();
+        // dc.ctx.save();
+        // dc.ctx.font = `${options.size}px ${name}`;
+        // const size = new Point(dc.ctx.measureText(data.text).width, options.textCharHeight);
+        // dc.ctx.restore();
+        return new Point(data.text.length * 6, 8);
     }
 
     draw(layer: Layer): void {
         const {dc, data} = layer;
-        dc.clear().text(layer.position, data.text, data.font);
-        dc.ctx.save();
+        dc.clear();
         dc.ctx.beginPath();
-        dc.ctx.rect(layer.position.x, layer.position.y, layer.size.x, layer.size.y);
-        dc.ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+        // layer.bounds =
+        this.font.drawText(dc, data.text, layer.position, this.scaleFactor);
         dc.ctx.fill();
-        dc.ctx.restore();
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
@@ -76,13 +79,14 @@ export class TextTool extends Tool {
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        const {dc} = layer;
-        const {name, options} = this.getFont();
+        // console.log(this.font.getCharData('S'.charCodeAt(0)));
+        // const {dc} = layer;
+        // const {name, options} = this.getFont();
         layer.position = position.clone();
-        layer.size = this.getTextSize(layer);
         layer.data = {};
         layer.data.text = 'String 123';
-        layer.data.font = `${options.size}px ${name}`;
+        layer.size = this.getTextSize(layer);
+        // layer.data.font = `${options.size}px ${name}`;
         layer.bounds = this.getBounds(layer);
         this.draw(layer);
     }

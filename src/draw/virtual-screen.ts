@@ -13,7 +13,10 @@ export class VirtualScreen {
     constructor(private session: Session) {
         const {display, layers, platform} = toRefs(session.state);
         this.screen = new OffscreenCanvas(session.state.display.x, session.state.display.y);
-        this.ctx = this.screen.getContext('2d');
+        this.ctx = this.screen.getContext('2d', {
+            willReadFrequently: true,
+            alpha: true
+        });
         this.scope = new EffectScope();
         this.scope.run(() => {
             watch(
