@@ -1,7 +1,8 @@
 import {imgDataToUint32Array} from '../utils';
-import adafruitFont from '../../fonts/adafruit.ttf';
+import adafruitFont from '../draw/fonts/binary/adafruit-5x7.bin?url';
 import {Platform} from './platform';
 import {Layer} from 'src/core/layer';
+import {FontFormat} from '../draw/fonts/font';
 
 export class AdafruitPlatform extends Platform {
     public static id = 'adafruit_gfx';
@@ -10,12 +11,14 @@ export class AdafruitPlatform extends Platform {
     protected fonts: TPlatformFont[] = [
         {
             name: 'adafruit',
+            title: 'Adafruit 5x7',
             file: adafruitFont,
             options: {
                 textCharHeight: 7,
                 textCharWidth: 5,
                 size: 8
-            }
+            },
+            format: FontFormat.FORMAT_5x7
         }
     ];
 

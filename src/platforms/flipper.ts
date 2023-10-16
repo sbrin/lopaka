@@ -1,8 +1,9 @@
 import {Layer} from 'src/core/layer';
-import haxrcorp4089 from '../../fonts/haxrcorp4089.ttf';
-import helvB08 from '../../fonts/helvB08.ttf';
-import profont22 from '../../fonts/profont22.ttf';
+import haxrcorp4089 from '../../fonts/haxrcorp4089.ttf?url';
+import helvB08 from '../../fonts/helvB08.ttf?url';
+import profont22 from '../../fonts/profont22.ttf?url';
 import {Platform} from './platform';
+import {FontFormat} from '../draw/fonts/font';
 
 export class FlipperPlatform extends Platform {
     public static id = 'flipper';
@@ -11,30 +12,36 @@ export class FlipperPlatform extends Platform {
     protected fonts: TPlatformFont[] = [
         {
             name: 'helvB08_tr',
+            title: 'Helvetica Bold 8',
             file: helvB08,
             options: {
                 textCharHeight: 8,
                 textCharWidth: 6,
                 size: 8
-            }
+            },
+            format: FontFormat.FORMAT_TTF
         },
         {
             name: 'HaXRcorp4089_tr',
+            title: 'HaXRcorp 4089 8',
             file: haxrcorp4089,
             options: {
                 textCharHeight: 8,
                 textCharWidth: 6,
                 size: 8
-            }
+            },
+            format: FontFormat.FORMAT_TTF
         },
         {
             name: 'Profont22_tr',
+            title: 'Profont 22',
             file: profont22,
             options: {
                 textCharHeight: 22,
                 textCharWidth: 12,
                 size: 22
-            }
+            },
+            format: FontFormat.FORMAT_TTF
         }
     ];
 

@@ -22,9 +22,16 @@ declare type TFontSizes = {
 };
 
 declare type TPlatformFont = {
+    // name of the font, used in generated code
     name: string;
+    // title of the font, used in UI
+    title: string;
+    // path to the font file
     file: string;
+    // font options
     options: TFontSizes;
+    // font format
+    format: number;
 };
 
 declare type TLayer = {

@@ -4,7 +4,7 @@ import {Tool} from './tool';
 
 export class IconTool extends Tool {
     name = 'icon';
-    draw(layer: Layer): void {
+    async draw(layer: Layer): Promise<void> {
         // if (layer.isOverlay) {
         //     putImageDataWithAlpha(ctx, layer.data, layer.position.x, layer.position.y, 0.75);
         // } else {

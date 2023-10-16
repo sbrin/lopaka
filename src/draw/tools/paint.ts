@@ -8,7 +8,7 @@ export class PaintTool extends Tool {
 
     private brushSize: Point = new Point(1, 1);
 
-    draw(layer: Layer): void {
+    async draw(layer: Layer): Promise<void> {
         const {dc} = layer;
         dc.clear();
         layer.data.forEach((point: Point, n: number) => {

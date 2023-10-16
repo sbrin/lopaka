@@ -1,14 +1,18 @@
 import {Layer} from 'src/core/layer';
 import {Point} from '../../core/point';
 import {BDFFont} from '../fonts/bdf.font';
-import {Font} from '../fonts/font';
+import {BinaryFont} from '../fonts/binary.font';
+import {Font, FontFormat} from '../fonts/font';
+import {TTFFont} from '../fonts/ttf.font';
 import {Tool, ToolParamType} from './tool';
+
+const loadedFonts: Map<string, Font> = new Map();
 
 export class TextTool extends Tool {
     name = 'string';
 
-    font: Font = new BDFFont(); // TODO support multiple fonts
     private scaleFactor: number = 1;
+    private lastFont: string;
 
     params = [
         {
@@ -36,6 +40,7 @@ export class TextTool extends Tool {
             type: ToolParamType.font,
             setValue(layer: Layer, value: string) {
                 layer.data.font = value;
+                this.lastFont = value;
             },
             getValue(layer: Layer) {
                 return layer.data.font;
@@ -53,23 +58,17 @@ export class TextTool extends Tool {
         }
     ];
 
-    private getTextSize(layer: Layer): Point {
-        const {dc, data} = layer;
-        // const {name, options} = this.getFont();
-        // dc.ctx.save();
-        // dc.ctx.font = `${options.size}px ${name}`;
-        // const size = new Point(dc.ctx.measureText(data.text).width, options.textCharHeight);
-        // dc.ctx.restore();
-        return new Point(data.text.length * 6, 8);
-    }
-
-    draw(layer: Layer): void {
+    async draw(layer: Layer): Promise<void> {
         const {dc, data} = layer;
         dc.clear();
+        layer.bounds = await this.getFont(layer).drawText(dc, data.text, layer.position, this.scaleFactor);
+        layer.size = layer.bounds.size.clone();
+        dc.ctx.save();
+        dc.ctx.fillStyle = 'rgba(0,0,0,0)';
         dc.ctx.beginPath();
-        // layer.bounds =
-        this.font.drawText(dc, data.text, layer.position, this.scaleFactor);
+        dc.ctx.rect(layer.bounds.x, layer.bounds.y, layer.bounds.w, layer.bounds.h);
         dc.ctx.fill();
+        dc.ctx.restore();
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
@@ -79,17 +78,38 @@ export class TextTool extends Tool {
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        // console.log(this.font.getCharData('S'.charCodeAt(0)));
-        // const {dc} = layer;
-        // const {name, options} = this.getFont();
         layer.position = position.clone();
-        layer.data = {};
         layer.data.text = 'String 123';
-        layer.size = this.getTextSize(layer);
-        // layer.data.font = `${options.size}px ${name}`;
+        // get previous font or default for the platform
+        layer.data.font = this.lastFont || this.session.platforms[this.session.state.platform].getFonts()[0].name;
+        this.lastFont = layer.data.font;
         layer.bounds = this.getBounds(layer);
+        this.getFont(layer);
         this.draw(layer);
     }
 
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
+
+    private getFont(layer: Layer): Font {
+        const {data} = layer;
+        const {platform} = this.session.state;
+        if (!loadedFonts.has(data.font)) {
+            let font: Font;
+            const fonts = this.session.platforms[platform].getFonts();
+            const layerFont = fonts.find((font) => font.name === data.font) || fonts[0];
+            switch (layerFont.format) {
+                case FontFormat.FORMAT_BDF:
+                    font = new BDFFont(layerFont.file, layerFont.name, layerFont.options);
+                    break;
+                case FontFormat.FORMAT_TTF:
+                    font = new TTFFont(layerFont.file, layerFont.name, layerFont.options);
+                    break;
+                case FontFormat.FORMAT_5x7:
+                    font = new BinaryFont(layerFont.file, layerFont.name, layerFont.options);
+                    break;
+            }
+            loadedFonts.set(data.font, font);
+        }
+        return loadedFonts.get(data.font);
+    }
 }

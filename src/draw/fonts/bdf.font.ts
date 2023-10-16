@@ -1,7 +1,6 @@
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
 import {DrawContext} from '../draw-context';
-import fontUrl from './bdf/5x8.bdf?url';
 import {Font, FontFormat} from './font';
 
 type BDFGlyph = {
@@ -35,25 +34,31 @@ type BDFMeta = {
 export class BDFFont extends Font {
     meta: BDFMeta;
     glyphs: Map<number, BDFGlyph> = new Map();
-    constructor() {
-        super(FontFormat.FORMAT_BDF);
+
+    constructor(
+        protected url: string,
+        public name: string,
+        protected options: TFontSizes
+    ) {
+        super(url, name, options, FontFormat.FORMAT_BDF);
     }
 
     async loadFont(): Promise<void> {
-        fetch(fontUrl)
+        return fetch(this.url)
             .then((res) => res.text())
             .then((data) => {
                 this.parseBDF(data);
-                console.log(this.glyphs);
             });
     }
 
-    drawText(dc: DrawContext, text: string, position: Point, scaleFactor): Rect {
-        const kerningBias = 0;
+    async drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): Promise<Rect> {
+        await this.fontReady;
+        const kerningBias = 0; // TODO
         const points = this.meta.size.points;
         const fontDescent = this.meta.properties.fontDescent;
         const charPos = position.clone();
         const textBounds = new Rect(position, new Point(0, points));
+        dc.ctx.beginPath();
         for (let i = 0; i < text.length; i++) {
             const charCode = text.charCodeAt(i);
             if (this.glyphs.has(charCode)) {
@@ -72,7 +77,12 @@ export class BDFFont extends Font {
                 textBounds.w += this.meta.bounds.w;
             }
         }
-        return textBounds;
+        dc.ctx.fill();
+
+        return new Rect(
+            position,
+            new Point(this.options.textCharWidth * text.length, this.options.textCharHeight).multiply(scaleFactor)
+        );
     }
 
     getCharData(charCode: number): Uint8Array {

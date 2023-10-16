@@ -50,7 +50,7 @@ export class BoxTool extends Tool {
 
     private firstPoint: Point;
 
-    draw(layer: Layer): void {
+    async draw(layer: Layer): Promise<void> {
         const {dc, position, size} = layer;
         dc.clear().rect(position, size, true);
     }

@@ -55,7 +55,7 @@ function onMouseDown(e: MouseEvent) {
     if (activeTool.value.isModifier) {
         const layersInPoint = session.virtualScreen.getLayersInPoint(position);
         if (layersInPoint.length > 0) {
-            const layer = layersInPoint.sort((a, b) => a.index - b.index)[0];
+            const layer = layersInPoint.sort((a, b) => b.index - a.index)[0];
             activeLayer.value = layer;
             activeTool.value.onMouseDown(position.clone(), e);
         } else {
@@ -73,7 +73,7 @@ function onMouseMove(e: MouseEvent) {
         activeTool.value.onMouseMove(position.clone(), e);
     } else {
         const layers = session.virtualScreen.getLayersInPoint(position);
-        hoveredLayer.value = layers.sort((a, b) => a.index - b.index)[0];
+        hoveredLayer.value = layers.sort((a, b) => b.index - a.index)[0];
     }
 }
 
@@ -86,7 +86,7 @@ function onMouseUp(e: MouseEvent) {
 }
 
 function onKeyDown(e: KeyboardEvent) {
-    if (activeTool.value) {
+    if (e.target === document.body && activeTool.value) {
         activeTool.value.onKeyDown(e);
     }
 }

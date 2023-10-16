@@ -51,7 +51,7 @@ export abstract class Tool {
             layer.dc.ctx.fillStyle = '#000';
             layer.dc.ctx.strokeStyle = '#000';
             // layer.dc.ctx.translate(0.5, 0.5);
-            layers.value = [...layers.value, layer];
+            layers.value = [layer, ...layers.value];
             activeLayer.value = layer;
             // }
             this.startEdit(layer, position.clone(), originalEvent);
@@ -84,12 +84,6 @@ export abstract class Tool {
     }
 
     onKeyDown(event: KeyboardEvent): void {}
-
-    protected getFont() {
-        const {platform} = toRefs(this.session.state);
-        const fonts = this.session.platforms[platform.value].getFonts();
-        return fonts[0];
-    }
 
     getBounds(layer: Layer): Rect {
         return new Rect(layer.position, layer.size);
@@ -139,10 +133,11 @@ export abstract class Tool {
     redraw() {
         const {activeLayer} = toRefs(this.session.state);
         if (activeLayer) {
-            this.draw(activeLayer.value);
-            this.session.virtualScreen.redraw();
+            this.draw(activeLayer.value).then(() => {
+                this.session.virtualScreen.redraw();
+            });
         }
     }
 
-    abstract draw(layer: Layer): void;
+    abstract draw(layer: Layer): Promise<void>;
 }

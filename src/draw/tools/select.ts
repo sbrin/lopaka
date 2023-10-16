@@ -12,7 +12,7 @@ export class SelectTool extends Tool {
     private originalSize: Point = null;
     private offset: Point = null;
 
-    draw(layer: Layer): void {
+    async draw(layer: Layer): Promise<void> {
         this.getTool(layer.type).draw(layer);
     }
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {

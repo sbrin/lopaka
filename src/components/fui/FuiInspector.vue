@@ -15,10 +15,19 @@ const fonts = computed(() => {
 
 function onChange(event: Event, param: ToolParam) {
     const target = event.target as HTMLInputElement;
-    if (target.type === 'checkbox') {
-        param.onChange(target.checked);
-    } else {
-        param.onChange(target.value);
+    switch (param.type) {
+        case ToolParamType.number:
+            param.onChange(parseFloat(target.value));
+            break;
+        case ToolParamType.string:
+            param.onChange(target.value);
+            break;
+        case ToolParamType.boolean:
+            param.onChange(target.checked);
+            break;
+        case ToolParamType.font:
+            param.onChange(target.value);
+            break;
     }
 }
 </script>
@@ -37,12 +46,7 @@ function onChange(event: Event, param: ToolParam) {
                     />
                 </div>
                 <div v-else-if="param.type == ToolParamType.string">
-                    <input
-                        class="inspector__input"
-                        type="text"
-                        :value="param.value"
-                        @change="onChange($event, param)"
-                    />
+                    <input class="inspector__input" type="text" :value="param.value" @keyup="onChange($event, param)" />
                 </div>
                 <div v-else-if="param.type == ToolParamType.boolean">
                     <input
