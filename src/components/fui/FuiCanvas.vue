@@ -13,6 +13,8 @@ const emit = defineEmits(['updateFuiImages']);
 const screen = ref(null);
 const session = useSession();
 
+const isDrawing = ref(false);
+
 const hoveredLayer: ShallowRef<Layer> = ref(null);
 
 const {display, activeTool, scale, activeLayer} = toRefs(session.state);
@@ -37,7 +39,7 @@ function isMoving() {
 }
 
 function isDrawingTool() {
-    return activeTool.value.isDrawing;
+    return activeTool.value.getName() !== 'select' && !activeLayer.value;
 }
 
 const canvasClassNames = computed(() => {
@@ -52,6 +54,7 @@ function onMouseDown(e: MouseEvent) {
     // if (e.button === 0) {
     // })
     const position = new Point(e.offsetX, e.offsetY);
+    isDrawing.value = true;
     if (activeTool.value.isModifier) {
         const layersInPoint = session.virtualScreen.getLayersInPoint(position);
         if (layersInPoint.length > 0) {
@@ -78,11 +81,14 @@ function onMouseMove(e: MouseEvent) {
 }
 
 function onMouseUp(e: MouseEvent) {
-    const position = new Point(e.offsetX, e.offsetY);
-    if (activeTool.value.isDrawing) {
-        activeTool.value.onMouseUp(position.clone(), e);
+    if (isDrawing.value) {
+        const position = new Point(e.offsetX, e.offsetY);
+        if (activeTool.value.isDrawing) {
+            activeTool.value.onMouseUp(position.clone(), e);
+        }
+        activeTool.value = session.tools.select;
+        isDrawing.value = false;
     }
-    activeTool.value = session.tools.select;
 }
 
 function onKeyDown(e: KeyboardEvent) {
@@ -154,5 +160,16 @@ function onDrop(e: DragEvent) {
 }
 .hovered-frame {
     border: 1px solid rgba(0, 249, 216, 0.5);
+}
+.fui-canvas_select {
+    cursor: default;
+}
+
+.fui-canvas_moving {
+    cursor: grabbing;
+}
+
+.fui-canvas_draw {
+    cursor: crosshair;
 }
 </style>

@@ -79,9 +79,13 @@ export class TextTool extends Tool {
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone();
-        layer.data.text = 'String 123';
+        if (!layer.data.text) {
+            layer.data.text = 'String 123';
+        }
+        if (!layer.data.font) {
+            layer.data.font = this.lastFont || this.session.platforms[this.session.state.platform].getFonts()[0].name;
+        }
         // get previous font or default for the platform
-        layer.data.font = this.lastFont || this.session.platforms[this.session.state.platform].getFonts()[0].name;
         this.lastFont = layer.data.font;
         layer.bounds = this.getBounds(layer);
         this.getFont(layer);

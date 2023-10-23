@@ -26,6 +26,7 @@ export abstract class Tool {
     isDrawing: boolean;
     params: ToolParam[] = [];
     isModifier = false;
+    templateLayer: Layer;
 
     abstract startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void;
     abstract edit(layer: Layer, position: Point, originalEvent: MouseEvent): void;
@@ -33,31 +34,35 @@ export abstract class Tool {
 
     constructor(protected session: Session) {}
 
+    initLayer(): Layer {
+        const {display, activeLayer} = toRefs(this.session.state);
+        const layer = new Layer(this.name, -1);
+        layer.edititng = true;
+        layer.buffer.width = display.value.x;
+        layer.buffer.height = display.value.y;
+        layer.dc.ctx.fillStyle = '#000';
+        layer.dc.ctx.strokeStyle = '#000';
+        return layer;
+    }
+
     onMouseDown(position: Point, originalEvent: MouseEvent): void {
         this.isDrawing = true;
-        const {platform, layers, display, scale, activeLayer} = toRefs(this.session.state);
+        const {layers, display, scale, activeLayer} = toRefs(this.session.state);
         position
             .divide(scale.value)
             .round()
             .boundTo(new Rect(0, 0, display.value.x, display.value.y));
         if (!this.isModifier) {
-            const layer = new Layer(this.name, layers.value.length + 1);
-            layer.name = 'Layer ' + (layers.value.length + 1);
-            layer.position = position.clone();
-            layer.edititng = true;
-            layer.buffer.width = display.value.x;
-            layer.buffer.height = display.value.y;
-            // layer.ctx.scale(scale.x, scale.y);
-            layer.dc.ctx.fillStyle = '#000';
-            layer.dc.ctx.strokeStyle = '#000';
-            // layer.dc.ctx.translate(0.5, 0.5);
-            layers.value = [layer, ...layers.value];
-            activeLayer.value = layer;
-            // }
-            this.startEdit(layer, position.clone(), originalEvent);
-        } else {
-            this.startEdit(activeLayer.value, position.clone(), originalEvent);
+            if (!activeLayer.value) {
+                activeLayer.value = this.initLayer();
+            }
+            if (activeLayer.value.isStub()) {
+                activeLayer.value.index = layers.value.length + 1;
+                activeLayer.value.name = 'Layer ' + (layers.value.length + 1);
+                layers.value = [activeLayer.value, ...layers.value];
+            }
         }
+        this.startEdit(activeLayer.value, position.clone(), originalEvent);
         this.mousePos = position.clone();
         this.session.virtualScreen.redraw();
     }
@@ -79,8 +84,6 @@ export abstract class Tool {
         this.stopEdit(activeLayer.value, this.mousePos.clone(), originalEvent);
         this.mousePos = null;
         activeLayer.value.edititng = false;
-
-        // virtualScreen.redraw();
     }
 
     onKeyDown(event: KeyboardEvent): void {}
@@ -107,7 +110,9 @@ export abstract class Tool {
                 onChange: (value: any) => {
                     param.setValue(activeLayer.value, value);
                     activeLayer.value.bounds = tool.getBounds(activeLayer.value);
-                    tool.redraw();
+                    if (!activeLayer.value.isStub()) {
+                        tool.redraw();
+                    }
                 }
             };
         });
