@@ -25,9 +25,14 @@ export class TTFFont extends Font {
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         ctx.fillText(text, position.x, position.y);
-        return new Rect(
-            position.clone(),
-            new Point(this.options.textCharWidth * text.length, this.options.textCharHeight).multiply(scaleFactor)
+        const measure = ctx.measureText(text);
+        const actualPos = position
+            .clone()
+            .add(new Point(measure.actualBoundingBoxLeft, -measure.actualBoundingBoxAscent));
+        const actualSize = new Point(
+            measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft,
+            measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent
         );
+        return new Rect(actualPos, actualSize);
     }
 }
