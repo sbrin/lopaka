@@ -45,7 +45,8 @@ export class BinaryFont extends Font {
         dc.ctx.fill();
         return new Rect(
             position,
-            new Point(this.options.textCharWidth * text.length, this.options.textCharHeight).multiply(scaleFactor)
+            // + 1 for space between chars and - 1 for last char
+            new Point((this.options.textCharWidth + 1) * text.length - 1, this.options.size).multiply(scaleFactor)
         );
     }
 

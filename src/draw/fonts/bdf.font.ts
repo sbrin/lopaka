@@ -78,11 +78,11 @@ export class BDFFont extends Font {
             }
         }
         dc.ctx.fill();
+        // fixme: actual size
+        const actualPos = position.clone();
+        const actualSize = this.meta.bounds.size.clone().multiply(text.length, 1);
 
-        return new Rect(
-            position,
-            new Point(this.options.textCharWidth * text.length, this.options.textCharHeight).multiply(scaleFactor)
-        );
+        return new Rect(actualPos, actualSize);
     }
 
     getCharData(charCode: number): Uint8Array {
