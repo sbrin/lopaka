@@ -8,7 +8,8 @@ export enum ToolParamType {
     'string',
     'number',
     'boolean',
-    'font'
+    'font',
+    'image'
 }
 
 export type ToolParam = {

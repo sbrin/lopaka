@@ -108,7 +108,7 @@ onMounted(() => {
                 <div class="fui-editor-header">
                     <FuiTabs :active-tab="activeTab" @set-active-tab="setactiveTab"></FuiTabs>
                 </div>
-                <FuiIcons
+                <!-- <FuiIcons
                     v-show="activeTab === 'icons'"
                     :fui-images="fuiImages"
                     :custom-images="customImages"
@@ -116,7 +116,7 @@ onMounted(() => {
                     @icon-clicked="addImageToCanvas"
                     @clean-custom-icons="cleanCustomIcons"
                     ref="fuiIconsList"
-                ></FuiIcons>
+                ></FuiIcons> -->
                 <FuiCode v-show="activeTab === 'code'" :content="codePreview"></FuiCode>
                 <div class="buttons-bottom">
                     <FuiFile type="file" title="import image" @update-fui-images="updateFuiImages"></FuiFile>

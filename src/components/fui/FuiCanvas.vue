@@ -96,16 +96,6 @@ function onKeyDown(e: KeyboardEvent) {
         activeTool.value.onKeyDown(e);
     }
 }
-
-function onMouseLeave(e: MouseEvent) {
-    // const position = new Point(e.offsetX, e.offsetY);
-    // if (activeTool.value.isDrawing) {
-    // }
-}
-
-function onDrop(e: DragEvent) {
-    console.log(e);
-}
 </script>
 <template>
     <div class="canvas-wrapper">
@@ -118,9 +108,6 @@ function onDrop(e: DragEvent) {
                 :class="canvasClassNames"
                 @mousedown.prevent="onMouseDown"
                 @mousemove.prevent="onMouseMove"
-                @mouseleave.prevent="onMouseLeave"
-                @dragover.prevent
-                @drop="onDrop"
             />
             <div
                 v-if="activeLayer"

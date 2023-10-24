@@ -18,6 +18,7 @@ import {SelectTool} from '../draw/tools/select';
 import {U8g2Platform} from '../platforms/u8g2';
 import {AdafruitPlatform} from '../platforms/adafruit';
 import {Uint32RawPlatform} from '../platforms/uint32-raw';
+import {IconTool} from '../draw/tools/icon';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -112,7 +113,8 @@ export class Session {
         line: new LineTool(this),
         dot: new DotTool(this),
         string: new TextTool(this),
-        select: new SelectTool(this)
+        select: new SelectTool(this),
+        icon: new IconTool(this)
     };
     removeLayer = (layer: Layer) => {
         this.state.layers = this.state.layers.filter((l) => l !== layer);

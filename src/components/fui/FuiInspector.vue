@@ -2,8 +2,29 @@
 import {computed, toRefs} from 'vue';
 import {useSession} from '../../core/session';
 import {ToolParam, ToolParamType} from '../../draw/tools/tool';
+import iconsUrls from '../../icons';
+
 const session = useSession();
 const {platform, activeLayer, activeTool} = toRefs(session.state);
+
+const icons = computed(() => {
+    return Object.entries(iconsUrls)
+        .map((item) => {
+            const [name, file] = item;
+            const matchedSizeArr = name.match(/_([0-9]+)x([0-9]+)/i) ? name.match(/_([0-9]+)x([0-9]+)/i) : [0, 10, 10];
+            const [, width, height] = matchedSizeArr.map((num) => parseInt(num, 10));
+            const image = new Image(width, height);
+            image.crossOrigin = 'Anonymous';
+            image.src = file;
+            return {
+                name,
+                width,
+                height,
+                image
+            };
+        })
+        .sort((a, b) => a.width * a.height - b.width * b.height);
+});
 
 const params = computed(() => {
     return activeTool.value.getParams();
@@ -27,6 +48,9 @@ function onChange(event: Event, param: ToolParam) {
             break;
         case ToolParamType.font:
             param.onChange(target.value);
+            break;
+        case ToolParamType.image:
+            param.onChange(icons.value.find((image) => target.dataset.name === image.name).image);
             break;
     }
 }
@@ -61,79 +85,23 @@ function onChange(event: Event, param: ToolParam) {
                         <option v-for="font in fonts" :value="font.name">{{ font.name }}</option>
                     </select>
                 </div>
+                <div v-else-if="param.type == ToolParamType.image" class="fui-icons">
+                    <img
+                        @click="onChange($event, param)"
+                        :class="{selected: activeLayer.data.name === icon.name}"
+                        v-for="icon in icons"
+                        :src="icon.image.src"
+                        :title="icon.name"
+                        :alt="icon.name"
+                        :data-name="icon.name"
+                    />
+                </div>
             </div>
-            <!-- <div>
-                x:
-                <FuiInspectorInput field="x" type="number"></FuiInspectorInput>
-            </div>
-            <div v-if="typeof activeLayer.size.x === 'number'">
-                x2:
-                <FuiInspectorInput field="x2" type="number"></FuiInspectorInput>
-            </div>
-            <div v-if="typeof activeLayer.size.x === 'number' && isHWVisible">
-                w:
-                <FuiInspectorInput field="width" type="number" :disabled="isHWDisabled"></FuiInspectorInput>
-            </div>
-            <div v-if="typeof activeLayer.size.x === 'number' && isRadiusVisible">
-                r:
-                <FuiInspectorInput field="radius" type="number" @update="update"></FuiInspectorInput>
-            </div> -->
         </div>
-        <div class="inspector__row">
-            <!-- <div>
-                y:
-                <FuiInspectorInput :element="elem" field="y" type="number" @update="update"></FuiInspectorInput>
-            </div>
-            <div v-if="typeof elem.y2 === 'number'">
-                y2:
-                <FuiInspectorInput :element="elem" field="y2" type="number" @update="update"></FuiInspectorInput>
-            </div>
-            <div v-if="typeof elem.height === 'number' && isHWVisible">
-                h:
-                <FuiInspectorInput
-                    :element="elem"
-                    field="height"
-                    type="number"
-                    @update="update"
-                    :disabled="isHWDisabled"
-                ></FuiInspectorInput>
-            </div> -->
-        </div>
-        <!-- <div class="inspector__row" v-if="elem.font">
-            <FuiInspectorInput
-                :element="elem"
-                field="font"
-                :library="library"
-                type="select"
-                @update="update"
-            ></FuiInspectorInput>
-        </div>
-        <div class="inspector__row">
-            <template v-if="elem.type === 'str'">
-                <FuiInspectorInput
-                    :element="elem"
-                    field="text"
-                    :library="library"
-                    type="text"
-                    @update="update"
-                ></FuiInspectorInput>
-            </template>
-            <template v-if="elem.type === 'icon'">
-                <FuiInspectorInput
-                    :element="elem"
-                    field="isOverlay"
-                    type="checkbox"
-                    @update="update"
-                    id="inspector_is_overlay"
-                ></FuiInspectorInput>
-                <label
-                    for="inspector_is_overlay"
-                    title="Image will be skipped from b&w masking and code generation, you will not see it on your device"
-                >
-                    Overlay (ignore)
-                </label>
-            </template>
-        </div> -->
     </div>
 </template>
-<style lang="css"></style>
+<style lang="css">
+.selected {
+    border: 1px solid #00f;
+}
+</style>

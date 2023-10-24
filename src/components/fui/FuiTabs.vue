@@ -6,7 +6,7 @@ const props = defineProps<{
 }>();
 const emit = defineEmits(['setActiveTab']);
 
-const tabs = ['code', 'icons'];
+const tabs = ['code'];
 
 function setActiveTab(tab) {
     emit('setActiveTab', tab);
