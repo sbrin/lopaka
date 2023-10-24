@@ -32,9 +32,9 @@ export class SelectTool extends Tool {
     }
     onKeyDown(event: KeyboardEvent): void {
         const {activeLayer, layers, display} = toRefs(this.session.state);
+        if (activeLayer.value === null) return;
         const displayBound = new Rect(new Point(0), display.value.clone().subtract(activeLayer.value.size));
         const shiftSize = event.shiftKey ? 5 : 1;
-        if (activeLayer.value === null) return;
         switch (event.code) {
             case Keys.ESC:
                 // reset selection

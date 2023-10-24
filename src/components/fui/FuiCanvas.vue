@@ -110,7 +110,7 @@ function onKeyDown(e: KeyboardEvent) {
                 @mousemove.prevent="onMouseMove"
             />
             <div
-                v-if="activeLayer"
+                v-if="activeLayer && !activeLayer.isStub()"
                 :style="{
                     left: activeLayer.bounds.x * scale.x + 'px',
                     top: activeLayer.bounds.y * scale.x + 'px',
@@ -120,7 +120,7 @@ function onKeyDown(e: KeyboardEvent) {
                 class="edit-frame"
             ></div>
             <div
-                v-if="hoveredLayer"
+                v-if="hoveredLayer && !hoveredLayer.isStub()"
                 :style="{
                     left: hoveredLayer.bounds.x * scale.x + 'px',
                     top: hoveredLayer.bounds.y * scale.x + 'px',

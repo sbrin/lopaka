@@ -43,7 +43,13 @@ export class IconTool extends Tool {
     async draw(layer: Layer): Promise<void> {
         const {dc, position} = layer;
         dc.clear();
-        dc.ctx.drawImage(layer.data.icon, position.x, position.y);
+        if (layer.data.icon) {
+            dc.ctx.drawImage(layer.data.icon, position.x, position.y);
+        } else {
+            layer.size = new Point(10, 10);
+            layer.bounds = this.getBounds(layer);
+            dc.rect(layer.bounds.pos, layer.bounds.size, false);
+        }
         dc.ctx.save();
         dc.ctx.fillStyle = 'rgba(0,0,0,0)';
         dc.ctx.beginPath();
@@ -63,8 +69,6 @@ export class IconTool extends Tool {
         this.draw(layer);
     }
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        layer.position = position.clone();
-        layer.bounds = this.getBounds(layer);
         this.draw(layer);
     }
 }

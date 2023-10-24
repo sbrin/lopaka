@@ -5,7 +5,7 @@ import {ToolParam, ToolParamType} from '../../draw/tools/tool';
 import iconsUrls from '../../icons';
 
 const session = useSession();
-const {platform, activeLayer, activeTool} = toRefs(session.state);
+const {platform, activeLayer, activeTool, scale} = toRefs(session.state);
 
 const icons = computed(() => {
     return Object.entries(iconsUrls)
@@ -94,6 +94,8 @@ function onChange(event: Event, param: ToolParam) {
                         :title="icon.name"
                         :alt="icon.name"
                         :data-name="icon.name"
+                        :width="icon.width * scale.x"
+                        :height="icon.height * scale.y"
                     />
                 </div>
             </div>
