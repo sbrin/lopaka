@@ -51,7 +51,12 @@ export class BDFFont extends Font {
             });
     }
 
-    async drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): Promise<Rect> {
+    async getSize(dc: DrawContext, text: string): Promise<Point> {
+        await this.fontReady;
+        return this.meta.bounds.size.clone().multiply(text.length, 1);
+    }
+
+    async drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): Promise<void> {
         await this.fontReady;
         const kerningBias = 0; // TODO
         const points = this.meta.size.points;
@@ -78,11 +83,6 @@ export class BDFFont extends Font {
             }
         }
         dc.ctx.fill();
-        // fixme: actual size
-        const actualPos = position.clone();
-        const actualSize = this.meta.bounds.size.clone().multiply(text.length, 1);
-
-        return new Rect(actualPos, actualSize);
     }
 
     getCharData(charCode: number): Uint8Array {

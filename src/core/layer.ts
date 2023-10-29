@@ -1,3 +1,4 @@
+import {reactive} from 'vue';
 import {DrawContext} from '../draw/draw-context';
 import {generateUID} from '../utils';
 import {Point} from './point';
@@ -7,7 +8,7 @@ export class Layer {
     name: string;
     position: Point = new Point();
     size: Point = new Point();
-    data: any = {};
+    data: any = reactive({});
     id: string = generateUID();
     isOverlay: boolean = false;
     edititng: boolean = false;

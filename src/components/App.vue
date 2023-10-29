@@ -102,9 +102,9 @@ onMounted(() => {
                 <FuiLibrary></FuiLibrary>
                 <FuiDisplays></FuiDisplays>
             </div>
+            <FuiTools></FuiTools>
             <FuiCanvas ref="fuiCanvas" :fui-images="fuiImages" :imageDataCache="imageDataCache" />
             <div class="fui-editor__tools">
-                <FuiTools></FuiTools>
                 <div class="fui-editor-header">
                     <FuiTabs :active-tab="activeTab" @set-active-tab="setactiveTab"></FuiTabs>
                 </div>

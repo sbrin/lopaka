@@ -17,8 +17,10 @@ export class SelectTool extends Tool {
     }
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone().subtract(this.offset);
-        layer.bounds = this.getTool(layer.type).getBounds(layer);
-        this.draw(layer);
+        this.draw(layer).then(() => {
+            layer.bounds = this.getTool(layer.type).getBounds(layer);
+            this.redraw();
+        });
     }
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         // save original position and size to restore later if needed
@@ -28,7 +30,7 @@ export class SelectTool extends Tool {
         this.offset = position.clone().subtract(layer.position);
     }
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
-        this.getTool(layer.type).stopEdit(layer, position, originalEvent);
+        this.getTool(layer.type).stopEdit(layer, position.clone().subtract(this.offset), originalEvent);
     }
     onKeyDown(event: KeyboardEvent): void {
         const {activeLayer, layers, display} = toRefs(this.session.state);

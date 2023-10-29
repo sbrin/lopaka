@@ -78,7 +78,7 @@ export class VirtualScreen {
         });
         // create data without alpha channel
         const data = this.ctx.getImageData(0, 0, this.screen.width, this.screen.height).data.map((v, i) => {
-            // if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;
+            if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;
             return v;
         });
         canvasContext.putImageData(

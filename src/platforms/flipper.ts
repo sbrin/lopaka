@@ -16,7 +16,7 @@ export class FlipperPlatform extends Platform {
             file: helvB08,
             options: {
                 textCharHeight: 8,
-                textCharWidth: 6,
+                textCharWidth: 5,
                 size: 8
             },
             format: FontFormat.FORMAT_TTF
@@ -27,8 +27,8 @@ export class FlipperPlatform extends Platform {
             file: haxrcorp4089,
             options: {
                 textCharHeight: 8,
-                textCharWidth: 6,
-                size: 8
+                textCharWidth: 4,
+                size: 16
             },
             format: FontFormat.FORMAT_TTF
         },
@@ -37,8 +37,8 @@ export class FlipperPlatform extends Platform {
             title: 'Profont 22',
             file: profont22,
             options: {
-                textCharHeight: 22,
-                textCharWidth: 12,
+                textCharHeight: 16,
+                textCharWidth: 11,
                 size: 22
             },
             format: FontFormat.FORMAT_TTF

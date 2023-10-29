@@ -12,27 +12,31 @@ export class TTFFont extends Font {
         super(url, name, options, FontFormat.FORMAT_TTF);
     }
     // TODO: variable font size
-    async loadFont(): Promise<void> {
+    async loadFont(): Promise<any> {
         const font = new FontFace(this.name, `url(${this.url})`);
-        await font.load();
+        font.load();
+        await font.loaded;
+        (document.fonts as any).add(font);
     }
 
-    async drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): Promise<Rect> {
+    async getSize(dc: DrawContext, text: string): Promise<Point> {
+        const {ctx} = dc;
+        ctx.save();
+        ctx.font = `${this.options.size}px '${this.name}', monospace`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        const measure = ctx.measureText(text);
+        ctx.restore();
+        return new Point(measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft, this.options.textCharHeight);
+    }
+
+    async drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): Promise<void> {
         await this.fontReady;
         const {ctx} = dc;
         ctx.beginPath();
-        ctx.font = `${this.options.size}px '${this.name}'`;
+        ctx.font = `${this.options.size}px '${this.name}', monospace`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         ctx.fillText(text, position.x, position.y);
-        const measure = ctx.measureText(text);
-        const actualPos = position
-            .clone()
-            .add(new Point(measure.actualBoundingBoxLeft, -measure.actualBoundingBoxAscent));
-        const actualSize = new Point(
-            measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft,
-            measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent
-        );
-        return new Rect(actualPos, actualSize);
     }
 }

@@ -5,6 +5,7 @@ import {BinaryFont} from '../fonts/binary.font';
 import {Font, FontFormat} from '../fonts/font';
 import {TTFFont} from '../fonts/ttf.font';
 import {Tool, ToolParamType} from './tool';
+import {Rect} from '../../core/rect';
 
 const loadedFonts: Map<string, Font> = new Map();
 
@@ -29,10 +30,10 @@ export class TextTool extends Tool {
             name: 'y',
             type: ToolParamType.number,
             setValue(layer: Layer, value: number) {
-                layer.position.y = value;
+                layer.position.y = value - layer.size.y;
             },
             getValue(layer: Layer) {
-                return layer.position.y;
+                return layer.position.y + layer.size.y;
             }
         },
         {
@@ -61,8 +62,10 @@ export class TextTool extends Tool {
     async draw(layer: Layer): Promise<void> {
         const {dc, data} = layer;
         dc.clear();
-        layer.bounds = await this.getFont(layer).drawText(dc, data.text, layer.position, this.scaleFactor);
-        layer.size = layer.bounds.size.clone();
+        const font = this.getFont(layer);
+        const size = await font.getSize(dc, data.text);
+        layer.size = size;
+        await font.drawText(dc, data.text, layer.position.clone().subtract(0, size.y), this.scaleFactor);
         dc.ctx.save();
         dc.ctx.fillStyle = 'rgba(0,0,0,0)';
         dc.ctx.beginPath();
@@ -73,8 +76,9 @@ export class TextTool extends Tool {
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone();
-        layer.bounds = this.getBounds(layer);
-        this.draw(layer);
+        this.draw(layer).then(() => {
+            layer.bounds = this.getBounds(layer);
+        });
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
@@ -87,12 +91,18 @@ export class TextTool extends Tool {
         }
         // get previous font or default for the platform
         this.lastFont = layer.data.font;
-        layer.bounds = this.getBounds(layer);
         this.getFont(layer);
-        this.draw(layer);
+        this.draw(layer).then(() => {
+            layer.bounds = this.getBounds(layer);
+        });
     }
 
-    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
+    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
+        layer.position = position.clone();
+        this.draw(layer).then(() => {
+            layer.bounds = this.getBounds(layer);
+        });
+    }
 
     private getFont(layer: Layer): Font {
         const {data} = layer;
@@ -115,5 +125,9 @@ export class TextTool extends Tool {
             loadedFonts.set(data.font, font);
         }
         return loadedFonts.get(data.font);
+    }
+
+    getBounds(layer: Layer): Rect {
+        return new Rect(layer.position.clone().subtract(0, layer.size.y), layer.size);
     }
 }

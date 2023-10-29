@@ -27,5 +27,6 @@ export abstract class Font {
     }
 
     abstract loadFont(): Promise<void>;
-    abstract drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number): Promise<Rect>;
+    abstract drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number): Promise<void>;
+    abstract getSize(dc: DrawContext, text: string): Promise<Point>;
 }

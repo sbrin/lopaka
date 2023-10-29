@@ -58,8 +58,8 @@ function onChange(event: Event, param: ToolParam) {
 <template>
     <div class="inspector" v-if="activeLayer">
         <div class="title inspector__title">{{ activeLayer.name || activeLayer.type }}</div>
-        <div class="inspector__row">
-            <div v-for="param in params">
+        <div class="inspector-panel">
+            <div v-for="param in params" class="inspector-panel__param">
                 <span>{{ param.name }}</span>
                 <div v-if="param.type == ToolParamType.number">
                     <input
@@ -103,6 +103,34 @@ function onChange(event: Event, param: ToolParam) {
     </div>
 </template>
 <style lang="css">
+.inspector-panel {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.inspector-panel__param {
+    flex: 0 0 calc(50% - 4px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    font-size: var(--input-font-size);
+}
+.inspector__title {
+    overflow: hidden;
+    width: 150px;
+}
+
+.inspector__input {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    border: none;
+    padding: 2px 0px 2px 4px;
+    outline: none;
+    width: 100%;
+}
+
 .selected {
     border: 1px solid #00f;
 }

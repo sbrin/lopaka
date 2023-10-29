@@ -20,7 +20,12 @@ export class BinaryFont extends Font {
             });
     }
 
-    async drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): Promise<Rect> {
+    async getSize(dc: DrawContext, text: string): Promise<Point> {
+        await this.fontReady;
+        return new Point((this.options.textCharWidth + 1) * text.length - 1, this.options.size);
+    }
+
+    async drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): Promise<void> {
         await this.fontReady;
         const charPos = position.clone();
         dc.ctx.beginPath();
@@ -43,11 +48,6 @@ export class BinaryFont extends Font {
             charPos.x += 6 * scaleFactor;
         }
         dc.ctx.fill();
-        return new Rect(
-            position,
-            // + 1 for space between chars and - 1 for last char
-            new Point((this.options.textCharWidth + 1) * text.length - 1, this.options.size).multiply(scaleFactor)
-        );
     }
 
     getCharData(charCode: number): Uint8Array {
