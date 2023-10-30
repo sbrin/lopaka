@@ -3,6 +3,7 @@ import {ShallowRef, computed, defineProps, onBeforeUnmount, onMounted, ref, toRe
 import {Layer} from '../../core/layer';
 import {Point} from '../../core/point';
 import {useSession} from '../../core/session';
+import FuiResizableFrame from './components/FuiResizableFrame.vue';
 
 const props = defineProps<{
     fuiImages: any;
@@ -131,7 +132,7 @@ function onKeyDown(e: KeyboardEvent) {
                 @mousedown.prevent="onMouseDown"
                 @mousemove.prevent="onMouseMove"
             />
-            <div :style="activeLayerStyle" class="edit-frame"></div>
+            <FuiResizableFrame :layer="activeLayer" :style="activeLayerStyle" />
             <div :style="hoverLayerStyle" class="hover-frame"></div>
         </div>
     </div>
@@ -167,18 +168,13 @@ canvas {
         linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 1px);
 }
 
-.edit-frame,
 .hover-frame {
-    border: 1px dashed rgba(0, 249, 216, 1);
-    box-shadow: 0px 0px 2px 0px rgba(0, 249, 216, 0.5);
+    border: 1px solid #ffffff70;
+    /* box-shadow: 0px 0px 2px 0px rgba(0, 249, 216, 0.5); */
     position: absolute;
     box-sizing: content-box;
     z-index: 2;
     pointer-events: none;
-}
-
-.hover-frame {
-    border: 1px solid rgba(0, 249, 216, 0.5);
 }
 
 .fui-canvas_select {
