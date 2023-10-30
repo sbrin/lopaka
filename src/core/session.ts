@@ -112,10 +112,10 @@ export class Session {
         paint: new PaintTool(this),
         frame: new FrameTool(this),
         box: new BoxTool(this),
+        line: new LineTool(this),
+        dot: new DotTool(this),
         circle: new CircleTool(this),
         disc: new DiscTool(this),
-        dot: new DotTool(this),
-        line: new LineTool(this),
         string: new TextTool(this),
         icon: new IconTool(this)
     };
