@@ -95,7 +95,7 @@ export class Session {
     ];
 
     state: TSessionState = reactive({
-        platform: FlipperPlatform.id,
+        platform: U8g2Platform.id,
         display: new Point(128, 64),
         layers: [],
         activeLayer: null,

@@ -27,6 +27,7 @@ function isActive(name: string) {
             @click="setActive(tool)"
             :title="tool.getName()"
             :active="isActive(tool.getName())"
+            tabindex="-1"
         ></FuiButton>
         <!-- <FuiButton
             class="tools__btn"

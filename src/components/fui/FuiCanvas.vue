@@ -15,9 +15,31 @@ const session = useSession();
 
 const isDrawing = ref(false);
 
-const hoveredLayer: ShallowRef<Layer> = ref(null);
+const hoverLayer: ShallowRef<Layer> = ref(null);
 
 const {display, activeTool, scale, activeLayer} = toRefs(session.state);
+
+const activeLayerStyle = computed(() =>
+    activeLayer.value && !activeLayer.value.isStub()
+        ? {
+              left: activeLayer.value.bounds.x * scale.value.x - 1 + 'px',
+              top: activeLayer.value.bounds.y * scale.value.x - 1 + 'px',
+              width: activeLayer.value.bounds.w * scale.value.x + 'px',
+              height: activeLayer.value.bounds.h * scale.value.x + 'px'
+          }
+        : {display: 'none'}
+);
+
+const hoverLayerStyle = computed(() =>
+    hoverLayer.value && !hoverLayer.value.isStub()
+        ? {
+              left: hoverLayer.value.bounds.x * scale.value.x - 1 + 'px',
+              top: hoverLayer.value.bounds.y * scale.value.x - 1 + 'px',
+              width: hoverLayer.value.bounds.w * scale.value.x + 'px',
+              height: hoverLayer.value.bounds.h * scale.value.x + 'px'
+          }
+        : {display: 'none'}
+);
 
 onMounted(() => {
     session.virtualScreen.setCanvas(screen.value);
@@ -27,11 +49,11 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     document.removeEventListener('mouseup', onMouseUp);
-    document.addEventListener('keydown', onKeyDown);
+    document.removeEventListener('keydown', onKeyDown);
 });
 
 function isSelectTool() {
-    return hoveredLayer.value;
+    return hoverLayer.value;
 }
 
 function isMoving() {
@@ -76,7 +98,7 @@ function onMouseMove(e: MouseEvent) {
         activeTool.value.onMouseMove(position.clone(), e);
     } else {
         const layers = session.virtualScreen.getLayersInPoint(position);
-        hoveredLayer.value = layers.sort((a, b) => b.index - a.index)[0];
+        hoverLayer.value = layers.sort((a, b) => b.index - a.index)[0];
     }
 }
 
@@ -92,13 +114,14 @@ function onMouseUp(e: MouseEvent) {
 }
 
 function onKeyDown(e: KeyboardEvent) {
-    if (e.target === document.body && activeTool.value) {
-        activeTool.value.onKeyDown(e);
+    console.log(e.target);
+    if (e.target === document.body) {
+        activeTool.value?.onKeyDown(e);
     }
 }
 </script>
 <template>
-    <div class="canvas-wrapper">
+    <div class="canvas-wrapper" tabindex="1000">
         <div class="fui-grid" :style="{backgroundSize: `${scale.x}px ${scale.y}px`}">
             <canvas
                 ref="screen"
@@ -109,35 +132,40 @@ function onKeyDown(e: KeyboardEvent) {
                 @mousedown.prevent="onMouseDown"
                 @mousemove.prevent="onMouseMove"
             />
-            <div
-                v-if="activeLayer && !activeLayer.isStub()"
-                :style="{
-                    left: activeLayer.bounds.x * scale.x + 'px',
-                    top: activeLayer.bounds.y * scale.x + 'px',
-                    width: activeLayer.bounds.w * scale.x + 'px',
-                    height: activeLayer.bounds.h * scale.x + 'px'
-                }"
-                class="edit-frame"
-            ></div>
-            <div
-                v-if="hoveredLayer && !hoveredLayer.isStub()"
-                :style="{
-                    left: hoveredLayer.bounds.x * scale.x + 'px',
-                    top: hoveredLayer.bounds.y * scale.x + 'px',
-                    width: hoveredLayer.bounds.w * scale.x + 'px',
-                    height: hoveredLayer.bounds.h * scale.x + 'px'
-                }"
-                class="hovered-frame"
-            ></div>
+            <div :style="activeLayerStyle" class="edit-frame"></div>
+            <div :style="hoverLayerStyle" class="hover-frame"></div>
         </div>
     </div>
 </template>
 <style lang="css">
+.canvas-wrapper {
+    border: 3px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--primary-color);
+    padding: 8px;
+    margin: 16px 0;
+    display: inline-block;
+    font-size: 0;
+}
+
+canvas {
+    /* cursor: crosshair; */
+    image-rendering: pixelated;
+    background: #ed791b;
+    text-rendering: geometricPrecision;
+    font-smooth: never;
+    -webkit-font-smoothing: none;
+    opacity: 0.9;
+}
 .fui-grid {
     position: relative;
+    background-size: 4px 4px;
+    background-image: linear-gradient(to right, var(--bg-color) 0.5px, transparent 1px),
+        linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 1px);
 }
+
 .edit-frame,
-.hovered-frame {
+.hover-frame {
     border: 1px dashed rgba(0, 249, 216, 1);
     box-shadow: 0px 0px 2px 0px rgba(0, 249, 216, 0.5);
     position: absolute;
@@ -145,9 +173,11 @@ function onKeyDown(e: KeyboardEvent) {
     z-index: 2;
     pointer-events: none;
 }
-.hovered-frame {
+
+.hover-frame {
     border: 1px solid rgba(0, 249, 216, 0.5);
 }
+
 .fui-canvas_select {
     cursor: default;
 }

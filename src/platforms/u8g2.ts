@@ -15,6 +15,51 @@ export class U8g2Platform extends Platform {
     protected description = 'U8g2';
     protected fonts: TPlatformFont[] = [
         {
+            name: 'HaXRcorp4089_tr',
+            title: 'HaXRcorp 4089 8',
+            file: haxrcorp4089,
+            options: {
+                textCharHeight: 8,
+                textCharWidth: 4,
+                size: 16
+            },
+            format: FontFormat.FORMAT_TTF
+        },
+        {
+            name: 'HelvB08_tr',
+            title: 'Helvetica Bold 8',
+            file: u8g2_font_helvB08,
+            options: {
+                textCharHeight: 8,
+                textCharWidth: 5,
+                size: 8
+            },
+            format: FontFormat.FORMAT_TTF
+        },
+
+        {
+            name: 'Profont22_tr',
+            title: 'Profont 22',
+            file: profont22,
+            options: {
+                textCharHeight: 16,
+                textCharWidth: 11,
+                size: 22
+            },
+            format: FontFormat.FORMAT_TTF
+        },
+        {
+            name: 'F4x6_tr',
+            title: 'F4x6',
+            file: f4x6,
+            options: {
+                textCharHeight: 6,
+                textCharWidth: 4,
+                size: 6
+            },
+            format: FontFormat.FORMAT_TTF
+        },
+        {
             name: '5x8_tr',
             title: '5x8',
             file: bdf5x8,
@@ -35,51 +80,6 @@ export class U8g2Platform extends Platform {
                 size: 10
             },
             format: FontFormat.FORMAT_BDF
-        },
-        {
-            name: 'HaXRcorp4089_tr',
-            title: 'HaXRcorp 4089 8',
-            file: haxrcorp4089,
-            options: {
-                textCharHeight: 8,
-                textCharWidth: 6,
-                size: 8
-            },
-            format: FontFormat.FORMAT_TTF
-        },
-        {
-            name: 'HelvB08_tr',
-            title: 'Helvetica Bold 8',
-            file: u8g2_font_helvB08,
-            options: {
-                textCharHeight: 8,
-                textCharWidth: 6,
-                size: 8
-            },
-            format: FontFormat.FORMAT_TTF
-        },
-
-        {
-            name: 'Profont22_tr',
-            title: 'Profont 22',
-            file: profont22,
-            options: {
-                textCharHeight: 22,
-                textCharWidth: 12,
-                size: 22
-            },
-            format: FontFormat.FORMAT_TTF
-        },
-        {
-            name: 'F4x6_tr',
-            title: 'F4x6',
-            file: f4x6,
-            options: {
-                textCharHeight: 6,
-                textCharWidth: 4,
-                size: 6
-            },
-            format: FontFormat.FORMAT_TTF
         }
     ];
 

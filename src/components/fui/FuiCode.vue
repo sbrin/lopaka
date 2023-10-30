@@ -11,7 +11,7 @@ const content = computed(() => {
             layers.value as Layer[],
             session.virtualScreen.ctx
         );
-        return sourceCode.declarations.join('\n') + '\n' + sourceCode.code.join('\n');
+        return sourceCode.declarations.join('\n') + '\n' + sourceCode.code.reverse().join('\n');
     } else {
         return '';
     }

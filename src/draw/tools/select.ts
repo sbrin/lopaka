@@ -36,7 +36,10 @@ export class SelectTool extends Tool {
         const {activeLayer, layers, display} = toRefs(this.session.state);
         if (activeLayer.value === null) return;
         const displayBound = new Rect(new Point(0), display.value.clone().subtract(activeLayer.value.size));
-        const shiftSize = event.shiftKey ? 5 : 1;
+        const shiftSize = event.shiftKey ? 10 : 1;
+        if (Object.values(Keys).indexOf(event.code as Keys) != -1) {
+            event.preventDefault();
+        }
         switch (event.code) {
             case Keys.ESC:
                 // reset selection
@@ -65,8 +68,13 @@ export class SelectTool extends Tool {
                 activeLayer.value.position.add(shiftSize, 0).boundTo(displayBound);
                 break;
         }
-        activeLayer.value.bounds = this.getTool(activeLayer.value.type).getBounds(activeLayer.value);
-        this.getTool(activeLayer.value.type).draw(activeLayer.value);
-        this.session.virtualScreen.redraw();
+        if (activeLayer.value) {
+            activeLayer.value.bounds = this.getTool(activeLayer.value.type).getBounds(activeLayer.value);
+            this.getTool(activeLayer.value.type)
+                .draw(activeLayer.value)
+                .then(() => {
+                    this.session.virtualScreen.redraw();
+                });
+        }
     }
 }

@@ -58,6 +58,10 @@ export class BoxTool extends Tool {
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone().min(this.firstPoint);
         layer.size = position.clone().subtract(this.firstPoint).abs();
+        // square
+        if (originalEvent.shiftKey) {
+            layer.size = new Point(Math.max(layer.size.x, layer.size.y));
+        }
         layer.bounds = this.getBounds(layer);
         this.draw(layer);
     }
