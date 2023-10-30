@@ -31,10 +31,10 @@ export class CircleTool extends Tool {
             name: 'radius',
             type: ToolParamType.number,
             setValue(layer: Layer, value: number) {
-                layer.size = new Point(value * 2).add(1);
+                layer.size = new Point(value).multiply(2);
             },
             getValue(layer: Layer) {
-                return (layer.size.x - 1) / 2;
+                return layer.size.x / 2;
             }
         }
     ];
@@ -44,20 +44,28 @@ export class CircleTool extends Tool {
 
     draw(layer: Layer): void {
         const {dc, position, size} = layer;
-        const radius = (size.x + 1) / 2;
+        const radius = size.x / 2;
         const center = position.clone().add(radius);
-        dc.clear().pixelateCircle(center, radius, false);
+        if (radius == 0) {
+            dc.clear().rect(center, new Point(1), false);
+        } else {
+            dc.clear().pixelateCircle(center, radius, false);
+        }
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
+        const radius = Math.max(
+            Math.max(...position.clone().subtract(this.firstPoint).abs().divide(2).round().xy) - 2,
+            0
+        );
+        layer.size = new Point(radius * 2);
         if (this.altMode) {
-            const radius = position.clone().subtract(this.firstPoint).abs().divide(2).round().x;
-            layer.size = new Point(radius * 2).add(1);
             layer.position = this.firstPoint.clone().subtract(radius);
         } else {
-            layer.position = position.clone().min(this.firstPoint);
-            const radius = position.clone().subtract(this.firstPoint).abs().divide(2).round().x;
-            layer.size = new Point(radius * 2).add(1);
+            const signs = position.clone().subtract(this.firstPoint).xy.map(Math.sign);
+            layer.position = this.firstPoint.min(
+                this.firstPoint.clone().add(new Point(radius * 2 + 1).multiply(signs))
+            );
         }
         layer.bounds = this.getBounds(layer);
         this.draw(layer);
@@ -74,6 +82,6 @@ export class CircleTool extends Tool {
     }
 
     getBounds(layer: Layer): Rect {
-        return super.getBounds(layer).add(0, 0, 2, 2);
+        return super.getBounds(layer).add(0, 0, 1, 1);
     }
 }

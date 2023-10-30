@@ -69,12 +69,12 @@ export class FlipperPlatform extends Platform {
         );
     }
     addCircle(layer: Layer, source: TSourceCode): void {
-        const radius = (layer.size.x + 1) / 2;
+        const radius = layer.size.x / 2;
         const center = layer.position.clone().add(radius).add(1);
         source.code.push(`canvas_draw_circle(canvas, ${center.x}, ${center.y}, ${radius});`);
     }
     addDisc(layer: Layer, source: TSourceCode): void {
-        const radius = (layer.size.x + 1) / 2;
+        const radius = layer.size.x / 2;
         const center = layer.position.clone().add(radius).add(1);
         source.code.push(`canvas_draw_disc(canvas, ${center.x}, ${center.y}, ${radius});`);
     }

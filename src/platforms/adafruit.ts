@@ -47,13 +47,13 @@ display.print("${layer.data.text}");`);
     }
 
     addCircle(layer: Layer, source: TSourceCode): void {
-        const radius = (layer.size.x + 1) / 2;
+        const radius = layer.size.x / 2;
         const center = layer.position.clone().add(radius).add(1);
         source.code.push(`display.drawCircle(${center.x}, ${center.y}, ${radius}, 1);`);
     }
 
     addDisc(layer: Layer, source: TSourceCode): void {
-        const radius = (layer.size.x + 1) / 2;
+        const radius = layer.size.x / 2;
         const center = layer.position.clone().add(radius).add(1);
         source.code.push(`display.fillCircle(${center.x}, ${center.y}, ${radius}, 1);`);
     }

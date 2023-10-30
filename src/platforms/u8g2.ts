@@ -108,12 +108,12 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.data.text}");`);
         source.code.push(`u8g2.drawFrame(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`);
     }
     addCircle(layer: Layer, source: TSourceCode): void {
-        const radius = (layer.size.x + 1) / 2;
+        const radius = layer.size.x / 2;
         const center = layer.position.clone().add(radius).add(1);
         source.code.push(`u8g2.drawCircle(${center.x}, ${center.y}, ${radius});`);
     }
     addDisc(layer: Layer, source: TSourceCode): void {
-        const radius = (layer.size.x + 1) / 2;
+        const radius = layer.size.x / 2;
         const center = layer.position.clone().add(radius).add(1);
         source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radius});`);
     }
