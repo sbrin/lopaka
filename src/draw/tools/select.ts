@@ -11,6 +11,7 @@ export class SelectTool extends Tool {
     private originalPosition: Point = null;
     private originalSize: Point = null;
     private offset: Point = null;
+    private copyBuffer = null;
 
     draw(layer: Layer): void {
         this.getTool(layer.type).draw(layer);
@@ -66,6 +67,24 @@ export class SelectTool extends Tool {
                 // move layer right
                 activeLayer.value.position.add(shiftSize, 0).boundTo(displayBound);
                 break;
+            case Keys.KeyC:
+                if (event.ctrlKey || event.metaKey) {
+                    if (activeLayer.value) {
+                        this.copyBuffer = activeLayer.value.clone();
+                    }
+                }
+                break;
+            case Keys.KeyV:
+                if (event.ctrlKey || event.metaKey) {
+                    if (this.copyBuffer) {
+                        this.copyBuffer.position.add(5, 5);
+                        this.copyBuffer.name = 'Layer ' + (layers.value.length + 1);
+                        this.copyBuffer.index = layers.value.length + 1;
+                        layers.value = [this.copyBuffer, ...layers.value];
+                        activeLayer.value = this.copyBuffer;
+                        this.copyBuffer = null;
+                    }
+                }
         }
         if (activeLayer.value) {
             activeLayer.value.bounds = this.getTool(activeLayer.value.type).getBounds(activeLayer.value);

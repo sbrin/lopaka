@@ -12,5 +12,7 @@ export enum Keys {
     SHIFT = 'Shift',
     CTRL = 'Control',
     ALT = 'Alt',
-    META = 'Meta'
+    META = 'Meta',
+    KeyC = 'KeyC',
+    KeyV = 'KeyV'
 }

@@ -24,4 +24,17 @@ export class Layer {
         public type: string,
         public index: number = -1
     ) {}
+
+    public clone() {
+        const clonedLayer = new Layer(this.type, -1);
+        clonedLayer.position = this.position.clone();
+        clonedLayer.size = this.size.clone();
+        clonedLayer.bounds = this.bounds.clone();
+        clonedLayer.data = Object.assign({}, this.data);
+        clonedLayer.buffer.width = this.buffer.width;
+        clonedLayer.buffer.height = this.buffer.height;
+        clonedLayer.dc.ctx.fillStyle = '#000';
+        clonedLayer.dc.ctx.strokeStyle = '#000';
+        return clonedLayer;
+    }
 }
