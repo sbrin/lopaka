@@ -2,13 +2,12 @@
 import {defineProps} from 'vue';
 
 const props = defineProps<{
-    title: string;
     active?: boolean;
 }>();
 </script>
 <template>
-    <button class="button" :class="{button_active: active}">
-        {{ title }}
-    </button>
+    <span class="button" :class="{button_active: active}">
+        <slot></slot>
+    </span>
 </template>
 <style lang="css"></style>

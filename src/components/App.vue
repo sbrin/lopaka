@@ -95,7 +95,7 @@ onMounted(() => {
     <div class="fui-editor">
         <div class="fui-editor__left">
             <FuiLayers v-show="!!layers.length"></FuiLayers>
-            <FuiButton @click="resetScreen" title="reset" class="button_danger" v-show="!isEmpty"></FuiButton>
+            <FuiButton @click="resetScreen" class="button_danger" v-show="!isEmpty">reset</FuiButton>
         </div>
         <div class="fui-editor__center">
             <div class="fui-editor-header">
@@ -120,7 +120,7 @@ onMounted(() => {
                 <FuiCode v-show="activeTab === 'code'" :content="codePreview"></FuiCode>
                 <div class="buttons-bottom">
                     <FuiFile type="file" title="import image" @update-fui-images="updateFuiImages"></FuiFile>
-                    <FuiButton @click="copyCode" title="copy code" v-show="!!codePreview"></FuiButton>
+                    <FuiButton @click="copyCode" v-show="!!codePreview">copy code</FuiButton>
                 </div>
             </div>
         </div>

@@ -114,7 +114,6 @@ function onMouseUp(e: MouseEvent) {
 }
 
 function onKeyDown(e: KeyboardEvent) {
-    console.log(e.target);
     if (e.target === document.body) {
         activeTool.value?.onKeyDown(e);
     }

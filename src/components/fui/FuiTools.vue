@@ -25,21 +25,10 @@ function isActive(name: string) {
             :key="idx"
             class="tools__btn"
             @click="setActive(tool)"
-            :title="tool.getName()"
             :active="isActive(tool.getName())"
-        ></FuiButton>
-        <!-- <FuiButton
-            class="tools__btn"
-            @click="setActiveTool('str')"
-            title="string"
-            :active="isActive('text')"
-        ></FuiButton>
-        <FuiButton
-            class="tools__btn"
-            @click="setActiveTool('select')"
-            title="select"
-            :active="isActive('select')"
-        ></FuiButton> -->
+        >
+            {{ tool.getName() }}
+        </FuiButton>
     </div>
 </template>
 <style lang="css"></style>
