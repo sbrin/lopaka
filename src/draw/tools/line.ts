@@ -31,20 +31,20 @@ export class LineTool extends Tool {
             name: 'x2',
             type: ToolParamType.number,
             setValue(layer: Layer, value: number) {
-                layer.size.x = value;
+                layer.size.x = value - layer.position.x;
             },
             getValue(layer: Layer) {
-                return layer.size.x;
+                return layer.size.x + layer.position.x;
             }
         },
         {
             name: 'y2',
             type: ToolParamType.number,
             setValue(layer: Layer, value: number) {
-                layer.size.y = value;
+                layer.size.y = value - layer.position.y;
             },
             getValue(layer: Layer) {
-                return layer.size.y;
+                return layer.size.y + layer.position.y;
             }
         }
     ];
@@ -65,6 +65,8 @@ export class LineTool extends Tool {
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         this.firstPoint = position.clone();
         layer.position = position.clone();
+        layer.bounds = this.getBounds(layer);
+        this.draw(layer);
     }
 
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}

@@ -71,8 +71,8 @@ export class TextTool extends Tool {
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone();
-        this.draw(layer);
         layer.bounds = this.getBounds(layer);
+        this.draw(layer);
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
@@ -85,7 +85,7 @@ export class TextTool extends Tool {
         }
         // get previous font or default for the platform
         this.lastFont = layer.data.font;
-        getFont(layer.data.font);
+        layer.bounds = this.getBounds(layer);
         this.draw(layer);
     }
 

@@ -57,14 +57,21 @@ export class FrameTool extends Tool {
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone().min(this.firstPoint);
-        layer.size = position.clone().subtract(this.firstPoint).abs();
+        layer.size = position.clone().subtract(this.firstPoint).abs().max(new Point(1));
+        // square
+        if (originalEvent.shiftKey) {
+            layer.size = new Point(Math.max(layer.size.x, layer.size.y)).max(new Point(1));
+        }
         layer.bounds = this.getBounds(layer);
         this.draw(layer);
     }
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone();
+        layer.size = new Point(1);
+        layer.bounds = this.getBounds(layer);
         this.firstPoint = position.clone();
+        this.draw(layer);
     }
 
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}

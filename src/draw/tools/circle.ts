@@ -31,7 +31,7 @@ export class CircleTool extends Tool {
             name: 'radius',
             type: ToolParamType.number,
             setValue(layer: Layer, value: number) {
-                layer.size = new Point(value).multiply(2);
+                layer.size = new Point(value).multiply(2).max(new Point(2));
             },
             getValue(layer: Layer) {
                 return layer.size.x / 2;
@@ -46,17 +46,13 @@ export class CircleTool extends Tool {
         const {dc, position, size} = layer;
         const radius = size.x / 2;
         const center = position.clone().add(radius);
-        if (radius == 0) {
-            dc.clear().rect(center, new Point(1), false);
-        } else {
-            dc.clear().pixelateCircle(center, radius, false);
-        }
+        dc.clear().pixelateCircle(center, radius, false);
     }
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         const radius = Math.max(
             Math.max(...position.clone().subtract(this.firstPoint).abs().divide(2).round().xy) - 2,
-            0
+            1
         );
         layer.size = new Point(radius * 2);
         if (this.altMode) {
@@ -75,6 +71,9 @@ export class CircleTool extends Tool {
         this.altMode = originalEvent.altKey;
         this.firstPoint = position.clone();
         layer.position = position.clone();
+        layer.size = new Point(2);
+        layer.bounds = this.getBounds(layer);
+        this.draw(layer);
     }
 
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {

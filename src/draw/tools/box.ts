@@ -30,7 +30,7 @@ export class BoxTool extends Tool {
             name: 'w',
             type: ToolParamType.number,
             setValue(layer: Layer, value: number) {
-                layer.size.x = value;
+                layer.size.x = Math.max(value, 1);
             },
             getValue(layer: Layer) {
                 return layer.size.x;
@@ -40,7 +40,7 @@ export class BoxTool extends Tool {
             name: 'h',
             type: ToolParamType.number,
             setValue(layer: Layer, value: number) {
-                layer.size.y = value;
+                layer.size.y = Math.max(value, 1);
             },
             getValue(layer: Layer) {
                 return layer.size.y;
@@ -57,10 +57,10 @@ export class BoxTool extends Tool {
 
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone().min(this.firstPoint);
-        layer.size = position.clone().subtract(this.firstPoint).abs();
+        layer.size = position.clone().subtract(this.firstPoint).abs().max(new Point(1));
         // square
         if (originalEvent.shiftKey) {
-            layer.size = new Point(Math.max(layer.size.x, layer.size.y));
+            layer.size = new Point(Math.max(layer.size.x, layer.size.y)).max(new Point(1));
         }
         layer.bounds = this.getBounds(layer);
         this.draw(layer);
@@ -68,7 +68,10 @@ export class BoxTool extends Tool {
 
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone();
+        layer.size = new Point(1);
+        layer.bounds = this.getBounds(layer);
         this.firstPoint = position.clone();
+        this.draw(layer);
     }
 
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {}
