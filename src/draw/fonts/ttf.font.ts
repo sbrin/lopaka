@@ -24,7 +24,7 @@ export class TTFFont extends Font {
         ctx.save();
         ctx.font = `${this.options.size}px '${this.name}', monospace`;
         ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
+        ctx.textBaseline = 'alphabetic';
         const measure = ctx.measureText(text);
         ctx.restore();
         return new Point(measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft, this.options.textCharHeight);
@@ -36,7 +36,7 @@ export class TTFFont extends Font {
         ctx.beginPath();
         ctx.font = `${this.options.size}px '${this.name}', monospace`;
         ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillText(text, position.x, position.y);
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(text, position.x, position.y + this.options.textCharHeight);
     }
 }
