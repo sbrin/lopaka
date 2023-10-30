@@ -35,7 +35,7 @@ export class SelectTool extends Tool {
     onKeyDown(event: KeyboardEvent): void {
         const {activeLayer, layers, display} = toRefs(this.session.state);
         if (activeLayer.value === null) return;
-        const displayBound = new Rect(new Point(0), display.value.clone().subtract(activeLayer.value.size));
+        const displayBound = new Rect(new Point(1), display.value.clone().subtract(activeLayer.value.size)).subtract(1);
         const shiftSize = event.shiftKey ? 10 : 1;
         if (Object.values(Keys).indexOf(event.code as Keys) != -1) {
             event.preventDefault();
