@@ -121,7 +121,7 @@ function onKeyDown(e: KeyboardEvent) {
 }
 </script>
 <template>
-    <div class="canvas-wrapper" tabindex="1000">
+    <div class="canvas-wrapper">
         <div class="fui-grid" :style="{backgroundSize: `${scale.x}px ${scale.y}px`}">
             <canvas
                 ref="screen"
