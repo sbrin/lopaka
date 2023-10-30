@@ -272,7 +272,7 @@ body {
     image-rendering: pixelated;
     display: block;
     margin: 8px;
-    mix-blend-mode: darken;
+    /* mix-blend-mode: darken; */
     border: 1px solid var(--border-color);
     max-width: 128px;
     height: auto;

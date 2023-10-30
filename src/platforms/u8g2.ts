@@ -83,6 +83,12 @@ export class U8g2Platform extends Platform {
         }
     ];
 
+    public generateSourceCode(layers: Layer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
+        const source = super.generateSourceCode(layers, ctx);
+        source.declarations.unshift('u8g2.setBitmapMode(1);');
+        return source;
+    }
+
     addDot(layer: Layer, source: TSourceCode): void {
         source.code.push(`u8g2.drawPixel(${layer.position.x}, ${layer.position.y});`);
     }
@@ -112,7 +118,8 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.data.text}");`);
         source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radius});`);
     }
     addImage(layer: Layer, source: TSourceCode): void {
-        const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y);
+        if (!layer.data.image) return;
+        const XBMP = imgDataToXBMP(layer.data.image, 0, 0, layer.size.x, layer.size.y);
         source.declarations.push(`static const unsigned char image_${layer.name}_bits[] U8X8_PROGMEM = {${XBMP}};`);
         source.code.push(
             `u8g2.drawXBMP( ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, image_${layer.name}_bits);`

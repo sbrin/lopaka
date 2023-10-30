@@ -74,10 +74,15 @@ export async function loadImageAsync(src): Promise<HTMLImageElement> {
     });
 }
 
-export function imgDataToXBMP(imgData, xStart, yStart, width, height) {
+export function imgDataToXBMP(
+    imgData: ImageData,
+    xStart: number,
+    yStart: number,
+    width: number,
+    height: number
+): string[] {
     const bytesPerRow = Math.ceil(width / 8);
     const xbmp = new Array(height * bytesPerRow).fill(0);
-
     for (let y = yStart; y < yStart + height; y++) {
         for (let x = xStart; x < xStart + width; x++) {
             const imgDataIndex = (y * width + x) * 4;

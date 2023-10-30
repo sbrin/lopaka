@@ -65,7 +65,8 @@ display.print("${layer.data.text}");`);
     }
 
     addImage(layer: Layer, source: TSourceCode): void {
-        const XBMP = imgDataToUint32Array(layer.data);
+        if (!layer.data.image) return;
+        const XBMP = imgDataToUint32Array(layer.data.image);
         source.declarations.push(`static const unsigned char PROGMEM image_${layer.name}_bits[] = {${XBMP}};`);
         source.code.push(
             `display.drawBitmap( ${layer.position.x}, ${layer.position.y}, image_${layer.name}_bits, ${layer.size.x}, ${layer.size.y}, 1);`

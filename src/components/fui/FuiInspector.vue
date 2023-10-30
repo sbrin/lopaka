@@ -16,6 +16,7 @@ const icons = computed(() => {
             const [, width, height] = matchedSizeArr.map((num) => parseInt(num, 10));
             const image = new Image(width, height);
             image.crossOrigin = 'Anonymous';
+            image.dataset.name = name;
             image.src = file;
             return {
                 name,
@@ -141,6 +142,6 @@ function onChange(event: Event, param: ToolParam) {
 }
 
 .selected {
-    border: 1px solid #00f;
+    border: 1px dashed #01f9d8 !important;
 }
 </style>

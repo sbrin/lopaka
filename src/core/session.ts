@@ -108,15 +108,15 @@ export class Session {
 
     virtualScreen: VirtualScreen = new VirtualScreen(this);
     tools: {[key: string]: Tool} = {
+        select: new SelectTool(this),
         paint: new PaintTool(this),
-        box: new BoxTool(this),
         frame: new FrameTool(this),
+        box: new BoxTool(this),
         circle: new CircleTool(this),
         disc: new DiscTool(this),
-        line: new LineTool(this),
         dot: new DotTool(this),
+        line: new LineTool(this),
         string: new TextTool(this),
-        select: new SelectTool(this),
         icon: new IconTool(this)
     };
     removeLayer = (layer: Layer) => {

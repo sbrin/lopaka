@@ -43,8 +43,8 @@ export class IconTool extends Tool {
     draw(layer: Layer): void {
         const {dc, position} = layer;
         dc.clear();
-        if (layer.data.icon) {
-            dc.ctx.drawImage(layer.data.icon, position.x, position.y);
+        if (layer.data.icon || layer.data.image) {
+            dc.ctx.drawImage(layer.data.icon || layer.data.image, position.x, position.y);
         } else {
             layer.size = new Point(10, 10);
             layer.bounds = this.getBounds(layer);
@@ -69,6 +69,16 @@ export class IconTool extends Tool {
         this.draw(layer);
     }
     stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
+        if (layer.data.icon instanceof Image) {
+            const icon = layer.data.icon;
+            layer.data.name = icon.dataset.name;
+            layer.name = `${layer.data.name}${layer.index}`;
+            // image to imageData
+            const canvas = new OffscreenCanvas(icon.width, icon.height);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(icon, 0, 0);
+            layer.data.image = ctx.getImageData(0, 0, icon.width, icon.height);
+        }
         this.draw(layer);
     }
 }
