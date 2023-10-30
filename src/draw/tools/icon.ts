@@ -40,7 +40,7 @@ export class IconTool extends Tool {
         }
     ];
 
-    async draw(layer: Layer): Promise<void> {
+    draw(layer: Layer): void {
         const {dc, position} = layer;
         dc.clear();
         if (layer.data.icon) {

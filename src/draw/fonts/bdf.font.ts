@@ -51,13 +51,11 @@ export class BDFFont extends Font {
             });
     }
 
-    async getSize(dc: DrawContext, text: string): Promise<Point> {
-        await this.fontReady;
+    getSize(dc: DrawContext, text: string): Point {
         return this.meta.bounds.size.clone().multiply(text.length, 1);
     }
 
-    async drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): Promise<void> {
-        await this.fontReady;
+    drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
         const kerningBias = 0; // TODO
         const points = this.meta.size.points;
         const fontDescent = this.meta.properties.fontDescent;

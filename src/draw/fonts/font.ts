@@ -1,5 +1,4 @@
 import {Point} from '../../core/point';
-import {Rect} from '../../core/rect';
 import {DrawContext} from '../draw-context';
 
 export enum FontFormat {
@@ -9,7 +8,7 @@ export enum FontFormat {
 }
 
 export abstract class Font {
-    protected fontReady: Promise<void>;
+    fontReady: Promise<void>;
     protected fontLoaded: boolean = false;
 
     constructor(
@@ -27,6 +26,6 @@ export abstract class Font {
     }
 
     abstract loadFont(): Promise<void>;
-    abstract drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number): Promise<void>;
-    abstract getSize(dc: DrawContext, text: string): Promise<Point>;
+    abstract drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number): void;
+    abstract getSize(dc: DrawContext, text: string): Point;
 }

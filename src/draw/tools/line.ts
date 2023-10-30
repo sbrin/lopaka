@@ -51,7 +51,7 @@ export class LineTool extends Tool {
 
     private firstPoint: Point;
 
-    async draw(layer: Layer): Promise<void> {
+    draw(layer: Layer): void {
         const {dc, position, size} = layer;
         dc.clear().pixelateLine(position, position.clone().add(size), this.brushSize.x);
     }

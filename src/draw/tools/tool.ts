@@ -139,11 +139,10 @@ export abstract class Tool {
     redraw() {
         const {activeLayer} = toRefs(this.session.state);
         if (activeLayer) {
-            this.draw(activeLayer.value).then(() => {
-                this.session.virtualScreen.redraw();
-            });
+            this.draw(activeLayer.value);
+            this.session.virtualScreen.redraw();
         }
     }
 
-    abstract draw(layer: Layer): Promise<void>;
+    abstract draw(layer: Layer): void;
 }

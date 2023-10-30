@@ -3,6 +3,7 @@ import {computed, toRefs} from 'vue';
 import {useSession} from '../../core/session';
 import {ToolParam, ToolParamType} from '../../draw/tools/tool';
 import iconsUrls from '../../icons';
+import {loadFont} from '../../draw/fonts';
 
 const session = useSession();
 const {platform, activeLayer, activeTool, scale} = toRefs(session.state);
@@ -47,7 +48,15 @@ function onChange(event: Event, param: ToolParam) {
             param.onChange(target.checked);
             break;
         case ToolParamType.font:
-            param.onChange(target.value);
+            const font = session.platforms[platform.value]
+                .getFonts()
+                .find((f: TPlatformFont) => f.name === target.value);
+            // lock scrteen while loading font
+            session.lock();
+            loadFont(font).then(() => {
+                session.unlock();
+                param.onChange(font.name);
+            });
             break;
         case ToolParamType.image:
             param.onChange(icons.value.find((image) => target.dataset.name === image.name).image);
@@ -82,7 +91,7 @@ function onChange(event: Event, param: ToolParam) {
                 </div>
                 <div v-else-if="param.type == ToolParamType.font">
                     <select class="inspector__input" :value="param.value" @change="onChange($event, param)">
-                        <option v-for="font in fonts" :value="font.name">{{ font.name }}</option>
+                        <option v-for="font in fonts" :value="font.name">{{ font.title }}</option>
                     </select>
                 </div>
                 <div v-else-if="param.type == ToolParamType.image" class="fui-icons">

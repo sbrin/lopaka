@@ -42,7 +42,7 @@ export class CircleTool extends Tool {
     private firstPoint: Point;
     private altMode = false;
 
-    async draw(layer: Layer): Promise<void> {
+    draw(layer: Layer): void {
         const {dc, position, size} = layer;
         const radius = (size.x + 1) / 2;
         const center = position.clone().add(radius);

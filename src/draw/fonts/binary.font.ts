@@ -20,13 +20,11 @@ export class BinaryFont extends Font {
             });
     }
 
-    async getSize(dc: DrawContext, text: string): Promise<Point> {
-        await this.fontReady;
+    getSize(dc: DrawContext, text: string): Point {
         return new Point((this.options.textCharWidth + 1) * text.length - 1, this.options.size);
     }
 
-    async drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): Promise<void> {
-        await this.fontReady;
+    drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
         const charPos = position.clone();
         dc.ctx.beginPath();
         for (let i = 0; i < text.length; i++) {

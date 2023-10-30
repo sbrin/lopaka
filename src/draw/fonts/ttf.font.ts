@@ -18,7 +18,7 @@ export class TTFFont extends Font {
         (document.fonts as any).add(font);
     }
 
-    async getSize(dc: DrawContext, text: string): Promise<Point> {
+    getSize(dc: DrawContext, text: string): Point {
         const {ctx} = dc;
         ctx.save();
         ctx.font = `${this.options.size}px '${this.name}', monospace`;
@@ -29,8 +29,7 @@ export class TTFFont extends Font {
         return new Point(measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft, this.options.textCharHeight);
     }
 
-    async drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): Promise<void> {
-        await this.fontReady;
+    drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
         const {ctx} = dc;
         ctx.beginPath();
         ctx.font = `${this.options.size}px '${this.name}', monospace`;

@@ -50,7 +50,7 @@ export class FrameTool extends Tool {
 
     private firstPoint: Point;
 
-    async draw(layer: Layer): Promise<void> {
+    draw(layer: Layer): void {
         const {dc, position, size} = layer;
         dc.clear().rect(position, size, false);
     }

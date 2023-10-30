@@ -17,7 +17,7 @@ const isDrawing = ref(false);
 
 const hoverLayer: ShallowRef<Layer> = ref(null);
 
-const {display, activeTool, scale, activeLayer} = toRefs(session.state);
+const {display, activeTool, scale, activeLayer, lock} = toRefs(session.state);
 
 const activeLayerStyle = computed(() =>
     activeLayer.value && !activeLayer.value.isStub()
@@ -121,7 +121,7 @@ function onKeyDown(e: KeyboardEvent) {
 }
 </script>
 <template>
-    <div class="canvas-wrapper">
+    <div class="canvas-wrapper" :class="{locked: lock}">
         <div class="fui-grid" :style="{backgroundSize: `${scale.x}px ${scale.y}px`}">
             <canvas
                 ref="screen"
@@ -147,7 +147,11 @@ function onKeyDown(e: KeyboardEvent) {
     display: inline-block;
     font-size: 0;
 }
-
+.locked {
+    opacity: 0.5;
+    cursor: wait !important;
+    pointer-events: none !important;
+}
 canvas {
     /* cursor: crosshair; */
     image-rendering: pixelated;

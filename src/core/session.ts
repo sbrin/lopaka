@@ -19,6 +19,7 @@ import {U8g2Platform} from '../platforms/u8g2';
 import {AdafruitPlatform} from '../platforms/adafruit';
 import {Uint32RawPlatform} from '../platforms/uint32-raw';
 import {IconTool} from '../draw/tools/icon';
+import {loadFont} from '../draw/fonts';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -30,6 +31,7 @@ type TSessionState = {
     activeLayer: Layer | null;
     activeTool: Tool | null;
     scale: Point;
+    lock: boolean;
 };
 
 export class Session {
@@ -95,7 +97,8 @@ export class Session {
     ];
 
     state: TSessionState = reactive({
-        platform: U8g2Platform.id,
+        lock: false,
+        platform: null,
         display: new Point(128, 64),
         layers: [],
         activeLayer: null,
@@ -133,6 +136,14 @@ export class Session {
     setPlatform = (name: string) => {
         this.state.platform = name;
         this.state.layers = [...this.state.layers];
+        // preload default font
+        loadFont(this.platforms[name].getFonts()[0]);
+    };
+    lock = () => {
+        this.state.lock = true;
+    };
+    unlock = () => {
+        this.state.lock = false;
     };
     constructor() {}
 }
@@ -142,6 +153,7 @@ export function useSession(id?: string) {
         return sessions.get(currentSessionId);
     } else {
         const session = new Session();
+        session.setPlatform(U8g2Platform.id);
         session.state.activeTool = session.tools.frame;
         sessions.set(session.id, session);
         currentSessionId = session.id;

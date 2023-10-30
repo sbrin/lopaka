@@ -12,15 +12,14 @@ export class SelectTool extends Tool {
     private originalSize: Point = null;
     private offset: Point = null;
 
-    async draw(layer: Layer): Promise<void> {
+    draw(layer: Layer): void {
         this.getTool(layer.type).draw(layer);
     }
     edit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         layer.position = position.clone().subtract(this.offset);
-        this.draw(layer).then(() => {
-            layer.bounds = this.getTool(layer.type).getBounds(layer);
-            this.redraw();
-        });
+        this.draw(layer);
+        layer.bounds = this.getTool(layer.type).getBounds(layer);
+        this.redraw();
     }
     startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
         // save original position and size to restore later if needed
@@ -70,11 +69,8 @@ export class SelectTool extends Tool {
         }
         if (activeLayer.value) {
             activeLayer.value.bounds = this.getTool(activeLayer.value.type).getBounds(activeLayer.value);
-            this.getTool(activeLayer.value.type)
-                .draw(activeLayer.value)
-                .then(() => {
-                    this.session.virtualScreen.redraw();
-                });
+            this.getTool(activeLayer.value.type).draw(activeLayer.value);
+            this.redraw();
         }
     }
 }

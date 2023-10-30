@@ -30,7 +30,7 @@ export class DotTool extends Tool {
         }
     ];
 
-    async draw(layer: Layer): Promise<void> {
+    draw(layer: Layer): void {
         const {dc, position, size} = layer;
         dc.clear().rect(position.clone(), size.clone(), true);
     }
