@@ -11,7 +11,6 @@ const {activeTool, activeLayer} = toRefs(session.state);
 
 function setActive(tool: Tool) {
     activeTool.value = tool;
-    activeLayer.value = tool.initLayer();
 }
 
 function isActive(name: string) {

@@ -5,14 +5,17 @@ import {toCppVariableName} from '../utils';
 import FuiButton from './fui/FuiButton.vue';
 import FuiCanvas from './fui/FuiCanvas.vue';
 import FuiCode from './fui/FuiCode.vue';
-import FuiDisplays from './fui/FuiDisplays.vue';
+import FuiSelectDisplay from './fui/FuiSelectDisplay.vue';
+import FuiSelectScale from './fui/FuiSelectScale.vue';
 import FuiFile from './fui/FuiFile.vue';
 import FuiIcons from './fui/FuiIcons.vue';
 import FuiInspector from './fui/FuiInspector.vue';
 import FuiLayers from './fui/FuiLayers.vue';
-import FuiLibrary from './fui/FuiLibrary.vue';
+import FuiSelectPlatform from './fui/FuiSelectPlatform.vue';
 import FuiTabs from './fui/FuiTabs.vue';
 import FuiTools from './fui/FuiTools.vue';
+import { Layer } from "../core/layer";
+import { Point } from "../core/point";
 
 let fuiImages = {},
     imageDataCache = {};
@@ -61,6 +64,7 @@ function updateFuiImages(layer) {
 
 function resetScreen() {
     layers.value = [];
+    activeLayer.value = null;
 }
 function copyCode() {
     navigator.clipboard.writeText(codePreview.value);
@@ -85,9 +89,6 @@ function postMessage(type, data) {
 }
 
 onMounted(() => {
-    if (isFlipper) {
-        // activeTool.value = getToolByLayerType('frame');
-    }
     postMessage('mounted', {});
 });
 </script>
@@ -99,8 +100,9 @@ onMounted(() => {
         </div>
         <div class="fui-editor__center">
             <div class="fui-editor-header">
-                <FuiLibrary></FuiLibrary>
-                <FuiDisplays></FuiDisplays>
+                <FuiSelectPlatform></FuiSelectPlatform>
+                <FuiSelectDisplay></FuiSelectDisplay>
+                <FuiSelectScale></FuiSelectScale>
             </div>
             <FuiTools></FuiTools>
             <FuiCanvas ref="fuiCanvas" :fui-images="fuiImages" :imageDataCache="imageDataCache" />
@@ -126,7 +128,6 @@ onMounted(() => {
         </div>
         <div class="fui-editor__right">
             <FuiInspector />
-            <!-- <fui-settings :isInverted="isInverted" @redraw-canvas="redrawCanvas" @toggle-invert="toggleInvert"/> -->
         </div>
     </div>
 </template>

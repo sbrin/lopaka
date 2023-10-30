@@ -87,6 +87,7 @@ export class Session {
         new Point(240, 64),
         new Point(240, 128),
         new Point(240, 160),
+        new Point(240, 240),
         new Point(256, 128),
         new Point(256, 32),
         new Point(256, 64),
@@ -137,12 +138,17 @@ export class Session {
         this.state.display = display;
         this.virtualScreen.resize();
         this.virtualScreen.redraw();
+        localStorage.setItem("lopaka_display", `${display.x}×${display.y}`);
     };
     setPlatform = (name: string) => {
         this.state.platform = name;
         this.state.layers = [...this.state.layers];
+        localStorage.setItem("lopaka_library", name);
         // preload default font
-        loadFont(this.platforms[name].getFonts()[0]);
+        const fonts = this.platforms[name].getFonts();
+        if (fonts) {
+            loadFont(fonts[0]);
+        }
     };
     lock = () => {
         this.state.lock = true;
@@ -158,7 +164,13 @@ export function useSession(id?: string) {
         return sessions.get(currentSessionId);
     } else {
         const session = new Session();
-        session.setPlatform(U8g2Platform.id);
+        const platformLocal = localStorage.getItem("lopaka_library")
+        session.setPlatform(platformLocal ?? U8g2Platform.id);
+        let displayStored = localStorage.getItem("lopaka_display");
+        if (displayStored) {
+            const displayStoredArr = displayStored.split("×").map(n => parseInt(n));
+            session.setDisplay(new Point(displayStoredArr[0], displayStoredArr[1]));
+        }
         session.state.activeTool = session.tools.frame;
         sessions.set(session.id, session);
         currentSessionId = session.id;

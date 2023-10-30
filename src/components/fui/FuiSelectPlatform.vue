@@ -1,9 +1,13 @@
 <script lang="ts" setup>
-import {toRefs} from 'vue';
+import {toRefs, watch} from 'vue';
 import {useSession} from '../../core/session';
 
 const session = useSession();
+const { setPlatform } = session;
 const {platform} = toRefs(session.state);
+watch(platform, (val) => {
+    setPlatform(val);
+});
 </script>
 <template>
     <div class="fui-select">

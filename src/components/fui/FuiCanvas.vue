@@ -54,7 +54,7 @@ onBeforeUnmount(() => {
 });
 
 function isSelectTool() {
-    return hoverLayer.value;
+    return !!hoverLayer.value;
 }
 
 function isMoving() {
@@ -110,9 +110,15 @@ function onMouseUp(e: MouseEvent) {
         if (activeTool.value.isDrawing) {
             activeTool.value.onMouseUp(position.clone(), e);
         }
-        activeTool.value = session.tools.select;
+        if (["icon", "string"].includes(activeLayer.value.type)) {
+            activeTool.value = session.tools.select;
+        }
         isDrawing.value = false;
     }
+}
+
+function onMouseLeave(e: MouseEvent) {
+    hoverLayer.value = null;
 }
 
 function onKeyDown(e: KeyboardEvent) {
@@ -133,6 +139,7 @@ function onKeyDown(e: KeyboardEvent) {
                 :class="canvasClassNames"
                 @mousedown.prevent="onMouseDown"
                 @mousemove.prevent="onMouseMove"
+                @mouseleave.prevent="onMouseLeave"
             />
             <FuiResizableFrame :style="activeLayerStyle" />
             <!-- <div :style="hoverLayerStyle" class="hover-frame"></div> -->

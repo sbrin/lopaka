@@ -54,14 +54,10 @@ export abstract class Tool {
             .round()
             .boundTo(new Rect(0, 0, display.value.x, display.value.y));
         if (!this.isModifier) {
-            if (!activeLayer.value) {
-                activeLayer.value = this.initLayer();
-            }
-            if (activeLayer.value.isStub()) {
-                activeLayer.value.index = layers.value.length + 1;
-                activeLayer.value.name = 'Layer ' + (layers.value.length + 1);
-                layers.value = [activeLayer.value, ...layers.value];
-            }
+            activeLayer.value = this.initLayer();
+            activeLayer.value.index = layers.value.length + 1;
+            activeLayer.value.name = 'Layer ' + (layers.value.length + 1);
+            layers.value = [activeLayer.value, ...layers.value];
         }
         this.startEdit(activeLayer.value, position.clone(), originalEvent);
         this.mousePos = position.clone();
