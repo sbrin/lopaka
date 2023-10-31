@@ -125,6 +125,7 @@ function onKeyDown(e: KeyboardEvent) {
         <div class="fui-grid" :style="{backgroundSize: `${scale.x}px ${scale.y}px`}">
             <canvas
                 ref="screen"
+                class="screen"
                 :width="display.x"
                 :height="display.y"
                 :style="{width: display.x * scale.x + 'px', height: display.y * scale.y + 'px'}"
@@ -132,7 +133,7 @@ function onKeyDown(e: KeyboardEvent) {
                 @mousedown.prevent="onMouseDown"
                 @mousemove.prevent="onMouseMove"
             />
-            <FuiResizableFrame :layer="activeLayer" :style="activeLayerStyle" />
+            <FuiResizableFrame :style="activeLayerStyle" />
             <div :style="hoverLayerStyle" class="hover-frame"></div>
         </div>
     </div>
@@ -152,7 +153,7 @@ function onKeyDown(e: KeyboardEvent) {
     cursor: wait !important;
     pointer-events: none !important;
 }
-canvas {
+.screen {
     /* cursor: crosshair; */
     image-rendering: pixelated;
     background: #ed791b;

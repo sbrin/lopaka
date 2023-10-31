@@ -106,7 +106,10 @@ export class Session {
         scale: new Point(4, 4)
     });
 
-    virtualScreen: VirtualScreen = new VirtualScreen(this);
+    virtualScreen: VirtualScreen = new VirtualScreen(this, {
+        ruler: false,
+        smartRuler: true
+    });
     tools: {[key: string]: Tool} = {
         select: new SelectTool(this),
         paint: new PaintTool(this),
