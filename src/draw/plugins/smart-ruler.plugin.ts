@@ -7,8 +7,8 @@ export class SmartRulerPlugin extends VirtualScreenPlugin {
         ctx.save();
         ctx.beginPath();
         if (activeLayer && !activeLayer.isStub()) {
-            const p1 = activeLayer.position.clone().multiply(scale);
-            const p2 = activeLayer.size.clone().multiply(scale).add(p1);
+            const p1 = activeLayer.bounds.pos.clone().multiply(scale);
+            const p2 = activeLayer.bounds.size.clone().multiply(scale).add(p1);
             // horizontal line p1
             ctx.moveTo(0, p1.y);
             ctx.lineTo(p1.x, p1.y);
