@@ -67,3 +67,10 @@ declare type TSourceCode = {
     declarations: string[];
     code: string[];
 };
+
+declare global {
+    interface Window {
+      serial: any;
+      gtag: any;
+    }
+  }

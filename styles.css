@@ -73,6 +73,7 @@ body {
     color: var(--primary-color);
     font-family: 'haxrcorp4089_tr';
     text-transform: uppercase;
+    visibility: hidden;
 }
 
 .fui-editor {
@@ -182,6 +183,10 @@ body {
 
 .button_danger:hover {
     background-color: var(--danger-color);
+}
+
+a.button {
+    text-decoration: none;
 }
 
 .tools__btn {

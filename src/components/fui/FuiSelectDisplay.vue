@@ -7,7 +7,7 @@ const {displays, setDisplay} = session;
 const {display} = toRefs(session.state);
 const selectedDisplay = ref(displays.findIndex((d) => d.equals(display.value)));
 watch(selectedDisplay, (val) => {
-    setDisplay(displays[val]);
+    setDisplay(displays[val], true);
 });
 </script>
 <template>

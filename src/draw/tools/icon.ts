@@ -1,6 +1,7 @@
 import {Layer} from 'src/core/layer';
 import {Point} from '../../core/point';
 import {Tool, ToolParamType} from './tool';
+import {toCppVariableName} from '../../utils';
 
 export class IconTool extends Tool {
     name = 'icon';
@@ -71,7 +72,7 @@ export class IconTool extends Tool {
     stopEdit(layer: Layer): void {
         if (layer.data.icon instanceof Image) {
             const icon = layer.data.icon;
-            layer.data.name = icon.dataset.name ?? layer.data.name;
+            layer.data.name = toCppVariableName(icon.dataset.name ?? layer.data.name);
             layer.name = `${layer.data.name}${layer.index}`;
             // image to imageData
             const canvas = new OffscreenCanvas(icon.width, icon.height);

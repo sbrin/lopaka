@@ -4,6 +4,7 @@ import {useSession} from '../../core/session';
 import FuiButton from './FuiButton.vue';
 import {Tool} from '../../draw/tools/tool';
 import { FlipperPlatform } from "../../platforms/flipper";
+import { logEvent } from "../../utils";
 
 const emit = defineEmits(['toolClicked']);
 const session = useSession();
@@ -23,8 +24,9 @@ const toolsList = computed(() => {
     return toolsFiltered;
 })
 
-function setActive(tool: Tool) {
+function setActive(tool: Tool, isLogged?: boolean) {
     activeTool.value = tool;
+    isLogged && logEvent("select_tool", tool.getName());
 }
 
 function isActive(name: string) {

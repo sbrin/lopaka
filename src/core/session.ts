@@ -1,4 +1,4 @@
-import {generateUID} from '../utils';
+import {generateUID, logEvent} from '../utils';
 import {reactive, UnwrapRef} from 'vue';
 import {Layer} from './layer';
 import {Platform} from 'src/platforms/platform';
@@ -139,13 +139,16 @@ export class Session {
     setActiveTool = (tool: Tool) => {
         this.state.activeTool = tool;
     };
-    setDisplay = (display: Point) => {
+    setDisplay = (display: Point, isLogged?: boolean) => {
         this.state.display = display;
         this.virtualScreen.resize();
         this.virtualScreen.redraw();
-        localStorage.setItem("lopaka_display", `${display.x}×${display.y}`);
+        // TODO: update cloud and storage to avoid display conversion
+        const displayString = `${display.x}×${display.y}`;
+        localStorage.setItem("lopaka_display", displayString);
+        isLogged && logEvent("select_display", displayString);
     };
-    setPlatform = (name: string) => {
+    setPlatform = (name: string, isLogged?: boolean) => {
         this.state.platform = name;
         this.state.layers = [...this.state.layers];
         localStorage.setItem("lopaka_library", name);
@@ -154,6 +157,7 @@ export class Session {
         if (fonts) {
             loadFont(fonts[0]);
         }
+        isLogged && logEvent("select_library", name);
     };
     lock = () => {
         this.state.lock = true;

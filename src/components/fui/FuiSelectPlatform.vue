@@ -6,7 +6,7 @@ const session = useSession();
 const { setPlatform } = session;
 const {platform} = toRefs(session.state);
 watch(platform, (val) => {
-    setPlatform(val);
+    setPlatform(val, true);
 });
 </script>
 <template>
