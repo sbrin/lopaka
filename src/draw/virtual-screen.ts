@@ -5,10 +5,14 @@ import {Point} from '../core/point';
 import {VirtualScreenPlugin} from './plugins/virtual-screen.plugin';
 import {RulerPlugin} from './plugins/ruler.plugin';
 import {SmartRulerPlugin} from './plugins/smart-ruler.plugin';
+import {HighlightPlugin} from './plugins/highlight.plugin';
+import {PointerPlugin} from './plugins/pointer.plugin';
 
 type VirtualScreenOptions = {
     ruler: boolean;
     smartRuler: boolean;
+    highlight: boolean;
+    pointer: boolean;
 };
 
 export class VirtualScreen {
@@ -38,6 +42,12 @@ export class VirtualScreen {
         }
         if (options.smartRuler) {
             this.plugins.push(new SmartRulerPlugin(session));
+        }
+        if (options.highlight) {
+            this.plugins.push(new HighlightPlugin(session));
+        }
+        if (options.pointer) {
+            this.plugins.push(new PointerPlugin(session));
         }
         this.scope = new EffectScope();
         this.scope.run(() => {
@@ -78,6 +88,15 @@ export class VirtualScreen {
         }
         this.resize();
         this.redraw();
+    }
+
+    onMouseMove(position: Point) {
+        if (this.pluginLayer) {
+            requestAnimationFrame(() => {
+                this.pluginLayerContext.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
+                this.plugins.forEach((plugin) => plugin.update(this.pluginLayerContext, position));
+            });
+        }
     }
 
     getLayersInPoint(position: Point): Layer[] {
@@ -130,7 +149,7 @@ export class VirtualScreen {
         if (this.pluginLayer) {
             requestAnimationFrame(() => {
                 this.pluginLayerContext.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
-                this.plugins.forEach((plugin) => plugin.update(this.pluginLayerContext));
+                this.plugins.forEach((plugin) => plugin.update(this.pluginLayerContext, null));
             });
         }
     }

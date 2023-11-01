@@ -107,8 +107,10 @@ export class Session {
     });
 
     virtualScreen: VirtualScreen = new VirtualScreen(this, {
-        ruler: false,
-        smartRuler: true
+        ruler: true,
+        smartRuler: true,
+        highlight: true,
+        pointer: false
     });
     tools: {[key: string]: Tool} = {
         select: new SelectTool(this),

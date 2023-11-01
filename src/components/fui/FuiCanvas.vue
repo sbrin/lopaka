@@ -95,6 +95,7 @@ function onMouseDown(e: MouseEvent) {
 
 function onMouseMove(e: MouseEvent) {
     const position = new Point(e.offsetX, e.offsetY);
+    session.virtualScreen.onMouseMove(position.clone());
     if (activeTool.value.isDrawing) {
         activeTool.value.onMouseMove(position.clone(), e);
     } else {
@@ -134,7 +135,7 @@ function onKeyDown(e: KeyboardEvent) {
                 @mousemove.prevent="onMouseMove"
             />
             <FuiResizableFrame :style="activeLayerStyle" />
-            <div :style="hoverLayerStyle" class="hover-frame"></div>
+            <!-- <div :style="hoverLayerStyle" class="hover-frame"></div> -->
         </div>
     </div>
 </template>
