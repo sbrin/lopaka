@@ -63,15 +63,15 @@ export class IconTool extends Tool {
         layer.bounds = this.getBounds(layer);
         this.draw(layer);
     }
-    startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
+    startEdit(layer: Layer, position: Point): void {
         layer.position = position.clone();
         layer.bounds = this.getBounds(layer);
         this.draw(layer);
     }
-    stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void {
+    stopEdit(layer: Layer): void {
         if (layer.data.icon instanceof Image) {
             const icon = layer.data.icon;
-            layer.data.name = icon.dataset.name;
+            layer.data.name = icon.dataset.name ?? layer.data.name;
             layer.name = `${layer.data.name}${layer.index}`;
             // image to imageData
             const canvas = new OffscreenCanvas(icon.width, icon.height);

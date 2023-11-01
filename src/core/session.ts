@@ -32,6 +32,7 @@ type TSessionState = {
     activeTool: Tool | null;
     scale: Point;
     lock: boolean;
+    customImages: TLayerImageData[];
 };
 
 export class Session {
@@ -104,7 +105,8 @@ export class Session {
         layers: [],
         activeLayer: null,
         activeTool: null,
-        scale: new Point(4, 4)
+        scale: new Point(4, 4),
+        customImages: [],
     });
 
     virtualScreen: VirtualScreen = new VirtualScreen(this, {
@@ -126,6 +128,9 @@ export class Session {
         icon: new IconTool(this)
     };
     removeLayer = (layer: Layer) => {
+        if (this.state.activeLayer === layer) {
+            this.state.activeLayer = null;
+        }
         this.state.layers = this.state.layers.filter((l) => l !== layer);
     };
     setActiveLayer = (layer: Layer) => {

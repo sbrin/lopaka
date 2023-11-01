@@ -272,7 +272,7 @@ export function generateCode(screenElements, library, context, imageDataCache) {
     let declarations = '';
     if (library === 'flipper' && screenElements.find((i) => i.type === 'draw')) {
         declarations +=
-            '// DRAW tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output\n';
+            '// PAINT tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output\n';
     }
     const declaredIcons = [];
     for (let i = 0; i < screenElements.length; i++) {

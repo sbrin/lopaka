@@ -22,10 +22,9 @@ let fuiImages = {},
 
 const fuiCanvas = ref(null),
     activeTab = ref('code'),
-    codePreview = ref(''),
-    customImages = ref([]);
+    codePreview = ref('');
 const session = useSession();
-const {display, platform, layers, activeLayer, activeTool} = toRefs(session.state);
+const {display, platform, layers, activeLayer, activeTool, customImages} = toRefs(session.state);
 
 // computed
 const isEmpty = computed(() => layers.value.length === 0);
@@ -34,44 +33,35 @@ const isFlipper = computed(() => platform.value === 'Flipper Zero');
 function setactiveTab(tab) {
     activeTab.value = tab;
 }
+
 function prepareImages(e) {
     fuiImages = e;
-}
-function updateFuiImages(layer) {
-    const {name, element, width, height} = layer;
-    const nameFormatted = toCppVariableName(name);
-    if (!fuiImages[name]) {
-        fuiImages[name] = {
-            width: width,
-            height: height,
-            element: element,
-            isCustom: true
-        };
-        customImages.value = [
-            ...customImages.value,
-            {
-                name: nameFormatted,
-                width: width,
-                height: height,
-                element: element,
-                src: element.src,
-                isCustom: true
-            }
-        ];
-    }
-    setactiveTab('icons');
 }
 
 function resetScreen() {
     layers.value = [];
     activeLayer.value = null;
 }
+
 function copyCode() {
     navigator.clipboard.writeText(codePreview.value);
 }
-function addImageToCanvas(name) {
-    // TODO
+
+function addImageToCanvas(data) {
+    const newLayer = session.tools.icon.initLayer();
+    newLayer.data.name = data.name;
+    newLayer.data.icon = data.icon;
+    newLayer.data.image = data.image;
+    newLayer.size = new Point(data.width, data.height);
+    
+    session.tools.icon.startEdit(newLayer, new Point(0,0));
+    session.tools.icon.stopEdit(newLayer);
+    layers.value = [newLayer, ...layers.value];
+    
+    activeLayer.value = newLayer;
+    activeLayer.value.index = layers.value.length;
 }
+
 function cleanCustomIcons() {
     for (let key in fuiImages) {
         if (fuiImages[key].isCustom) {
@@ -105,12 +95,12 @@ onMounted(() => {
                 <FuiSelectScale></FuiSelectScale>
             </div>
             <FuiTools></FuiTools>
-            <FuiCanvas ref="fuiCanvas" :fui-images="fuiImages" :imageDataCache="imageDataCache" />
+            <FuiCanvas ref="fuiCanvas"/>
             <div class="fui-editor__tools">
                 <div class="fui-editor-header">
                     <FuiTabs :active-tab="activeTab" @set-active-tab="setactiveTab"></FuiTabs>
                 </div>
-                <!-- <FuiIcons
+                <FuiIcons
                     v-show="activeTab === 'icons'"
                     :fui-images="fuiImages"
                     :custom-images="customImages"
@@ -118,10 +108,10 @@ onMounted(() => {
                     @icon-clicked="addImageToCanvas"
                     @clean-custom-icons="cleanCustomIcons"
                     ref="fuiIconsList"
-                ></FuiIcons> -->
+                ></FuiIcons>
                 <FuiCode v-show="activeTab === 'code'" :content="codePreview"></FuiCode>
                 <div class="buttons-bottom">
-                    <FuiFile type="file" title="import image" @update-fui-images="updateFuiImages"></FuiFile>
+                    <FuiFile type="file" title="import image" @set-active-tab="setactiveTab"></FuiFile>
                     <FuiButton @click="copyCode" v-show="!!codePreview">copy code</FuiButton>
                 </div>
             </div>

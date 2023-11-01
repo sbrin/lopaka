@@ -1,79 +1,51 @@
 <script lang="ts" setup>
-import {Point} from '../../core/point';
 import {useSession} from '../../core/session';
-import icons from '../../icons';
-import {defineProps, toRefs} from 'vue';
+import iconsUrls from '../../icons';
+import {computed, toRefs} from 'vue';
 
 const session = useSession();
-const {activeLayer, activeTool} = toRefs(session.state);
-
-const props = defineProps<{
-    customImages: Array<any>;
-    fuiImages: Object;
-}>();
+const { customImages } = toRefs(session.state);
 const emit = defineEmits(['cleanCustomIcons', 'prepareImages', 'iconClicked']);
-let imagesSrc = [];
+
+const icons = computed((): TLayerImageData[] => {
+    return Object.entries(iconsUrls)
+        .map((item) => {
+            const [name, file] = item;
+            const matchedSizeArr = name.match(/_([0-9]+)x([0-9]+)/i) ? name.match(/_([0-9]+)x([0-9]+)/i) : [0, 10, 10];
+            const [, width, height] = matchedSizeArr.map((num) => parseInt(num, 10));
+            const image = new Image(width, height);
+            image.crossOrigin = 'Anonymous';
+            image.dataset.name = name;
+            image.src = file;
+            return {
+                name,
+                width,
+                height,
+                image
+            };
+        })
+        .sort((a, b) => a.width * a.height - b.width * b.height);
+});
 
 function cleanCustom() {
-    emit('cleanCustomIcons');
+    customImages.value = [];
 }
 
 function iconClick(e) {
-    emit('iconClicked', e.target.dataset.name);
+    const image = icons.value.find(item => item.name === e.target.dataset.name) ?? customImages.value.find(item => item.name === e.target.dataset.name);
+    const data = {
+        name: e.target.dataset.name,
+        width: image.width,
+        height: image.height,
+        icon: image.image,
+    };
+    emit('iconClicked', data);
 }
 
 function iconDragStart(e) {
     e.dataTransfer.setData('name', e.srcElement.dataset.name);
     e.dataTransfer.setData('offset', `${e.offsetX}, ${e.offsetY}`);
 }
-
-function prepareCustomImages() {
-    const customImages = {};
-    props.customImages.forEach((icon) => {
-        customImages[icon.name] = {
-            element: icon.element,
-            width: icon.width,
-            height: icon.height,
-            isCustom: icon.isCustom
-        };
-    });
-    emit('prepareImages', {
-        ...props.fuiImages,
-        ...customImages
-    });
-}
-
-function prepareImages() {
-    const fuiImages = {};
-    const imagesArr = [];
-    Object.entries(icons).forEach((item) => {
-        const [name, file] = item;
-        const matchedSizeArr = name.match(/_([0-9]+)x([0-9]+)/i) ? name.match(/_([0-9]+)x([0-9]+)/i) : [0, 10, 10];
-        const [, width, height] = matchedSizeArr.map((num) => parseInt(num, 10));
-        const image = new Image(width, height);
-        const src = file;
-        image.src = src;
-        image.crossOrigin = 'Anonymous';
-        fuiImages[name] = {
-            element: image,
-            width: width,
-            height: height,
-            isCustom: false
-        };
-        imagesArr.push({
-            src: src,
-            name: name,
-            element: image,
-            width: width,
-            height: height
-        });
-    });
-    imagesArr.sort((a, b) => a.width * a.height - b.width * b.height);
-    imagesSrc = imagesArr;
-    emit('prepareImages', fuiImages);
-}
-
-prepareImages();
 </script>
 <template>
     <div class="fui-icons">
@@ -87,7 +59,7 @@ prepareImages();
             @click="iconClick"
             draggable="true"
             :key="index"
-            :src="item.src"
+            :src="item.image.src"
             :data-name="item.name"
             :width="item.width * 2"
             :height="item.height * 2"
@@ -96,12 +68,12 @@ prepareImages();
         />
         <div v-if="customImages.length > 0" class="fui-icons__header">Default</div>
         <img
-            v-for="(item, index) in imagesSrc"
+            v-for="(item, index) in icons"
             @dragstart="iconDragStart"
             @click="iconClick"
             draggable="true"
             :key="index"
-            :src="item.src"
+            :src="item.image.src"
             :data-name="item.name"
             :width="item.width * 2"
             :height="item.height * 2"

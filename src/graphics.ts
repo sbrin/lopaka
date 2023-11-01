@@ -259,7 +259,6 @@ export function startDrawing(
         oY - layerProps.y,
         isEraser
     );
-    console.log(imageDataCache);
     return layerProps;
 }
 /*

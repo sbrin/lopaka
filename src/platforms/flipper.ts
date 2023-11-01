@@ -80,7 +80,7 @@ export class FlipperPlatform extends Platform {
     }
     addImage(layer: Layer, source: TSourceCode): void {
         source.declarations.push(
-            `// add tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output`
+            `// PAINT tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output`
         );
     }
     addIcon(layer: Layer, source: TSourceCode): void {

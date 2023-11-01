@@ -5,11 +5,6 @@ import {Point} from '../../core/point';
 import {useSession} from '../../core/session';
 import FuiResizableFrame from './components/FuiResizableFrame.vue';
 
-const props = defineProps<{
-    fuiImages: any;
-    imageDataCache: any;
-}>();
-
 const emit = defineEmits(['updateFuiImages']);
 const screen = ref(null);
 const session = useSession();
@@ -62,7 +57,7 @@ function isMoving() {
 }
 
 function isDrawingTool() {
-    return activeTool.value.getName() !== 'select' && !activeLayer.value;
+    return activeTool.value.getName() !== 'select';
 }
 
 const canvasClassNames = computed(() => {
@@ -110,9 +105,7 @@ function onMouseUp(e: MouseEvent) {
         if (activeTool.value.isDrawing) {
             activeTool.value.onMouseUp(position.clone(), e);
         }
-        if (["icon", "string"].includes(activeLayer.value.type)) {
-            activeTool.value = session.tools.select;
-        }
+        activeTool.value = session.tools.select;
         isDrawing.value = false;
     }
 }

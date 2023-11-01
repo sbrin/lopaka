@@ -95,7 +95,7 @@ function onChange(event: Event, param: ToolParam) {
                         <option v-for="font in fonts" :value="font.name">{{ font.title }}</option>
                     </select>
                 </div>
-                <div v-else-if="param.type == ToolParamType.image" class="fui-icons">
+                <!-- <div v-else-if="param.type == ToolParamType.image" class="fui-icons">
                     <img
                         @click="onChange($event, param)"
                         :class="{selected: activeLayer.data.name === icon.name}"
@@ -107,7 +107,7 @@ function onChange(event: Event, param: ToolParam) {
                         :width="icon.width * scale.x"
                         :height="icon.height * scale.y"
                     />
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

@@ -53,6 +53,14 @@ declare type TLayer = {
     data?: any; // imageData for ex.
 };
 
+declare type TLayerImageData = {
+    name: string;
+    width: number;
+    height: number;
+    image: HTMLImageElement;
+    isCustom?: boolean;
+}
+
 declare type ELayerType = 'dot' | 'line' | 'text' | 'box' | 'frame' | 'circle' | 'disc' | 'bitmap' | 'icon';
 
 declare type TSourceCode = {

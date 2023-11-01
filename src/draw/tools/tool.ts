@@ -29,14 +29,14 @@ export abstract class Tool {
     isModifier = false;
     templateLayer: Layer;
 
-    abstract startEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void;
+    abstract startEdit(layer: Layer, position: Point, originalEvent?: MouseEvent): void;
     abstract edit(layer: Layer, position: Point, originalEvent: MouseEvent): void;
-    abstract stopEdit(layer: Layer, position: Point, originalEvent: MouseEvent): void;
+    abstract stopEdit(layer: Layer, position?: Point, originalEvent?: MouseEvent): void;
 
     constructor(protected session: Session) {}
 
     initLayer(): Layer {
-        const {display, activeLayer} = toRefs(this.session.state);
+        const {display} = toRefs(this.session.state);
         const layer = new Layer(this.name, -1);
         layer.edititng = true;
         layer.buffer.width = display.value.x;
