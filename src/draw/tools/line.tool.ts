@@ -1,0 +1,11 @@
+import {AbstractLayer} from '../../core/layers/abstract.layer';
+import {LineLayer} from '../../core/layers/line.layer';
+import {AbstractTool} from './abstract.tool';
+
+export class LineTool extends AbstractTool {
+    name: string = 'line';
+
+    createLayer(): AbstractLayer {
+        return new LineLayer();
+    }
+}

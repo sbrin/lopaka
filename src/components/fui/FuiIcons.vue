@@ -5,7 +5,7 @@ import icons from '../../icons';
 import {defineProps, toRefs} from 'vue';
 
 const session = useSession();
-const {activeLayer, activeTool} = toRefs(session.state);
+const {activeTool} = toRefs(session.state);
 
 const props = defineProps<{
     customImages: Array<any>;

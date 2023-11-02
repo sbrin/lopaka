@@ -1,0 +1,130 @@
+import {DrawContext} from '../../draw/draw-context';
+import {Point} from '../point';
+import {Rect} from '../rect';
+
+export enum EditMode {
+    MOVING,
+    RESIZING,
+    CREATING,
+    DRAWING,
+    NONE,
+    EMPTY
+}
+export enum TModifierType {
+    'string',
+    'number',
+    'boolean',
+    'font',
+    'image'
+}
+export type TModifierName = 'x' | 'y' | 'w' | 'h' | 'radius' | 'text' | 'font' | 'icon' | 'x1' | 'x2' | 'y1' | 'y2';
+
+export type TLayerModifier<T> = {
+    setValue(value: T): void;
+    getValue(): T;
+    type: TModifierType;
+};
+
+export type TLayerModifiers = Partial<{[key in TModifierName]: TLayerModifier<any>}>;
+
+/**
+ * Abstract layer class
+ */
+export abstract class AbstractLayer {
+    // OffscreenCanvas where layer is drawn
+    protected buffer: OffscreenCanvas = new OffscreenCanvas(0, 0);
+    // DrawContext
+    protected dc: DrawContext = new DrawContext(this.buffer);
+    // Unique id
+    protected id: string = '';
+    // Is layer visible
+    protected isOverlay: boolean = false;
+    // current layer state
+    protected state: any = {};
+    // current edit mode
+    protected mode: EditMode = EditMode.EMPTY;
+    // history of changing
+    protected history: any[] = [];
+
+    // is layer selected
+    public selected: boolean = false;
+    // Bounds of the layer
+    public bounds: Rect = new Rect();
+    // Layer name
+    public name: string;
+    // Layer index
+    public index: number;
+    // public group
+    public group: number;
+    // is layer already added to the session
+    public added: boolean = false;
+    // is layer resizable
+    public resizable: boolean = true;
+    // modifiers
+    public modifiers: TLayerModifiers;
+
+    constructor() {}
+
+    abstract startEdit(mode: EditMode, point?: Point);
+    abstract edit(point: Point, originalEvent?: MouseEvent);
+    abstract stopEdit();
+    abstract draw();
+    abstract saveState();
+    abstract loadState(state: any);
+    abstract updateBounds(): void;
+
+    /**
+     * Check that point inside layer
+     * @param point
+     * @returns {boolean}
+     */
+    public contains(point: Point): boolean {
+        return this.dc.ctx.isPointInPath(point.x, point.y) || this.dc.ctx.isPointInStroke(point.x, point.y);
+    }
+
+    /**
+     * Resize buffer to fit display
+     * @param display
+     * @param scale
+     */
+    public resize(display: Point, scale: Point): void {
+        const {dc, buffer} = this;
+        buffer.width = display.x;
+        buffer.height = display.y;
+        dc.ctx.fillStyle = '#000';
+        dc.ctx.strokeStyle = '#000';
+        if (this.mode !== EditMode.EMPTY) {
+            this.draw();
+        }
+    }
+
+    /**
+     * Get layer buffer
+     * @returns {OffscreenCanvas} - buffer
+     */
+    public getBuffer(): OffscreenCanvas {
+        return this.buffer;
+    }
+
+    /**
+     * Clone this layer as new one
+     * @returns copy of the layer
+     */
+    public clone(): typeof this {
+        const cloned = new (this.constructor as any)();
+        cloned.loadState(this.state);
+        return cloned;
+    }
+
+    /**
+     * Is layer in editing mode
+     * @returns {boolean}
+     */
+    public isEditing() {
+        return this.mode !== EditMode.NONE;
+    }
+
+    public getState(): any {
+        return this.state;
+    }
+}

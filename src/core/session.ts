@@ -1,25 +1,26 @@
 import {generateUID} from '../utils';
 import {reactive, UnwrapRef} from 'vue';
-import {Layer} from './layer';
 import {Platform} from 'src/platforms/platform';
 import {Point} from './point';
-import {Tool} from '../draw/tools/tool';
+import {AbstractTool} from '../draw/tools/abstract.tool';
 import {VirtualScreen} from '../draw/virtual-screen';
 import {FlipperPlatform} from '../platforms/flipper';
-import {PaintTool} from '../draw/tools/paint';
-import {BoxTool} from '../draw/tools/box';
-import {FrameTool} from '../draw/tools/frame';
-import {CircleTool} from '../draw/tools/circle';
-import {DiscTool} from '../draw/tools/disc';
-import {LineTool} from '../draw/tools/line';
-import {DotTool} from '../draw/tools/dot';
-import {TextTool} from '../draw/tools/text';
-import {SelectTool} from '../draw/tools/select';
+import {PaintTool} from '../draw/tools/paint.tool';
+import {BoxTool} from '../draw/tools/box.tool';
+import {FrameTool} from '../draw/tools/frame.tool';
+import {CircleTool} from '../draw/tools/circle.tool';
+import {DiscTool} from '../draw/tools/disc.tool';
+import {LineTool} from '../draw/tools/line.tool';
+import {DotTool} from '../draw/tools/dot.tool';
+import {TextTool} from '../draw/tools/text.tool';
+import {SelectTool} from '../draw/tools/select.tool';
 import {U8g2Platform} from '../platforms/u8g2';
 import {AdafruitPlatform} from '../platforms/adafruit';
 import {Uint32RawPlatform} from '../platforms/uint32-raw';
-import {IconTool} from '../draw/tools/icon';
-import {loadFont} from '../draw/fonts';
+import {IconTool} from '../draw/tools/icon.tool';
+import {getFont, loadFont} from '../draw/fonts';
+import {AbstractLayer} from './layers/abstract.layer';
+import {ChangeHistory, useHistory} from './history';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -27,9 +28,8 @@ let currentSessionId = null;
 type TSessionState = {
     platform: string;
     display: Point;
-    layers: Layer[];
-    activeLayer: Layer | null;
-    activeTool: Tool | null;
+    layers: AbstractLayer[];
+    activeTool: AbstractTool | null;
     scale: Point;
     lock: boolean;
 };
@@ -106,15 +106,18 @@ export class Session {
         scale: new Point(4, 4)
     });
 
+    history: ChangeHistory = useHistory();
+
     virtualScreen: VirtualScreen = new VirtualScreen(this, {
-        ruler: true,
+        ruler: false,
         smartRuler: true,
         highlight: true,
         pointer: false
     });
-    tools: {[key: string]: Tool} = {
-        select: new SelectTool(this),
-        paint: new PaintTool(this),
+
+    tools: {[key: string]: AbstractTool} = {
+        // select: new SelectTool(this),
+        // paint: new PaintTool(this),
         frame: new FrameTool(this),
         box: new BoxTool(this),
         line: new LineTool(this),
@@ -124,13 +127,24 @@ export class Session {
         string: new TextTool(this),
         icon: new IconTool(this)
     };
-    removeLayer = (layer: Layer) => {
+    removeLayer = (layer: AbstractLayer) => {
         this.state.layers = this.state.layers.filter((l) => l !== layer);
+        this.history.push({
+            type: 'remove',
+            layer,
+            state: layer.getState()
+        });
     };
-    setActiveLayer = (layer: Layer) => {
-        this.state.activeLayer = layer;
+    addLayer = (layer: AbstractLayer) => {
+        layer.resize(this.state.display, this.state.scale);
+        this.state.layers.unshift(layer);
+        this.history.push({
+            type: 'add',
+            layer,
+            state: layer.getState()
+        });
     };
-    setActiveTool = (tool: Tool) => {
+    setActiveTool = (tool: AbstractTool) => {
         this.state.activeTool = tool;
     };
     setDisplay = (display: Point) => {
@@ -140,9 +154,15 @@ export class Session {
     };
     setPlatform = (name: string) => {
         this.state.platform = name;
-        this.state.layers = [...this.state.layers];
+        const textTool: TextTool = this.tools.string as TextTool;
+        const font = this.platforms[name].getFonts()[0];
+        this.lock();
         // preload default font
-        loadFont(this.platforms[name].getFonts()[0]);
+        loadFont(font).then(() => {
+            textTool.lastFont = getFont(font.name);
+            this.unlock();
+            this.virtualScreen.redraw();
+        });
     };
     lock = () => {
         this.state.lock = true;

@@ -1,7 +1,7 @@
 import {Layer} from '../../core/layer';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
-import {Tool} from './tool';
+import {Tool} from './abstract.tool';
 
 export class PaintTool extends Tool {
     name = 'paint';

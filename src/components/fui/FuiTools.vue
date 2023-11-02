@@ -2,16 +2,16 @@
 import {toRefs} from 'vue';
 import {useSession} from '../../core/session';
 import FuiButton from './FuiButton.vue';
-import {Tool} from '../../draw/tools/tool';
+import {AbstractTool} from '../../draw/tools/abstract.tool';
 
 const emit = defineEmits(['toolClicked']);
 const session = useSession();
 const {tools} = session;
-const {activeTool, activeLayer} = toRefs(session.state);
+const {activeTool} = toRefs(session.state);
 
-function setActive(tool: Tool) {
+function setActive(tool: AbstractTool) {
     activeTool.value = tool;
-    activeLayer.value = tool.initLayer();
+    // activeLayer.value = tool.initLayer();
 }
 
 function isActive(name: string) {
@@ -32,3 +32,4 @@ function isActive(name: string) {
     </div>
 </template>
 <style lang="css"></style>
+../../draw/tools/abstract.tool

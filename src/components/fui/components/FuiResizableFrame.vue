@@ -2,6 +2,7 @@
 import {computed, defineEmits, ref, toRefs} from 'vue';
 import {Point} from '../../../core/point';
 import {useSession} from '../../../core/session';
+import {EditMode} from '../../../core/layers/abstract.layer';
 const emit = defineEmits(['resize']);
 enum Direction {
     NE = 'NE',
@@ -10,7 +11,8 @@ enum Direction {
     NW = 'NW'
 }
 const session = useSession();
-const {activeLayer, activeTool, scale} = toRefs(session.state);
+const {scale} = toRefs(session.state);
+const activeLayer = computed(() => null);
 const resize = ref(false);
 let position: Point = null;
 let direction: Direction = null;
@@ -18,21 +20,17 @@ let originalPos: Point = null;
 let originalSize: Point = null;
 const resizableTypes = ['circle', 'disc', 'box', 'frame'];
 const resizable = computed(
-    () =>
-        activeLayer.value &&
-        !activeLayer.value.isStub() &&
-        !activeLayer.value.edititng &&
-        resizableTypes.includes(activeLayer.value.type)
+    () => activeLayer.value && activeLayer.value.added && !activeLayer.value.isEditing() && activeLayer.value.resizable
 );
-const params = computed(() => {
-    if (resizable.value) {
-        return activeTool.value.getParams().reduce((acc, param) => {
-            acc[param.name] = param.onChange;
-            return acc;
-        }, {});
-    }
-    return {};
-});
+// const params = computed(() => {
+//     if (resizable.value) {
+//         return activeTool.value.getParams().reduce((acc, param) => {
+//             acc[param.name] = param.onChange;
+//             return acc;
+//         }, {});
+//     }
+//     return {};
+// });
 
 function onMouseDown(e: MouseEvent) {
     direction = Direction[(e.target as HTMLElement).dataset.direction];
@@ -47,58 +45,58 @@ function onMouseDown(e: MouseEvent) {
 }
 
 function onMouseMove(e: MouseEvent) {
-    const resizeX = params.value['x'];
-    const resizeY = params.value['y'];
-    const resizeW = params.value['w'];
-    const resizeH = params.value['h'];
-    const resizeR = params.value['radius'];
+    // const resizeX = params.value['x'];
+    // const resizeY = params.value['y'];
+    // const resizeW = params.value['w'];
+    // const resizeH = params.value['h'];
+    // const resizeR = params.value['radius'];
     const offset = position.clone().subtract(e.pageX, e.pageY).divide(scale.value).round();
-    switch (direction) {
-        case Direction.NE:
-            if (resizeR) {
-                resizeR(Math.floor(originalSize.x / 2 - offset.x / 2));
-                resizeY(Math.floor(originalPos.y + Math.round(offset.x / 2) * 2));
-            } else {
-                resizeY(originalPos.y - offset.y);
-                resizeH(Math.max(originalSize.y + offset.y, 1));
-                resizeX(originalPos.x);
-                resizeW(Math.max(originalSize.x - offset.x, 1));
-            }
-            break;
-        case Direction.SE:
-            if (resizeR) {
-                resizeR(Math.round(originalSize.x / 2 - offset.x / 2));
-            } else {
-                resizeY(originalPos.y);
-                resizeH(Math.max(originalSize.y - offset.y, 1));
-                resizeX(originalPos.x);
-                resizeW(Math.max(originalSize.x - offset.x, 1));
-            }
-            break;
-        case Direction.SW:
-            if (resizeR) {
-                resizeR(Math.ceil(originalSize.x / 2 + offset.x / 2));
-                resizeX(Math.ceil(originalPos.x - Math.round(offset.x / 2) * 2));
-            } else {
-                resizeY(originalPos.y);
-                resizeH(Math.max(originalSize.y - offset.y, 1));
-                resizeX(originalPos.x - offset.x);
-                resizeW(Math.max(originalSize.x + offset.x, 1));
-            }
-            break;
-        case Direction.NW:
-            if (resizeR) {
-                resizeR(Math.ceil(originalSize.x / 2 + offset.x / 2));
-                resizeX(Math.ceil(originalPos.x - Math.round(offset.x / 2) * 2));
-                resizeY(Math.ceil(originalPos.y - Math.round(offset.x / 2) * 2));
-            } else {
-                resizeY(originalPos.y - offset.y);
-                resizeH(Math.max(originalSize.y + offset.y, 1));
-                resizeX(originalPos.x - offset.x);
-                resizeW(Math.max(originalSize.x + offset.x, 1));
-            }
-            break;
-    }
+    // switch (direction) {
+    //     case Direction.NE:
+    //         if (resizeR) {
+    //             resizeR(Math.floor(originalSize.x / 2 - offset.x / 2));
+    //             resizeY(Math.floor(originalPos.y + Math.round(offset.x / 2) * 2));
+    //         } else {
+    //             resizeY(originalPos.y - offset.y);
+    //             resizeH(Math.max(originalSize.y + offset.y, 1));
+    //             resizeX(originalPos.x);
+    //             resizeW(Math.max(originalSize.x - offset.x, 1));
+    //         }
+    //         break;
+    //     case Direction.SE:
+    //         if (resizeR) {
+    //             resizeR(Math.round(originalSize.x / 2 - offset.x / 2));
+    //         } else {
+    //             resizeY(originalPos.y);
+    //             resizeH(Math.max(originalSize.y - offset.y, 1));
+    //             resizeX(originalPos.x);
+    //             resizeW(Math.max(originalSize.x - offset.x, 1));
+    //         }
+    //         break;
+    //     case Direction.SW:
+    //         if (resizeR) {
+    //             resizeR(Math.ceil(originalSize.x / 2 + offset.x / 2));
+    //             resizeX(Math.ceil(originalPos.x - Math.round(offset.x / 2) * 2));
+    //         } else {
+    //             resizeY(originalPos.y);
+    //             resizeH(Math.max(originalSize.y - offset.y, 1));
+    //             resizeX(originalPos.x - offset.x);
+    //             resizeW(Math.max(originalSize.x + offset.x, 1));
+    //         }
+    //         break;
+    //     case Direction.NW:
+    //         if (resizeR) {
+    //             resizeR(Math.ceil(originalSize.x / 2 + offset.x / 2));
+    //             resizeX(Math.ceil(originalPos.x - Math.round(offset.x / 2) * 2));
+    //             resizeY(Math.ceil(originalPos.y - Math.round(offset.x / 2) * 2));
+    //         } else {
+    //             resizeY(originalPos.y - offset.y);
+    //             resizeH(Math.max(originalSize.y + offset.y, 1));
+    //             resizeX(originalPos.x - offset.x);
+    //             resizeW(Math.max(originalSize.x + offset.x, 1));
+    //         }
+    //         break;
+    // }
 }
 
 function onMouseUp() {

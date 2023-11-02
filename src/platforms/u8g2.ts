@@ -1,4 +1,3 @@
-import {Layer} from 'src/core/layer';
 import f4x6 from '../../fonts/f4x6.ttf?url';
 import haxrcorp4089 from '../../fonts/haxrcorp4089.ttf?url';
 import u8g2_font_helvB08 from '../../fonts/helvb08.ttf?url';
@@ -8,6 +7,15 @@ import {Platform} from './platform';
 import {FontFormat} from '../draw/fonts/font';
 import bdf5x8 from '../draw/fonts/bdf/5x8.bdf?url';
 import bdf6x10 from '../draw/fonts/bdf/6x10.bdf?url';
+import {AbstractLayer} from '../core/layers/abstract.layer';
+import {DotLayer} from '../core/layers/dot.layer';
+import {LineLayer} from '../core/layers/line.layer';
+import {TextLayer} from '../core/layers/text.layer';
+import {BoxLayer} from '../core/layers/box.layer';
+import {FrameLayer} from '../core/layers/frame.layer';
+import {CircleLayer} from '../core/layers/circle.layer';
+import {DiscLayer} from '../core/layers/disc.layer';
+import {IconLayer} from '../core/layers/icon.layer';
 
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
@@ -83,49 +91,48 @@ export class U8g2Platform extends Platform {
         }
     ];
 
-    public generateSourceCode(layers: Layer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
+    public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
         const source = super.generateSourceCode(layers, ctx);
         source.declarations.unshift('u8g2.setBitmapMode(1);');
         return source;
     }
 
-    addDot(layer: Layer, source: TSourceCode): void {
+    addDot(layer: DotLayer, source: TSourceCode): void {
         source.code.push(`u8g2.drawPixel(${layer.position.x}, ${layer.position.y});`);
     }
-    addLine(layer: Layer, source: TSourceCode): void {
-        const from = layer.position.clone();
-        const to = layer.position.clone().add(layer.size);
-        source.code.push(`u8g2.drawLine(${from.x}, ${from.y}, ${to.x}, ${to.y});`);
+    addLine(layer: LineLayer, source: TSourceCode): void {
+        const {p1, p2} = layer;
+        source.code.push(`u8g2.drawLine(${p1.x}, ${p1.y}, ${p2.x}, ${p2.y});`);
     }
-    addText(layer: Layer, source: TSourceCode): void {
-        source.code.push(`u8g2.setFont(${layer.data.font});
-u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.data.text}");`);
+    addText(layer: TextLayer, source: TSourceCode): void {
+        source.code.push(`u8g2.setFont(${layer.font.name});
+u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
     }
-    addBox(layer: Layer, source: TSourceCode): void {
+    addBox(layer: BoxLayer, source: TSourceCode): void {
         source.code.push(`u8g2.drawBox(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`);
     }
-    addFrame(layer: Layer, source: TSourceCode): void {
+    addFrame(layer: FrameLayer, source: TSourceCode): void {
         source.code.push(`u8g2.drawFrame(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`);
     }
-    addCircle(layer: Layer, source: TSourceCode): void {
-        const radius = layer.size.x / 2;
-        const center = layer.position.clone().add(radius).add(1);
+    addCircle(layer: CircleLayer, source: TSourceCode): void {
+        const {radius, position} = layer;
+        const center = position.clone().add(radius).add(1);
         source.code.push(`u8g2.drawCircle(${center.x}, ${center.y}, ${radius});`);
     }
-    addDisc(layer: Layer, source: TSourceCode): void {
-        const radius = layer.size.x / 2;
-        const center = layer.position.clone().add(radius).add(1);
+    addDisc(layer: DiscLayer, source: TSourceCode): void {
+        const {radius, position} = layer;
+        const center = position.clone().add(radius).add(1);
         source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radius});`);
     }
-    addImage(layer: Layer, source: TSourceCode): void {
-        if (!layer.data.image) return;
-        const XBMP = imgDataToXBMP(layer.data.image, 0, 0, layer.size.x, layer.size.y);
+    addImage(layer: IconLayer, source: TSourceCode): void {
+        if (!layer.image) return;
+        const XBMP = imgDataToXBMP(layer.image, 0, 0, layer.size.x, layer.size.y);
         source.declarations.push(`static const unsigned char image_${layer.name}_bits[] U8X8_PROGMEM = {${XBMP}};`);
         source.code.push(
             `u8g2.drawXBMP( ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, image_${layer.name}_bits);`
         );
     }
-    addIcon(layer: Layer, source: TSourceCode): void {
+    addIcon(layer: IconLayer, source: TSourceCode): void {
         return this.addImage(layer, source);
     }
 }

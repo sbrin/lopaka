@@ -1,4 +1,12 @@
-import {Layer} from 'src/core/layer';
+import {AbstractLayer} from '../core/layers/abstract.layer';
+import {BoxLayer} from '../core/layers/box.layer';
+import {CircleLayer} from '../core/layers/circle.layer';
+import {DiscLayer} from '../core/layers/disc.layer';
+import {DotLayer} from '../core/layers/dot.layer';
+import {FrameLayer} from '../core/layers/frame.layer';
+import {IconLayer} from '../core/layers/icon.layer';
+import {LineLayer} from '../core/layers/line.layer';
+import {TextLayer} from '../core/layers/text.layer';
 
 /**
  * Abstract platform definition.
@@ -9,40 +17,36 @@ export abstract class Platform {
     protected name: string;
     protected description: string;
 
-    public generateSourceCode(layers: Layer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
+    public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
         const source: TSourceCode = {code: [], declarations: []};
         for (const layer of layers) {
-            switch (layer.type) {
-                case 'dot':
-                    this.addDot(layer, source);
+            switch (layer.constructor) {
+                case DotLayer:
+                    this.addDot(layer as DotLayer, source);
                     break;
-                case 'line':
-                    this.addLine(layer, source);
+                case LineLayer:
+                    this.addLine(layer as LineLayer, source);
                     break;
-                case 'string':
-                    this.addText(layer, source);
+                case TextLayer:
+                    this.addText(layer as TextLayer, source);
                     break;
-                case 'box':
-                    this.addBox(layer, source);
+                case BoxLayer:
+                    this.addBox(layer as BoxLayer, source);
                     break;
-                case 'frame':
-                    this.addFrame(layer, source);
+                case FrameLayer:
+                    this.addFrame(layer as FrameLayer, source);
                     break;
-                case 'circle':
-                    this.addCircle(layer, source);
+                case CircleLayer:
+                    this.addCircle(layer as CircleLayer, source);
                     break;
-                case 'disc':
-                    this.addDisc(layer, source);
+                case DiscLayer:
+                    this.addDisc(layer as DiscLayer, source);
                     break;
-                case 'paint':
-                case 'bitmap':
-                    this.addImage(layer, source);
-                    break;
-                case 'icon':
-                    this.addIcon(layer, source);
+                case IconLayer:
+                    this.addIcon(layer as IconLayer, source);
                     break;
                 default:
-                    console.warn(`Unknown layer type: ${layer.type}`);
+                    console.warn(`Unknown layer type: ${layer.constructor.name}`);
             }
         }
         return source;
@@ -60,13 +64,13 @@ export abstract class Platform {
         return this.description;
     }
 
-    abstract addDot(layer: Layer, source: TSourceCode): void;
-    abstract addLine(layer: Layer, source: TSourceCode): void;
-    abstract addText(layer: Layer, source: TSourceCode): void;
-    abstract addBox(layer: Layer, source: TSourceCode): void;
-    abstract addFrame(layer: Layer, source: TSourceCode): void;
-    abstract addCircle(layer: Layer, source: TSourceCode): void;
-    abstract addDisc(layer: Layer, source: TSourceCode): void;
-    abstract addImage(layer: Layer, source: TSourceCode): void;
-    abstract addIcon(layer: Layer, source: TSourceCode): void;
+    abstract addDot(layer: DotLayer, source: TSourceCode): void;
+    abstract addLine(layer: LineLayer, source: TSourceCode): void;
+    abstract addText(layer: TextLayer, source: TSourceCode): void;
+    abstract addBox(layer: BoxLayer, source: TSourceCode): void;
+    abstract addFrame(layer: FrameLayer, source: TSourceCode): void;
+    abstract addCircle(layer: CircleLayer, source: TSourceCode): void;
+    abstract addDisc(layer: DiscLayer, source: TSourceCode): void;
+    abstract addImage(layer: IconLayer, source: TSourceCode): void;
+    abstract addIcon(layer: IconLayer, source: TSourceCode): void;
 }

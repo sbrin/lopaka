@@ -1,12 +1,12 @@
 import {EffectScope, toRefs, watch} from 'vue';
 import {Session} from '../core/session';
-import {Layer} from '../core/layer';
 import {Point} from '../core/point';
 import {VirtualScreenPlugin} from './plugins/virtual-screen.plugin';
 import {RulerPlugin} from './plugins/ruler.plugin';
 import {SmartRulerPlugin} from './plugins/smart-ruler.plugin';
 import {HighlightPlugin} from './plugins/highlight.plugin';
 import {PointerPlugin} from './plugins/pointer.plugin';
+import {AbstractLayer} from '../core/layers/abstract.layer';
 
 type VirtualScreenOptions = {
     ruler: boolean;
@@ -31,7 +31,7 @@ export class VirtualScreen {
         private session: Session,
         public options: VirtualScreenOptions
     ) {
-        const {display, layers, platform, activeLayer, scale} = toRefs(session.state);
+        const {display, layers, platform, scale} = toRefs(session.state);
         this.screen = new OffscreenCanvas(display.value.x, display.value.y);
         this.ctx = this.screen.getContext('2d', {
             willReadFrequently: true,
@@ -52,7 +52,7 @@ export class VirtualScreen {
         this.scope = new EffectScope();
         this.scope.run(() => {
             watch(
-                [layers, platform, activeLayer],
+                [layers, platform],
                 () => {
                     this.redraw();
                 },
@@ -90,7 +90,7 @@ export class VirtualScreen {
         this.redraw();
     }
 
-    onMouseMove(position: Point) {
+    updateMousePosition(position: Point) {
         if (this.pluginLayer) {
             requestAnimationFrame(() => {
                 this.pluginLayerContext.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
@@ -99,11 +99,9 @@ export class VirtualScreen {
         }
     }
 
-    getLayersInPoint(position: Point): Layer[] {
+    getLayersInPoint(position: Point): AbstractLayer[] {
         const point = position.clone().divide(this.session.state.scale).round();
-        return this.session.state.layers.filter(
-            (layer) => layer.dc.ctx.isPointInStroke(point.x, point.y) || layer.dc.ctx.isPointInPath(point.x, point.y)
-        );
+        return this.session.state.layers.filter((layer) => layer.contains(point)).sort((a, b) => b.index - a.index);
     }
 
     public resize() {
@@ -123,10 +121,9 @@ export class VirtualScreen {
             this.pluginLayer.width = size.x * scale.x;
             this.pluginLayer.height = size.y * scale.y;
         }
-        layers.forEach((layer: Layer) => {
-            layer.buffer.width = size.x;
-            layer.buffer.height = size.y;
-            this.session.tools[layer.type].draw(layer);
+        layers.forEach((layer: AbstractLayer) => {
+            layer.resize(display, scale);
+            layer.draw();
         });
     }
 
@@ -134,7 +131,7 @@ export class VirtualScreen {
         if (!this.canvas) return;
         this.clear();
         this.session.state.layers.forEach((layer) => {
-            this.ctx.drawImage(layer.buffer, 0, 0);
+            this.ctx.drawImage(layer.getBuffer(), 0, 0);
         });
         // create data without alpha channel
         const data = this.ctx.getImageData(0, 0, this.screen.width, this.screen.height).data.map((v, i) => {

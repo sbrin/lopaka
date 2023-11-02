@@ -1,29 +1,30 @@
 <script lang="ts" setup>
-import {toRefs} from 'vue';
+import {computed, toRefs} from 'vue';
+import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
-import {Layer} from '../../core/layer';
 const session = useSession();
-const {layers, activeLayer} = toRefs(session.state);
-
+const {layers} = toRefs(session.state);
+const activeLayer = computed(() => null);
 function classNames(layer) {
     return {
-        layer_selected: activeLayer.value && activeLayer.value.index === layer.index,
+        layer_selected: layer.isEditing(),
         layer_ignored: layer.isOverlay
     };
 }
 
-function setActive(layer: Layer) {
-    activeLayer.value = layer;
+function setActive(layer: AbstractLayer) {
+    layer.startEdit(EditMode.DRAWING);
+    // activeLayer.value = layer;
 }
 
 function getLayerListItem(element: any) {
-    if (element.type === 'str') {
-        return `${element.text || 'Empty str'}`;
-    }
-    if (element.type === 'icon') {
-        return `${element.name}`;
-    }
-    return `${element.type}`;
+    // if (element.type === 'str') {
+    //     return `${element.text || 'Empty str'}`;
+    // }
+    // if (element.type === 'icon') {
+    //     return `${element.name}`;
+    // }
+    return `${element.name}`;
 }
 </script>
 <template>

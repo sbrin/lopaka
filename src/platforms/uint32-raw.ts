@@ -1,4 +1,4 @@
-import {Layer} from 'src/core/layer';
+import {AbstractLayer} from '../core/layers/abstract.layer';
 import {imgDataToUint32Array} from '../utils';
 import {Platform} from './platform';
 
@@ -7,17 +7,17 @@ export class Uint32RawPlatform extends Platform {
     protected name = 'Uint32 Raw';
     protected description = 'Uint32 Raw';
 
-    addDot(layer: Layer, source: TSourceCode): void {}
-    addLine(layer: Layer, source: TSourceCode): void {}
-    addText(layer: Layer, source: TSourceCode): void {}
-    addBox(layer: Layer, source: TSourceCode): void {}
-    addFrame(layer: Layer, source: TSourceCode): void {}
-    addCircle(layer: Layer, source: TSourceCode): void {}
-    addDisc(layer: Layer, source: TSourceCode): void {}
-    addImage(layer: Layer, source: TSourceCode): void {}
-    addIcon(layer: Layer, source: TSourceCode): void {}
+    addDot(layer: AbstractLayer, source: TSourceCode): void {}
+    addLine(layer: AbstractLayer, source: TSourceCode): void {}
+    addText(layer: AbstractLayer, source: TSourceCode): void {}
+    addBox(layer: AbstractLayer, source: TSourceCode): void {}
+    addFrame(layer: AbstractLayer, source: TSourceCode): void {}
+    addCircle(layer: AbstractLayer, source: TSourceCode): void {}
+    addDisc(layer: AbstractLayer, source: TSourceCode): void {}
+    addImage(layer: AbstractLayer, source: TSourceCode): void {}
+    addIcon(layer: AbstractLayer, source: TSourceCode): void {}
 
-    public generateSourceCode(layers: Layer[], ctx: OffscreenCanvasRenderingContext2D): TSourceCode {
+    public generateSourceCode(layers: AbstractLayer[], ctx: OffscreenCanvasRenderingContext2D): TSourceCode {
         const source: TSourceCode = {code: [], declarations: []};
         const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
         const UINT32 = imgDataToUint32Array(imageData);

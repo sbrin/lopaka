@@ -1,10 +1,12 @@
 import {toRefs} from 'vue';
 import {Layer} from '../../core/layer';
 import {Point} from '../../core/point';
-import {Tool} from './tool';
+import {Tool} from './abstract.tool';
 import {Keys} from '../../core/keys.enum';
 import {Rect} from '../../core/rect';
 
+// deprecated
+// TODO: remove
 export class SelectTool extends Tool {
     name = 'select';
     isModifier = true;

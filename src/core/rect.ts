@@ -133,6 +133,7 @@ export class Rect {
     add(v: number[]): Rect;
     add(x: number, y: number, w?: number, h?: number): Rect;
     add(v: Rect): Rect;
+    add(v: Point): Rect;
     add(...args: any[]): Rect {
         this.calc('add', args);
         return this;
@@ -141,6 +142,7 @@ export class Rect {
     subtract(v: number[]): Rect;
     subtract(x: number, y: number, w?: number, h?: number): Rect;
     subtract(v: Rect): Rect;
+    subtract(v: Point): Rect;
     subtract(...args: any[]): Rect {
         this.calc('subtract', args);
         return this;
@@ -149,6 +151,7 @@ export class Rect {
     multiply(v: number[]): Rect;
     multiply(x: number, y: number, w?: number, h?: number): Rect;
     multiply(v: Rect): Rect;
+    multiply(v: Point): Rect;
     multiply(...args: any[]): Rect {
         this.calc('multiply', args);
         return this;
@@ -157,6 +160,7 @@ export class Rect {
     divide(v: number[]): Rect;
     divide(x: number, y: number, w?: number, h?: number): Rect;
     divide(v: Rect): Rect;
+    divide(v: Point): Rect;
     divide(...args: any[]): Rect {
         this.calc('divide', args);
         return this;

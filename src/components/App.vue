@@ -22,7 +22,7 @@ const fuiCanvas = ref(null),
     codePreview = ref(''),
     customImages = ref([]);
 const session = useSession();
-const {display, platform, layers, activeLayer, activeTool} = toRefs(session.state);
+const {display, platform, layers, activeTool} = toRefs(session.state);
 
 // computed
 const isEmpty = computed(() => layers.value.length === 0);

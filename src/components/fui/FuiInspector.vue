@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import {computed, toRefs} from 'vue';
+import {ComputedRef, UnwrapRef, computed, toRefs} from 'vue';
+import {AbstractLayer, TLayerModifier, TLayerModifiers, TModifierType} from '../../core/layers/abstract.layer';
+import {IconLayer} from '../../core/layers/icon.layer';
 import {useSession} from '../../core/session';
-import {ToolParam, ToolParamType} from '../../draw/tools/tool';
-import iconsUrls from '../../icons';
 import {loadFont} from '../../draw/fonts';
-
+import iconsUrls from '../../icons';
 const session = useSession();
-const {platform, activeLayer, activeTool, scale} = toRefs(session.state);
+const {platform, scale, layers} = toRefs(session.state);
 
 const icons = computed(() => {
     return Object.entries(iconsUrls)
@@ -28,27 +28,32 @@ const icons = computed(() => {
         .sort((a, b) => a.width * a.height - b.width * b.height);
 });
 
-const params = computed(() => {
-    return activeTool.value.getParams();
+const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
+    const selection = layers.value.filter((layer) => layer.selected);
+    return selection.length == 1 ? selection[0] : null;
 });
+
+const params: ComputedRef<UnwrapRef<TLayerModifiers>> = computed(() =>
+    activeLayer.value ? activeLayer.value.modifiers : {}
+);
 
 const fonts = computed(() => {
     return session.platforms[platform.value].getFonts();
 });
 
-function onChange(event: Event, param: ToolParam) {
+function onChange(event: Event, param: TLayerModifier<any>) {
     const target = event.target as HTMLInputElement;
     switch (param.type) {
-        case ToolParamType.number:
-            param.onChange(parseFloat(target.value));
+        case TModifierType.number:
+            param.setValue(parseFloat(target.value));
             break;
-        case ToolParamType.string:
-            param.onChange(target.value);
+        case TModifierType.string:
+            param.setValue(target.value);
             break;
-        case ToolParamType.boolean:
-            param.onChange(target.checked);
+        case TModifierType.boolean:
+            param.setValue(target.checked);
             break;
-        case ToolParamType.font:
+        case TModifierType.font:
             const font = session.platforms[platform.value]
                 .getFonts()
                 .find((f: TPlatformFont) => f.name === target.value);
@@ -56,49 +61,57 @@ function onChange(event: Event, param: ToolParam) {
             session.lock();
             loadFont(font).then(() => {
                 session.unlock();
-                param.onChange(font.name);
+                param.setValue(font.name);
+                session.virtualScreen.redraw();
             });
             break;
-        case ToolParamType.image:
-            param.onChange(icons.value.find((image) => target.dataset.name === image.name).image);
+        case TModifierType.image:
+            param.setValue(icons.value.find((image) => target.dataset.name === image.name).image);
             break;
     }
+    session.virtualScreen.redraw();
 }
 </script>
 <template>
     <div class="inspector" v-if="activeLayer">
-        <div class="title inspector__title">{{ activeLayer.name || activeLayer.type }}</div>
+        <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
-            <div v-for="param in params" class="inspector-panel__param">
-                <span>{{ param.name }}</span>
-                <div v-if="param.type == ToolParamType.number">
+            {{ params }}
+            <div v-for="(param, name) in params" class="inspector-panel__param">
+                <span>{{ name }}</span>
+                <div v-if="param.type == TModifierType.number">
                     <input
                         class="inspector__input"
                         type="number"
-                        :value="param.value"
+                        :value="param.getValue()"
                         @change="onChange($event, param)"
                     />
                 </div>
-                <div v-else-if="param.type == ToolParamType.string">
-                    <input class="inspector__input" type="text" :value="param.value" @keyup="onChange($event, param)" />
+                <div v-else-if="param.type == TModifierType.string">
+                    <input
+                        class="inspector__input"
+                        type="text"
+                        :value="param.getValue()"
+                        @keyup="onChange($event, param)"
+                    />
                 </div>
-                <div v-else-if="param.type == ToolParamType.boolean">
+                <div v-else-if="param.type == TModifierType.boolean">
                     <input
                         class="inspector__input"
                         type="checkbox"
-                        :checked="param.value"
+                        :checked="param.getValue()"
                         @change="onChange($event, param)"
                     />
                 </div>
-                <div v-else-if="param.type == ToolParamType.font">
-                    <select class="inspector__input" :value="param.value" @change="onChange($event, param)">
+                <div v-else-if="param.type == TModifierType.font">
+                    <select class="inspector__input" :value="param.getValue()" @change="onChange($event, param)">
                         <option v-for="font in fonts" :value="font.name">{{ font.title }}</option>
                     </select>
                 </div>
-                <div v-else-if="param.type == ToolParamType.image" class="fui-icons">
+                <div v-else-if="param.type == TModifierType.image" class="fui-icons">
                     <img
                         @click="onChange($event, param)"
-                        :class="{selected: activeLayer.data.name === icon.name}"
+                        :class="{selected: (activeLayer as IconLayer).imageName === icon.name}"
                         v-for="icon in icons"
                         :src="icon.image.src"
                         :title="icon.name"
