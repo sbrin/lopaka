@@ -1,6 +1,6 @@
-import {VirtualScreenPlugin} from './virtual-screen.plugin';
+import {DrawPlugin} from './draw.plugin';
 
-export class RulerPlugin extends VirtualScreenPlugin {
+export class RulerPlugin extends DrawPlugin {
     public update(ctx: CanvasRenderingContext2D): void {
         const {scale, display} = this.session.state;
         ctx.save();

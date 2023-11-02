@@ -1,7 +1,7 @@
 import {EffectScope, toRefs, watch} from 'vue';
 import {Session} from '../core/session';
 import {Point} from '../core/point';
-import {VirtualScreenPlugin} from './plugins/virtual-screen.plugin';
+import {DrawPlugin} from './plugins/draw.plugin';
 import {RulerPlugin} from './plugins/ruler.plugin';
 import {SmartRulerPlugin} from './plugins/smart-ruler.plugin';
 import {HighlightPlugin} from './plugins/highlight.plugin';
@@ -25,7 +25,7 @@ export class VirtualScreen {
     private scope: EffectScope;
     canvas: HTMLCanvasElement = null;
     canvasContext: CanvasRenderingContext2D = null;
-    plugins: VirtualScreenPlugin[] = [];
+    plugins: DrawPlugin[] = [];
 
     constructor(
         private session: Session,

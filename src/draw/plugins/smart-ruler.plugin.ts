@@ -1,6 +1,6 @@
-import {VirtualScreenPlugin} from './virtual-screen.plugin';
+import {DrawPlugin} from './draw.plugin';
 
-export class SmartRulerPlugin extends VirtualScreenPlugin {
+export class SmartRulerPlugin extends DrawPlugin {
     public update(ctx: CanvasRenderingContext2D): void {
         const {layers, scale} = this.session.state;
         // show distance to left and top

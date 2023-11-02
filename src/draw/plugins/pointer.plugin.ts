@@ -1,7 +1,7 @@
 import {Point} from '../../core/point';
-import {VirtualScreenPlugin} from './virtual-screen.plugin';
+import {DrawPlugin} from './draw.plugin';
 
-export class PointerPlugin extends VirtualScreenPlugin {
+export class PointerPlugin extends DrawPlugin {
     public update(ctx: CanvasRenderingContext2D, position: Point): void {
         const {display, scale} = this.session.state;
         if (position) {
