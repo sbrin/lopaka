@@ -76,7 +76,6 @@ function onChange(event: Event, param: TLayerModifier<any>) {
     <div class="inspector" v-if="activeLayer">
         <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
-            {{ params }}
             <div v-for="(param, name) in params" class="inspector-panel__param">
                 <span>{{ name }}</span>
                 <div v-if="param.type == TModifierType.number">
@@ -122,6 +121,7 @@ function onChange(event: Event, param: TLayerModifier<any>) {
                     />
                 </div>
             </div>
+            {{ activeLayer.getState() }}
         </div>
     </div>
 </template>

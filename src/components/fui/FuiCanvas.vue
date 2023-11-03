@@ -12,13 +12,14 @@ const props = defineProps<{
 
 const emit = defineEmits(['updateFuiImages']);
 const screen = ref(null);
+const container = ref(null);
 const session = useSession();
+const {editor, virtualScreen, state} = session;
+const {display, activeTool, scale, lock} = toRefs(state);
 
 const isDrawing = ref(false);
 
 let selectionMove = false; //todo
-
-const {display, activeTool, scale, lock} = toRefs(session.state);
 
 // const activeLayerStyle = computed(() =>
 //     activeLayer.value && !activeLayer.value.added
@@ -43,14 +44,15 @@ const {display, activeTool, scale, lock} = toRefs(session.state);
 // );
 
 onMounted(() => {
-    session.virtualScreen.setCanvas(screen.value);
-    document.addEventListener('mouseup', onMouseUp);
-    document.addEventListener('keydown', onKeyDown);
+    virtualScreen.setCanvas(screen.value);
+    editor.setContainer(container.value as HTMLElement);
+    document.addEventListener('mouseup', editor.handleEvent);
+    document.addEventListener('keydown', editor.handleEvent);
 });
 
 onBeforeUnmount(() => {
-    document.removeEventListener('mouseup', onMouseUp);
-    document.removeEventListener('keydown', onKeyDown);
+    document.removeEventListener('mouseup', editor.handleEvent);
+    document.removeEventListener('keydown', editor.handleEvent);
 });
 
 function isSelectTool() {
@@ -58,11 +60,11 @@ function isSelectTool() {
 }
 
 function isMoving() {
-    return activeTool.value.getName() === 'select' && activeTool.value.isDrawing();
+    return activeTool.value?.getName() === 'select' && activeTool.value?.isDrawing();
 }
 
 function isDrawingTool() {
-    return false; //activeTool.value.getName() !== 'select' && !activeLayer.value;
+    return false; //activeTool.value?.getName() !== 'select' && !activeLayer.value;
 }
 
 const canvasClassNames = computed(() => {
@@ -109,11 +111,11 @@ function onMouseDown(e: MouseEvent) {
             }
         } else {
             // click on empty space
-            if (activeTool.value.getName() === 'select') {
+            if (activeTool.value?.getName() === 'select') {
                 // if pointer tool is active, deselect all layers and stop editing
                 selection.forEach((layer) => ((layer.selected = false), layer.isEditing() && layer.stopEdit()));
             } else {
-                activeTool.value.onMouseDown(position.clone(), e);
+                activeTool.value?.onMouseDown(position.clone(), e);
             }
         }
         session.virtualScreen.updateMousePosition(position.clone());
@@ -121,18 +123,18 @@ function onMouseDown(e: MouseEvent) {
 
     // if there is no selected layers
 
-    // if (activeTool.value.isModifier) {
+    // if (activeTool.value?.isModifier) {
     //     const layersInPoint = session.virtualScreen.getLayersInPoint(position);
     //     if (layersInPoint.length > 0) {
     //         const layer = layersInPoint.sort((a, b) => b.index - a.index)[0];
     //         activeLayer.value = layer;
-    //         activeTool.value.onMouseDown(position.clone(), e);
+    //         activeTool.value?.onMouseDown(position.clone(), e);
     //     } else {
     //         // reset selection
     //         activeLayer.value = null;
     //     }
     // } else {
-    //     activeTool.value.onMouseDown(position.clone(), e);
+    //     activeTool.value?.onMouseDown(position.clone(), e);
     // }
 }
 
@@ -152,7 +154,7 @@ function onDblclick(e: MouseEvent) {
 function onMouseMove(e: MouseEvent) {
     const position = new Point(e.offsetX, e.offsetY);
     if (activeTool.value?.isDrawing()) {
-        activeTool.value.onMouseMove(position.clone(), e);
+        activeTool.value?.onMouseMove(position.clone(), e);
     } else if (selectionMove) {
         const selection = session.state.layers.filter((layer) => layer.selected);
         selection.forEach((layer) => layer.edit(position.clone().divide(scale.value), e));
@@ -180,10 +182,10 @@ function onMouseUp(e: MouseEvent) {
     }
     if (isDrawing.value) {
         const position = new Point(e.offsetX, e.offsetY);
-        if (activeTool.value.isDrawing()) {
-            activeTool.value.onMouseUp(position.clone(), e);
+        if (activeTool.value?.isDrawing()) {
+            activeTool.value?.onMouseUp(position.clone(), e);
         }
-        // activeTool.value = session.tools.select;
+        // activeTool.value? = session.tools.select;
         isDrawing.value = false;
     }
 }
@@ -195,7 +197,15 @@ function onKeyDown(e: KeyboardEvent) {
 }
 </script>
 <template>
-    <div class="canvas-wrapper" :class="{locked: lock}">
+    <div
+        class="canvas-wrapper"
+        ref="container"
+        :class="{locked: lock}"
+        @mousedown.prevent="editor.handleEvent"
+        @mousemove.prevent="editor.handleEvent"
+        @dblclick.prevent="editor.handleEvent"
+        @click.prevent="editor.handleEvent"
+    >
         <div class="fui-grid" :style="{backgroundSize: `${scale.x}px ${scale.y}px`}">
             <canvas
                 ref="screen"
@@ -204,9 +214,6 @@ function onKeyDown(e: KeyboardEvent) {
                 :height="display.y"
                 :style="{width: display.x * scale.x + 'px', height: display.y * scale.y + 'px'}"
                 :class="canvasClassNames"
-                @mousedown.prevent="onMouseDown"
-                @mousemove.prevent="onMouseMove"
-                @dblclick.prevent="onDblclick"
             />
             <!-- <FuiResizableFrame /> -->
             <!-- <div :style="hoverLayerStyle" class="hover-frame"></div> -->
@@ -222,6 +229,16 @@ function onKeyDown(e: KeyboardEvent) {
     margin: 16px 0;
     display: inline-block;
     font-size: 0;
+    position: relative;
+}
+.fui-canvas__selection {
+    position: absolute;
+    border: 2px dashed #ffffff70;
+    background-color: #ffffff10;
+    box-sizing: content-box;
+    z-index: 2;
+    pointer-events: none;
+    display: none;
 }
 .locked {
     opacity: 0.5;
@@ -243,7 +260,6 @@ function onKeyDown(e: KeyboardEvent) {
     background-image: linear-gradient(to right, var(--bg-color) 0.5px, transparent 1px),
         linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 1px);
 }
-
 .hover-frame {
     border: 1px solid #ffffff70;
     /* box-shadow: 0px 0px 2px 0px rgba(0, 249, 216, 0.5); */

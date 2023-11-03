@@ -33,10 +33,7 @@ export abstract class AbstractTool {
     onMouseDown(position: Point, originalEvent: MouseEvent): void {
         const {layers, display, scale} = this.session.state;
         // project position to the virtual screen
-        position
-            .divide(scale)
-            .round()
-            .boundTo(new Rect(0, 0, display.x, display.y));
+
         // create new layer
         this.layer = this.createLayer();
         if (!this.isModifier) {
@@ -50,10 +47,7 @@ export abstract class AbstractTool {
 
     onMouseMove(position: Point, originalEvent: MouseEvent) {
         const {scale, display} = toRefs(this.session.state);
-        position
-            .divide(scale.value)
-            .round()
-            .boundTo(new Rect(0, 0, display.value.x, display.value.y));
+
         this.edit(this.layer, position.clone(), originalEvent);
         this.session.virtualScreen.redraw();
     }

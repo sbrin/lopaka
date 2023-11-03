@@ -21,6 +21,7 @@ import {IconTool} from '../draw/tools/icon.tool';
 import {getFont, loadFont} from '../draw/fonts';
 import {AbstractLayer} from './layers/abstract.layer';
 import {ChangeHistory, useHistory} from './history';
+import {Editor} from '../editor/editor';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -108,9 +109,11 @@ export class Session {
 
     history: ChangeHistory = useHistory();
 
+    editor: Editor = new Editor(this);
+
     virtualScreen: VirtualScreen = new VirtualScreen(this, {
         ruler: false,
-        smartRuler: true,
+        smartRuler: false,
         highlight: true,
         pointer: false
     });
@@ -143,6 +146,7 @@ export class Session {
             layer,
             state: layer.getState()
         });
+        layer.draw();
     };
     setActiveTool = (tool: AbstractTool) => {
         this.state.activeTool = tool;

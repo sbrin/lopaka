@@ -1,19 +1,23 @@
 import {toRefs} from 'vue';
-import {Layer} from '../../core/layer';
 import {Point} from '../../core/point';
-import {Tool} from './abstract.tool';
+import {AbstractTool} from './abstract.tool';
 import {Keys} from '../../core/keys.enum';
 import {Rect} from '../../core/rect';
+import {AbstractLayer} from '../../core/layers/abstract.layer';
 
 // deprecated
 // TODO: remove
-export class SelectTool extends Tool {
+export class SelectTool extends AbstractTool {
     name = 'select';
     isModifier = true;
     private originalPosition: Point = null;
     private originalSize: Point = null;
     private offset: Point = null;
     private copyBuffer = null;
+
+    createLayer(): AbstractLayer {
+        return null;
+    }
 
     draw(layer: Layer): void {
         this.getTool(layer.type).draw(layer);

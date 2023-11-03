@@ -7,13 +7,15 @@ const {layers} = toRefs(session.state);
 const activeLayer = computed(() => null);
 function classNames(layer) {
     return {
-        layer_selected: layer.isEditing(),
+        layer_selected: layer.selected,
         layer_ignored: layer.isOverlay
     };
 }
 
 function setActive(layer: AbstractLayer) {
-    layer.startEdit(EditMode.DRAWING);
+    layers.value.forEach((l) => (l.selected = false));
+    layer.selected = true;
+    // layer.startEdit(EditMode.DRAWING);
     // activeLayer.value = layer;
 }
 

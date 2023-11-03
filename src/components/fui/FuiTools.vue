@@ -15,11 +15,12 @@ function setActive(tool: AbstractTool) {
 }
 
 function isActive(name: string) {
-    return activeTool.value.getName() === name;
+    return activeTool.value?.getName() === name;
 }
 </script>
 <template>
     <div class="tools">
+        <FuiButton class="tools__btn" @click="setActive(null)" :active="activeTool == null">select</FuiButton>
         <FuiButton
             v-for="(tool, idx) in tools"
             :key="idx"
