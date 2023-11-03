@@ -51,15 +51,9 @@ export class VirtualScreen {
         }
         this.scope = new EffectScope();
         this.scope.run(() => {
-            watch(
-                [layers, platform],
-                () => {
-                    this.redraw();
-                },
-                {
-                    deep: true
-                }
-            );
+            watch([layers, platform], () => {
+                this.redraw();
+            });
             watch([scale, display], () => {
                 this.resize();
                 this.redraw();

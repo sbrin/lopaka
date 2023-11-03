@@ -37,6 +37,7 @@ export class CopyPlugin extends EditorPlugin {
                     l.stopEdit();
                     this.session.addLayer(l);
                 });
+                this.session.virtualScreen.redraw();
             }
         }
     }

@@ -25,6 +25,7 @@ export class MovePlugin extends EditorPlugin {
         if (this.captured) {
             const {layers} = this.session.state;
             layers.filter((l) => l.selected).forEach((layer) => layer.edit(point.clone(), event));
+            this.session.virtualScreen.redraw();
         }
     }
 
