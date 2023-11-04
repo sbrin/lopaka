@@ -1,4 +1,4 @@
-import {EffectScope, toRefs, watch} from 'vue';
+import {EffectScope, reactive, toRefs, watch} from 'vue';
 import {Session} from '../core/session';
 import {Point} from '../core/point';
 import {DrawPlugin} from './plugins/draw.plugin';
@@ -7,6 +7,7 @@ import {SmartRulerPlugin} from './plugins/smart-ruler.plugin';
 import {HighlightPlugin} from './plugins/highlight.plugin';
 import {PointerPlugin} from './plugins/pointer.plugin';
 import {AbstractLayer} from '../core/layers/abstract.layer';
+import {ResizeIconsPlugin} from './plugins/resize-icons.plugin';
 
 type VirtualScreenOptions = {
     ruler: boolean;
@@ -21,6 +22,7 @@ export class VirtualScreen {
 
     private pluginLayer: HTMLCanvasElement = null;
     private pluginLayerContext: CanvasRenderingContext2D = null;
+    public state;
 
     private scope: EffectScope;
     canvas: HTMLCanvasElement = null;
@@ -49,8 +51,12 @@ export class VirtualScreen {
         if (options.pointer) {
             this.plugins.push(new PointerPlugin(session));
         }
+        this.plugins.push(new ResizeIconsPlugin(session));
         this.scope = new EffectScope();
         this.scope.run(() => {
+            this.state = reactive({
+                updates: 0
+            });
             watch([layers, platform], () => {
                 this.redraw();
             });
@@ -127,6 +133,7 @@ export class VirtualScreen {
         this.session.state.layers.forEach((layer) => {
             this.ctx.drawImage(layer.getBuffer(), 0, 0);
         });
+        this.state.updates++;
         // create data without alpha channel
         const data = this.ctx.getImageData(0, 0, this.screen.width, this.screen.height).data.map((v, i) => {
             if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;

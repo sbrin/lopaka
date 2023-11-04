@@ -6,5 +6,5 @@ import {Session} from '../../core/session';
 export abstract class DrawPlugin {
     constructor(protected session: Session) {}
 
-    public abstract update(ctx: CanvasRenderingContext2D, position: Point): void;
+    public abstract update(ctx: CanvasRenderingContext2D, point: Point): void;
 }

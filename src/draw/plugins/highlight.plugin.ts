@@ -2,7 +2,7 @@ import {Point} from '../../core/point';
 import {DrawPlugin} from './draw.plugin';
 
 export class HighlightPlugin extends DrawPlugin {
-    public update(ctx: CanvasRenderingContext2D, position: Point): void {
+    public update(ctx: CanvasRenderingContext2D, point: Point): void {
         const {display, scale, layers} = this.session.state;
         // if (position) {
         ctx.save();
@@ -24,7 +24,7 @@ export class HighlightPlugin extends DrawPlugin {
                 ctx.setLineDash([5, 5]);
                 ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
                 ctx.restore();
-            } else if (position && layer.contains(position.clone().divide(scale).round())) {
+            } else if (point && layer.contains(point.clone().divide(scale).round())) {
                 ctx.save();
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
                 ctx.lineWidth = 1;

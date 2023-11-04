@@ -1,20 +1,21 @@
 <script lang="ts" setup>
+import {shallowRef, toRefs, watch} from 'vue';
 import {AbstractLayer} from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
-import {computed, toRefs} from 'vue';
 const session = useSession();
 const {platform, layers} = toRefs(session.state);
-
-const content = computed(() => {
-    if (session.virtualScreen) {
+const {updates} = toRefs(session.virtualScreen.state);
+const content = shallowRef('');
+let timeout;
+watch([updates], () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
         const sourceCode = session.platforms[platform.value].generateSourceCode(
             layers.value as AbstractLayer[],
             session.virtualScreen.ctx
         );
-        return sourceCode.declarations.reverse().join('\n') + '\n' + sourceCode.code.reverse().join('\n');
-    } else {
-        return '';
-    }
+        content.value = sourceCode.declarations.reverse().join('\n') + '\n' + sourceCode.code.reverse().join('\n');
+    }, 100);
 });
 </script>
 <template>

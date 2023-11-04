@@ -197,24 +197,26 @@ function onKeyDown(e: KeyboardEvent) {
 }
 </script>
 <template>
-    <div
-        class="canvas-wrapper"
-        ref="container"
-        :class="{locked: lock}"
-        @mousedown.prevent="editor.handleEvent"
-        @mousemove.prevent="editor.handleEvent"
-        @dblclick.prevent="editor.handleEvent"
-        @click.prevent="editor.handleEvent"
-    >
+    <div class="canvas-wrapper">
         <div class="fui-grid" :style="{backgroundSize: `${scale.x}px ${scale.y}px`}">
-            <canvas
-                ref="screen"
-                class="screen"
-                :width="display.x"
-                :height="display.y"
-                :style="{width: display.x * scale.x + 'px', height: display.y * scale.y + 'px'}"
-                :class="canvasClassNames"
-            />
+            <div
+                ref="container"
+                class="fui-canvas__event-target"
+                :class="{locked: lock}"
+                @mousedown.prevent="editor.handleEvent"
+                @mousemove.prevent="editor.handleEvent"
+                @dblclick.prevent="editor.handleEvent"
+                @click.prevent="editor.handleEvent"
+            >
+                <canvas
+                    ref="screen"
+                    class="screen"
+                    :width="display.x"
+                    :height="display.y"
+                    :style="{width: display.x * scale.x + 'px', height: display.y * scale.y + 'px'}"
+                    :class="canvasClassNames"
+                />
+            </div>
             <!-- <FuiResizableFrame /> -->
             <!-- <div :style="hoverLayerStyle" class="hover-frame"></div> -->
         </div>
@@ -231,6 +233,10 @@ function onKeyDown(e: KeyboardEvent) {
     font-size: 0;
     position: relative;
 }
+.fui-canvas__event-target {
+    position: relative;
+    overflow: hidden;
+}
 .fui-canvas__selection {
     position: absolute;
     border: 2px dashed #ffffff70;
@@ -239,6 +245,36 @@ function onKeyDown(e: KeyboardEvent) {
     z-index: 2;
     pointer-events: none;
     display: none;
+    translate: transform(-50%, -50%);
+}
+.fui-canvas__resizable-conatiner {
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+}
+.fui-canvas__movable-point {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #ffffffdd;
+    border-radius: 50%;
+    pointer-events: all;
+}
+.fui-canvas__movable-point.direction_NE {
+    transform: translate(-50%, -50%);
+    cursor: nesw-resize;
+}
+.fui-canvas__movable-point.direction_SE {
+    transform: translate(-50%, -50%);
+    cursor: nwse-resize;
+}
+.fui-canvas__movable-point.direction_SW {
+    transform: translate(-50%, -50%);
+    cursor: nesw-resize;
+}
+.fui-canvas__movable-point.direction_NW {
+    transform: translate(-50%, -50%);
+    cursor: nwse-resize;
 }
 .locked {
     opacity: 0.5;
@@ -260,15 +296,6 @@ function onKeyDown(e: KeyboardEvent) {
     background-image: linear-gradient(to right, var(--bg-color) 0.5px, transparent 1px),
         linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 1px);
 }
-.hover-frame {
-    border: 1px solid #ffffff70;
-    /* box-shadow: 0px 0px 2px 0px rgba(0, 249, 216, 0.5); */
-    position: absolute;
-    box-sizing: content-box;
-    z-index: 2;
-    pointer-events: none;
-}
-
 .fui-canvas_select {
     cursor: default;
 }

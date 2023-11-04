@@ -7,7 +7,15 @@ import {DeletePlugin} from './plugins/delete.plugin';
 import {EditorPlugin} from './plugins/editor.plugin';
 import {LayersPlugin} from './plugins/layers.plugin';
 import {MovePlugin} from './plugins/move.plugin';
+import {ResizePlugin} from './plugins/resize.plugin';
 import {SelectionPlugin} from './plugins/selection.plugin';
+
+type TEditorState = {
+    creatingLayyer: boolean;
+    resizingLayer: boolean;
+    movingLayer: boolean;
+    selecting: boolean;
+};
 
 export class Editor {
     plugins: EditorPlugin[] = [];
@@ -21,6 +29,7 @@ export class Editor {
             ...[
                 new LayersPlugin(this.session, this.container),
                 new SelectionPlugin(this.session, this.container),
+                new ResizePlugin(this.session, this.container),
                 new CopyPlugin(this.session, this.container),
                 new MovePlugin(this.session, this.container),
                 new DeletePlugin(this.session, this.container)
@@ -32,7 +41,7 @@ export class Editor {
         const {virtualScreen, state} = this.session;
         const {display, scale, layers} = state;
         if (event instanceof KeyboardEvent) {
-            if (Object.values(Keys).indexOf(event.code as Keys) != -1) {
+            if (event.target === document.body && Object.values(Keys).indexOf(event.code as Keys) != -1) {
                 event.preventDefault();
                 this.onKeyDown(Keys[event.code], event);
             }
@@ -54,6 +63,9 @@ export class Editor {
                     break;
                 case 'mouseleave':
                     this.onMouseLeave(point, event);
+                    break;
+                case 'dblclick':
+                    this.onMouseDoubleClick(point, event);
                     break;
             }
             virtualScreen.updateMousePosition(screenPoint);
@@ -77,5 +89,8 @@ export class Editor {
     }
     onKeyDown(key: Keys, event: KeyboardEvent): void {
         this.plugins.forEach((plugin) => plugin.onKeyDown(key, event));
+    }
+    onMouseDoubleClick(point: Point, event: MouseEvent): void {
+        this.plugins.forEach((plugin) => plugin.onMouseDoubleClick(point, event));
     }
 }

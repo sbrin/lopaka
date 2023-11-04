@@ -15,5 +15,6 @@ export abstract class EditorPlugin {
     onMouseMove(point: Point, event: MouseEvent): void {}
     onMouseUp(point: Point, event: MouseEvent): void {}
     onMouseLeave(point: Point, event: MouseEvent): void {}
+    onMouseDoubleClick(point: Point, event: MouseEvent): void {}
     onKeyDown(key: Keys, event: KeyboardEvent): void {}
 }

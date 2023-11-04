@@ -113,7 +113,7 @@ export class Session {
 
     virtualScreen: VirtualScreen = new VirtualScreen(this, {
         ruler: false,
-        smartRuler: false,
+        smartRuler: true,
         highlight: true,
         pointer: false
     });

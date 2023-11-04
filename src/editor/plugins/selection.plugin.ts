@@ -82,11 +82,9 @@ export class SelectionPlugin extends EditorPlugin {
 
     onKeyDown(key: Keys, event: KeyboardEvent): void {
         if (key === Keys.Escape) {
-            event.preventDefault();
             this.session.state.layers.forEach((l) => (l.selected = false));
             this.session.virtualScreen.redraw();
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {
-            event.preventDefault();
             this.session.state.layers.forEach((l) => (l.selected = true));
             this.session.virtualScreen.redraw();
         }
