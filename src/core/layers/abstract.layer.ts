@@ -19,13 +19,13 @@ export enum TModifierType {
 }
 export type TModifierName = 'x' | 'y' | 'w' | 'h' | 'radius' | 'text' | 'font' | 'icon' | 'x1' | 'x2' | 'y1' | 'y2';
 
-export type TLayerModifier<T> = {
-    setValue(value: T): void;
-    getValue(): T;
+export type TLayerModifier = {
+    setValue(value: any): void;
+    getValue(): any;
     type: TModifierType;
 };
 
-export type TLayerModifiers = Partial<{[key in TModifierName]: TLayerModifier<any>}>;
+export type TLayerModifiers = Partial<{[key in TModifierName]: TLayerModifier}>;
 
 /**
  * Abstract layer class
@@ -114,6 +114,14 @@ export abstract class AbstractLayer {
         const cloned = new (this.constructor as any)();
         cloned.loadState(this.state);
         return cloned;
+    }
+
+    /**
+     * Is layer in resizing mode
+     * @param state
+     */
+    public isResizing(): boolean {
+        return this.mode === EditMode.RESIZING;
     }
 
     /**
