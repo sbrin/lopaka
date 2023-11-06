@@ -19,7 +19,8 @@ export abstract class AbstractTool {
     }
 
     onStopEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent): void {
-        // do nothing
+        this.editor.state.activeLayer = null;
+        this.editor.state.activeTool = null;
     }
 
     onStartEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent): void {
