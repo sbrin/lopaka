@@ -4,37 +4,78 @@ import {Rect} from '../core/rect';
 import {Session} from '../core/session';
 import {CopyPlugin} from './plugins/copy.plugin';
 import {DeletePlugin} from './plugins/delete.plugin';
-import {EditorPlugin} from './plugins/editor.plugin';
-import {LayersPlugin} from './plugins/layers.plugin';
+import {AbstractEditorPlugin} from './plugins/abstract-editor.plugin';
+import {AddPlugin} from './plugins/add.plugin';
 import {MovePlugin} from './plugins/move.plugin';
 import {ResizePlugin} from './plugins/resize.plugin';
-import {SelectionPlugin} from './plugins/selection.plugin';
+import {SelectPlugin} from './plugins/select.plugin';
+import {AbstractTool} from './tools/abstract.tool';
+import {BoxTool} from './tools/box.tool';
+import {CircleTool} from './tools/circle.tool';
+import {DiscTool} from './tools/disc.tool';
+import {DotTool} from './tools/dot.tool';
+import {FrameTool} from './tools/frame.tool';
+import {IconTool} from './tools/icon.tool';
+import {LineTool} from './tools/line.tool';
+import {TextTool} from './tools/text.tool';
+import {Font} from '../draw/fonts/font';
+import {AbstractLayer} from '../core/layers/abstract.layer';
+import {UnwrapRef, reactive} from 'vue';
 
 type TEditorState = {
-    creatingLayyer: boolean;
-    resizingLayer: boolean;
-    movingLayer: boolean;
-    selecting: boolean;
+    // creatingLayyer: boolean;
+    // resizingLayer: boolean;
+    // movingLayer: boolean;
+    // selecting: boolean;
+    activeLayer: AbstractLayer;
+    activeTool: AbstractTool;
 };
 
 export class Editor {
-    plugins: EditorPlugin[] = [];
+    plugins: AbstractEditorPlugin[] = [];
     container: HTMLElement;
+    // default font
+    font: Font;
 
-    constructor(protected session: Session) {}
+    layer: AbstractLayer;
+
+    state: UnwrapRef<TEditorState> = reactive({
+        activeLayer: null,
+        activeTool: null
+    });
+
+    constructor(public session: Session) {}
+
+    tools: {[key: string]: AbstractTool} = {
+        // select: new SelectTool(this),
+        // paint: new PaintTool(this),
+        frame: new FrameTool(this),
+        box: new BoxTool(this),
+        line: new LineTool(this),
+        dot: new DotTool(this),
+        circle: new CircleTool(this),
+        disc: new DiscTool(this),
+        string: new TextTool(this),
+        icon: new IconTool(this)
+    };
 
     setContainer(container: HTMLElement) {
         this.container = container;
         this.plugins.push(
             ...[
-                new LayersPlugin(this.session, this.container),
-                new SelectionPlugin(this.session, this.container),
+                new AddPlugin(this.session, this.container),
+                new SelectPlugin(this.session, this.container),
                 new ResizePlugin(this.session, this.container),
                 new CopyPlugin(this.session, this.container),
                 new MovePlugin(this.session, this.container),
                 new DeletePlugin(this.session, this.container)
             ]
         );
+    }
+
+    setTool(name: string) {
+        this.state.activeTool = this.tools[name];
+        // this.state.activeLayer = this.state.activeTool.createLayer();
     }
 
     handleEvent = (event: MouseEvent | KeyboardEvent) => {
@@ -72,25 +113,25 @@ export class Editor {
         }
     };
 
-    onMouseClick(point: Point, event: MouseEvent): void {
+    private onMouseClick(point: Point, event: MouseEvent): void {
         this.plugins.forEach((plugin) => plugin.onMouseClick(point, event));
     }
-    onMouseDown(point: Point, event: MouseEvent): void {
+    private onMouseDown(point: Point, event: MouseEvent): void {
         this.plugins.forEach((plugin) => plugin.onMouseDown(point, event));
     }
-    onMouseMove(point: Point, event: MouseEvent): void {
+    private onMouseMove(point: Point, event: MouseEvent): void {
         this.plugins.forEach((plugin) => plugin.onMouseMove(point, event));
     }
-    onMouseUp(point: Point, event: MouseEvent): void {
+    private onMouseUp(point: Point, event: MouseEvent): void {
         this.plugins.forEach((plugin) => plugin.onMouseUp(point, event));
     }
-    onMouseLeave(point: Point, event: MouseEvent): void {
+    private onMouseLeave(point: Point, event: MouseEvent): void {
         this.plugins.forEach((plugin) => plugin.onMouseLeave(point, event));
     }
-    onKeyDown(key: Keys, event: KeyboardEvent): void {
+    private onKeyDown(key: Keys, event: KeyboardEvent): void {
         this.plugins.forEach((plugin) => plugin.onKeyDown(key, event));
     }
-    onMouseDoubleClick(point: Point, event: MouseEvent): void {
+    private onMouseDoubleClick(point: Point, event: MouseEvent): void {
         this.plugins.forEach((plugin) => plugin.onMouseDoubleClick(point, event));
     }
 }

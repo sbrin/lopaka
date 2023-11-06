@@ -1,27 +1,16 @@
-import {generateUID} from '../utils';
-import {reactive, UnwrapRef} from 'vue';
 import {Platform} from 'src/platforms/platform';
-import {Point} from './point';
-import {AbstractTool} from '../draw/tools/abstract.tool';
-import {VirtualScreen} from '../draw/virtual-screen';
-import {FlipperPlatform} from '../platforms/flipper';
-import {PaintTool} from '../draw/tools/paint.tool';
-import {BoxTool} from '../draw/tools/box.tool';
-import {FrameTool} from '../draw/tools/frame.tool';
-import {CircleTool} from '../draw/tools/circle.tool';
-import {DiscTool} from '../draw/tools/disc.tool';
-import {LineTool} from '../draw/tools/line.tool';
-import {DotTool} from '../draw/tools/dot.tool';
-import {TextTool} from '../draw/tools/text.tool';
-import {SelectTool} from '../draw/tools/select.tool';
-import {U8g2Platform} from '../platforms/u8g2';
-import {AdafruitPlatform} from '../platforms/adafruit';
-import {Uint32RawPlatform} from '../platforms/uint32-raw';
-import {IconTool} from '../draw/tools/icon.tool';
+import {reactive, UnwrapRef} from 'vue';
 import {getFont, loadFont} from '../draw/fonts';
-import {AbstractLayer} from './layers/abstract.layer';
-import {ChangeHistory, useHistory} from './history';
+import {VirtualScreen} from '../draw/virtual-screen';
 import {Editor} from '../editor/editor';
+import {AdafruitPlatform} from '../platforms/adafruit';
+import {FlipperPlatform} from '../platforms/flipper';
+import {U8g2Platform} from '../platforms/u8g2';
+import {Uint32RawPlatform} from '../platforms/uint32-raw';
+import {generateUID} from '../utils';
+import {ChangeHistory, useHistory} from './history';
+import {AbstractLayer} from './layers/abstract.layer';
+import {Point} from './point';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -30,7 +19,6 @@ type TSessionState = {
     platform: string;
     display: Point;
     layers: AbstractLayer[];
-    activeTool: AbstractTool | null;
     scale: Point;
     lock: boolean;
 };
@@ -102,8 +90,6 @@ export class Session {
         platform: null,
         display: new Point(128, 64),
         layers: [],
-        activeLayer: null,
-        activeTool: null,
         scale: new Point(4, 4)
     });
 
@@ -117,19 +103,6 @@ export class Session {
         highlight: true,
         pointer: false
     });
-
-    tools: {[key: string]: AbstractTool} = {
-        // select: new SelectTool(this),
-        // paint: new PaintTool(this),
-        frame: new FrameTool(this),
-        box: new BoxTool(this),
-        line: new LineTool(this),
-        dot: new DotTool(this),
-        circle: new CircleTool(this),
-        disc: new DiscTool(this),
-        string: new TextTool(this),
-        icon: new IconTool(this)
-    };
     removeLayer = (layer: AbstractLayer) => {
         this.state.layers = this.state.layers.filter((l) => l !== layer);
         this.history.push({
@@ -139,17 +112,17 @@ export class Session {
         });
     };
     addLayer = (layer: AbstractLayer) => {
-        layer.resize(this.state.display, this.state.scale);
-        this.state.layers.unshift(layer);
+        const {display, scale, layers} = this.state;
+        layer.resize(display, scale);
+        layer.index = layers.length + 1;
+        layer.name = 'Layer ' + (layers.length + 1);
+        layers.unshift(layer);
         this.history.push({
             type: 'add',
             layer,
             state: layer.getState()
         });
         layer.draw();
-    };
-    setActiveTool = (tool: AbstractTool) => {
-        this.state.activeTool = tool;
     };
     setDisplay = (display: Point) => {
         this.state.display = display;
@@ -158,12 +131,11 @@ export class Session {
     };
     setPlatform = (name: string) => {
         this.state.platform = name;
-        const textTool: TextTool = this.tools.string as TextTool;
         const font = this.platforms[name].getFonts()[0];
         this.lock();
         // preload default font
         loadFont(font).then(() => {
-            textTool.lastFont = getFont(font.name);
+            this.editor.font = getFont(font.name);
             this.unlock();
             this.virtualScreen.redraw();
         });
@@ -183,7 +155,6 @@ export function useSession(id?: string) {
     } else {
         const session = new Session();
         session.setPlatform(U8g2Platform.id);
-        session.state.activeTool = session.tools.frame;
         sessions.set(session.id, session);
         currentSessionId = session.id;
         return session;

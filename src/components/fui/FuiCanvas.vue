@@ -1,9 +1,6 @@
 <script lang="ts" setup>
-import {ShallowRef, computed, defineProps, onBeforeUnmount, onMounted, ref, toRefs} from 'vue';
-import {Point} from '../../core/point';
+import {computed, defineProps, onBeforeUnmount, onMounted, ref, toRefs} from 'vue';
 import {useSession} from '../../core/session';
-import FuiResizableFrame from './components/FuiResizableFrame.vue';
-import {EditMode} from '../../core/layers/abstract.layer';
 
 const props = defineProps<{
     fuiImages: any;
@@ -15,33 +12,7 @@ const screen = ref(null);
 const container = ref(null);
 const session = useSession();
 const {editor, virtualScreen, state} = session;
-const {display, activeTool, scale, lock} = toRefs(state);
-
-const isDrawing = ref(false);
-
-let selectionMove = false; //todo
-
-// const activeLayerStyle = computed(() =>
-//     activeLayer.value && !activeLayer.value.added
-//         ? {
-//               left: activeLayer.value.bounds.x * scale.value.x - 1 + 'px',
-//               top: activeLayer.value.bounds.y * scale.value.x - 1 + 'px',
-//               width: activeLayer.value.bounds.w * scale.value.x + 'px',
-//               height: activeLayer.value.bounds.h * scale.value.x + 'px'
-//           }
-//         : {display: 'none'}
-// );
-
-// const hoverLayerStyle = computed(() =>
-//     hoverLayer.value && !hoverLayer.value.isStub()
-//         ? {
-//               left: hoverLayer.value.bounds.x * scale.value.x - 1 + 'px',
-//               top: hoverLayer.value.bounds.y * scale.value.x - 1 + 'px',
-//               width: hoverLayer.value.bounds.w * scale.value.x + 'px',
-//               height: hoverLayer.value.bounds.h * scale.value.x + 'px'
-//           }
-//         : {display: 'none'}
-// );
+const {display, scale, lock} = toRefs(state);
 
 onMounted(() => {
     virtualScreen.setCanvas(screen.value);
@@ -56,15 +27,15 @@ onBeforeUnmount(() => {
 });
 
 function isSelectTool() {
-    return false; //hoverLayer.value;
+    return false;
 }
 
 function isMoving() {
-    return activeTool.value?.getName() === 'select' && activeTool.value?.isDrawing();
+    return false;
 }
 
 function isDrawingTool() {
-    return false; //activeTool.value?.getName() !== 'select' && !activeLayer.value;
+    return false;
 }
 
 const canvasClassNames = computed(() => {
@@ -74,127 +45,6 @@ const canvasClassNames = computed(() => {
         'fui-canvas_draw': isDrawingTool()
     };
 });
-
-function onMouseDown(e: MouseEvent) {
-    if (e.button === 0) {
-        const position = new Point(e.offsetX, e.offsetY);
-        isDrawing.value = true;
-        const selection = session.state.layers.filter((layer) => layer.selected);
-        const layersInPoint = session.virtualScreen.getLayersInPoint(position);
-        // if there is layers in point
-        if (layersInPoint.length) {
-            const upperLayer = layersInPoint[0];
-            if (selection.includes(upperLayer)) {
-                // click on selected layer
-                if (e.ctrlKey || e.metaKey) {
-                    // deselect layer
-                    upperLayer.selected = false;
-                } else {
-                    selectionMove = true;
-                }
-            } else {
-                // click on unselected layer
-                if (e.ctrlKey || e.metaKey) {
-                    // add layer to selection
-                    upperLayer.selected = true;
-                } else {
-                    // select layer and deselect others
-                    selection.forEach((layer) => (layer.selected = false));
-                    upperLayer.selected = true;
-                    selectionMove = true;
-                }
-            }
-            if (selectionMove) {
-                session.state.layers
-                    .filter((layer) => layer.selected)
-                    .forEach((layer) => layer.startEdit(EditMode.MOVING, position.clone().divide(scale.value)));
-            }
-        } else {
-            // click on empty space
-            if (activeTool.value?.getName() === 'select') {
-                // if pointer tool is active, deselect all layers and stop editing
-                selection.forEach((layer) => ((layer.selected = false), layer.isEditing() && layer.stopEdit()));
-            } else {
-                activeTool.value?.onMouseDown(position.clone(), e);
-            }
-        }
-        session.virtualScreen.updateMousePosition(position.clone());
-    }
-
-    // if there is no selected layers
-
-    // if (activeTool.value?.isModifier) {
-    //     const layersInPoint = session.virtualScreen.getLayersInPoint(position);
-    //     if (layersInPoint.length > 0) {
-    //         const layer = layersInPoint.sort((a, b) => b.index - a.index)[0];
-    //         activeLayer.value = layer;
-    //         activeTool.value?.onMouseDown(position.clone(), e);
-    //     } else {
-    //         // reset selection
-    //         activeLayer.value = null;
-    //     }
-    // } else {
-    //     activeTool.value?.onMouseDown(position.clone(), e);
-    // }
-}
-
-function onDblclick(e: MouseEvent) {
-    const position = new Point(e.offsetX, e.offsetY);
-    isDrawing.value = true;
-    const selection = session.state.layers.filter((layer) => layer.selected);
-    const layersInPoint = session.virtualScreen.getLayersInPoint(position);
-    if (layersInPoint) {
-        const upperLayer = layersInPoint[0];
-        // activeLayer.value = upperLayer;
-        // upperLayer.edititng = true;
-    }
-    // session.virtualScreen.updateMousePosition(position.clone());
-}
-
-function onMouseMove(e: MouseEvent) {
-    const position = new Point(e.offsetX, e.offsetY);
-    if (activeTool.value?.isDrawing()) {
-        activeTool.value?.onMouseMove(position.clone(), e);
-    } else if (selectionMove) {
-        const selection = session.state.layers.filter((layer) => layer.selected);
-        selection.forEach((layer) => layer.edit(position.clone().divide(scale.value), e));
-        // selection.forEach((layer: Layer) => {
-        //     // const tool = session.tools[layer.type];
-        //     // console.log(e.movementX, e.movementY);
-        //     // const pos = layer.position.clone().add(new Point(e.movementX, e.movementY).divide(scale.value));
-        //     // const params = tool.getNamedParams(layer);
-        //     // params.x.onChange(pos.x);
-        //     // params.y.onChange(pos.y);
-        // });
-    }
-    // } else {
-    //     const layers = session.virtualScreen.getLayersInPoint(position);
-    //     hoverLayer.value = layers.sort((a, b) => b.index - a.index)[0];
-    // }
-    session.virtualScreen.updateMousePosition(position.clone());
-}
-
-function onMouseUp(e: MouseEvent) {
-    if (selectionMove) {
-        const selection = session.state.layers.filter((layer) => layer.selected);
-        selection.forEach((layer) => layer.stopEdit());
-        selectionMove = false;
-    }
-    if (isDrawing.value) {
-        const position = new Point(e.offsetX, e.offsetY);
-        if (activeTool.value?.isDrawing()) {
-            activeTool.value?.onMouseUp(position.clone(), e);
-        }
-        // activeTool.value? = session.tools.select;
-        isDrawing.value = false;
-    }
-}
-
-function onKeyDown(e: KeyboardEvent) {
-    if (e.target === document.body) {
-        activeTool.value?.onKeyDown(e);
-    }
-}
 </script>
 <template>
     <div class="canvas-wrapper">
@@ -246,35 +96,6 @@ function onKeyDown(e: KeyboardEvent) {
     pointer-events: none;
     display: none;
     translate: transform(-50%, -50%);
-}
-.fui-canvas__resizable-conatiner {
-    position: absolute;
-    z-index: 3;
-    pointer-events: none;
-}
-.fui-canvas__movable-point {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: #ffffffdd;
-    border-radius: 50%;
-    pointer-events: all;
-}
-.fui-canvas__movable-point.direction_NE {
-    transform: translate(-50%, -50%);
-    cursor: nesw-resize;
-}
-.fui-canvas__movable-point.direction_SE {
-    transform: translate(-50%, -50%);
-    cursor: nwse-resize;
-}
-.fui-canvas__movable-point.direction_SW {
-    transform: translate(-50%, -50%);
-    cursor: nesw-resize;
-}
-.fui-canvas__movable-point.direction_NW {
-    transform: translate(-50%, -50%);
-    cursor: nwse-resize;
 }
 .locked {
     opacity: 0.5;

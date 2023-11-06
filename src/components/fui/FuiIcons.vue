@@ -1,11 +1,6 @@
 <script lang="ts" setup>
-import {Point} from '../../core/point';
-import {useSession} from '../../core/session';
+import {defineProps} from 'vue';
 import icons from '../../icons';
-import {defineProps, toRefs} from 'vue';
-
-const session = useSession();
-const {activeTool} = toRefs(session.state);
 
 const props = defineProps<{
     customImages: Array<any>;

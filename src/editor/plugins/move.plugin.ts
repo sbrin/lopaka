@@ -1,14 +1,15 @@
 import {Keys} from '../../core/keys.enum';
 import {EditMode} from '../../core/layers/abstract.layer';
 import {Point} from '../../core/point';
-import {EditorPlugin} from './editor.plugin';
+import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
-export class MovePlugin extends EditorPlugin {
+export class MovePlugin extends AbstractEditorPlugin {
     firstPoint: Point;
     captured: boolean = false;
 
     onMouseDown(point: Point, event: MouseEvent): void {
-        const {activeTool, layers} = this.session.state;
+        const {layers} = this.session.state;
+        const {activeTool} = this.session.editor.state;
         // if there is an active tool or any layer is being edited, do nothing
         if (event.metaKey || event.ctrlKey || event.shiftKey || activeTool || layers.find((l) => l.isEditing())) {
             return;

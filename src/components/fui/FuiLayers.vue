@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import {computed, toRefs} from 'vue';
+import {UnwrapRef, computed, toRefs} from 'vue';
 import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
+import {TextLayer} from '../../core/layers/text.layer';
+import {IconLayer} from '../../core/layers/icon.layer';
 const session = useSession();
 const {layers} = toRefs(session.state);
-const activeLayer = computed(() => null);
 function classNames(layer) {
     return {
         layer_selected: layer.selected,
@@ -12,21 +13,18 @@ function classNames(layer) {
     };
 }
 
-function setActive(layer: AbstractLayer) {
+function setActive(layer: UnwrapRef<AbstractLayer>) {
     layers.value.forEach((l) => (l.selected = false));
     layer.selected = true;
-    // layer.startEdit(EditMode.DRAWING);
-    // activeLayer.value = layer;
 }
 
-function getLayerListItem(element: any) {
-    // if (element.type === 'str') {
-    //     return `${element.text || 'Empty str'}`;
-    // }
-    // if (element.type === 'icon') {
-    //     return `${element.name}`;
-    // }
-    return `${element.name}`;
+function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
+    if (layer instanceof TextLayer) {
+        return `${layer.text || 'Empty text'}`;
+    } else if (layer instanceof IconLayer) {
+        return `${layer.name}`;
+    }
+    return `${layer.name}`;
 }
 </script>
 <template>
@@ -38,9 +36,9 @@ function getLayerListItem(element: any) {
                 :key="idx"
                 class="layer"
                 :class="classNames(item)"
-                @click.self="setActive(item as any)"
+                @click.self="setActive(item)"
             >
-                <div class="layer__name" @click="setActive(item as any)">
+                <div class="layer__name" @click="setActive(item)">
                     {{ getLayerListItem(item) }}
                 </div>
                 <div class="layer__remove" @click="session.removeLayer(item as any)">×</div>

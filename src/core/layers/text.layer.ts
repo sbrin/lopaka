@@ -75,6 +75,11 @@ export class TextLayer extends AbstractLayer {
 
     startEdit(mode: EditMode, point: Point) {
         this.mode = mode;
+        if (mode == EditMode.CREATING) {
+            this.position = point.clone();
+            this.updateBounds();
+            this.draw();
+        }
         this.editState = {
             firstPoint: point,
             position: this.position.clone(),

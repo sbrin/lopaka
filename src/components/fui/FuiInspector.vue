@@ -41,7 +41,7 @@ const fonts = computed(() => {
     return session.platforms[platform.value].getFonts();
 });
 
-function onChange(event: Event, param: TLayerModifier<any>) {
+function onChange(event: Event, param: TLayerModifier) {
     const target = event.target as HTMLInputElement;
     switch (param.type) {
         case TModifierType.number:

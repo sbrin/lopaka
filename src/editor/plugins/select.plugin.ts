@@ -2,9 +2,9 @@ import {Keys} from '../../core/keys.enum';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
 import {Session} from '../../core/session';
-import {EditorPlugin} from './editor.plugin';
+import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
-export class SelectionPlugin extends EditorPlugin {
+export class SelectPlugin extends AbstractEditorPlugin {
     captured: boolean = false;
     selectionElement: HTMLElement;
     firstPoint: Point = null;
@@ -21,7 +21,8 @@ export class SelectionPlugin extends EditorPlugin {
     }
 
     onMouseDown(point: Point, event: MouseEvent): void {
-        const {activeTool, layers, scale} = this.session.state;
+        const {layers, scale} = this.session.state;
+        const {activeTool} = this.session.editor.state;
         if (!activeTool) {
             const selected = layers.filter((l) => l.selected);
             const hovered = layers.filter((l) => l.contains(point));

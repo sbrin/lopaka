@@ -1,7 +1,7 @@
 import {Keys} from '../../core/keys.enum';
-import {EditorPlugin} from './editor.plugin';
+import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
-export class DeletePlugin extends EditorPlugin {
+export class DeletePlugin extends AbstractEditorPlugin {
     onKeyDown(key: Keys, event: KeyboardEvent): void {
         const {layers} = this.session.state;
         if (key === Keys.Delete || key === Keys.Backspace) {

@@ -1,13 +1,13 @@
 import {Point} from '../../core/point';
 import {Session} from '../../core/session';
-import {EditorPlugin} from './editor.plugin';
+import {AbstractEditorPlugin} from './abstract-editor.plugin';
 enum Direction {
     NE = 'NE',
     SE = 'SE',
     SW = 'SW',
     NW = 'NW'
 }
-export class ResizePlugin extends EditorPlugin {
+export class ResizePlugin extends AbstractEditorPlugin {
     captured: boolean = false;
     resizableFrame: HTMLElement;
     constructor(
@@ -21,7 +21,7 @@ export class ResizePlugin extends EditorPlugin {
     }
 
     onMouseDoubleClick(point: Point, event: MouseEvent): void {
-        const {activeTool, layers, scale} = this.session.state;
+        const {layers, scale} = this.session.state;
         if (layers.find((l) => l.isEditing())) {
             return;
         }

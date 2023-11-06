@@ -1,13 +1,13 @@
 import {Keys} from '../../core/keys.enum';
 import {AbstractLayer} from '../../core/layers/abstract.layer';
-import {EditorPlugin} from './editor.plugin';
+import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
 type TCopyRecord = {
     constructor: any;
     state: any;
 };
 
-export class CopyPlugin extends EditorPlugin {
+export class CopyPlugin extends AbstractEditorPlugin {
     buffer: TCopyRecord[];
     onKeyDown(key: Keys, event: KeyboardEvent): void {
         const {layers} = this.session.state;
