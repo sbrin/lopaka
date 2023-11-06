@@ -1,16 +1,17 @@
 <script lang="ts" setup>
-import {toRefs} from 'vue';
+import {computed, toRefs} from 'vue';
 import {useSession} from '../../core/session';
-import FuiButton from './FuiButton.vue';
 import {AbstractTool} from '../../editor/tools/abstract.tool';
+import FuiButton from './FuiButton.vue';
 
 const emit = defineEmits(['toolClicked']);
 const session = useSession();
-const {tools} = session.editor;
+const {platform} = toRefs(session.state);
+const tools = computed(() => session.editor.getSupportedTools(platform.value));
 const {activeTool} = toRefs(session.editor.state);
 
 function setActive(tool: AbstractTool) {
-    activeTool.value = tool;
+    session.editor.setTool(tool?.getName());
 }
 
 function isActive(name: string) {
@@ -32,4 +33,3 @@ function isActive(name: string) {
     </div>
 </template>
 <style lang="css"></style>
-../../draw/tools/abstract.tool ../../editor/tools/abstract.tool

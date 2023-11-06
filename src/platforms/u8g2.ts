@@ -16,6 +16,7 @@ import {FrameLayer} from '../core/layers/frame.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {DiscLayer} from '../core/layers/disc.layer';
 import {IconLayer} from '../core/layers/icon.layer';
+import {PaintLayer} from '../core/layers/paint.layer';
 
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
@@ -124,9 +125,19 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
         const center = position.clone().add(radius).add(1);
         source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radius});`);
     }
-    addImage(layer: IconLayer, source: TSourceCode): void {
-        if (!layer.image) return;
-        const XBMP = imgDataToXBMP(layer.image, 0, 0, layer.size.x, layer.size.y);
+    addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void {
+        let image;
+        if (layer instanceof IconLayer) {
+            if (!layer.image) return;
+            image = layer.image;
+        } else if (layer instanceof PaintLayer) {
+            if (!layer.position) return;
+            image = layer
+                .getBuffer()
+                .getContext('2d')
+                .getImageData(layer.position.x, layer.position.y, layer.size.x, layer.size.y);
+        }
+        const XBMP = imgDataToXBMP(image, 0, 0, layer.size.x, layer.size.y);
         source.declarations.push(`static const unsigned char image_${layer.name}_bits[] U8X8_PROGMEM = {${XBMP}};`);
         source.code.push(
             `u8g2.drawXBMP( ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, image_${layer.name}_bits);`

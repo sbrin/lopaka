@@ -5,6 +5,7 @@ import {DotLayer} from '../core/layers/dot.layer';
 import {FrameLayer} from '../core/layers/frame.layer';
 import {IconLayer} from '../core/layers/icon.layer';
 import {LineLayer} from '../core/layers/line.layer';
+import {PaintLayer} from '../core/layers/paint.layer';
 import {TextLayer} from '../core/layers/text.layer';
 import adafruitFont from '../draw/fonts/binary/adafruit-5x7.bin?url';
 import {FontFormat} from '../draw/fonts/font';
@@ -70,12 +71,22 @@ display.print("${layer.text}");`);
         );
     }
 
-    addImage(layer: IconLayer, source: TSourceCode): void {
-        if (!layer.image) return;
-        const XBMP = imgDataToUint32Array(layer.image);
+    addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void {
+        let image;
+        if (layer instanceof IconLayer) {
+            if (!layer.image) return;
+            image = layer.image;
+        } else if (layer instanceof PaintLayer) {
+            if (!layer.position) return;
+            image = layer
+                .getBuffer()
+                .getContext('2d')
+                .getImageData(layer.position.x, layer.position.y, layer.size.x, layer.size.y);
+        }
+        const XBMP = imgDataToUint32Array(image);
         source.declarations.push(`static const unsigned char PROGMEM image_${layer.name}_bits[] = {${XBMP}};`);
         source.code.push(
-            `display.drawBitmap( ${layer.position.x}, ${layer.position.y}, image_${layer.name}_bits, ${layer.size.x}, ${layer.size.y}, 1);`
+            `display.drawBitmap(${layer.position.x}, ${layer.position.y}, image_${layer.name}_bits, ${layer.size.x}, ${layer.size.y}, 1);`
         );
     }
 

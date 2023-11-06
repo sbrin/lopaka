@@ -3,6 +3,7 @@ import {DrawPlugin} from './draw.plugin';
 
 export class HighlightPlugin extends DrawPlugin {
     public update(ctx: CanvasRenderingContext2D, point: Point): void {
+        if (!point) return;
         const {scale, layers} = this.session.state;
         ctx.save();
         ctx.beginPath();

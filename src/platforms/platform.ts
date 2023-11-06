@@ -6,6 +6,7 @@ import {DotLayer} from '../core/layers/dot.layer';
 import {FrameLayer} from '../core/layers/frame.layer';
 import {IconLayer} from '../core/layers/icon.layer';
 import {LineLayer} from '../core/layers/line.layer';
+import {PaintLayer} from '../core/layers/paint.layer';
 import {TextLayer} from '../core/layers/text.layer';
 
 /**
@@ -45,6 +46,9 @@ export abstract class Platform {
                 case IconLayer:
                     this.addIcon(layer as IconLayer, source);
                     break;
+                case PaintLayer:
+                    this.addImage(layer as PaintLayer, source);
+                    break;
                 default:
                     console.warn(`Unknown layer type: ${layer.constructor.name}`);
             }
@@ -71,6 +75,6 @@ export abstract class Platform {
     abstract addFrame(layer: FrameLayer, source: TSourceCode): void;
     abstract addCircle(layer: CircleLayer, source: TSourceCode): void;
     abstract addDisc(layer: DiscLayer, source: TSourceCode): void;
-    abstract addImage(layer: IconLayer, source: TSourceCode): void;
+    abstract addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void;
     abstract addIcon(layer: IconLayer, source: TSourceCode): void;
 }

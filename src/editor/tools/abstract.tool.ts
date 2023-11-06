@@ -14,8 +14,16 @@ export abstract class AbstractTool {
         return this.name;
     }
 
-    isEnabled(): boolean {
+    isSupported(platform: string): boolean {
         return true;
+    }
+
+    onActivate(): void {
+        // do nothing
+    }
+
+    onDeactivate(): void {
+        // do nothing
     }
 
     onStopEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent): void {

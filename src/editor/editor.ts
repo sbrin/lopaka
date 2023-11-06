@@ -21,6 +21,8 @@ import {TextTool} from './tools/text.tool';
 import {Font} from '../draw/fonts/font';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {UnwrapRef, reactive} from 'vue';
+import {PaintTool} from './tools/paint.tool';
+import {PaintPlugin} from './plugins/paint.plugin';
 
 type TEditorState = {
     // creatingLayyer: boolean;
@@ -48,7 +50,7 @@ export class Editor {
 
     tools: {[key: string]: AbstractTool} = {
         // select: new SelectTool(this),
-        // paint: new PaintTool(this),
+        paint: new PaintTool(this),
         frame: new FrameTool(this),
         box: new BoxTool(this),
         line: new LineTool(this),
@@ -59,10 +61,20 @@ export class Editor {
         icon: new IconTool(this)
     };
 
+    getSupportedTools(platform: string): {[key: string]: AbstractTool} {
+        return Object.values(this.tools)
+            .filter((tool) => tool.isSupported(platform))
+            .reduce((acc, tool) => {
+                acc[tool.getName()] = tool;
+                return acc;
+            }, {});
+    }
+
     setContainer(container: HTMLElement) {
         this.container = container;
         this.plugins.push(
             ...[
+                new PaintPlugin(this.session, this.container),
                 new AddPlugin(this.session, this.container),
                 new SelectPlugin(this.session, this.container),
                 new ResizePlugin(this.session, this.container),
@@ -74,8 +86,15 @@ export class Editor {
     }
 
     setTool(name: string) {
-        this.state.activeTool = this.tools[name];
-        // this.state.activeLayer = this.state.activeTool.createLayer();
+        if (this.state.activeTool) {
+            this.state.activeTool.onDeactivate();
+        }
+        if (name) {
+            this.state.activeTool = this.tools[name];
+            this.state.activeTool.onActivate();
+        } else {
+            this.state.activeTool = null;
+        }
     }
 
     handleEvent = (event: MouseEvent | KeyboardEvent) => {

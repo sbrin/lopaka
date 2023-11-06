@@ -121,7 +121,6 @@ function onChange(event: Event, param: TLayerModifier) {
                     />
                 </div>
             </div>
-            {{ activeLayer.getState() }}
         </div>
     </div>
 </template>

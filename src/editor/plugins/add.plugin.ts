@@ -12,7 +12,7 @@ export class AddPlugin extends AbstractEditorPlugin {
     onMouseDown(point: Point, event: MouseEvent): void {
         const {state} = this.session.editor;
         const {layers} = this.session.state;
-        if (!state.activeTool) {
+        if (!state.activeTool || state.activeLayer) {
             return;
         }
         if (layers.find((l) => l.isEditing())) {

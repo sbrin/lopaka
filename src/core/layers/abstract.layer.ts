@@ -65,12 +65,19 @@ export abstract class AbstractLayer {
 
     constructor() {}
 
+    // called when layer starts to edit
     abstract startEdit(mode: EditMode, point?: Point);
+    // called when layer is editing
     abstract edit(point: Point, originalEvent?: MouseEvent);
+    // called when layer stops to edit
     abstract stopEdit();
+    // draw layer
     abstract draw();
+    // save layer state
     abstract saveState();
+    // load layer state
     abstract loadState(state: any);
+    // update layer bounds
     abstract updateBounds(): void;
 
     /**
