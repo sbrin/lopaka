@@ -89,12 +89,11 @@ export class CircleLayer extends AbstractLayer {
                     Math.max(...point.clone().subtract(firstPoint).abs().divide(2).round().xy) - 2,
                     1
                 );
-                // this.size = new Point(radius * 2);
                 this.radius = radius;
                 if (originalEvent.altKey) {
                     this.position = firstPoint.clone().subtract(radius);
                 } else {
-                    const signs = this.position.clone().subtract(firstPoint).xy.map(Math.sign);
+                    const signs = point.clone().subtract(firstPoint).xy.map(Math.sign);
                     this.position = firstPoint.min(firstPoint.clone().add(new Point(radius * 2 + 1).multiply(signs)));
                 }
                 break;
