@@ -3,13 +3,14 @@ import {DrawPlugin} from './draw.plugin';
 
 export class HighlightPlugin extends DrawPlugin {
     public update(ctx: CanvasRenderingContext2D, point: Point): void {
-        const {display, scale, layers} = this.session.state;
-        // if (position) {
+        const {scale, layers} = this.session.state;
         ctx.save();
         ctx.beginPath();
+        const hovered = layers
+            .filter((l) => l.contains(point.clone().divide(scale).round()))
+            .sort((a, b) => b.index - a.index);
         layers.forEach((layer) => {
             const bounds = layer.bounds.clone().multiply(scale).round().add(-0.5, -0.5, 1, 1);
-            // console.log(bounds.xy, bounds.wh, layer.bounds.xy, layer.bounds.wh);
             if (layer.isEditing()) {
                 ctx.save();
                 ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
@@ -24,7 +25,7 @@ export class HighlightPlugin extends DrawPlugin {
                 ctx.setLineDash([5, 5]);
                 ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
                 ctx.restore();
-            } else if (point && layer.contains(point.clone().divide(scale).round())) {
+            } else if (hovered.length && hovered[0] === layer) {
                 ctx.save();
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
                 ctx.lineWidth = 1;
@@ -32,23 +33,9 @@ export class HighlightPlugin extends DrawPlugin {
                 ctx.restore();
             }
         });
-
-        // .filter(
-        //     (layer) =>
-        //         layer.dc.ctx.isPointInStroke(point.x, point.y) || layer.dc.ctx.isPointInPath(point.x, point.y)
-        // )
-        // .forEach((layer) => {
-        //     ctx.rect(
-        //         bounds.x,
-        //         bounds.y,
-        //         bounds 1,
-        // + 1
-        //     );
-        // });
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
         ctx.lineWidth = 1;
         ctx.stroke();
         ctx.restore();
-        // }
     }
 }
