@@ -131,7 +131,7 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
             if (!layer.image) return;
             image = layer.image;
         } else if (layer instanceof PaintLayer) {
-            if (!layer.position) return;
+            if (!layer.position || !layer.size.x || !layer.size.y) return;
             image = layer
                 .getBuffer()
                 .getContext('2d')
