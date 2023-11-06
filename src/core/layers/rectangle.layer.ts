@@ -71,6 +71,12 @@ export class RectangleLayer extends AbstractLayer {
 
     startEdit(mode: EditMode, point: Point) {
         this.mode = mode;
+        if (mode == EditMode.CREATING) {
+            this.position = point.clone();
+            this.size = new Point(1);
+            this.updateBounds();
+            this.draw();
+        }
         this.editState = {
             firstPoint: point,
             position: this.position.clone(),

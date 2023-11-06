@@ -15,12 +15,12 @@ export class CircleLayer extends AbstractLayer {
     protected state: TCircleState;
     public radius: number = 1;
     public position: Point = new Point();
-    public size: Point = new Point();
+    // public size: Point = new Point();
 
     protected editState: {
         firstPoint: Point;
         position: Point;
-        size: Point;
+        radius: number;
     } = null;
 
     modifiers: TLayerModifiers = {
@@ -48,7 +48,6 @@ export class CircleLayer extends AbstractLayer {
             getValue: () => this.radius,
             setValue: (v: number) => {
                 this.radius = v;
-                this.size = new Point(v * 2);
                 this.updateBounds();
                 this.saveState();
                 this.draw();
@@ -65,16 +64,19 @@ export class CircleLayer extends AbstractLayer {
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
+            this.radius = 1;
+            this.updateBounds();
+            this.draw();
         }
         this.editState = {
             firstPoint: point,
             position: this.position.clone(),
-            size: this.size.clone()
+            radius: this.radius
         };
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
-        const {position, size, firstPoint} = this.editState;
+        const {position, firstPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
                 this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
@@ -87,7 +89,7 @@ export class CircleLayer extends AbstractLayer {
                     Math.max(...point.clone().subtract(firstPoint).abs().divide(2).round().xy) - 2,
                     1
                 );
-                this.size = new Point(radius * 2);
+                // this.size = new Point(radius * 2);
                 this.radius = radius;
                 if (originalEvent.altKey) {
                     this.position = firstPoint.clone().subtract(radius);
@@ -129,7 +131,7 @@ export class CircleLayer extends AbstractLayer {
     loadState(state: TCircleState) {
         this.position = new Point(state.x, state.y);
         this.radius = state.r;
-        this.size = new Point(state.r * 2);
+        // this.size = new Point(state.r * 2);
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;
@@ -137,6 +139,6 @@ export class CircleLayer extends AbstractLayer {
     }
 
     updateBounds() {
-        this.bounds = new Rect(this.position, this.size).add(0, 0, 1, 1);
+        this.bounds = new Rect(this.position, new Point(this.radius * 2)).add(0, 0, 1, 1);
     }
 }
