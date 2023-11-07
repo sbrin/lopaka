@@ -19,6 +19,7 @@ export class AddPlugin extends AbstractEditorPlugin {
             return;
         } else {
             this.captured = true;
+            layers.forEach((l) => (l.selected = false));
             state.activeLayer = state.activeTool.createLayer();
             this.session.addLayer(state.activeLayer as AbstractLayer);
             state.activeLayer.startEdit(EditMode.CREATING, point);
@@ -41,6 +42,7 @@ export class AddPlugin extends AbstractEditorPlugin {
             this.captured = false;
             activeLayer.stopEdit();
             activeTool.onStopEdit(activeLayer as AbstractLayer, point, event);
+            activeLayer.selected = true;
             this.session.virtualScreen.redraw();
         }
     }

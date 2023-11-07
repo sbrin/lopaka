@@ -38,6 +38,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                     upperLayer.selected = true;
                 }
             } else if (event.metaKey || event.ctrlKey) {
+                // todo without metaKey
                 // if there is no hovered layer and ctrl or cmd is pressed, start box selection
                 this.captured = true;
                 this.firstPoint = point.clone();
