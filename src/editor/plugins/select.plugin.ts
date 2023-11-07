@@ -24,7 +24,6 @@ export class SelectPlugin extends AbstractEditorPlugin {
         const {layers, scale} = this.session.state;
         const {activeTool} = this.session.editor.state;
         if (!activeTool) {
-            const selected = layers.filter((l) => l.selected);
             const hovered = layers.filter((l) => l.contains(point));
             if (hovered.length) {
                 // if there is a hovered layer
@@ -37,8 +36,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                     this.session.state.layers.forEach((l) => (l.selected = false));
                     upperLayer.selected = true;
                 }
-            } else if (event.metaKey || event.ctrlKey) {
-                // todo without metaKey
+            } else {
                 // if there is no hovered layer and ctrl or cmd is pressed, start box selection
                 this.captured = true;
                 this.firstPoint = point.clone();
@@ -50,8 +48,6 @@ export class SelectPlugin extends AbstractEditorPlugin {
                     width: '0px',
                     height: '0px'
                 });
-            } else {
-                selected.forEach((layer) => (layer.selected = false));
             }
         }
     }
@@ -72,13 +68,19 @@ export class SelectPlugin extends AbstractEditorPlugin {
     }
 
     onMouseUp(point: Point, event: MouseEvent): void {
+        const {layers} = this.session.state;
         if (this.captured) {
-            const {layers} = this.session.state;
             this.captured = false;
             this.selectionElement.style.display = 'none';
             const position = this.firstPoint.clone().min(point);
             const size = point.clone().subtract(this.firstPoint).abs();
             layers.forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
+        } else {
+            const selected = layers.filter((l) => l.selected);
+            const hovered = layers.filter((l) => l.contains(point));
+            if (!hovered.length) {
+                selected.forEach((layer) => (layer.selected = false));
+            }
         }
     }
 
