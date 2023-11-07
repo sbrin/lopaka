@@ -147,11 +147,11 @@ export class Session {
     };
     setPlatform = async (name: string, isLogged?: boolean): Promise<void> => {
         this.state.platform = name;
-        const font = this.platforms[name].getFonts()[0];
+        const fonts = this.platforms[name].getFonts();
         this.lock();
         // preload default font
-        return loadFont(font).then(() => {
-            this.editor.font = getFont(font.name);
+        return Promise.all(fonts.map((font) => loadFont(font))).then(() => {
+            this.editor.font = getFont(fonts[0].name);
             this.unlock();
             this.virtualScreen.redraw();
             localStorage.setItem('lopaka_library', name);
