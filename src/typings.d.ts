@@ -46,9 +46,8 @@ declare type TSourceCode = {
     code: string[];
 };
 
-declare global {
-    interface Window {
-        serial: any;
-        gtag: any;
-    }
+interface Window {
+    gtag: any;
 }
+
+declare function gtag(...args: any[]): void;
