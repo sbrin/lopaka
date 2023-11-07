@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import {ShallowRef, computed, onMounted, ref, toRefs, watch} from 'vue';
+import {ShallowRef, computed, onMounted, ref, toRefs, watch, watchEffect} from 'vue';
 import {useSession} from '../core/session';
-import {loadImageAsync, logEvent, postParentMessage, throttle} from '../utils';
+import {debounce, loadImageAsync, logEvent, postParentMessage, throttle} from '../utils';
 import FuiButton from './fui/FuiButton.vue';
 import FuiCanvas from './fui/FuiCanvas.vue';
 import FuiCode from './fui/FuiCode.vue';
@@ -44,10 +44,16 @@ watch(
         console.log('postMessage');
         postParentMessage('updateLayers', JSON.stringify(layers.value));
         postParentMessage('updateThumbnail', fuiCanvas.value?.screen?.toDataURL());
-    }),
-    {
-        deep: true
-    }
+    })
+);
+
+watch(
+    updates,
+    debounce(() => {
+        if (flipper.value) {
+            sendFlipperImage();
+        }
+    }, 500)
 );
 
 // methods
@@ -115,7 +121,9 @@ async function toggleFlipperPreview() {
         const isConnected = await flipperRPC.connect();
         if (isConnected) {
             flipper.value = flipperRPC;
-            sendFlipperImage();
+            if (updates.value.length) {
+                sendFlipperImage();
+            }
         }
     }
 }
@@ -126,7 +134,7 @@ function flipperDisconnect() {
 }
 
 function sendFlipperImage() {
-    flipper.value.sendImage(fuiCanvas.value.screen.getContext('2d').getImageData(0, 0, 128, 64));
+    flipper.value.sendImage(virtualScreen.canvasContext.getImageData(0, 0, 128, 64));
 }
 
 onMounted(() => {

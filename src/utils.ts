@@ -154,3 +154,13 @@ export function throttle(func, limit = 5000) {
         }
     };
 }
+
+export function debounce(func, delay = 500) {
+    let timeoutId;
+    return function () {
+        const args = arguments;
+        const context = this;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(context, args), delay);
+    };
+}
