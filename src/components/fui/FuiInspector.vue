@@ -77,7 +77,7 @@ function onChange(event: Event, param: TLayerModifier) {
         <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
             <div v-for="(param, name) in params" class="inspector-panel__param">
-                <span>{{ name }}</span>
+                <span v-if="param.type !== TModifierType.image">{{ name }}</span>
                 <div v-if="param.type == TModifierType.number">
                     <input
                         class="inspector__input"
@@ -107,7 +107,7 @@ function onChange(event: Event, param: TLayerModifier) {
                         <option v-for="font in fonts" :value="font.name">{{ font.title }}</option>
                     </select>
                 </div>
-                <!-- <div v-else-if="param.type == ToolParamType.image" class="fui-icons">
+                <!-- <div v-else-if="param.type == TModifierType.image" class="fui-icons">
                     <img
                         @click="onChange($event, param)"
                         :class="{selected: (activeLayer as IconLayer).imageName === icon.name}"
