@@ -121,7 +121,7 @@ async function toggleFlipperPreview() {
         const isConnected = await flipperRPC.connect();
         if (isConnected) {
             flipper.value = flipperRPC;
-            if (updates.value.length) {
+            if (updates.value) {
                 sendFlipperImage();
             }
         }
