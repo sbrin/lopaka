@@ -1,16 +1,13 @@
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
-type TRectangleState = {
+type TRectangleState = TLayerState & {
     p: number[]; // position [x, y]
     s: number[]; // size [w, h]
-    n: string; // name
-    i: number; // index
-    g: number; // group
 };
 
-export class RectangleLayer extends AbstractLayer {
+export abstract class RectangleLayer extends AbstractLayer {
     protected state: TRectangleState;
     protected editState: {
         firstPoint: Point;
@@ -125,7 +122,8 @@ export class RectangleLayer extends AbstractLayer {
             s: this.size.xy,
             n: this.name,
             i: this.index,
-            g: this.group
+            g: this.group,
+            t: this.type
         };
         this.state = state;
     }

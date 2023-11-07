@@ -1,16 +1,14 @@
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
-type TLineState = {
+type TLineState = TLayerState & {
     p1: number[]; // point 1
     p2: number[]; // point 2
-    n: string; // name
-    i: number; // index
-    g: number; // group
 };
 
 export class LineLayer extends AbstractLayer {
+    protected type: ELayerType = 'line';
     protected state: TLineState;
     protected editState: {
         firstPoint: Point;
@@ -115,7 +113,8 @@ export class LineLayer extends AbstractLayer {
             p2: this.p2.xy,
             n: this.name,
             i: this.index,
-            g: this.group
+            g: this.group,
+            t: this.type
         };
         this.state = state;
     }

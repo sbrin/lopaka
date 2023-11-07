@@ -10,6 +10,15 @@ import {Uint32RawPlatform} from '../platforms/uint32-raw';
 import {generateUID, logEvent} from '../utils';
 import {ChangeHistory, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
+import {BoxLayer} from './layers/box.layer';
+import {CircleLayer} from './layers/circle.layer';
+import {DiscLayer} from './layers/disc.layer';
+import {DotLayer} from './layers/dot.layer';
+import {FrameLayer} from './layers/frame.layer';
+import {IconLayer} from './layers/icon.layer';
+import {LineLayer} from './layers/line.layer';
+import {PaintLayer} from './layers/paint.layer';
+import {TextLayer} from './layers/text.layer';
 import {Point} from './point';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
@@ -117,7 +126,7 @@ export class Session {
     addLayer = (layer: AbstractLayer) => {
         const {display, scale, layers} = this.state;
         layer.resize(display, scale);
-        layer.index = layers.length + 1;
+        layer.index = layer.index ?? layers.length + 1;
         layer.name = layer.name ?? 'Layer ' + (layers.length + 1);
         layers.unshift(layer);
         this.history.push({
@@ -136,18 +145,18 @@ export class Session {
         localStorage.setItem('lopaka_display', displayString);
         isLogged && logEvent('select_display', displayString);
     };
-    setPlatform = (name: string, isLogged?: boolean) => {
+    setPlatform = async (name: string, isLogged?: boolean): Promise<void> => {
         this.state.platform = name;
         const font = this.platforms[name].getFonts()[0];
         this.lock();
         // preload default font
-        loadFont(font).then(() => {
+        return loadFont(font).then(() => {
             this.editor.font = getFont(font.name);
             this.unlock();
             this.virtualScreen.redraw();
+            localStorage.setItem('lopaka_library', name);
+            isLogged && logEvent('select_library', name);
         });
-        localStorage.setItem('lopaka_library', name);
-        isLogged && logEvent('select_library', name);
     };
     lock = () => {
         this.state.lock = true;
@@ -157,6 +166,39 @@ export class Session {
     };
     constructor() {}
 }
+// FIXME
+const LayerClassMap: {[key in ELayerType]: any} = {
+    box: BoxLayer,
+    circle: CircleLayer,
+    disc: DiscLayer,
+    dot: DotLayer,
+    frame: FrameLayer,
+    icon: IconLayer,
+    line: LineLayer,
+    string: TextLayer,
+    paint: PaintLayer
+};
+// for testing
+export function loadLayers(layers: any[]) {
+    const session = useSession();
+    layers.forEach((l) => {
+        const type: ELayerType = l.t;
+        if (type in LayerClassMap) {
+            const layer = new LayerClassMap[type]();
+            layer.loadState(l);
+            layer.stopEdit();
+            session.addLayer(layer);
+        }
+    });
+    session.virtualScreen.redraw();
+}
+
+export function saveLayers() {
+    const session = useSession();
+    localStorage.setItem('lopaka_layers', JSON.stringify(session.state.layers.map((l) => l.getState())));
+}
+// for testing
+window['saveLayers'] = saveLayers;
 
 export function useSession(id?: string) {
     if (currentSessionId) {
@@ -164,7 +206,9 @@ export function useSession(id?: string) {
     } else {
         const session = new Session();
         const platformLocal = localStorage.getItem('lopaka_library');
-        session.setPlatform(platformLocal ?? U8g2Platform.id);
+        session.setPlatform(platformLocal ?? U8g2Platform.id).then(() => {
+            loadLayers(localStorage.getItem('lopaka_layers') ? JSON.parse(localStorage.getItem('lopaka_layers')) : []);
+        });
         let displayStored = localStorage.getItem('lopaka_display');
         if (displayStored) {
             const displayStoredArr = displayStored.split('×').map((n) => parseInt(n));

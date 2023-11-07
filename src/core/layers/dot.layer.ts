@@ -4,6 +4,7 @@ import {EditMode} from './abstract.layer';
 import {RectangleLayer} from './rectangle.layer';
 
 export class DotLayer extends RectangleLayer {
+    protected type: ELayerType = 'dot';
     protected brushSize: Point = new Point(1);
     public size: Point = this.brushSize.clone();
     public resizable: boolean = false;

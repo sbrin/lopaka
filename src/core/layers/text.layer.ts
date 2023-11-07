@@ -2,19 +2,16 @@ import {getFont} from '../../draw/fonts';
 import {Font} from '../../draw/fonts/font';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
-type TTextState = {
+type TTextState = TLayerState & {
     p: number[]; // position [x, y]
-    t: string; // text
     f: string; // font
-    n: string; // name
-    i: number; // index
-    g: number; // group
-    s: number; // scale factor
+    d: string; // data
 };
 
 export class TextLayer extends AbstractLayer {
+    protected type: ELayerType = 'string';
     protected state: TTextState;
     protected editState: {
         firstPoint: Point;
@@ -128,21 +125,20 @@ export class TextLayer extends AbstractLayer {
     saveState() {
         const state: TTextState = {
             p: this.position.xy,
-            t: this.text,
+            d: this.text,
             f: this.font.name,
-            s: this.scaleFactor,
             n: this.name,
             i: this.index,
-            g: this.group
+            g: this.group,
+            t: this.type
         };
         this.state = state;
     }
 
     loadState(state: TTextState) {
         this.position = new Point(state.p);
-        this.text = state.t;
+        this.text = state.d;
         this.font = getFont(state.f);
-        this.scaleFactor = state.s;
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;

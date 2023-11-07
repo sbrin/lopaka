@@ -1,17 +1,14 @@
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
-type TCircleState = {
-    x: number; // x
-    y: number; // y
+type TCircleState = TLayerState & {
+    p: number[]; // position
     r: number; // radius
-    n: string; // name
-    i: number; // index
-    g: number; // group
 };
 
 export class CircleLayer extends AbstractLayer {
+    protected type: ELayerType = 'circle';
     protected state: TCircleState;
     public radius: number = 1;
     public position: Point = new Point();
@@ -117,20 +114,19 @@ export class CircleLayer extends AbstractLayer {
 
     saveState() {
         const state: TCircleState = {
-            x: this.position.x,
-            y: this.position.y,
+            p: this.position.xy,
             r: this.radius,
             n: this.name,
             i: this.index,
-            g: this.group
+            g: this.group,
+            t: this.type
         };
         this.state = state;
     }
 
     loadState(state: TCircleState) {
-        this.position = new Point(state.x, state.y);
+        this.position = new Point(state.p);
         this.radius = state.r;
-        // this.size = new Point(state.r * 2);
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;

@@ -1,17 +1,15 @@
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
-type TPaintState = {
+type TPaintState = TLayerState & {
     p: number[]; // position
     s: number[]; // size
     d: number[][]; // data
-    n: string; // name
-    i: number; // index
-    g: number; // group
 };
 
 export class PaintLayer extends AbstractLayer {
+    protected type: ELayerType = 'paint';
     protected state: TPaintState;
     protected editState: {
         firstPoint?: Point;
@@ -127,7 +125,8 @@ export class PaintLayer extends AbstractLayer {
             d: Array.from(this.points).map((p) => [p[0], p[1]]),
             n: this.name,
             i: this.index,
-            g: this.group
+            g: this.group,
+            t: this.type
         };
         this.state = JSON.parse(JSON.stringify(state));
     }

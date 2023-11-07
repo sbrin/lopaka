@@ -1,7 +1,7 @@
 import {DrawContext} from '../../draw/draw-context';
 import {Point} from '../point';
 import {Rect} from '../rect';
-
+// TODO move type delarations outside of the class
 export enum EditMode {
     MOVING,
     RESIZING,
@@ -27,10 +27,18 @@ export type TLayerModifier = {
 
 export type TLayerModifiers = Partial<{[key in TModifierName]: TLayerModifier}>;
 
+export type TLayerState = {
+    t: ELayerType; // type
+    n: string; // name
+    i: number; // index
+    g: number; // group
+};
+
 /**
  * Abstract layer class
  */
 export abstract class AbstractLayer {
+    protected abstract type: ELayerType;
     // OffscreenCanvas where layer is drawn
     protected buffer: OffscreenCanvas = new OffscreenCanvas(0, 0);
     // DrawContext

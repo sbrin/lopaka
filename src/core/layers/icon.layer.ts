@@ -1,18 +1,16 @@
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
-type TIconState = {
+type TIconState = TLayerState & {
     p: number[]; // position [x, y]
     s: number[]; // size [w, h]
     d: number[]; // data
-    n: string; // name
-    i: number; // index
     in: string; // image name
-    g: number; // group
 };
 
 export class IconLayer extends AbstractLayer {
+    protected type: ELayerType = 'icon';
     protected state: TIconState;
     protected editState: {
         firstPoint: Point;
@@ -129,7 +127,8 @@ export class IconLayer extends AbstractLayer {
             in: this.imageName,
             n: this.name,
             i: this.index,
-            g: this.group
+            g: this.group,
+            t: this.type
         };
         this.state = state;
     }
