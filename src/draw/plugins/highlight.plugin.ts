@@ -6,12 +6,13 @@ export class HighlightPlugin extends DrawPlugin {
         if (!point) return;
         const {scale, layers} = this.session.state;
         ctx.save();
+        ctx.translate(0.5, 0.5);
         ctx.beginPath();
         const hovered = layers
             .filter((l) => l.contains(point.clone().divide(scale).round()))
             .sort((a, b) => b.index - a.index);
         layers.forEach((layer) => {
-            const bounds = layer.bounds.clone().multiply(scale).round().add(-0.5, -0.5, 1, 1);
+            const bounds = layer.bounds.clone().multiply(scale).round().add(-1, -1, 1, 1);
             if (layer.isEditing()) {
                 ctx.save();
                 ctx.strokeStyle = 'rgba(255, 255, 255, 1)';

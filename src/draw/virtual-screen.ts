@@ -79,10 +79,13 @@ export class VirtualScreen {
                 willReadFrequently: true,
                 alpha: true
             });
+            this.pluginLayerContext.imageSmoothingEnabled = true;
             this.canvas.parentElement.prepend(this.pluginLayer);
             Object.assign(this.pluginLayer.style, {
                 pointerEvents: 'none',
                 position: 'absolute',
+                left: -DrawPlugin.offset.x + 'px',
+                top: -DrawPlugin.offset.y + 'px',
                 zIndex: 1
             });
         }
@@ -94,7 +97,13 @@ export class VirtualScreen {
         if (this.pluginLayer) {
             requestAnimationFrame(() => {
                 this.pluginLayerContext.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
-                this.plugins.forEach((plugin) => plugin.update(this.pluginLayerContext, position));
+                this.plugins.forEach((plugin) => {
+                    this.pluginLayerContext.save();
+                    this.pluginLayerContext.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
+                    plugin.update(this.pluginLayerContext, position);
+                    this.pluginLayerContext.setTransform(1, 0, 0, 1, 0, 0);
+                    this.pluginLayerContext.restore();
+                });
             });
         }
     }
@@ -118,8 +127,8 @@ export class VirtualScreen {
             });
         }
         if (this.pluginLayer) {
-            this.pluginLayer.width = size.x * scale.x;
-            this.pluginLayer.height = size.y * scale.y;
+            this.pluginLayer.width = size.x * scale.x + DrawPlugin.offset.x * 2;
+            this.pluginLayer.height = size.y * scale.y + DrawPlugin.offset.y * 2;
         }
         layers.forEach((layer: AbstractLayer) => {
             layer.resize(display, scale);
@@ -147,7 +156,13 @@ export class VirtualScreen {
         if (this.pluginLayer) {
             requestAnimationFrame(() => {
                 this.pluginLayerContext.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
-                this.plugins.forEach((plugin) => plugin.update(this.pluginLayerContext, null));
+                this.plugins.forEach((plugin) => {
+                    this.pluginLayerContext.save();
+                    this.pluginLayerContext.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
+                    plugin.update(this.pluginLayerContext, null);
+                    this.pluginLayerContext.setTransform(1, 0, 0, 1, 0, 0);
+                    this.pluginLayerContext.restore();
+                });
             });
         }
     }

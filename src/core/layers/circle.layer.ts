@@ -12,7 +12,6 @@ export class CircleLayer extends AbstractLayer {
     protected state: TCircleState;
     public radius: number = 1;
     public position: Point = new Point();
-    // public size: Point = new Point();
 
     protected editState: {
         firstPoint: Point;

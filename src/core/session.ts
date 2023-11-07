@@ -110,7 +110,7 @@ export class Session {
     editor: Editor = new Editor(this);
 
     virtualScreen: VirtualScreen = new VirtualScreen(this, {
-        ruler: false,
+        ruler: true,
         smartRuler: true,
         highlight: true,
         pointer: false

@@ -70,7 +70,7 @@ const canvasClassNames = computed(() => {
 </template>
 <style lang="css">
 .canvas-wrapper {
-    border: 3px solid var(--border-color);
+    border: 20px solid var(--border-color);
     border-radius: 10px;
     background: var(--primary-color);
     padding: 8px;
@@ -81,7 +81,7 @@ const canvasClassNames = computed(() => {
 }
 .fui-canvas__event-target {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 .fui-canvas__selection {
     position: absolute;
