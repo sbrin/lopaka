@@ -57,8 +57,8 @@ export class Editor {
         dot: new DotTool(this),
         circle: new CircleTool(this),
         disc: new DiscTool(this),
-        string: new TextTool(this),
-        icon: new IconTool(this)
+        string: new TextTool(this)
+        // icon: new IconTool(this)
     };
 
     getSupportedTools(platform: string): {[key: string]: AbstractTool} {
