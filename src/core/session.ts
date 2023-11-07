@@ -118,7 +118,7 @@ export class Session {
         const {display, scale, layers} = this.state;
         layer.resize(display, scale);
         layer.index = layers.length + 1;
-        layer.name = 'Layer ' + (layers.length + 1);
+        layer.name = layer.name ?? 'Layer ' + (layers.length + 1);
         layers.unshift(layer);
         this.history.push({
             type: 'add',
