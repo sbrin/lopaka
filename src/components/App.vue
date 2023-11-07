@@ -81,7 +81,6 @@ function addImageToCanvas(data) {
     newLayer.name = data.name;
     newLayer.size = new Point(data.width, data.height);
     newLayer.selected = true;
-    newLayer.index = layers.value.length;
     newLayer.stopEdit();
     session.addLayer(newLayer);
     newLayer.modifiers.icon.setValue(data.icon);

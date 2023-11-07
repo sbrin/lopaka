@@ -4,7 +4,7 @@ import iconsUrls from '../../icons';
 import {computed, toRefs} from 'vue';
 
 const session = useSession();
-const {customImages} = toRefs(session.state);
+const {customImages, scale} = toRefs(session.state);
 const emit = defineEmits(['cleanCustomIcons', 'prepareImages', 'iconClicked']);
 
 const icons = computed((): TLayerImageData[] => {
@@ -44,9 +44,11 @@ function iconClick(e) {
     emit('iconClicked', data);
 }
 
-function iconDragStart(e) {
-    e.dataTransfer.setData('name', e.srcElement.dataset.name);
-    e.dataTransfer.setData('offset', `${e.offsetX}, ${e.offsetY}`);
+function iconDragStart(e: DragEvent) {
+    const target = e.target as HTMLImageElement;
+    e.dataTransfer.dropEffect = 'move';
+    e.dataTransfer.setData('text/plain', target.dataset.name);
+    e.dataTransfer.setData('text/uri', target.src);
 }
 </script>
 <template>

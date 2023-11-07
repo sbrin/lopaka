@@ -52,6 +52,9 @@ const canvasClassNames = computed(() => {
                 @mousemove.prevent="editor.handleEvent"
                 @dblclick.prevent="editor.handleEvent"
                 @click.prevent="editor.handleEvent"
+                @dragenter.prevent
+                @dragover.prevent
+                @drop.prevent="editor.handleEvent"
             >
                 <canvas
                     ref="screen"

@@ -23,6 +23,7 @@ import {AbstractLayer} from '../core/layers/abstract.layer';
 import {UnwrapRef, reactive} from 'vue';
 import {PaintTool} from './tools/paint.tool';
 import {PaintPlugin} from './plugins/paint.plugin';
+import {ImageDropPlugin} from './plugins/image-drop.plugin';
 
 type TEditorState = {
     // creatingLayyer: boolean;
@@ -80,7 +81,8 @@ export class Editor {
                 new ResizePlugin(this.session, this.container),
                 new CopyPlugin(this.session, this.container),
                 new MovePlugin(this.session, this.container),
-                new DeletePlugin(this.session, this.container)
+                new DeletePlugin(this.session, this.container),
+                new ImageDropPlugin(this.session, this.container)
             ]
         );
     }
@@ -97,7 +99,7 @@ export class Editor {
         }
     }
 
-    handleEvent = (event: MouseEvent | KeyboardEvent) => {
+    handleEvent = (event: MouseEvent | KeyboardEvent | DragEvent) => {
         const {virtualScreen, state} = this.session;
         const {display, scale, layers} = state;
         if (event instanceof KeyboardEvent) {
@@ -105,6 +107,10 @@ export class Editor {
                 event.preventDefault();
                 this.onKeyDown(Keys[event.code], event);
             }
+        }
+
+        if (event instanceof DragEvent) {
+            this.onDrop(new Point(event.offsetX, event.offsetY).divide(scale).round(), event);
         } else if (event instanceof MouseEvent) {
             const screenPoint = new Point(event.offsetX, event.offsetY).clone();
             const point = screenPoint.clone().divide(scale).round().boundTo(new Rect(new Point(), display));
@@ -152,5 +158,8 @@ export class Editor {
     }
     private onMouseDoubleClick(point: Point, event: MouseEvent): void {
         this.plugins.forEach((plugin) => plugin.onMouseDoubleClick(point, event));
+    }
+    private onDrop(point: Point, event: DragEvent): void {
+        this.plugins.forEach((plugin) => plugin.onDrop(point, event));
     }
 }
