@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import {ref, watch} from 'vue';
+import {toRefs, watch} from 'vue';
 import {useSession} from '../../core/session';
 
 const session = useSession();
-const platform = ref(session.state.platform);
-
-watch(platform, () => {
-    session.setPlatform(platform.value);
+const {setPlatform} = session;
+const {platform} = toRefs(session.state);
+watch(platform, (val) => {
+    setPlatform(val, true);
 });
 </script>
 <template>

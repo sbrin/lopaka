@@ -1,15 +1,19 @@
 <script lang="ts" setup>
+import { useSession } from "../../core/session";
 import {loadImageAsync, readFileAsync} from '../../utils';
-import {defineProps, ref} from 'vue';
+import {defineProps, ref, toRefs} from 'vue';
 
 const props = defineProps<{
     title: string;
     active?: boolean;
 }>();
 
-const emit = defineEmits(['updateFuiImages']);
+const emit = defineEmits(['updateFuiImages', 'setActiveTab']);
 
 const fileInput = ref(null);
+
+const session = useSession();
+const {customImages, activeTool} = toRefs(session.state);
 
 async function onFileChange(e) {
     const file = e.target.files[0];
@@ -19,13 +23,16 @@ async function onFileChange(e) {
     const name = file.name.substr(0, file.name.lastIndexOf('.')) || file.name; // remove file extension
     const fileResult = await readFileAsync(file);
     const image = await loadImageAsync(fileResult);
-    emit('updateFuiImages', {
+    
+    customImages.value.push({
         name: name,
         width: image.width,
         height: image.height,
-        element: image,
+        image: image,
         isCustom: true
     });
+    activeTool.value = session.tools.select;
+    emit('setActiveTab', 'icons');
 }
 
 function resetFileInput() {

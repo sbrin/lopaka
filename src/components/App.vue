@@ -1,73 +1,87 @@
 <script lang="ts" setup>
-import {computed, onMounted, ref, toRefs} from 'vue';
+import {ShallowRef, computed, onMounted, ref, toRefs, watch} from 'vue';
 import {useSession} from '../core/session';
-import {toCppVariableName} from '../utils';
+import {loadImageAsync, logEvent, postParentMessage, throttle} from '../utils';
 import FuiButton from './fui/FuiButton.vue';
 import FuiCanvas from './fui/FuiCanvas.vue';
 import FuiCode from './fui/FuiCode.vue';
-import FuiDisplays from './fui/FuiDisplays.vue';
+import FuiSelectDisplay from './fui/FuiSelectDisplay.vue';
+import FuiSelectScale from './fui/FuiSelectScale.vue';
 import FuiFile from './fui/FuiFile.vue';
 import FuiIcons from './fui/FuiIcons.vue';
 import FuiInspector from './fui/FuiInspector.vue';
 import FuiLayers from './fui/FuiLayers.vue';
-import FuiLibrary from './fui/FuiLibrary.vue';
+import FuiSelectPlatform from './fui/FuiSelectPlatform.vue';
 import FuiTabs from './fui/FuiTabs.vue';
 import FuiTools from './fui/FuiTools.vue';
+import {FlipperRPC} from '../flipper-rpc';
+import {Point} from '../core/point';
+import {FlipperPlatform} from '../platforms/flipper';
+import {IconLayer} from '../core/layers/icon.layer';
 
 let fuiImages = {},
     imageDataCache = {};
 
 const fuiCanvas = ref(null),
     activeTab = ref('code'),
-    codePreview = ref(''),
-    customImages = ref([]);
+    codePreview = ref('');
 const session = useSession();
-const {display, platform, layers} = toRefs(session.state);
+const {editor, virtualScreen, state} = session;
+const {display, platform, layers, customImages} = toRefs(state);
+const {updates} = toRefs(virtualScreen.state);
 
 // computed
 const isEmpty = computed(() => layers.value.length === 0);
-const isFlipper = computed(() => platform.value === 'Flipper Zero');
+const isFlipper = computed(() => platform.value === FlipperPlatform.id);
+const isSerialSupported = computed(() => window.navigator.serial !== undefined);
+const flipperPreviewBtnText = computed(() => (flipper.value ? 'Disconnect' : 'Live View'));
+
+const flipper: ShallowRef<FlipperRPC> = ref(null);
+
+watch(
+    updates,
+    throttle(() => {
+        console.log('postMessage');
+        postParentMessage('updateLayers', JSON.stringify(layers.value));
+        postParentMessage('updateThumbnail', fuiCanvas.value?.screen?.toDataURL());
+    }),
+    {
+        deep: true
+    }
+);
+
 // methods
 function setactiveTab(tab) {
     activeTab.value = tab;
 }
+
 function prepareImages(e) {
     fuiImages = e;
-}
-function updateFuiImages(layer) {
-    const {name, element, width, height} = layer;
-    const nameFormatted = toCppVariableName(name);
-    if (!fuiImages[name]) {
-        fuiImages[name] = {
-            width: width,
-            height: height,
-            element: element,
-            isCustom: true
-        };
-        customImages.value = [
-            ...customImages.value,
-            {
-                name: nameFormatted,
-                width: width,
-                height: height,
-                element: element,
-                src: element.src,
-                isCustom: true
-            }
-        ];
-    }
-    setactiveTab('icons');
 }
 
 function resetScreen() {
     layers.value = [];
+    editor.setTool(null);
+    logEvent('button_reset');
 }
+
 function copyCode() {
     navigator.clipboard.writeText(codePreview.value);
+    logEvent('button_copy');
 }
-function addImageToCanvas(name) {
-    // TODO
+
+function addImageToCanvas(data) {
+    const newLayer = new IconLayer();
+    newLayer.name = data.name;
+    newLayer.size = new Point(data.width, data.height);
+    newLayer.selected = true;
+    newLayer.index = layers.value.length;
+    newLayer.stopEdit();
+    session.addLayer(newLayer);
+    newLayer.modifiers.icon.setValue(data.icon);
+    virtualScreen.redraw();
 }
+
 function cleanCustomIcons() {
     for (let key in fuiImages) {
         if (fuiImages[key].isCustom) {
@@ -78,15 +92,62 @@ function cleanCustomIcons() {
     customImages.value = [];
 }
 
-function postMessage(type, data) {
-    if (window.top !== window.self) {
-        window.top.postMessage({target: 'lopaka_app', type: type, payload: data}, '*');
+async function loadCustomImages(images: any[]) {
+    for (let item of images) {
+        const image = await loadImageAsync(item.url);
+        customImages.value.push({
+            name: item.name,
+            width: image.width,
+            height: image.height,
+            image: image,
+            isCustom: true
+        });
     }
 }
 
+async function toggleFlipperPreview() {
+    if (flipper.value) {
+        logEvent('button_flipper', 'disconnect');
+        flipperDisconnect();
+    } else {
+        logEvent('button_flipper', 'connect');
+        const flipperRPC = new FlipperRPC();
+        const isConnected = await flipperRPC.connect();
+        if (isConnected) {
+            flipper.value = flipperRPC;
+            sendFlipperImage();
+        }
+    }
+}
+
+function flipperDisconnect() {
+    flipper.value.disconnect();
+    flipper.value = null;
+}
+
+function sendFlipperImage() {
+    flipper.value.sendImage(fuiCanvas.value.screen.getContext('2d').getImageData(0, 0, 128, 64));
+}
+
 onMounted(() => {
-    postMessage('mounted', {});
+    postParentMessage('mounted', {});
 });
+
+window.addEventListener('message', async (event) => {
+    if (event.data && event.data.target === 'lopaka_app') {
+        console.log('CHILD', event.data);
+        switch (event.data.type) {
+            case 'loadProject':
+                layers.value = event.data.payload.layers;
+                session.setPlatform(event.data.payload.library);
+                const displayArr = event.data.payload.display.split('×').map((n) => parseInt(n));
+                session.setDisplay(new Point(displayArr[0], displayArr[1]));
+                loadCustomImages(event.data.payload.images);
+                break;
+        }
+    }
+});
+navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 </script>
 <template>
     <div class="fui-editor">
@@ -96,16 +157,24 @@ onMounted(() => {
         </div>
         <div class="fui-editor__center">
             <div class="fui-editor-header">
-                <FuiLibrary></FuiLibrary>
-                <FuiDisplays></FuiDisplays>
+                <FuiSelectPlatform></FuiSelectPlatform>
+                <FuiSelectDisplay></FuiSelectDisplay>
+                <FuiSelectScale></FuiSelectScale>
+                <FuiButton
+                    v-if="isFlipper && isSerialSupported"
+                    @click="toggleFlipperPreview"
+                    title="Connect your Flipper to USB port"
+                >
+                    {{ flipperPreviewBtnText }}
+                </FuiButton>
             </div>
             <FuiTools></FuiTools>
-            <FuiCanvas ref="fuiCanvas" :fui-images="fuiImages" :imageDataCache="imageDataCache" />
+            <FuiCanvas ref="fuiCanvas" />
             <div class="fui-editor__tools">
                 <div class="fui-editor-header">
                     <FuiTabs :active-tab="activeTab" @set-active-tab="setactiveTab"></FuiTabs>
                 </div>
-                <!-- <FuiIcons
+                <FuiIcons
                     v-show="activeTab === 'icons'"
                     :fui-images="fuiImages"
                     :custom-images="customImages"
@@ -113,18 +182,21 @@ onMounted(() => {
                     @icon-clicked="addImageToCanvas"
                     @clean-custom-icons="cleanCustomIcons"
                     ref="fuiIconsList"
-                ></FuiIcons> -->
+                ></FuiIcons>
                 <FuiCode v-show="activeTab === 'code'" :content="codePreview"></FuiCode>
                 <div class="buttons-bottom">
-                    <FuiFile type="file" title="import image" @update-fui-images="updateFuiImages"></FuiFile>
+                    <FuiFile type="file" title="import image" @set-active-tab="setactiveTab"></FuiFile>
                     <FuiButton @click="copyCode" v-show="!!codePreview">copy code</FuiButton>
                 </div>
             </div>
         </div>
         <div class="fui-editor__right">
             <FuiInspector />
-            <!-- <fui-settings :isInverted="isInverted" @redraw-canvas="redrawCanvas" @toggle-invert="toggleInvert"/> -->
         </div>
     </div>
 </template>
-<style lang="css"></style>
+<style lang="css">
+body {
+    visibility: visible !important;
+}
+</style>

@@ -1,11 +1,6 @@
 <script lang="ts" setup>
-import {computed, defineProps, onBeforeUnmount, onMounted, ref, toRefs} from 'vue';
+import {computed, onBeforeUnmount, onMounted, ref, toRefs} from 'vue';
 import {useSession} from '../../core/session';
-
-const props = defineProps<{
-    fuiImages: any;
-    imageDataCache: any;
-}>();
 
 const emit = defineEmits(['updateFuiImages']);
 const screen = ref(null);
@@ -13,7 +8,7 @@ const container = ref(null);
 const session = useSession();
 const {editor, virtualScreen, state} = session;
 const {display, scale, lock} = toRefs(state);
-
+const {activeTool} = toRefs(editor.state);
 onMounted(() => {
     virtualScreen.setCanvas(screen.value);
     editor.setContainer(container.value as HTMLElement);
@@ -27,7 +22,7 @@ onBeforeUnmount(() => {
 });
 
 function isSelectTool() {
-    return false;
+    return !activeTool.value;
 }
 
 function isMoving() {
@@ -35,7 +30,7 @@ function isMoving() {
 }
 
 function isDrawingTool() {
-    return false;
+    return activeTool.value;
 }
 
 const canvasClassNames = computed(() => {
@@ -67,8 +62,6 @@ const canvasClassNames = computed(() => {
                     :class="canvasClassNames"
                 />
             </div>
-            <!-- <FuiResizableFrame /> -->
-            <!-- <div :style="hoverLayerStyle" class="hover-frame"></div> -->
         </div>
     </div>
 </template>

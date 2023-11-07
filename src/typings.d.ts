@@ -33,8 +33,22 @@ declare type TPlatformFont = {
     // font format
     format: number;
 };
+declare type TLayerImageData = {
+    name: string;
+    width: number;
+    height: number;
+    image: HTMLImageElement;
+    isCustom?: boolean;
+};
 
 declare type TSourceCode = {
     declarations: string[];
     code: string[];
 };
+
+declare global {
+    interface Window {
+        serial: any;
+        gtag: any;
+    }
+}

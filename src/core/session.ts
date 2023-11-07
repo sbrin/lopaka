@@ -1,5 +1,5 @@
 import {Platform} from 'src/platforms/platform';
-import {reactive, UnwrapRef} from 'vue';
+import {UnwrapRef, reactive} from 'vue';
 import {getFont, loadFont} from '../draw/fonts';
 import {VirtualScreen} from '../draw/virtual-screen';
 import {Editor} from '../editor/editor';
@@ -7,7 +7,7 @@ import {AdafruitPlatform} from '../platforms/adafruit';
 import {FlipperPlatform} from '../platforms/flipper';
 import {U8g2Platform} from '../platforms/u8g2';
 import {Uint32RawPlatform} from '../platforms/uint32-raw';
-import {generateUID} from '../utils';
+import {generateUID, logEvent} from '../utils';
 import {ChangeHistory, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
 import {Point} from './point';
@@ -21,6 +21,7 @@ type TSessionState = {
     layers: AbstractLayer[];
     scale: Point;
     lock: boolean;
+    customImages: TLayerImageData[];
 };
 
 export class Session {
@@ -76,6 +77,7 @@ export class Session {
         new Point(240, 64),
         new Point(240, 128),
         new Point(240, 160),
+        new Point(240, 240),
         new Point(256, 128),
         new Point(256, 32),
         new Point(256, 64),
@@ -90,7 +92,8 @@ export class Session {
         platform: null,
         display: new Point(128, 64),
         layers: [],
-        scale: new Point(4, 4)
+        scale: new Point(4, 4),
+        customImages: []
     });
 
     history: ChangeHistory = useHistory();
@@ -124,12 +127,16 @@ export class Session {
         });
         layer.draw();
     };
-    setDisplay = (display: Point) => {
+    setDisplay = (display: Point, isLogged?: boolean) => {
         this.state.display = display;
         this.virtualScreen.resize();
         this.virtualScreen.redraw();
+        // TODO: update cloud and storage to avoid display conversion
+        const displayString = `${display.x}×${display.y}`;
+        localStorage.setItem('lopaka_display', displayString);
+        isLogged && logEvent('select_display', displayString);
     };
-    setPlatform = (name: string) => {
+    setPlatform = (name: string, isLogged?: boolean) => {
         this.state.platform = name;
         const font = this.platforms[name].getFonts()[0];
         this.lock();
@@ -139,6 +146,8 @@ export class Session {
             this.unlock();
             this.virtualScreen.redraw();
         });
+        localStorage.setItem('lopaka_library', name);
+        isLogged && logEvent('select_library', name);
     };
     lock = () => {
         this.state.lock = true;
@@ -154,7 +163,13 @@ export function useSession(id?: string) {
         return sessions.get(currentSessionId);
     } else {
         const session = new Session();
-        session.setPlatform(U8g2Platform.id);
+        const platformLocal = localStorage.getItem('lopaka_library');
+        session.setPlatform(platformLocal ?? U8g2Platform.id);
+        let displayStored = localStorage.getItem('lopaka_display');
+        if (displayStored) {
+            const displayStoredArr = displayStored.split('×').map((n) => parseInt(n));
+            session.setDisplay(new Point(displayStoredArr[0], displayStoredArr[1]));
+        }
         sessions.set(session.id, session);
         currentSessionId = session.id;
         return session;

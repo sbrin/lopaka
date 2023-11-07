@@ -87,7 +87,7 @@ export class FlipperPlatform extends Platform {
     addImage(layer: IconLayer, source: TSourceCode): void {
         if (!layer.image) return;
         source.declarations.push(
-            `// draw tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output`
+            `// PAINT tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output`
         );
     }
     addIcon(layer: IconLayer, source: TSourceCode): void {

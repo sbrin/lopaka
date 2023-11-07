@@ -13,6 +13,7 @@ export function readFileAsync(file) {
 export async function loadImageAsync(src): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
         let img = new Image();
+        img.crossOrigin = 'anonymous';
         img.src = src;
         img.onerror = reject;
         img.onload = () => resolve(img);
@@ -26,6 +27,9 @@ export function imgDataToXBMP(
     width: number,
     height: number
 ): string[] {
+    if (!imgData) {
+        return;
+    }
     const bytesPerRow = Math.ceil(width / 8);
     const xbmp = new Array(height * bytesPerRow).fill(0);
     for (let y = yStart; y < yStart + height; y++) {
@@ -122,4 +126,31 @@ export function toCppVariableName(str) {
 
 export function generateUID() {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
+export function postParentMessage(type, data) {
+    if (window.top !== window.self) {
+        window.top.postMessage({target: 'lopaka_app', type: type, payload: data}, '*');
+    }
+}
+
+export function logEvent(event_name: string, option?: string) {
+    window.gtag &&
+        gtag('event', event_name, {
+            app_name: 'lopaka',
+            option: option
+        });
+}
+
+export function throttle(func, limit = 5000) {
+    let inThrottle;
+    return function () {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => (inThrottle = false), limit);
+        }
+    };
 }
