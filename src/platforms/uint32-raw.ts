@@ -1,11 +1,28 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {imgDataToUint32Array} from '../utils';
 import {Platform} from './platform';
-
+import haxrcorp4089 from '../../fonts/haxrcorp4089.ttf?url';
+import {FontFormat} from '../draw/fonts/font';
 export class Uint32RawPlatform extends Platform {
     public static id = 'uint32';
     protected name = 'Uint32 Raw';
     protected description = 'Uint32 Raw';
+
+    public getFonts(): TPlatformFont[] {
+        return [
+            {
+                name: 'HaXRcorp4089_tr',
+                title: 'HaXRcorp 4089 8',
+                file: haxrcorp4089,
+                options: {
+                    textCharHeight: 8,
+                    textCharWidth: 4,
+                    size: 16
+                },
+                format: FontFormat.FORMAT_TTF
+            }
+        ];
+    }
 
     addDot(layer: AbstractLayer, source: TSourceCode): void {}
     addLine(layer: AbstractLayer, source: TSourceCode): void {}
