@@ -77,6 +77,7 @@ function copyCode() {
 }
 
 function addImageToCanvas(data) {
+    layers.value.forEach((layer) => (layer.selected = false));
     const newLayer = new IconLayer();
     newLayer.name = data.name;
     newLayer.size = new Point(data.width, data.height);

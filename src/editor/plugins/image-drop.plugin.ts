@@ -16,6 +16,7 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
 
     private async addImageLayer(name: string, url: string, point: Point) {
         const {virtualScreen} = this.session;
+        this.session.state.layers.forEach((layer) => (layer.selected = false));
         const icon = new Image();
         icon.src = url;
         icon.crossOrigin = 'anonymous';
