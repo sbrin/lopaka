@@ -6,6 +6,7 @@ import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
 export class SelectPlugin extends AbstractEditorPlugin {
     captured: boolean = false;
+    foreign: boolean = false; // will be true if mouse down event was outside virtual screen
     selectionElement: HTMLElement;
     firstPoint: Point = null;
     selectionRect: Rect = null;
@@ -21,7 +22,8 @@ export class SelectPlugin extends AbstractEditorPlugin {
     }
 
     onMouseDown(point: Point, event: MouseEvent): void {
-        const {layers, scale} = this.session.state;
+        this.foreign = false;
+        const {layers, scale, display} = this.session.state;
         const {activeTool} = this.session.editor.state;
         if (!activeTool) {
             const hovered = layers.filter((l) => l.contains(point));
@@ -37,7 +39,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                     upperLayer.selected = true;
                 }
             } else {
-                // if there is no hovered layer and ctrl or cmd is pressed, start box selection
+                // if there is no hovered layer, start box selection
                 this.captured = true;
                 this.firstPoint = point.clone();
                 const screenPoint = point.clone().multiply(scale);
@@ -68,20 +70,21 @@ export class SelectPlugin extends AbstractEditorPlugin {
     }
 
     onMouseUp(point: Point, event: MouseEvent): void {
-        const {layers} = this.session.state;
+        const {layers, display, scale} = this.session.state;
         if (this.captured) {
             this.captured = false;
             this.selectionElement.style.display = 'none';
             const position = this.firstPoint.clone().min(point);
             const size = point.clone().subtract(this.firstPoint).abs();
             layers.forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
-        } else {
+        } else if (!this.foreign) {
             const selected = layers.filter((l) => l.selected);
             const hovered = layers.filter((l) => l.contains(point));
             if (!hovered.length) {
                 selected.forEach((layer) => (layer.selected = false));
             }
         }
+        this.foreign = true;
     }
 
     onKeyDown(key: Keys, event: KeyboardEvent): void {
