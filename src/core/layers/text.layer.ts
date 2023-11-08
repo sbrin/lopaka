@@ -106,7 +106,6 @@ export class TextLayer extends AbstractLayer {
         this.mode = EditMode.NONE;
         this.editState = null;
         this.saveState();
-        console.log(this.state);
         this.history.push(this.state);
     }
 
