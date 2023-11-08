@@ -78,28 +78,31 @@ export class PaintLayer extends AbstractLayer {
                 // todo
                 break;
             case EditMode.CREATING:
-                console.log(position.distanceTo(point));
-                if (position.distanceTo(point) < 1) {
-                    this.points.push(point.xy);
+                if (originalEvent && originalEvent.which == 3) {
+                    this.points = this.points.filter((p) => p[0] !== point.x || p[1] !== point.y);
                 } else {
-                    // add missing points
-                    const diff = point.clone().subtract(position);
-                    const steps = Math.max(Math.abs(diff.x), Math.abs(diff.y));
-                    const step = diff.clone().divide(steps);
-                    for (let i = 0; i < steps; i++) {
-                        const p = position.clone().add(step.clone().multiply(i)).round();
-                        this.points.push(p.xy);
+                    if (position.distanceTo(point) < 1) {
+                        this.points.push(point.xy);
+                    } else {
+                        // add missing points
+                        const diff = point.clone().subtract(position);
+                        const steps = Math.max(Math.abs(diff.x), Math.abs(diff.y));
+                        const step = diff.clone().divide(steps);
+                        for (let i = 0; i < steps; i++) {
+                            const p = position.clone().add(step.clone().multiply(i)).round();
+                            this.points.push(p.xy);
+                        }
                     }
+                    if (!this.position) {
+                        this.position = point.clone();
+                        this.size = new Point(1);
+                    } else {
+                        this.position = this.position.min(point);
+                        this.maxPoint = this.maxPoint.max(point);
+                        this.size = this.maxPoint.clone().subtract(this.position);
+                    }
+                    this.editState.position = point.clone();
                 }
-                if (!this.position) {
-                    this.position = point.clone();
-                    this.size = new Point(1);
-                } else {
-                    this.position = this.position.min(point);
-                    this.maxPoint = this.maxPoint.max(point);
-                    this.size = this.maxPoint.clone().subtract(this.position);
-                }
-                this.editState.position = point.clone();
                 break;
         }
         this.updateBounds();

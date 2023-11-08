@@ -29,7 +29,7 @@ export class PaintPlugin extends AbstractEditorPlugin {
     onMouseMove(point: Point, event: MouseEvent): void {
         const {activeLayer} = this.session.editor.state;
         if (this.captured) {
-            activeLayer.edit(point.clone());
+            activeLayer.edit(point.clone(), event);
             this.session.virtualScreen.redraw();
         }
     }

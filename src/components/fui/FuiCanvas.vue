@@ -55,6 +55,7 @@ const canvasClassNames = computed(() => {
                 @dragenter.prevent
                 @dragover.prevent
                 @drop.prevent="editor.handleEvent"
+                @contextmenu.prevent
             >
                 <canvas
                     ref="screen"
