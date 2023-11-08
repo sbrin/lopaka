@@ -17,7 +17,22 @@ export enum TModifierType {
     'font',
     'image'
 }
-export type TModifierName = 'x' | 'y' | 'w' | 'h' | 'radius' | 'text' | 'font' | 'icon' | 'x1' | 'x2' | 'y1' | 'y2';
+export type TModifierName =
+    | 'x'
+    | 'y'
+    | 'w'
+    | 'h'
+    | 'radius'
+    | 'text'
+    | 'font'
+    | 'icon'
+    | 'x1'
+    | 'x2'
+    | 'y1'
+    | 'y2'
+    | 'color'
+    | 'image'
+    | 'overlay';
 
 export type TLayerModifier = {
     setValue(value: any): void;

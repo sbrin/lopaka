@@ -139,7 +139,13 @@ export class VirtualScreen {
     public redraw() {
         if (!this.canvas) return;
         this.clear();
+        const overlays = [];
         this.session.state.layers.forEach((layer) => {
+            // skip all oberlays
+            if (layer.modifiers.overlay && layer.modifiers.overlay.getValue()) {
+                overlays.push(layer);
+                return;
+            }
             this.ctx.drawImage(layer.getBuffer(), 0, 0);
         });
         this.state.updates++;
@@ -153,6 +159,12 @@ export class VirtualScreen {
             0,
             0
         );
+        // draw overlays
+        this.canvasContext.globalAlpha = 0.3;
+        overlays.forEach((layer) => {
+            this.canvasContext.drawImage(layer.getBuffer(), 0, 0);
+        });
+        this.canvasContext.globalAlpha = 1;
         if (this.pluginLayer) {
             requestAnimationFrame(() => {
                 this.pluginLayerContext.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);

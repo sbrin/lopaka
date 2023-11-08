@@ -11,7 +11,9 @@ watch(
     updates,
     debounce(() => {
         const sourceCode = session.platforms[platform.value].generateSourceCode(
-            layers.value as AbstractLayer[],
+            (layers.value as AbstractLayer[]).filter(
+                (layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()
+            ),
             session.virtualScreen.ctx
         );
         content.value = sourceCode.declarations.reverse().join('\n') + '\n' + sourceCode.code.reverse().join('\n');

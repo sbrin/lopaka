@@ -7,6 +7,7 @@ type TIconState = TLayerState & {
     s: number[]; // size [w, h]
     d: number[]; // data
     in: string; // image name
+    o: boolean; // is overlay
 };
 
 export class IconLayer extends AbstractLayer {
@@ -22,6 +23,7 @@ export class IconLayer extends AbstractLayer {
     public size: Point = new Point();
     public image: ImageData = null;
     public imageName: string = '';
+    public overlay: boolean = false;
 
     modifiers: TLayerModifiers = {
         x: {
@@ -61,6 +63,15 @@ export class IconLayer extends AbstractLayer {
                 this.draw();
             },
             type: TModifierType.image
+        },
+        overlay: {
+            getValue: () => this.overlay,
+            setValue: (v: boolean) => {
+                this.overlay = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
         }
     };
 
@@ -107,6 +118,8 @@ export class IconLayer extends AbstractLayer {
         const {dc, position, image, size} = this;
         dc.clear();
         if (image) {
+            if (this.overlay) {
+            }
             dc.ctx.putImageData(image, position.x, position.y);
         } else {
             dc.rect(position, size, false);
@@ -128,7 +141,8 @@ export class IconLayer extends AbstractLayer {
             n: this.name,
             i: this.index,
             g: this.group,
-            t: this.type
+            t: this.type,
+            o: this.overlay
         };
         this.state = state;
     }
@@ -141,6 +155,7 @@ export class IconLayer extends AbstractLayer {
         this.group = state.g;
         this.image = new ImageData(new Uint8ClampedArray(state.d), this.size.x, this.size.y);
         this.imageName = state.in;
+        this.overlay = state.o;
         this.updateBounds();
     }
 
