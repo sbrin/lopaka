@@ -113,7 +113,7 @@ export class Editor {
             this.onDrop(new Point(event.offsetX, event.offsetY).divide(scale).round(), event);
         } else if (event instanceof MouseEvent) {
             const screenPoint = new Point(event.offsetX, event.offsetY).clone();
-            const point = screenPoint.clone().divide(scale).round(); //.boundTo(new Rect(new Point(), display));
+            const point = screenPoint.clone().divide(scale).floor(); //.boundTo(new Rect(new Point(), display));
             switch (event.type) {
                 case 'click':
                     this.onMouseClick(point, event);
