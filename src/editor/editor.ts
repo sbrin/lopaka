@@ -24,6 +24,7 @@ import {UnwrapRef, reactive} from 'vue';
 import {PaintTool} from './tools/paint.tool';
 import {PaintPlugin} from './plugins/paint.plugin';
 import {ImageDropPlugin} from './plugins/image-drop.plugin';
+import {SavePlugin} from './plugins/save.plugin';
 
 type TEditorState = {
     // creatingLayyer: boolean;
@@ -82,6 +83,7 @@ export class Editor {
                 new CopyPlugin(this.session, this.container),
                 new MovePlugin(this.session, this.container),
                 new DeletePlugin(this.session, this.container),
+                new SavePlugin(this.session, this.container),
                 new ImageDropPlugin(this.session, this.container)
             ]
         );
