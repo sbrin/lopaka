@@ -6,27 +6,28 @@ import {useSession} from '../../core/session';
 import {loadFont} from '../../draw/fonts';
 import iconsUrls from '../../icons';
 const session = useSession();
-const {platform, scale, layers} = toRefs(session.state);
+const {platform, layers} = toRefs(session.state);
+const {updates} = toRefs(session.virtualScreen.state);
 
-const icons = computed(() => {
-    return Object.entries(iconsUrls)
-        .map((item) => {
-            const [name, file] = item;
-            const matchedSizeArr = name.match(/_([0-9]+)x([0-9]+)/i) ? name.match(/_([0-9]+)x([0-9]+)/i) : [0, 10, 10];
-            const [, width, height] = matchedSizeArr.map((num) => parseInt(num, 10));
-            const image = new Image(width, height);
-            image.crossOrigin = 'Anonymous';
-            image.dataset.name = name;
-            image.src = file;
-            return {
-                name,
-                width,
-                height,
-                image
-            };
-        })
-        .sort((a, b) => a.width * a.height - b.width * b.height);
-});
+// const icons = computed(() => {
+//     return Object.entries(iconsUrls)
+//         .map((item) => {
+//             const [name, file] = item;
+//             const matchedSizeArr = name.match(/_([0-9]+)x([0-9]+)/i) ? name.match(/_([0-9]+)x([0-9]+)/i) : [0, 10, 10];
+//             const [, width, height] = matchedSizeArr.map((num) => parseInt(num, 10));
+//             const image = new Image(width, height);
+//             image.crossOrigin = 'Anonymous';
+//             image.dataset.name = name;
+//             image.src = file;
+//             return {
+//                 name,
+//                 width,
+//                 height,
+//                 image
+//             };
+//         })
+//         .sort((a, b) => a.width * a.height - b.width * b.height);
+// });
 
 const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
     const selection = layers.value.filter((layer) => layer.selected);
@@ -34,7 +35,7 @@ const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
 });
 
 const params: ComputedRef<UnwrapRef<TLayerModifiers>> = computed(() =>
-    activeLayer.value ? activeLayer.value.modifiers : {}
+    updates.value && activeLayer.value ? activeLayer.value.modifiers : {}
 );
 
 const fonts = computed(() => {
@@ -65,9 +66,9 @@ function onChange(event: Event, param: TLayerModifier) {
                 session.virtualScreen.redraw();
             });
             break;
-        case TModifierType.image:
-            param.setValue(icons.value.find((image) => target.dataset.name === image.name).image);
-            break;
+        // case TModifierType.image:
+        //     param.setValue(icons.value.find((image) => target.dataset.name === image.name).image);
+        //     break;
     }
     session.virtualScreen.redraw();
 }
