@@ -199,6 +199,13 @@ export class Rect {
             this.y + this.h < rect.y
         );
     }
+    extends(rect: Rect): Rect {
+        const x = Math.min(this.x, rect.x);
+        const y = Math.min(this.y, rect.y);
+        const w = Math.max(this.x + this.w, rect.x + rect.w) - x;
+        const h = Math.max(this.y + this.h, rect.y + rect.h) - y;
+        return new Rect(x, y, w, h);
+    }
     toPath(): Path2D {
         let path: Path2D = new Path2D();
         path.rect(this.x, this.y, this.w, this.h);
