@@ -19,7 +19,7 @@ export class PaintLayer extends AbstractLayer {
     public position: Point = null;
     public size: Point = null;
     public data: ImageData;
-    public points: Set<number[]> = new Set();
+    public points: number[][] = [];
     private maxPoint = new Point();
 
     modifiers: TLayerModifiers = {
@@ -78,7 +78,19 @@ export class PaintLayer extends AbstractLayer {
                 // todo
                 break;
             case EditMode.CREATING:
-                this.points.add(point.xy);
+                console.log(position.distanceTo(point));
+                if (position.distanceTo(point) < 1) {
+                    this.points.push(point.xy);
+                } else {
+                    // add missing points
+                    const diff = point.clone().subtract(position);
+                    const steps = Math.max(Math.abs(diff.x), Math.abs(diff.y));
+                    const step = diff.clone().divide(steps);
+                    for (let i = 0; i < steps; i++) {
+                        const p = position.clone().add(step.clone().multiply(i)).round();
+                        this.points.push(p.xy);
+                    }
+                }
                 if (!this.position) {
                     this.position = point.clone();
                     this.size = new Point(1);
@@ -87,6 +99,7 @@ export class PaintLayer extends AbstractLayer {
                     this.maxPoint = this.maxPoint.max(point);
                     this.size = this.maxPoint.clone().subtract(this.position);
                 }
+                this.editState.position = point.clone();
                 break;
         }
         this.updateBounds();
@@ -134,7 +147,7 @@ export class PaintLayer extends AbstractLayer {
     loadState(state: TPaintState) {
         this.position = new Point(state.p);
         this.size = new Point(state.s);
-        this.points = new Set(state.d);
+        this.points = state.d;
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;
