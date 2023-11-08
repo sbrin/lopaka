@@ -153,6 +153,12 @@ export class Session {
         return Promise.all(fonts.map((font) => loadFont(font))).then(() => {
             this.editor.font = getFont(fonts[0].name);
             this.unlock();
+
+            loadLayers(
+                localStorage.getItem(`${name}_lopaka_layers`)
+                    ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
+                    : []
+            );
             this.virtualScreen.redraw();
             localStorage.setItem('lopaka_library', name);
             isLogged && logEvent('select_library', name);
@@ -181,6 +187,7 @@ const LayerClassMap: {[key in ELayerType]: any} = {
 // for testing
 export function loadLayers(layers: any[]) {
     const session = useSession();
+    session.state.layers = [];
     layers.forEach((l) => {
         const type: ELayerType = l.t;
         if (type in LayerClassMap) {
@@ -195,7 +202,10 @@ export function loadLayers(layers: any[]) {
 
 export function saveLayers() {
     const session = useSession();
-    localStorage.setItem('lopaka_layers', JSON.stringify(session.state.layers.map((l) => l.getState())));
+    localStorage.setItem(
+        `${session.state.platform}_lopaka_layers`,
+        JSON.stringify(session.state.layers.map((l) => l.getState()))
+    );
 }
 // for testing
 window['saveLayers'] = saveLayers;
@@ -206,9 +216,7 @@ export function useSession(id?: string) {
     } else {
         const session = new Session();
         const platformLocal = localStorage.getItem('lopaka_library');
-        session.setPlatform(platformLocal ?? U8g2Platform.id).then(() => {
-            loadLayers(localStorage.getItem('lopaka_layers') ? JSON.parse(localStorage.getItem('lopaka_layers')) : []);
-        });
+        session.setPlatform(platformLocal ?? U8g2Platform.id);
         let displayStored = localStorage.getItem('lopaka_display');
         if (displayStored) {
             const displayStoredArr = displayStored.split('×').map((n) => parseInt(n));
