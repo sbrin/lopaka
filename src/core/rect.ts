@@ -206,6 +206,9 @@ export class Rect {
         const h = Math.max(this.y + this.h, rect.y + rect.h) - y;
         return new Rect(x, y, w, h);
     }
+    getCenter(): Point {
+        return new Point(this.x + this.w / 2, this.y + this.h / 2);
+    }
     toPath(): Path2D {
         let path: Path2D = new Path2D();
         path.rect(this.x, this.y, this.w, this.h);

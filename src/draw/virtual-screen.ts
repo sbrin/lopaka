@@ -51,7 +51,7 @@ export class VirtualScreen {
         if (options.pointer) {
             this.plugins.push(new PointerPlugin(session));
         }
-        // this.plugins.push(new ResizeIconsPlugin(session));
+        this.plugins.push(new ResizeIconsPlugin(session));
         this.scope = new EffectScope();
         this.scope.run(() => {
             this.state = reactive({
