@@ -42,6 +42,12 @@ export type TLayerModifier = {
 
 export type TLayerModifiers = Partial<{[key in TModifierName]: TLayerModifier}>;
 
+export type TLayerEditPoint = {
+    cursor: 'nw-resize' | 'ne-resize' | 'sw-resize' | 'se-resize' | 'drag';
+    getRect(): Rect;
+    move(point: Point): void;
+};
+
 export type TLayerState = {
     t: ELayerType; // type
     n: string; // name
@@ -86,10 +92,12 @@ export abstract class AbstractLayer {
     // modifiers
     public modifiers: TLayerModifiers;
 
+    public editPoints: TLayerEditPoint[] = [];
+
     constructor() {}
 
     // called when layer starts to edit
-    abstract startEdit(mode: EditMode, point?: Point);
+    abstract startEdit(mode: EditMode, point?: Point, editPoint?: TLayerEditPoint);
     // called when layer is editing
     abstract edit(point: Point, originalEvent?: MouseEvent);
     // called when layer stops to edit

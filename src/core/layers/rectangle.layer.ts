@@ -1,6 +1,6 @@
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
 type TRectangleState = TLayerState & {
     p: number[]; // position [x, y]
@@ -13,6 +13,7 @@ export abstract class RectangleLayer extends AbstractLayer {
         firstPoint: Point;
         position: Point;
         size: Point;
+        editPoint: TLayerEditPoint;
     } = null;
 
     public position: Point = new Point();
@@ -62,11 +63,51 @@ export abstract class RectangleLayer extends AbstractLayer {
         }
     };
 
+    editPoints: TLayerEditPoint[] = [
+        {
+            cursor: 'ne-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x + this.bounds.w, this.bounds.y), new Point(6)).subtract(3, 3, 0, 0),
+            move: (offset: Point): void => {
+                this.position = this.editState.position.clone().subtract(0, offset.y);
+                this.size = new Point(this.editState.size.x - offset.x, this.editState.size.y + offset.y);
+            }
+        },
+        {
+            cursor: 'se-resize',
+            getRect: (): Rect =>
+                new Rect(
+                    new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
+                    new Point(6)
+                ).subtract(3, 3, 0, 0),
+            move: (offset: Point): void => {
+                this.size = this.editState.size.clone().subtract(offset);
+            }
+        },
+        {
+            cursor: 'sw-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h), new Point(6)).subtract(3, 3, 0, 0),
+            move: (offset: Point): void => {
+                this.position = this.editState.position.clone().subtract(offset.x, 0);
+                this.size = this.editState.size.clone().add(offset.x, -offset.y);
+            }
+        },
+        {
+            cursor: 'nw-resize',
+            getRect: (): Rect => new Rect(new Point(this.bounds.x, this.bounds.y), new Point(6)).subtract(3, 3, 0, 0),
+            move: (offset: Point): void => {
+                this.position = this.editState.position.clone().subtract(offset);
+                this.size = this.editState.size.clone().add(offset);
+            }
+        }
+    ];
+
     constructor(private fill: boolean) {
         super();
     }
 
-    startEdit(mode: EditMode, point: Point) {
+    startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
@@ -76,20 +117,20 @@ export abstract class RectangleLayer extends AbstractLayer {
         }
         this.editState = {
             firstPoint: point,
+            editPoint,
             position: this.position.clone(),
             size: this.size.clone()
         };
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
-        const {position, size, firstPoint} = this.editState;
+        const {position, editPoint, firstPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
                 this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
                 break;
             case EditMode.RESIZING:
-                // this.size = size.clone().add(point.clone().subtract(firstPoint)).round();
-                // todo
+                editPoint.move(firstPoint.clone().subtract(point));
                 break;
             case EditMode.CREATING:
                 this.position = point.clone().min(firstPoint);
