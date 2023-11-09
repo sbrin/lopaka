@@ -96,13 +96,15 @@ export class VirtualScreen {
     updateMousePosition(position: Point) {
         if (this.pluginLayer) {
             requestAnimationFrame(() => {
-                this.pluginLayerContext.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
+                const ctx = this.pluginLayerContext;
+                ctx.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
                 this.plugins.forEach((plugin) => {
-                    this.pluginLayerContext.save();
-                    this.pluginLayerContext.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
-                    plugin.update(this.pluginLayerContext, position);
-                    this.pluginLayerContext.setTransform(1, 0, 0, 1, 0, 0);
-                    this.pluginLayerContext.restore();
+                    ctx.save();
+                    ctx.scale(2, 2);
+                    ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
+                    plugin.update(ctx, position);
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    ctx.restore();
                 });
             });
         }
@@ -127,8 +129,12 @@ export class VirtualScreen {
             });
         }
         if (this.pluginLayer) {
-            this.pluginLayer.width = size.x * scale.x + DrawPlugin.offset.x * 2;
-            this.pluginLayer.height = size.y * scale.y + DrawPlugin.offset.y * 2;
+            this.pluginLayer.width = (size.x * scale.x + DrawPlugin.offset.x * 2) * 2;
+            this.pluginLayer.height = (size.y * scale.y + DrawPlugin.offset.y * 2) * 2;
+            Object.assign(this.pluginLayer.style, {
+                width: `${size.x * scale.x + DrawPlugin.offset.x * 2}px`,
+                height: `${size.y * scale.y + DrawPlugin.offset.y * 2}px`
+            });
         }
         layers.forEach((layer: AbstractLayer) => {
             layer.resize(display, scale);
@@ -167,13 +173,15 @@ export class VirtualScreen {
         this.canvasContext.globalAlpha = 1;
         if (this.pluginLayer) {
             requestAnimationFrame(() => {
-                this.pluginLayerContext.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
+                const ctx = this.pluginLayerContext;
+                ctx.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
                 this.plugins.forEach((plugin) => {
-                    this.pluginLayerContext.save();
-                    this.pluginLayerContext.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
-                    plugin.update(this.pluginLayerContext, null);
-                    this.pluginLayerContext.setTransform(1, 0, 0, 1, 0, 0);
-                    this.pluginLayerContext.restore();
+                    ctx.save();
+                    ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
+                    ctx.scale(2, 2);
+                    plugin.update(ctx, null);
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    ctx.restore();
                 });
             });
         }

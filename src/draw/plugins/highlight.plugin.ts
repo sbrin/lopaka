@@ -6,13 +6,12 @@ export class HighlightPlugin extends DrawPlugin {
         if (this.session.editor.state.activeTool) return;
         const {scale, layers} = this.session.state;
         ctx.save();
-        ctx.translate(0.5, 0.5);
         ctx.beginPath();
         layers.forEach((layer) => {
-            const bounds = layer.bounds.clone().multiply(scale).round().add(-1, -1, 1, 1);
+            const bounds = layer.bounds.clone().multiply(scale).round().add(-0.5, -0.5, 1, 1);
             if (layer.selected) {
                 ctx.save();
-                ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
                 ctx.lineWidth = 1;
                 ctx.setLineDash([5, 5]);
                 ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
@@ -26,9 +25,9 @@ export class HighlightPlugin extends DrawPlugin {
             if (hovered.length) {
                 const upperLayer = hovered[0];
                 if (!upperLayer.selected) {
-                    const bounds = upperLayer.bounds.clone().multiply(scale).round().add(-1, -1, 1, 1);
+                    const bounds = upperLayer.bounds.clone().multiply(scale).round().add(-0.5, -0.5, 1, 1);
                     ctx.save();
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
                     ctx.lineWidth = 1;
                     ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
                     ctx.restore();
