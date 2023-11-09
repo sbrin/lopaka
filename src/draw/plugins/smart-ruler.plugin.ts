@@ -13,7 +13,6 @@ export class SmartRulerPlugin extends DrawPlugin {
             const bounds = selected.reduce((bounds, layer) => bounds.extends(layer.bounds), selected[0].bounds);
             const p1 = bounds.pos.clone().multiply(scale).round().add(0.5, 0.5);
             const p2 = bounds.size.clone().multiply(scale).add(p1).round().subtract(0.5, 0.5);
-            console.log(p1.xy, p2.xy);
             // horizontal line p1
             ctx.moveTo(-9, p1.y);
             ctx.lineTo(maxPoint.x, p1.y);
