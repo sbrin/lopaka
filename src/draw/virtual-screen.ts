@@ -177,8 +177,8 @@ export class VirtualScreen {
                 ctx.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
                 this.plugins.forEach((plugin) => {
                     ctx.save();
-                    ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
                     ctx.scale(2, 2);
+                    ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
                     plugin.update(ctx, null);
                     ctx.setTransform(1, 0, 0, 1, 0, 0);
                     ctx.restore();
