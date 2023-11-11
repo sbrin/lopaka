@@ -37,7 +37,8 @@ const canvasClassNames = computed(() => {
     return {
         'fui-canvas_select': isSelectTool(),
         'fui-canvas_moving': isMoving(),
-        'fui-canvas_draw': isDrawingTool()
+        'fui-canvas_draw': isDrawingTool(),
+        locked: lock.value
     };
 });
 </script>
@@ -47,7 +48,7 @@ const canvasClassNames = computed(() => {
             <div
                 ref="container"
                 class="fui-canvas__event-target"
-                :class="{locked: lock}"
+                :class="canvasClassNames"
                 @mousedown.prevent="editor.handleEvent"
                 @mousemove.prevent="editor.handleEvent"
                 @dblclick.prevent="editor.handleEvent"
@@ -63,7 +64,6 @@ const canvasClassNames = computed(() => {
                     :width="display.x"
                     :height="display.y"
                     :style="{width: display.x * scale.x + 'px', height: display.y * scale.y + 'px'}"
-                    :class="canvasClassNames"
                 />
             </div>
         </div>
