@@ -25,6 +25,21 @@ export class ResizePlugin extends AbstractEditorPlugin {
         if (this.captured) {
             this.resizeLayer.edit(point, event);
             this.session.virtualScreen.redraw();
+        } else {
+            const {activeTool} = this.session.editor.state;
+            if (activeTool) return;
+            const {layers} = this.session.state;
+            const layer = layers.find((layer) => layer.selected && layer.contains(point));
+            if (layer && layer.editPoints.length) {
+                const editPoint = layer.editPoints.find((editPoint) => editPoint.getRect().contains(point));
+                if (editPoint) {
+                    this.container.style.cursor = editPoint.cursor;
+                } else {
+                    this.container.style.cursor = '';
+                }
+            } else {
+                this.container.style.cursor = '';
+            }
         }
     }
 

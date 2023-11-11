@@ -65,7 +65,7 @@ export abstract class RectangleLayer extends AbstractLayer {
 
     editPoints: TLayerEditPoint[] = [
         {
-            cursor: 'ne-resize',
+            cursor: 'nesw-resize',
             getRect: (): Rect =>
                 new Rect(new Point(this.bounds.x + this.bounds.w, this.bounds.y), new Point(6)).subtract(3, 3, 0, 0),
             move: (offset: Point): void => {
@@ -74,7 +74,7 @@ export abstract class RectangleLayer extends AbstractLayer {
             }
         },
         {
-            cursor: 'se-resize',
+            cursor: 'nwse-resize',
             getRect: (): Rect =>
                 new Rect(
                     new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
@@ -85,7 +85,7 @@ export abstract class RectangleLayer extends AbstractLayer {
             }
         },
         {
-            cursor: 'sw-resize',
+            cursor: 'nesw-resize',
             getRect: (): Rect =>
                 new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h), new Point(6)).subtract(3, 3, 0, 0),
             move: (offset: Point): void => {
@@ -94,7 +94,7 @@ export abstract class RectangleLayer extends AbstractLayer {
             }
         },
         {
-            cursor: 'nw-resize',
+            cursor: 'nwse-resize',
             getRect: (): Rect => new Rect(new Point(this.bounds.x, this.bounds.y), new Point(6)).subtract(3, 3, 0, 0),
             move: (offset: Point): void => {
                 this.position = this.editState.position.clone().subtract(offset);
