@@ -1,8 +1,8 @@
 import FlipperAPI from './prebuilt/flipper-js.mjs';
-import { imgDataToXBMP } from './utils';
+import {imgDataToXBMP} from './utils';
 
 const serial = navigator.serial;
-const FLIPPER_DEVICE_ID = { usbVendorId: 0x0483, usbProductId: 0x5740 };
+const FLIPPER_DEVICE_ID = {usbVendorId: 0x0483, usbProductId: 0x5740};
 
 async function wait(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -77,9 +77,9 @@ export class FlipperRPC {
     }
 
     private async backlight() {
-        await this.flipper.RPC('guiSendInputEvent', { key: 'OK', type: 'PRESS' });
-        await this.flipper.RPC('guiSendInputEvent', { key: 'OK', type: 'SHORT' });
-        await this.flipper.RPC('guiSendInputEvent', { key: 'OK', type: 'RELEASE' });
+        await this.flipper.RPC('guiSendInputEvent', {key: 'OK', type: 'PRESS'});
+        await this.flipper.RPC('guiSendInputEvent', {key: 'OK', type: 'SHORT'});
+        await this.flipper.RPC('guiSendInputEvent', {key: 'OK', type: 'RELEASE'});
     }
 
     async sendImage(imageData: ImageData) {
@@ -91,6 +91,6 @@ export class FlipperRPC {
         }
         const xbmBytes = imgDataToXBMP(imageData, 0, 0, imageData.width, imageData.height);
         await this.backlight();
-        return await this.flipper.RPC('guiScreenFrame', { data: new Uint8Array(xbmBytes as any) });
+        return await this.flipper.RPC('guiScreenFrame', {data: new Uint8Array(xbmBytes as any)});
     }
 }

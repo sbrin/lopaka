@@ -1,3 +1,10 @@
+function bitswap(b) {
+    b = ((b & 0xf0) >> 4) | ((b & 0x0f) << 4);
+    b = ((b & 0xcc) >> 2) | ((b & 0x33) << 2);
+    b = ((b & 0xaa) >> 1) | ((b & 0x55) << 1);
+    return b;
+}
+
 export function readFileAsync(file) {
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
@@ -25,7 +32,8 @@ export function imgDataToXBMP(
     xStart: number,
     yStart: number,
     width: number,
-    height: number
+    height: number,
+    swapBits: boolean = false
 ): string[] {
     if (!imgData) {
         return;
@@ -47,7 +55,12 @@ export function imgDataToXBMP(
         }
     }
 
-    return xbmp.map((x) => '0x' + x.toString(16).padStart(2, '0'));
+    for (let i = 0; i < xbmp.length; i++) {
+        xbmp[i] = swapBits ? bitswap(xbmp[i]) : xbmp[i];
+        xbmp[i] = '0x' + xbmp[i].toString(16).padStart(2, '0');
+    }
+
+    return xbmp;
 }
 
 export function imgDataToUint32Array(imgData) {
