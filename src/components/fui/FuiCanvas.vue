@@ -71,13 +71,12 @@ const canvasClassNames = computed(() => {
 </template>
 <style lang="css">
 .canvas-wrapper {
-    border-radius: 10px;
-    background: var(--primary-color);
-    padding: 8px;
+    border: 1px solid var(--secondary-color);
     margin: 16px 0;
     display: inline-block;
     font-size: 0;
     position: relative;
+    background-color: white;
 }
 .fui-canvas__event-target {
     position: relative;

@@ -14,7 +14,7 @@ export class RulerPlugin extends DrawPlugin {
             ctx.moveTo(-8, i * scale.y);
             ctx.lineTo(i % 10 === 0 ? -2 : -5, i * scale.y);
         }
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = '#ff8200';
         ctx.lineWidth = 1;
         ctx.stroke();
         ctx.restore();
