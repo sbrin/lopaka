@@ -24,7 +24,7 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
     } else if (layer instanceof IconLayer) {
         return `${layer.name}`;
     }
-    return `${layer.name}`;
+    return `${layer.getType()}`;
 }
 </script>
 <template>
