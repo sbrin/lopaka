@@ -78,10 +78,10 @@ export class Editor {
             ...[
                 new PaintPlugin(this.session, this.container),
                 new AddPlugin(this.session, this.container),
-                new SelectPlugin(this.session, this.container),
                 new ResizePlugin(this.session, this.container),
-                new CopyPlugin(this.session, this.container),
+                new SelectPlugin(this.session, this.container),
                 new MovePlugin(this.session, this.container),
+                new CopyPlugin(this.session, this.container),
                 new DeletePlugin(this.session, this.container),
                 new SavePlugin(this.session, this.container),
                 new ImageDropPlugin(this.session, this.container)
@@ -141,25 +141,55 @@ export class Editor {
     };
 
     private onMouseClick(point: Point, event: MouseEvent): void {
-        this.plugins.forEach((plugin) => plugin.onMouseClick(point, event));
+        for (let plugin of this.plugins) {
+            plugin.onMouseClick(point, event);
+            if (plugin.captured) {
+                break;
+            }
+        }
     }
     private onMouseDown(point: Point, event: MouseEvent): void {
-        this.plugins.forEach((plugin) => plugin.onMouseDown(point, event));
+        for (let plugin of this.plugins) {
+            plugin.onMouseDown(point, event);
+            if (plugin.captured) {
+                break;
+            }
+        }
     }
     private onMouseMove(point: Point, event: MouseEvent): void {
-        this.plugins.forEach((plugin) => plugin.onMouseMove(point, event));
+        for (let plugin of this.plugins) {
+            plugin.onMouseMove(point, event);
+            if (plugin.captured) {
+                break;
+            }
+        }
     }
     private onMouseUp(point: Point, event: MouseEvent): void {
-        this.plugins.forEach((plugin) => plugin.onMouseUp(point, event));
+        for (let plugin of this.plugins) {
+            plugin.onMouseUp(point, event);
+            if (plugin.captured) {
+                break;
+            }
+        }
     }
     private onMouseLeave(point: Point, event: MouseEvent): void {
-        this.plugins.forEach((plugin) => plugin.onMouseLeave(point, event));
+        for (let plugin of this.plugins) {
+            plugin.onMouseLeave(point, event);
+            if (plugin.captured) {
+                break;
+            }
+        }
+    }
+    private onMouseDoubleClick(point: Point, event: MouseEvent): void {
+        for (let plugin of this.plugins) {
+            plugin.onMouseDoubleClick(point, event);
+            if (plugin.captured) {
+                break;
+            }
+        }
     }
     private onKeyDown(key: Keys, event: KeyboardEvent): void {
         this.plugins.forEach((plugin) => plugin.onKeyDown(key, event));
-    }
-    private onMouseDoubleClick(point: Point, event: MouseEvent): void {
-        this.plugins.forEach((plugin) => plugin.onMouseDoubleClick(point, event));
     }
     private onDrop(point: Point, event: DragEvent): void {
         this.plugins.forEach((plugin) => plugin.onDrop(point, event));

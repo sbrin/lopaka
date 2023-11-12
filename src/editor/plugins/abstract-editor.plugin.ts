@@ -6,6 +6,7 @@ import {Session} from '../../core/session';
  * Base class for all editor plugins
  */
 export abstract class AbstractEditorPlugin {
+    captured: boolean;
     constructor(
         protected session: Session,
         protected container: HTMLElement
