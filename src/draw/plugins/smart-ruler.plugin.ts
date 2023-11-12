@@ -3,7 +3,7 @@ import {DrawPlugin} from './draw.plugin';
 export class SmartRulerPlugin extends DrawPlugin {
     public update(ctx: CanvasRenderingContext2D): void {
         const {layers, scale, display} = this.session.state;
-        const selected = layers.filter((layer) => layer.selected);
+        const selected = layers.filter((layer) => layer.selected || layer.isEditing());
         if (selected.length) {
             // show distance to left and top
             ctx.save();
