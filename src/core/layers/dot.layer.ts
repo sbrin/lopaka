@@ -1,6 +1,6 @@
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {EditMode} from './abstract.layer';
+import {EditMode, TLayerEditPoint} from './abstract.layer';
 import {RectangleLayer} from './rectangle.layer';
 
 export class DotLayer extends RectangleLayer {
