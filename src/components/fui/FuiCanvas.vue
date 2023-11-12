@@ -71,7 +71,6 @@ const canvasClassNames = computed(() => {
 </template>
 <style lang="css">
 .canvas-wrapper {
-    border: 20px solid var(--border-color);
     border-radius: 10px;
     background: var(--primary-color);
     padding: 8px;
