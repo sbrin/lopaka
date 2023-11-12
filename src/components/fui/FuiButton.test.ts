@@ -4,8 +4,12 @@ import FuiButton from './FuiButton.vue';
 
 describe('FuiButton', () => {
     it('renders a button element', () => {
-        const wrapper = mount(FuiButton);
-        expect(wrapper.find('span').exists()).toBe(true);
+        const wrapper = mount(FuiButton, {
+            slots: {
+                default: 'Test'
+            }
+        });
+        expect(wrapper.find('.button').exists()).toBe(true);
         expect(wrapper.element).toMatchSnapshot();
     });
 
