@@ -91,11 +91,10 @@ body {
 
 #lopaka_app {
     display: flex;
-    justify-content: center;
 }
 
 .fui-editor__tools {
-    width: 600px;
+    width: 792px;
     align-self: baseline;
 }
 
@@ -152,6 +151,8 @@ body {
     margin: 8px 0 8px 0;
     display: flex;
     flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-start;
 }
 
 .button {
@@ -349,7 +350,7 @@ a.button {
 .fui-editor-header {
     display: flex;
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
 .fui-select {

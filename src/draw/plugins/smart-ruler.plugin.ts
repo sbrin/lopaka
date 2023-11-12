@@ -17,6 +17,7 @@ export class SmartRulerPlugin extends DrawPlugin {
             ctx.moveTo(-9, p1.y);
             ctx.lineTo(maxPoint.x, p1.y);
 
+            ctx.fillStyle = "#ff8200";
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'right';
             ctx.fillText(`${bounds.y}`, -12, p1.y);
