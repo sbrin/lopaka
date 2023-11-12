@@ -1,5 +1,5 @@
 import haxrcorp4089 from '../../fonts/haxrcorp4089.ttf?url';
-import helvB08 from '../../fonts/helvB08.ttf?url';
+import helvB08 from '../../fonts/helvb08.ttf?url';
 import profont22 from '../../fonts/profont22.ttf?url';
 import {Platform} from './platform';
 import {FontFormat} from '../draw/fonts/font';
