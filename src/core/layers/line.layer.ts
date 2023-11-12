@@ -134,7 +134,8 @@ export class LineLayer extends AbstractLayer {
             n: this.name,
             i: this.index,
             g: this.group,
-            t: this.type
+            t: this.type,
+            u: this.uid
         };
         this.state = state;
     }
@@ -145,6 +146,7 @@ export class LineLayer extends AbstractLayer {
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;
+        this.uid = state.u;
         this.updateBounds();
     }
 

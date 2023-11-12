@@ -142,7 +142,8 @@ export class IconLayer extends AbstractLayer {
             i: this.index,
             g: this.group,
             t: this.type,
-            o: this.overlay
+            o: this.overlay,
+            u: this.uid
         };
         this.state = state;
     }
@@ -156,6 +157,7 @@ export class IconLayer extends AbstractLayer {
         this.image = new ImageData(new Uint8ClampedArray(state.d), this.size.x, this.size.y);
         this.imageName = state.in;
         this.overlay = state.o;
+        this.uid = state.u;
         this.updateBounds();
     }
 

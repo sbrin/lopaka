@@ -142,7 +142,8 @@ export class PaintLayer extends AbstractLayer {
             n: this.name,
             i: this.index,
             g: this.group,
-            t: this.type
+            t: this.type,
+            u: this.uid
         };
         this.state = JSON.parse(JSON.stringify(state));
     }
@@ -154,6 +155,7 @@ export class PaintLayer extends AbstractLayer {
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;
+        this.uid = state.u;
         this.updateBounds();
     }
 
