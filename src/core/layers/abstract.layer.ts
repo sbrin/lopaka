@@ -1,4 +1,5 @@
 import {DrawContext} from '../../draw/draw-context';
+import {generateUID} from '../../utils';
 import {Point} from '../point';
 import {Rect} from '../rect';
 // TODO move type delarations outside of the class
@@ -53,6 +54,7 @@ export type TLayerState = {
     n: string; // name
     i: number; // index
     g: number; // group
+    u: string; // uid
 };
 
 /**
@@ -74,6 +76,8 @@ export abstract class AbstractLayer {
     protected mode: EditMode = EditMode.EMPTY;
     // history of changing
     protected history: any[] = [];
+    // UID
+    public uid = generateUID();
 
     // is layer selected
     public selected: boolean = false;
