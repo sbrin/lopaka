@@ -6,7 +6,7 @@ u8g2.drawBox(107, 46, 18, 15);
 u8g2.drawBox(97, 2, 27, 11);
 u8g2.drawBox(106, 19, 19, 18);
 u8g2.setFont(helvB08_tr);
-u8g2.drawStr(3, 11, \\"String 123\\");
+u8g2.drawStr(3, 11, \\"Text\\");
 u8g2.drawLine(2, 16, 68, 16);
 u8g2.drawPixel(62, 4);
 u8g2.drawPixel(67, 8);

@@ -9,7 +9,7 @@ display.setTextColor(1);
 display.setTextSize(1);
 display.setCursor(3, 11);
 display.setTextWrap(false);
-display.print(\\"String 123\\");
+display.print(\\"Text\\");
 display.drawLine(2, 16, 68, 16, 1);
 display.drawPixel(62, 4, 1);
 display.drawPixel(67, 8, 1);
