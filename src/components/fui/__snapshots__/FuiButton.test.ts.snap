@@ -1,7 +1,10 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`FuiButton > renders a button element 1`] = `
-<button
+<span
   class="button"
-/>
+>
+  
+  
+</span>
 `;

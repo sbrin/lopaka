@@ -1,4 +1,14 @@
 import {vi} from 'vitest';
+vi.mock('./src/draw/fonts/index.ts', () => ({
+    getFont: (name) => {
+        return {
+            name,
+            getSize: () => {
+                return 1;
+            }
+        };
+    }
+}));
 const getContextMock = (type: string) => {
     if (type !== '2d') {
         throw Error(`Canvas context ${type} disallowed for tests`);

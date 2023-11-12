@@ -172,8 +172,7 @@ export class Session {
     };
     constructor() {}
 }
-// FIXME
-const LayerClassMap: {[key in ELayerType]: any} = {
+export const LayerClassMap: {[key in ELayerType]: any} = {
     box: BoxLayer,
     circle: CircleLayer,
     disc: DiscLayer,
