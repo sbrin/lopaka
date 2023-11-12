@@ -5,6 +5,7 @@ exports[`FuiButton > renders a button element 1`] = `
   class="button"
 >
   
+  Test
   
 </span>
 `;
