@@ -1,6 +1,6 @@
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
 type TLineState = TLayerState & {
     p1: number[]; // point 1
@@ -14,6 +14,7 @@ export class LineLayer extends AbstractLayer {
         firstPoint: Point;
         p1: Point;
         p2: Point;
+        editPoint: TLayerEditPoint;
     } = null;
 
     public p1: Point = new Point();
@@ -62,27 +63,46 @@ export class LineLayer extends AbstractLayer {
         }
     };
 
+    editPoints: TLayerEditPoint[] = [
+        {
+            cursor: 'move',
+            getRect: (): Rect => new Rect(this.p1, new Point(3)).subtract(1, 1, 0, 0),
+            move: (offset: Point): void => {
+                this.p1 = this.editState.p1.clone().add(offset).round();
+            }
+        },
+        {
+            cursor: 'move',
+            getRect: (): Rect => new Rect(this.p2, new Point(3)).subtract(1, 1, 0, 0),
+            move: (offset: Point): void => {
+                this.p2 = this.editState.p2.clone().add(offset).round();
+            }
+        }
+    ];
+
     constructor() {
         super();
     }
 
-    startEdit(mode: EditMode, point: Point) {
+    startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
         this.mode = mode;
         this.editState = {
             firstPoint: point,
             p1: this.p1?.clone() || point.clone(),
-            p2: this.p2?.clone() || point.clone().add(1)
+            p2: this.p2?.clone() || point.clone().add(1),
+            editPoint
         };
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
-        const {p1, p2, firstPoint} = this.editState;
+        const {p1, p2, firstPoint, editPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
                 this.p1 = p1.clone().add(point.clone().subtract(firstPoint)).round();
                 this.p2 = p2.clone().add(point.clone().subtract(firstPoint)).round();
                 break;
             case EditMode.RESIZING:
+                editPoint.move(point.clone().subtract(firstPoint));
                 // this.size = size.clone().add(point.clone().subtract(firstPoint)).round();
                 // todo
                 break;

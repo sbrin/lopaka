@@ -67,7 +67,12 @@ export abstract class RectangleLayer extends AbstractLayer {
         {
             cursor: 'nesw-resize',
             getRect: (): Rect =>
-                new Rect(new Point(this.bounds.x + this.bounds.w, this.bounds.y), new Point(6)).subtract(3, 3, 0, 0),
+                new Rect(new Point(this.bounds.x + this.bounds.w, this.bounds.y), new Point(3)).subtract(
+                    1.5,
+                    1.5,
+                    0,
+                    0
+                ),
             move: (offset: Point): void => {
                 this.position = this.editState.position.clone().subtract(0, offset.y);
                 this.size = new Point(this.editState.size.x - offset.x, this.editState.size.y + offset.y);
@@ -78,8 +83,8 @@ export abstract class RectangleLayer extends AbstractLayer {
             getRect: (): Rect =>
                 new Rect(
                     new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
-                    new Point(6)
-                ).subtract(3, 3, 0, 0),
+                    new Point(3)
+                ).subtract(1.5, 1.5, 0, 0),
             move: (offset: Point): void => {
                 this.size = this.editState.size.clone().subtract(offset);
             }
@@ -87,7 +92,12 @@ export abstract class RectangleLayer extends AbstractLayer {
         {
             cursor: 'nesw-resize',
             getRect: (): Rect =>
-                new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h), new Point(6)).subtract(3, 3, 0, 0),
+                new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h), new Point(3)).subtract(
+                    1.5,
+                    1.5,
+                    0,
+                    0
+                ),
             move: (offset: Point): void => {
                 this.position = this.editState.position.clone().subtract(offset.x, 0);
                 this.size = this.editState.size.clone().add(offset.x, -offset.y);
@@ -95,7 +105,8 @@ export abstract class RectangleLayer extends AbstractLayer {
         },
         {
             cursor: 'nwse-resize',
-            getRect: (): Rect => new Rect(new Point(this.bounds.x, this.bounds.y), new Point(6)).subtract(3, 3, 0, 0),
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
             move: (offset: Point): void => {
                 this.position = this.editState.position.clone().subtract(offset);
                 this.size = this.editState.size.clone().add(offset);

@@ -10,13 +10,18 @@ export class ResizePlugin extends AbstractEditorPlugin {
         const {activeTool} = this.session.editor.state;
         if (activeTool) return;
         const {layers} = this.session.state;
-        const layer = layers.find((layer) => layer.selected && layer.contains(point));
-        if (layer && layer.editPoints.length) {
-            const editPoint = layer.editPoints.find((editPoint) => editPoint.getRect().contains(point));
-            if (editPoint) {
-                this.captured = true;
-                this.resizeLayer = layer;
-                layer.startEdit(EditMode.RESIZING, point, editPoint);
+        const resizableLayers = layers.filter(
+            (layer) => layer.resizable && layer.selected && layer.bounds.clone().add(-1, -1, 2, 2).contains(point)
+        );
+        if (resizableLayers.length == 1) {
+            const layer = resizableLayers[0];
+            if (layer && layer.editPoints.length) {
+                const editPoint = layer.editPoints.find((editPoint) => editPoint.getRect().contains(point));
+                if (editPoint) {
+                    this.captured = true;
+                    this.resizeLayer = layer;
+                    layer.startEdit(EditMode.RESIZING, point, editPoint);
+                }
             }
         }
     }
@@ -29,17 +34,20 @@ export class ResizePlugin extends AbstractEditorPlugin {
             const {activeTool} = this.session.editor.state;
             if (activeTool) return;
             const {layers} = this.session.state;
-            const layer = layers.find((layer) => layer.selected && layer.contains(point));
-            if (layer && layer.editPoints.length) {
-                const editPoint = layer.editPoints.find((editPoint) => editPoint.getRect().contains(point));
-                if (editPoint) {
-                    this.container.style.cursor = editPoint.cursor;
-                } else {
-                    this.container.style.cursor = '';
+            const resizableLayers = layers.filter(
+                (layer) => layer.resizable && layer.selected && layer.bounds.clone().add(-1, -1, 2, 2).contains(point)
+            );
+            if (resizableLayers.length == 1) {
+                const layer = resizableLayers[0];
+                if (layer && layer.editPoints.length) {
+                    const editPoint = layer.editPoints.find((editPoint) => editPoint.getRect().contains(point));
+                    if (editPoint) {
+                        this.container.style.cursor = editPoint.cursor;
+                        return;
+                    }
                 }
-            } else {
-                this.container.style.cursor = '';
             }
+            this.container.style.cursor = '';
         }
     }
 

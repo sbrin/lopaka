@@ -1,6 +1,7 @@
+import {off} from 'process';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
 type TCircleState = TLayerState & {
     p: number[]; // position
@@ -17,6 +18,7 @@ export class CircleLayer extends AbstractLayer {
         firstPoint: Point;
         position: Point;
         radius: number;
+        editPoint: TLayerEditPoint;
     } = null;
 
     modifiers: TLayerModifiers = {
@@ -52,11 +54,65 @@ export class CircleLayer extends AbstractLayer {
         }
     };
 
+    editPoints: TLayerEditPoint[] = [
+        {
+            cursor: 'nesw-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x + this.bounds.w, this.bounds.y), new Point(3)).subtract(
+                    1.5,
+                    1.5,
+                    0,
+                    0
+                ),
+            move: (offset: Point): void => {
+                this.position.y = Math.floor(this.editState.position.y + Math.round(offset.x / 2) * 2);
+                this.radius = Math.floor(this.editState.radius - offset.x / 2);
+            }
+        },
+        {
+            cursor: 'nwse-resize',
+            getRect: (): Rect =>
+                new Rect(
+                    new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
+                    new Point(3)
+                ).subtract(1.5, 1.5, 0, 0),
+            move: (offset: Point): void => {
+                this.radius = Math.round(this.editState.radius - offset.x / 2);
+            }
+        },
+        {
+            cursor: 'nesw-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h), new Point(3)).subtract(
+                    1.5,
+                    1.5,
+                    0,
+                    0
+                ),
+            move: (offset: Point): void => {
+                this.position.x = Math.ceil(this.editState.position.x - Math.round(offset.x / 2) * 2);
+                this.radius = Math.ceil(this.editState.radius + offset.x / 2);
+            }
+        },
+        {
+            cursor: 'nwse-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
+            move: (offset: Point): void => {
+                this.position = this.editState.position
+                    .clone()
+                    .subtract(Math.round(offset.x / 2) * 2)
+                    .ceil();
+                this.radius = Math.ceil(this.editState.radius + offset.x / 2);
+            }
+        }
+    ];
+
     constructor(private fill: boolean = false) {
         super();
     }
 
-    startEdit(mode: EditMode, point: Point) {
+    startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
@@ -67,18 +123,20 @@ export class CircleLayer extends AbstractLayer {
         this.editState = {
             firstPoint: point,
             position: this.position.clone(),
-            radius: this.radius
+            radius: this.radius,
+            editPoint
         };
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
-        const {position, firstPoint} = this.editState;
+        const {position, firstPoint, editPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
                 this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
                 break;
             case EditMode.RESIZING:
                 // todo
+                editPoint.move(firstPoint.clone().subtract(point));
                 break;
             case EditMode.CREATING:
                 const radius = Math.max(
