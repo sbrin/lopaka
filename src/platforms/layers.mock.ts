@@ -40,7 +40,7 @@ export const layersMock: TLayer[] = [
         y: 11,
         id: 's3m4u762qpln6jvm90',
         yy: 3,
-        text: 'String 123',
+        text: 'Text',
         width: 50,
         height: 8,
         font: 'helvB08_tr'
