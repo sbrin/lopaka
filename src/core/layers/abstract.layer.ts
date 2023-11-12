@@ -177,4 +177,8 @@ export abstract class AbstractLayer {
     public getState(): any {
         return this.state;
     }
+
+    public getType() {
+        return this.type;
+    }
 }
