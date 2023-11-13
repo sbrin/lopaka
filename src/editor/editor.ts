@@ -148,7 +148,8 @@ export class Editor {
             }
         }
     }
-    private onMouseDown(point: Point, event: MouseEvent): void {
+    private onMouseDown(point: Point, event: MouseEvent): void {)
+        document.activeElement?.blur();
         for (let plugin of this.plugins) {
             plugin.onMouseDown(point, event);
             if (plugin.captured) {
