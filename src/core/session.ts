@@ -1,28 +1,17 @@
 import {Platform} from 'src/platforms/platform';
-import {UnwrapRef, reactive} from 'vue';
-import {getFont, loadFont} from '../draw/fonts';
+import {reactive} from 'vue';
 import {VirtualScreen} from '../draw/virtual-screen';
 import {Editor} from '../editor/editor';
 import {AdafruitPlatform} from '../platforms/adafruit';
 import {FlipperPlatform} from '../platforms/flipper';
 import {U8g2Platform} from '../platforms/u8g2';
 import {Uint32RawPlatform} from '../platforms/uint32-raw';
-import {generateUID, logEvent} from '../utils';
+import {generateUID} from '../utils';
 import {ChangeHistory, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
-import {BoxLayer} from './layers/box.layer';
-import {CircleLayer} from './layers/circle.layer';
-import {DiscLayer} from './layers/disc.layer';
-import {DotLayer} from './layers/dot.layer';
-import {FrameLayer} from './layers/frame.layer';
-import {IconLayer} from './layers/icon.layer';
-import {LineLayer} from './layers/line.layer';
-import {PaintLayer} from './layers/paint.layer';
-import {TextLayer} from './layers/text.layer';
 import {Point} from './point';
-
-const sessions = new Map<string, UnwrapRef<Session>>();
-let currentSessionId = null;
+import {AbstractProvider} from './prviders/abstract.provider';
+import {LocalProvider} from './prviders/local.provider';
 
 type TSessionState = {
     platform: string;
@@ -104,7 +93,7 @@ export class Session {
         layers: [],
         scale: new Point(4, 4),
         customImages: [],
-        codePreview: "",
+        codePreview: ''
     });
 
     history: ChangeHistory = useHistory();
@@ -142,34 +131,20 @@ export class Session {
         this.state.display = display;
         this.virtualScreen.resize();
         this.virtualScreen.redraw();
-        // TODO: update cloud and storage to avoid display conversion
-        const displayString = `${display.x}×${display.y}`;
-        localStorage.setItem('lopaka_display', displayString);
-        isLogged && logEvent('select_display', displayString);
     };
     setScale = (scale, isLogged?: boolean) => {
         this.state.scale = new Point(scale / 100, scale / 100);
-        localStorage.setItem('lopaka_scale', `${scale}`);
-        isLogged && logEvent('select_scale', scale);
     };
     setPlatform = async (name: string, isLogged?: boolean): Promise<void> => {
+        if (this.state.layers.length) {
+            this.provider.saveProject();
+            this.state.layers = [];
+        }
         this.state.platform = name;
-        const fonts = this.platforms[name].getFonts();
-        this.lock();
-        // preload default font
-        return Promise.all(fonts.map((font) => loadFont(font))).then(() => {
-            this.editor.font = getFont(fonts[0].name);
-            this.unlock();
-
-            loadLayers(
-                localStorage.getItem(`${name}_lopaka_layers`)
-                    ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
-                    : []
-            );
-            this.virtualScreen.redraw();
-            localStorage.setItem('lopaka_library', name);
-            isLogged && logEvent('select_library', name);
-        });
+        this.provider.loadProject();
+    };
+    save = () => {
+        this.provider.saveProject();
     };
     lock = () => {
         this.state.lock = true;
@@ -177,61 +152,25 @@ export class Session {
     unlock = () => {
         this.state.lock = false;
     };
-    constructor() {}
-}
-export const LayerClassMap: {[key in ELayerType]: any} = {
-    box: BoxLayer,
-    circle: CircleLayer,
-    disc: DiscLayer,
-    dot: DotLayer,
-    frame: FrameLayer,
-    icon: IconLayer,
-    line: LineLayer,
-    string: TextLayer,
-    paint: PaintLayer
-};
-// for testing
-export function loadLayers(layers: any[]) {
-    const session = useSession();
-    session.state.layers = [];
-    layers.forEach((l) => {
-        const type: ELayerType = l.t;
-        if (type in LayerClassMap) {
-            const layer = new LayerClassMap[type]();
-            layer.loadState(l);
-            layer.stopEdit();
-            session.addLayer(layer);
-        }
-    });
-    session.virtualScreen.redraw();
+    private provider: AbstractProvider;
+    constructor(private providerClass: {new (session: Session): AbstractProvider}) {
+        this.provider = new providerClass(this);
+        this.setPlatform(this.provider.getLastPlatform());
+    }
 }
 
 export function saveLayers() {
     const session = useSession();
-    localStorage.setItem(
-        `${session.state.platform}_lopaka_layers`,
-        JSON.stringify(session.state.layers.map((l) => l.getState()))
-    );
+    session.save();
 }
-// for testing
-window['saveLayers'] = saveLayers;
 
-export function useSession(id?: string) {
-    if (currentSessionId) {
-        return sessions.get(currentSessionId);
+let session: Session;
+
+export function useSession() {
+    if (session) {
+        return session;
     } else {
-        const session = new Session();
-        const platformLocal = localStorage.getItem('lopaka_library');
-        session.setPlatform(platformLocal ?? U8g2Platform.id);
-        let displayStored = localStorage.getItem('lopaka_display');
-        if (displayStored) {
-            const displayStoredArr = displayStored.split('×').map((n) => parseInt(n));
-            session.setDisplay(new Point(displayStoredArr[0], displayStoredArr[1]));
-        }
-        const scaleLocal = JSON.parse(localStorage.getItem('lopaka_scale'));
-        session.setScale(scaleLocal ?? 400);
-        sessions.set(session.id, session);
-        currentSessionId = session.id;
+        session = new Session(LocalProvider);
         return session;
     }
 }

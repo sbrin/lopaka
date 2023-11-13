@@ -190,11 +190,11 @@ export class Point {
     equals(p: Point): boolean {
         return this[x] == p.x && this[y] == p.y;
     }
-    // todo
-    pack(): number[] {
-        return this.xy;
+    toString(): string {
+        return this.xy.join(',');
     }
-    static unpack(data: number[]): Point {
-        return new Point(data);
+    static fromString(str: string): Point {
+        const [x, y] = str.split(',').map((n) => parseInt(n));
+        return new Point(x, y);
     }
 }

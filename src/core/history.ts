@@ -20,15 +20,15 @@ export class ChangeHistory {
     constructor() {}
 
     public clear() {
-        this.history.splice(0, this.history.length);
-        this.head = 0;
-        this.emit({type: 'clear'}, null);
+        // this.history.splice(0, this.history.length);
+        // this.head = 0;
+        // this.emit({type: 'clear'}, null);
     }
 
     public push(change: TChange) {
-        this.history.push(change);
-        this.head = this.history.length - 1;
-        this.emit({type: 'push'}, change);
+        // this.history.push(change);
+        // this.head = this.history.length - 1;
+        // this.emit({type: 'push'}, change);
     }
 
     public lastChange() {

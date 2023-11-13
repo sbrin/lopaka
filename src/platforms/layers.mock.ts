@@ -1,5 +1,5 @@
-import {AbstractLayer, TLayerState} from '../core/layers/abstract.layer';
-import {LayerClassMap} from '../core/session';
+import {AbstractLayer} from '../core/layers/abstract.layer';
+import {LayerClassMap} from '../core/prviders/abstract.provider';
 
 export const layersMock: AbstractLayer[] = [
     {
