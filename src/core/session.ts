@@ -31,7 +31,6 @@ type TSessionState = {
     scale: Point;
     lock: boolean;
     customImages: TLayerImageData[];
-    codePreview: string;
 };
 
 export class Session {
@@ -103,8 +102,7 @@ export class Session {
         display: new Point(128, 64),
         layers: [],
         scale: new Point(4, 4),
-        customImages: [],
-        codePreview: "",
+        customImages: []
     });
 
     history: ChangeHistory = useHistory();
@@ -138,6 +136,15 @@ export class Session {
         });
         layer.draw();
     };
+    clearLayers = () => {
+        this.state.layers = [];
+        this.history.push({
+            type: 'clear',
+            layer: null,
+            state: []
+        });
+        this.virtualScreen.redraw();
+    };
     setDisplay = (display: Point, isLogged?: boolean) => {
         this.state.display = display;
         this.virtualScreen.resize();
@@ -170,6 +177,14 @@ export class Session {
             localStorage.setItem('lopaka_library', name);
             isLogged && logEvent('select_library', name);
         });
+    };
+    generateCode = () => {
+        const {platform, layers} = this.state;
+        const sourceCode = this.platforms[platform].generateSourceCode(
+            layers.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
+            this.virtualScreen.ctx
+        );
+        return sourceCode.declarations.reverse().join('\n') + '\n' + sourceCode.code.reverse().join('\n');
     };
     lock = () => {
         this.state.lock = true;

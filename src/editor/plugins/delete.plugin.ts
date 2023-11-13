@@ -10,5 +10,6 @@ export class DeletePlugin extends AbstractEditorPlugin {
                 selected.forEach((l) => this.session.removeLayer(l));
             }
         }
+        this.session.virtualScreen.redraw();
     }
 }

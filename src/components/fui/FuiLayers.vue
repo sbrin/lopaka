@@ -5,7 +5,12 @@ import {useSession} from '../../core/session';
 import {TextLayer} from '../../core/layers/text.layer';
 import {IconLayer} from '../../core/layers/icon.layer';
 const session = useSession();
-const {layers} = toRefs(session.state);
+const {updates} = toRefs(session.virtualScreen.state);
+
+const layers = computed(() => {
+    return updates.value && session.state.layers.sort((a, b) => b.index - a.index);
+});
+
 function classNames(layer) {
     return {
         layer_selected: layer.selected,
