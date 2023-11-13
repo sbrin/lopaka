@@ -57,7 +57,7 @@ export class BDFFont extends Font {
 
     drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
         const {bounds} = this.meta;
-        const charPos = position.clone().subtract(1, 0);
+        const charPos = position.clone();
         dc.ctx.beginPath();
         for (let i = 0; i < text.length; i++) {
             const charCode = text.charCodeAt(i);
@@ -67,7 +67,7 @@ export class BDFFont extends Font {
                 for (let j = 0; j < bytes.byteLength; j++) {
                     const byte = bytes[j];
                     for (let i = 0; i < 8; i++) {
-                        if (byte & (1 << (8 - i))) {
+                        if (byte & (1 << (7 - i))) {
                             dc.ctx.rect(i + charPos.x, j + charPos.y - bounds.y, 1, 1);
                         }
                     }
