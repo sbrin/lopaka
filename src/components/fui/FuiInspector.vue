@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import {ComputedRef, UnwrapRef, computed, toRefs} from 'vue';
 import {AbstractLayer, TLayerModifier, TLayerModifiers, TModifierType} from '../../core/layers/abstract.layer';
-import {IconLayer} from '../../core/layers/icon.layer';
 import {useSession} from '../../core/session';
 import {loadFont} from '../../draw/fonts';
-import iconsUrls from '../../icons';
 const session = useSession();
-const {platform, layers} = toRefs(session.state);
+const {platform} = toRefs(session.state);
 const {updates} = toRefs(session.virtualScreen.state);
 
 // const icons = computed(() => {
@@ -30,8 +28,8 @@ const {updates} = toRefs(session.virtualScreen.state);
 // });
 
 const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
-    const selection = layers.value.filter((layer) => layer.selected);
-    return selection.length == 1 ? selection[0] : null;
+    const selection = session.state.layers.filter((l) => l.selected);
+    return updates.value && selection.length == 1 ? selection[0] : null;
 });
 
 const params: ComputedRef<UnwrapRef<TLayerModifiers>> = computed(() =>

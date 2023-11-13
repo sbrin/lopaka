@@ -33,7 +33,7 @@ export class VirtualScreen {
         private session: Session,
         public options: VirtualScreenOptions
     ) {
-        const {display, layers, platform, scale} = toRefs(session.state);
+        const {display, platform, scale} = toRefs(session.state);
         this.screen = new OffscreenCanvas(display.value.x, display.value.y);
         this.ctx = this.screen.getContext('2d', {
             willReadFrequently: true,
@@ -57,7 +57,7 @@ export class VirtualScreen {
             this.state = reactive({
                 updates: 0
             });
-            watch([layers, platform], () => {
+            watch([platform], () => {
                 this.redraw();
             });
             watch([scale, display], () => {
