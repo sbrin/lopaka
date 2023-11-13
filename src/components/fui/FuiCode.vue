@@ -17,6 +17,7 @@ watch(
             session.virtualScreen.ctx
         );
         content.value = sourceCode.declarations.reverse().join('\n') + '\n' + sourceCode.code.reverse().join('\n');
+        session.state.codePreview = content.value;
     }, 500)
 );
 </script>
