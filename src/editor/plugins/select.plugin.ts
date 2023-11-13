@@ -42,14 +42,6 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 // if there is no hovered layer, start box selection
                 this.captured = true;
                 this.firstPoint = point.clone();
-                const screenPoint = point.clone().multiply(scale);
-                Object.assign(this.selectionElement.style, {
-                    display: 'block',
-                    left: `${screenPoint.x}px`,
-                    top: `${screenPoint.y}px`,
-                    width: '0px',
-                    height: '0px'
-                });
             }
         }
     }
@@ -61,6 +53,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
             const position = this.firstPoint.clone().multiply(scale).min(screenPoint);
             const size = point.clone().subtract(this.firstPoint).abs().multiply(scale);
             Object.assign(this.selectionElement.style, {
+                display: 'block',
                 left: `${position.x}px`,
                 top: `${position.y}px`,
                 width: `${size.x}px`,
@@ -76,6 +69,10 @@ export class SelectPlugin extends AbstractEditorPlugin {
             this.selectionElement.style.display = 'none';
             const position = this.firstPoint.clone().min(point);
             const size = point.clone().subtract(this.firstPoint).abs();
+            if (size.x < 2 && size.y < 2) {
+                layers.filter((l) => l.selected).forEach((l) => (l.selected = false));
+                return;
+            }
             layers.forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
         } else if (!this.foreign) {
             const selected = layers.filter((l) => l.selected);
