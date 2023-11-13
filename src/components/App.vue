@@ -23,11 +23,10 @@ let fuiImages = {},
     imageDataCache = {};
 
 const fuiCanvas = ref(null),
-    activeTab = ref('code'),
-    codePreview = ref('');
+    activeTab = ref('code');
 const session = useSession();
 const {editor, virtualScreen, state} = session;
-const {display, platform, layers, customImages} = toRefs(state);
+const {platform, layers, customImages} = toRefs(state);
 const {updates} = toRefs(virtualScreen.state);
 
 // computed
@@ -35,6 +34,7 @@ const isEmpty = computed(() => layers.value.length === 0);
 const isFlipper = computed(() => platform.value === FlipperPlatform.id);
 const isSerialSupported = computed(() => window.navigator.serial !== undefined);
 const flipperPreviewBtnText = computed(() => (flipper.value ? 'Disconnect' : 'Live View'));
+const showCopyCode = computed(() => (layers.value.length > 0));
 
 const flipper: ShallowRef<FlipperRPC> = ref(null);
 
@@ -73,7 +73,7 @@ function resetScreen() {
 }
 
 function copyCode() {
-    navigator.clipboard.writeText(codePreview.value);
+    navigator.clipboard.writeText(session.state.codePreview);
     logEvent('button_copy');
 }
 
@@ -192,10 +192,10 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                     @clean-custom-icons="cleanCustomIcons"
                     ref="fuiIconsList"
                 ></FuiIcons>
-                <FuiCode v-show="activeTab === 'code'" :content="codePreview"></FuiCode>
+                <FuiCode v-show="activeTab === 'code'"></FuiCode>
                 <div class="buttons-bottom">
                     <FuiFile type="file" title="import image" @set-active-tab="setactiveTab"></FuiFile>
-                    <FuiButton @click="copyCode" v-show="!!codePreview">copy code</FuiButton>
+                    <FuiButton @click="copyCode" v-show="showCopyCode">copy code</FuiButton>
                 </div>
             </div>
         </div>
