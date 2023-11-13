@@ -7,9 +7,8 @@ import {IconLayer} from '../core/layers/icon.layer';
 import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
 import {TextLayer} from '../core/layers/text.layer';
-import adafruitFont from '../draw/fonts/binary/adafruit-5x7.bin?url';
-import {FontFormat} from '../draw/fonts/font';
-import {imgDataToUint32Array} from '../utils';
+import { fontTypes } from "../draw/fonts/fontTypes";
+import {imgDataToUint32Array, toCppVariableName} from '../utils';
 import {Platform} from './platform';
 
 export class AdafruitPlatform extends Platform {
@@ -17,19 +16,9 @@ export class AdafruitPlatform extends Platform {
     protected name = 'Adafruit GFX';
     protected description = 'Adafruit GFX';
     protected fonts: TPlatformFont[] = [
-        {
-            name: 'adafruit',
-            title: 'Adafruit 5x7',
-            file: adafruitFont,
-            options: {
-                textCharHeight: 7,
-                textCharWidth: 5,
-                size: 8
-            },
-            format: FontFormat.FORMAT_5x7
-        }
+        fontTypes['adafruit'],
     ];
-    private color = '0xFFFF';
+    private color = 'SSD1306_WHITE';
 
     addDot(layer: DotLayer, source: TSourceCode): void {
         source.code.push(`display.drawPixel(${layer.position.x}, ${layer.position.y},  ${this.color});`);
@@ -89,9 +78,10 @@ display.print("${layer.text}");`);
                 .getImageData(layer.position.x, layer.position.y, layer.size.x, layer.size.y);
         }
         const XBMP = imgDataToUint32Array(image);
-        source.declarations.push(`static const unsigned char PROGMEM image_${layer.name}_bits[] = {${XBMP}};`);
+        const varName = `image_${toCppVariableName(layer.name)}_bits`;
+        source.declarations.push(`static const unsigned char PROGMEM ${varName}[] = {${XBMP}};`);
         source.code.push(
-            `display.drawBitmap(${layer.position.x}, ${layer.position.y}, image_${layer.name}_bits, ${layer.size.x}, ${layer.size.y}, ${this.color});`
+            `display.drawBitmap(${layer.position.x}, ${layer.position.y}, ${varName}, ${layer.size.x}, ${layer.size.y}, ${this.color});`
         );
     }
 
