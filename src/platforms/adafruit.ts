@@ -30,7 +30,7 @@ export class AdafruitPlatform extends Platform {
     addText(layer: TextLayer, source: TSourceCode): void {
         source.code.push(`display.setTextColor(${this.color});
 display.setTextSize(${layer.scaleFactor});
-display.setCursor(${layer.position.x}, ${layer.position.y});
+display.setCursor(${layer.position.x}, ${layer.position.y - layer.bounds.h});
 display.setTextWrap(false);
 display.print("${layer.text}");`);
     }
