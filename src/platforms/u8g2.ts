@@ -10,7 +10,7 @@ import {CircleLayer} from '../core/layers/circle.layer';
 import {DiscLayer} from '../core/layers/disc.layer';
 import {IconLayer} from '../core/layers/icon.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
-import { fontTypes } from "../draw/fonts/fontTypes";
+import {fontTypes} from '../draw/fonts/fontTypes';
 
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
@@ -22,7 +22,7 @@ export class U8g2Platform extends Platform {
         fontTypes['profont22_tr'],
         fontTypes['4x6_tr'],
         fontTypes['5x8_tr'],
-        fontTypes['6x10_tr'],
+        fontTypes['6x10_tr']
     ];
 
     public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
