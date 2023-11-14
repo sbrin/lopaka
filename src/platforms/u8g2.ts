@@ -28,6 +28,7 @@ export class U8g2Platform extends Platform {
     public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
         const source = super.generateSourceCode(layers, ctx);
         source.declarations.unshift('u8g2.setBitmapMode(1);');
+        source.declarations.unshift('u8g2.setFontMode(1);');
         return source;
     }
 
@@ -73,7 +74,10 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
         }
         const XBMP = imgDataToXBMP(image, 0, 0, layer.size.x, layer.size.y);
         const varName = `image_${toCppVariableName(layer.name)}_bits`;
-        source.declarations.push(`static const unsigned char ${varName}[] U8X8_PROGMEM = {${XBMP}};`);
+        const varDeclaration = `static const unsigned char ${varName}[] U8X8_PROGMEM = {${XBMP}};`;
+        if (!source.declarations.includes(varDeclaration)) {
+            source.declarations.push(varDeclaration);
+        }
         source.code.push(
             `u8g2.drawXBMP( ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${varName});`
         );
