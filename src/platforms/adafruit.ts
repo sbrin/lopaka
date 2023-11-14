@@ -79,7 +79,10 @@ display.print("${layer.text}");`);
         }
         const XBMP = imgDataToUint32Array(image);
         const varName = `image_${toCppVariableName(layer.name)}_bits`;
-        source.declarations.push(`static const unsigned char PROGMEM ${varName}[] = {${XBMP}};`);
+        const varDeclaration = `static const unsigned char PROGMEM ${varName}[] = {${XBMP}};`;
+        if (!source.declarations.includes(varDeclaration)) {
+            source.declarations.push(varDeclaration);
+        }
         source.code.push(
             `display.drawBitmap(${layer.position.x}, ${layer.position.y}, ${varName}, ${layer.size.x}, ${layer.size.y}, ${this.color});`
         );
