@@ -75,10 +75,6 @@ export class IconLayer extends AbstractLayer {
         }
     };
 
-    constructor() {
-        super();
-    }
-
     startEdit(mode: EditMode, point: Point) {
         this.mode = mode;
         this.editState = {

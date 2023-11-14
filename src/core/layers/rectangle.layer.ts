@@ -18,6 +18,7 @@ export abstract class RectangleLayer extends AbstractLayer {
 
     public position: Point = new Point();
     public size: Point = new Point();
+    protected fill: boolean = false;
 
     modifiers: TLayerModifiers = {
         x: {
@@ -113,10 +114,6 @@ export abstract class RectangleLayer extends AbstractLayer {
             }
         }
     ];
-
-    constructor(private fill: boolean) {
-        super();
-    }
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
         this.mode = mode;

@@ -9,6 +9,12 @@ import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
 import {TextLayer} from '../core/layers/text.layer';
 
+export type TPlatformFeatures = {
+    hasCustomFontSize: boolean;
+    hasInvertedColors: boolean;
+    hasRGBSupport: boolean;
+};
+
 /**
  * Abstract platform definition.
  */
@@ -17,6 +23,11 @@ export abstract class Platform {
     protected fonts: TPlatformFont[];
     protected name: string;
     protected description: string;
+    public features: TPlatformFeatures = {
+        hasCustomFontSize: false,
+        hasInvertedColors: false,
+        hasRGBSupport: false
+    };
 
     public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
         const source: TSourceCode = {code: [], declarations: []};

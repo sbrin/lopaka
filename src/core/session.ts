@@ -212,7 +212,7 @@ export function loadLayers(layers: any[]) {
     layers.forEach((l) => {
         const type: ELayerType = l.t;
         if (type in LayerClassMap) {
-            const layer = new LayerClassMap[type]();
+            const layer = new LayerClassMap[type](session.platforms[session.state.platform].features);
             layer.loadState(l);
             layer.stopEdit();
             session.addLayer(layer);

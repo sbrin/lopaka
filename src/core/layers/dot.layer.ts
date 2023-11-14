@@ -1,6 +1,7 @@
+import {TPlatformFeatures} from '../../platforms/platform';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {EditMode, TLayerEditPoint} from './abstract.layer';
+import {EditMode} from './abstract.layer';
 import {RectangleLayer} from './rectangle.layer';
 
 export class DotLayer extends RectangleLayer {
@@ -8,9 +9,9 @@ export class DotLayer extends RectangleLayer {
     protected brushSize: Point = new Point(1);
     public size: Point = this.brushSize.clone();
     public resizable: boolean = false;
-
-    constructor() {
-        super(true);
+    protected fill: boolean = true;
+    constructor(protected features: TPlatformFeatures) {
+        super(features);
         delete this.modifiers.w;
         delete this.modifiers.h;
     }

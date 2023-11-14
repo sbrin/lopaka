@@ -1,5 +1,6 @@
 import {getFont} from '../../draw/fonts';
 import {Font} from '../../draw/fonts/font';
+import {TPlatformFeatures} from '../../platforms/platform';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
@@ -76,8 +77,14 @@ export class TextLayer extends AbstractLayer {
         }
     };
 
-    constructor(public font: Font) {
-        super();
+    constructor(
+        public font: Font,
+        protected features: TPlatformFeatures
+    ) {
+        super(features);
+        if (!this.features.hasCustomFontSize) {
+            delete this.modifiers.fontSize;
+        }
     }
 
     startEdit(mode: EditMode, point: Point) {

@@ -1,5 +1,4 @@
 import {Point} from '../../core/point';
-import {Rect} from '../../core/rect';
 import {DrawContext} from '../draw-context';
 import {Font, FontFormat} from './font';
 
