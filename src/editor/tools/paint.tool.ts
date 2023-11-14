@@ -9,7 +9,7 @@ export class PaintTool extends AbstractTool {
 
     createLayer(): AbstractLayer {
         const {session} = this.editor;
-        return new PaintLayer(session.platforms[session.state.platform].features);
+        return new PaintLayer(session.getPlatformFeatures());
     }
 
     isSupported(platform: string): boolean {

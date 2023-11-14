@@ -27,7 +27,7 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
             };
             icon.onerror = reject;
         });
-        const newLayer = new IconLayer(this.session.platforms[this.session.state.platform].features);
+        const newLayer = new IconLayer(this.session.getPlatformFeatures());
         newLayer.name = name;
         newLayer.size = size;
         newLayer.position = point.clone().subtract(size.clone().divide(2));

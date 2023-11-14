@@ -7,6 +7,6 @@ export class DiscTool extends AbstractTool {
 
     createLayer(): AbstractLayer {
         const {session} = this.editor;
-        return new DiscLayer(session.platforms[session.state.platform].features);
+        return new DiscLayer(session.getPlatformFeatures());
     }
 }

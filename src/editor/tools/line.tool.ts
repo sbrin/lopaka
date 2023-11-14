@@ -7,6 +7,6 @@ export class LineTool extends AbstractTool {
 
     createLayer(): AbstractLayer {
         const {session} = this.editor;
-        return new LineLayer(session.platforms[session.state.platform].features);
+        return new LineLayer(session.getPlatformFeatures());
     }
 }

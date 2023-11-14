@@ -7,6 +7,6 @@ export class BoxTool extends AbstractTool {
 
     createLayer(): AbstractLayer {
         const {session} = this.editor;
-        return new BoxLayer(session.platforms[session.state.platform].features);
+        return new BoxLayer(session.getPlatformFeatures());
     }
 }
