@@ -20,8 +20,10 @@ export class BinaryFont extends Font {
             });
     }
 
-    getSize(dc: DrawContext, text: string): Point {
-        return new Point((this.options.textCharWidth + 1) * text.length - 1, this.options.size);
+    getSize(dc: DrawContext, text: string, scaleFactor: number = 1): Point {
+        return new Point((this.options.textCharWidth + 1) * text.length, this.options.size)
+            .subtract(1)
+            .multiply(scaleFactor);
     }
 
     drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {

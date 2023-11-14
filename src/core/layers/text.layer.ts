@@ -158,7 +158,7 @@ export class TextLayer extends AbstractLayer {
 
     updateBounds(): void {
         const {dc, font, position, text} = this;
-        const size = font.getSize(dc, text);
+        const size = font.getSize(dc, text, this.scaleFactor);
         this.bounds = new Rect(position.clone().subtract(0, size.y), size);
     }
 }
