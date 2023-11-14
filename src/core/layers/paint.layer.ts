@@ -99,7 +99,7 @@ export class PaintLayer extends AbstractLayer {
                     } else {
                         this.position = this.position.min(point);
                         this.maxPoint = this.maxPoint.max(point);
-                        this.size = this.maxPoint.clone().subtract(this.position);
+                        this.size = this.maxPoint.clone().subtract(this.position).add(1);
                     }
                     this.editState.position = point.clone();
                 }
@@ -160,6 +160,6 @@ export class PaintLayer extends AbstractLayer {
     }
 
     updateBounds() {
-        this.bounds = new Rect(this.position, this.size).add(0, 0, 1, 1);
+        this.bounds = new Rect(this.position, this.size);
     }
 }
