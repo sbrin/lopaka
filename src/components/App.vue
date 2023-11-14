@@ -79,7 +79,7 @@ function copyCode() {
 
 function addImageToCanvas(data) {
     session.state.layers.forEach((layer) => (layer.selected = false));
-    const newLayer = new IconLayer();
+    const newLayer = new IconLayer(session.platforms[session.state.platform].features);
     newLayer.name = data.name;
     newLayer.size = new Point(data.width, data.height);
     newLayer.selected = true;

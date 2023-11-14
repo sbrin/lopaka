@@ -6,6 +6,7 @@ export class CircleTool extends AbstractTool {
     name = 'circle';
 
     createLayer(): AbstractLayer {
-        return new CircleLayer();
+        const {session} = this.editor;
+        return new CircleLayer(session.platforms[session.state.platform].features);
     }
 }

@@ -12,6 +12,7 @@ export class CircleLayer extends AbstractLayer {
     protected state: TCircleState;
     public radius: number = 1;
     public position: Point = new Point();
+    protected fill: boolean = false;
 
     protected editState: {
         firstPoint: Point;
@@ -106,10 +107,6 @@ export class CircleLayer extends AbstractLayer {
             }
         }
     ];
-
-    constructor(private fill: boolean = false) {
-        super();
-    }
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
         this.mode = mode;

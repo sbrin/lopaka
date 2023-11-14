@@ -1,4 +1,5 @@
 import {DrawContext} from '../../draw/draw-context';
+import {TPlatformFeatures} from '../../platforms/platform';
 import {generateUID} from '../../utils';
 import {Point} from '../point';
 import {Rect} from '../rect';
@@ -99,7 +100,7 @@ export abstract class AbstractLayer {
 
     public editPoints: TLayerEditPoint[] = [];
 
-    constructor() {}
+    constructor(protected features?: TPlatformFeatures) {}
 
     // called when layer starts to edit
     abstract startEdit(mode: EditMode, point?: Point, editPoint?: TLayerEditPoint);

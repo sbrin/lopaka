@@ -5,6 +5,7 @@ import {AbstractTool} from './abstract.tool';
 export class IconTool extends AbstractTool {
     name = 'icon';
     createLayer(): AbstractLayer {
-        return new IconLayer();
+        const {session} = this.editor;
+        return new IconLayer(session.platforms[session.state.platform].features);
     }
 }

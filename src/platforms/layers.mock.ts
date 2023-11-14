@@ -104,7 +104,11 @@ export const layersMock: AbstractLayer[] = [
     }
 ].map((l) => {
     const type: ELayerType = l.t as any;
-    const layer = new LayerClassMap[type]();
+    const layer = new LayerClassMap[type]({
+        hasCustomFontSize: false,
+        hasInvertedColors: false,
+        hasRGBSupport: false
+    });
     layer.loadState(l);
     return layer;
 });

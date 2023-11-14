@@ -5,6 +5,7 @@ import {AbstractTool} from './abstract.tool';
 export class DotTool extends AbstractTool {
     name = 'dot';
     createLayer(): AbstractLayer {
-        return new DotLayer();
+        const {session} = this.editor;
+        return new DotLayer(session.platforms[session.state.platform].features);
     }
 }

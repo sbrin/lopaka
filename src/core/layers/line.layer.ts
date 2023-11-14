@@ -80,10 +80,6 @@ export class LineLayer extends AbstractLayer {
         }
     ];
 
-    constructor() {
-        super();
-    }
-
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
         this.mode = mode;
         this.editState = {

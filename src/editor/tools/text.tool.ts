@@ -11,7 +11,7 @@ export class TextTool extends AbstractTool {
         if (!this.editor.font) {
             this.editor.font = getFont(session.platforms[session.state.platform].getFonts()[0].name);
         }
-        return new TextLayer(this.editor.font);
+        return new TextLayer(this.editor.font, session.platforms[session.state.platform].features);
     }
     onStopEdit(layer: TextLayer, position: Point, originalEvent: MouseEvent): void {
         super.onStopEdit(layer, position, originalEvent);
