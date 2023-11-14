@@ -9,6 +9,7 @@ type TTextState = TLayerState & {
     p: number[]; // position [x, y]
     f: string; // font
     d: string; // data
+    z: number; // scale factor
 };
 
 export class TextLayer extends AbstractLayer {
@@ -78,8 +79,8 @@ export class TextLayer extends AbstractLayer {
     };
 
     constructor(
-        public font: Font,
-        protected features: TPlatformFeatures
+        protected features: TPlatformFeatures,
+        public font: Font
     ) {
         super(features);
         if (!this.features.hasCustomFontSize) {
@@ -147,7 +148,8 @@ export class TextLayer extends AbstractLayer {
             i: this.index,
             g: this.group,
             t: this.type,
-            u: this.uid
+            u: this.uid,
+            z: this.scaleFactor
         };
         this.state = state;
     }
@@ -160,6 +162,7 @@ export class TextLayer extends AbstractLayer {
         this.index = state.i;
         this.group = state.g;
         this.uid = state.u;
+        this.scaleFactor = state.z;
         this.updateBounds();
     }
 
