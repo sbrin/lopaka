@@ -9,12 +9,12 @@ export class Uint32RawPlatform extends Platform {
 
     public getFonts(): TPlatformFont[] {
         return [
-            fontTypes['haxrcorp4089_tr'],
-            fontTypes['helvB08_tr'],
-            fontTypes['profont22_tr'],
             fontTypes['4x6_tr'],
             fontTypes['5x8_tr'],
+            fontTypes['haxrcorp4089_tr'],
+            fontTypes['helvB08_tr'],
             fontTypes['6x10_tr'],
+            fontTypes['profont22_tr'],
         ];
     }
 

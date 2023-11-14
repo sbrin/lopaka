@@ -33,7 +33,8 @@ export type TModifierName =
     | 'y2'
     | 'color'
     | 'image'
-    | 'overlay';
+    | 'overlay'
+    | 'fontSize';
 
 export type TLayerModifier = {
     setValue(value: any): void;
