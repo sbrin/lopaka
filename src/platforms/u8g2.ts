@@ -17,12 +17,12 @@ export class U8g2Platform extends Platform {
     protected name = 'U8g2';
     protected description = 'U8g2';
     protected fonts: TPlatformFont[] = [
-        fontTypes['haxrcorp4089_tr'],
-        fontTypes['helvB08_tr'],
-        fontTypes['profont22_tr'],
         fontTypes['4x6_tr'],
         fontTypes['5x8_tr'],
-        fontTypes['6x10_tr']
+        fontTypes['haxrcorp4089_tr'],
+        fontTypes['helvB08_tr'],
+        fontTypes['6x10_tr'],
+        fontTypes['profont22_tr'],
     ];
 
     public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {

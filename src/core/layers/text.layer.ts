@@ -63,6 +63,16 @@ export class TextLayer extends AbstractLayer {
                 this.draw();
             },
             type: TModifierType.font
+        },
+        fontSize: {
+            getValue: () => this.scaleFactor,
+            setValue: (v: string) => {
+                this.scaleFactor = parseInt(v);
+                this.updateBounds();
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.number
         }
     };
 
