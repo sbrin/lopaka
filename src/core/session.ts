@@ -1,4 +1,4 @@
-import {Platform} from 'src/platforms/platform';
+import {Platform, TPlatformFeatures} from 'src/platforms/platform';
 import {UnwrapRef, reactive} from 'vue';
 import {getFont, loadFont} from '../draw/fonts';
 import {VirtualScreen} from '../draw/virtual-screen';
@@ -186,6 +186,9 @@ export class Session {
         );
         return sourceCode.declarations.reverse().join('\n') + '\n' + sourceCode.code.reverse().join('\n');
     };
+    getPlatformFeatures(): TPlatformFeatures {
+        return this.platforms[this.state.platform].features;
+    }
     lock = () => {
         this.state.lock = true;
     };
@@ -212,7 +215,7 @@ export function loadLayers(layers: any[]) {
     layers.forEach((l) => {
         const type: ELayerType = l.t;
         if (type in LayerClassMap) {
-            const layer = new LayerClassMap[type](session.platforms[session.state.platform].features);
+            const layer = new LayerClassMap[type](this.getPlatformFeatures());
             layer.loadState(l);
             layer.stopEdit();
             session.addLayer(layer);

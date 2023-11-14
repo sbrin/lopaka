@@ -7,6 +7,6 @@ export class FrameTool extends AbstractTool {
 
     createLayer(): AbstractLayer {
         const {session} = this.editor;
-        return new FrameLayer(session.platforms[session.state.platform].features);
+        return new FrameLayer(session.getPlatformFeatures());
     }
 }

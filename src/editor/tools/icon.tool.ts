@@ -6,6 +6,6 @@ export class IconTool extends AbstractTool {
     name = 'icon';
     createLayer(): AbstractLayer {
         const {session} = this.editor;
-        return new IconLayer(session.platforms[session.state.platform].features);
+        return new IconLayer(session.getPlatformFeatures());
     }
 }
