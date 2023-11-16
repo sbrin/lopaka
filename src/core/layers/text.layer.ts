@@ -3,7 +3,7 @@ import {Font} from '../../draw/fonts/font';
 import {TPlatformFeatures} from '../../platforms/platform';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
 type TTextState = TLayerState & {
     p: number[]; // position [x, y]
@@ -75,6 +75,16 @@ export class TextLayer extends AbstractLayer {
                 this.draw();
             },
             type: TModifierType.number
+        },
+        color: {
+            getValue: () => this.color,
+            setValue: (v: string) => {
+                this.color = v;
+                this.updateBounds();
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.color
         }
     };
 
@@ -85,6 +95,13 @@ export class TextLayer extends AbstractLayer {
         super(features);
         if (!this.features.hasCustomFontSize) {
             delete this.modifiers.fontSize;
+        }
+        if (!this.features.hasRGBSupport) {
+            delete this.modifiers.color;
+            this.color = '#000000';
+        }
+        if (this.features.hasInvertedColors) {
+            this.color = '#FFFFFF';
         }
     }
 
@@ -130,6 +147,8 @@ export class TextLayer extends AbstractLayer {
     draw() {
         const {dc, position, text, font, bounds} = this;
         dc.clear();
+        dc.ctx.fillStyle = this.color;
+        dc.ctx.strokeStyle = this.color;
         font.drawText(dc, text, position.clone().subtract(0, bounds.size.y), this.scaleFactor);
         dc.ctx.save();
         dc.ctx.fillStyle = 'rgba(0,0,0,0)';
@@ -149,7 +168,8 @@ export class TextLayer extends AbstractLayer {
             g: this.group,
             t: this.type,
             u: this.uid,
-            z: this.scaleFactor
+            z: this.scaleFactor,
+            c: this.color
         };
         this.state = state;
     }
@@ -163,6 +183,7 @@ export class TextLayer extends AbstractLayer {
         this.group = state.g;
         this.uid = state.u;
         this.scaleFactor = state.z;
+        this.color = state.c;
         this.updateBounds();
     }
 

@@ -156,9 +156,8 @@ export class VirtualScreen {
         });
         this.state.updates++;
         // create data without alpha channel
-        const features = this.session.getPlatformFeatures();
         const data = this.ctx.getImageData(0, 0, this.screen.width, this.screen.height).data.map((v, i) => {
-            if (i % 4 === 3) return features.hasInvertedColors ? (v >= 255 / 2 ? 0 : 255) : v >= 255 / 2 ? 255 : 0;
+            if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;
             return v;
         });
         this.canvasContext.putImageData(

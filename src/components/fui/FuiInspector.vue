@@ -47,6 +47,7 @@ function onChange(event: Event, param: TLayerModifier) {
             param.setValue(parseFloat(target.value));
             break;
         case TModifierType.string:
+        case TModifierType.color:
             param.setValue(target.value);
             break;
         case TModifierType.boolean:
@@ -73,6 +74,25 @@ function onChange(event: Event, param: TLayerModifier) {
 </script>
 <template>
     <div class="inspector" v-if="activeLayer">
+        <datalist id="presetColors">
+            <!-- 16 colors -->
+            <option>#000000</option>
+            <option>#0000AA</option>
+            <option>#00AA00</option>
+            <option>#00AAAA</option>
+            <option>#AA0000</option>
+            <option>#AA00AA</option>
+            <option>#AA5500</option>
+            <option>#AAAAAA</option>
+            <option>#555555</option>
+            <option>#5555FF</option>
+            <option>#55FF55</option>
+            <option>#55FFFF</option>
+            <option>#FF5555</option>
+            <option>#FF55FF</option>
+            <option>#FFFF55</option>
+            <option>#FFFFFF</option>
+        </datalist>
         <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
             <div v-for="(param, name) in params" class="inspector-panel__param">
@@ -99,6 +119,16 @@ function onChange(event: Event, param: TLayerModifier) {
                         type="checkbox"
                         :checked="param.getValue()"
                         @change="onChange($event, param)"
+                    />
+                </div>
+                <div v-else-if="param.type == TModifierType.color">
+                    <input
+                        class="inspector__input"
+                        type="color"
+                        :value="param.getValue()"
+                        @input="onChange($event, param)"
+                        style="width: 60px"
+                        list="presetColors"
                     />
                 </div>
                 <div v-else-if="param.type == TModifierType.font">

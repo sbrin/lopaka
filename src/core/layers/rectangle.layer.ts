@@ -1,3 +1,4 @@
+import {TPlatformFeatures} from '../../platforms/platform';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
@@ -61,6 +62,16 @@ export abstract class RectangleLayer extends AbstractLayer {
                 this.draw();
             },
             type: TModifierType.number
+        },
+        color: {
+            getValue: () => this.color,
+            setValue: (v: string) => {
+                this.color = v;
+                this.updateBounds();
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.color
         }
     };
 
@@ -115,6 +126,20 @@ export abstract class RectangleLayer extends AbstractLayer {
         }
     ];
 
+    constructor(protected features: TPlatformFeatures) {
+        super(features);
+        if (!this.features.hasCustomFontSize) {
+            delete this.modifiers.fontSize;
+        }
+        if (!this.features.hasRGBSupport) {
+            delete this.modifiers.color;
+            this.color = '#000000';
+        }
+        if (this.features.hasInvertedColors) {
+            this.color = '#FFFFFF';
+        }
+    }
+
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
         this.mode = mode;
         if (mode == EditMode.CREATING) {
@@ -162,7 +187,10 @@ export abstract class RectangleLayer extends AbstractLayer {
 
     draw() {
         const {dc, position, size} = this;
-        dc.clear().rect(position, size, this.fill);
+        dc.clear();
+        dc.ctx.fillStyle = this.color;
+        dc.ctx.strokeStyle = this.color;
+        dc.rect(position, size, this.fill);
     }
 
     saveState() {
@@ -173,7 +201,8 @@ export abstract class RectangleLayer extends AbstractLayer {
             i: this.index,
             g: this.group,
             t: this.type,
-            u: this.uid
+            u: this.uid,
+            c: this.color
         };
         this.state = state;
     }
@@ -185,6 +214,7 @@ export abstract class RectangleLayer extends AbstractLayer {
         this.index = state.i;
         this.group = state.g;
         this.uid = state.u;
+        this.color = state.c;
         this.updateBounds();
     }
 

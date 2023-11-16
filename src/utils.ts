@@ -27,6 +27,29 @@ export async function loadImageAsync(src): Promise<HTMLImageElement> {
     });
 }
 
+export function hexToRgb(hexColor: string) {
+    const hex = hexColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return {r, g, b};
+}
+
+export function hexColor(color: string) {
+    const hex = '0x' + color.replace('#', '').toUpperCase();
+    return hex;
+}
+
+export function packColor565(hexColor: string) {
+    const rgb = hexToRgb(hexColor);
+    return ((rgb.r >> 3) << 11) | ((rgb.g >> 2) << 5) | (rgb.b >> 3);
+}
+
+export function packColor(hexColor: string) {
+    const rgb = hexToRgb(hexColor);
+    return (rgb.r << 16) | (rgb.g << 8) | rgb.b;
+}
+
 export function imgDataToXBMP(
     imgData: ImageData,
     xStart: number,

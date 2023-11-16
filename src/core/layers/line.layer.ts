@@ -1,3 +1,4 @@
+import {TPlatformFeatures} from '../../platforms/platform';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
@@ -60,8 +61,32 @@ export class LineLayer extends AbstractLayer {
                 this.draw();
             },
             type: TModifierType.number
+        },
+        color: {
+            getValue: () => this.color,
+            setValue: (v: string) => {
+                this.color = v;
+                this.updateBounds();
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.color
         }
     };
+
+    constructor(protected features: TPlatformFeatures) {
+        super(features);
+        if (!this.features.hasCustomFontSize) {
+            delete this.modifiers.fontSize;
+        }
+        if (!this.features.hasRGBSupport) {
+            delete this.modifiers.color;
+            this.color = '#000000';
+        }
+        if (this.features.hasInvertedColors) {
+            this.color = '#FFFFFF';
+        }
+    }
 
     editPoints: TLayerEditPoint[] = [
         {
@@ -120,7 +145,10 @@ export class LineLayer extends AbstractLayer {
 
     draw() {
         const {dc, p1, p2} = this;
-        dc.clear().pixelateLine(p1, p2, 1);
+        dc.clear();
+        dc.ctx.fillStyle = this.color;
+        dc.ctx.strokeStyle = this.color;
+        dc.pixelateLine(p1, p2, 1);
     }
 
     saveState() {
@@ -131,7 +159,8 @@ export class LineLayer extends AbstractLayer {
             i: this.index,
             g: this.group,
             t: this.type,
-            u: this.uid
+            u: this.uid,
+            c: this.color
         };
         this.state = state;
     }
@@ -143,6 +172,7 @@ export class LineLayer extends AbstractLayer {
         this.index = state.i;
         this.group = state.g;
         this.uid = state.u;
+        this.color = state.c;
         this.updateBounds();
     }
 
