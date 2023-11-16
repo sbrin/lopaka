@@ -33,6 +33,7 @@ export const LayerClassMap: {[key in ELayerType]: any} = {
 export abstract class AbstractProvider {
     autosave: boolean = true;
     protected autosaveInterval: number = 60 * 1000 * 2;
+    public autoload: boolean = false;
 
     constructor(protected session: Session) {
         setInterval(() => {

@@ -150,7 +150,9 @@ export class Session {
             this.state.layers = [];
         }
         this.state.platform = name;
-        this.provider.loadProject();
+        if (!this.provider.autoload) {
+            this.provider.loadProject();
+        }
     };
     save = () => {
         this.provider.saveProject();
@@ -172,7 +174,9 @@ export class Session {
     private provider: AbstractProvider;
     constructor(private providerClass: {new (session: Session): AbstractProvider}) {
         this.provider = new providerClass(this);
-        this.setPlatform(this.provider.getLastPlatform());
+        if (!this.provider.autoload) {
+            this.setPlatform(this.provider.getLastPlatform());
+        }
     }
 }
 
