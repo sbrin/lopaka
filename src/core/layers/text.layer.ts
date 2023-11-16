@@ -69,7 +69,7 @@ export class TextLayer extends AbstractLayer {
         fontSize: {
             getValue: () => this.scaleFactor,
             setValue: (v: string) => {
-                this.scaleFactor = parseInt(v);
+                this.scaleFactor = Math.max(parseInt(v), 1);
                 this.updateBounds();
                 this.saveState();
                 this.draw();
