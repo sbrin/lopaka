@@ -1,3 +1,4 @@
+import {AbstractLayer} from '../core/layers/abstract.layer';
 import {BoxLayer} from '../core/layers/box.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {DiscLayer} from '../core/layers/disc.layer';
@@ -8,7 +9,7 @@ import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
 import {TextLayer} from '../core/layers/text.layer';
 import {fontTypes} from '../draw/fonts/fontTypes';
-import {imgDataToXBMP, hexColor, toCppVariableName} from '../utils';
+import {imgDataToXBMP, packedHexColor, toCppVariableName} from '../utils';
 import {Platform} from './platform';
 
 export class AdafruitPlatform extends Platform {
@@ -16,7 +17,6 @@ export class AdafruitPlatform extends Platform {
     protected name = 'Adafruit GFX';
     protected description = 'Adafruit GFX';
     protected fonts: TPlatformFont[] = [fontTypes['adafruit']];
-    private color = 'SSD1306_WHITE';
 
     constructor() {
         super();
@@ -25,12 +25,16 @@ export class AdafruitPlatform extends Platform {
         this.features.hasInvertedColors = true;
     }
 
+    protected getColor(layer: AbstractLayer): string {
+        return packedHexColor(layer.color);
+    }
+
     addDot(layer: DotLayer, source: TSourceCode): void {
-        source.code.push(`display.drawPixel(${layer.position.x}, ${layer.position.y},  ${hexColor(layer.color)});`);
+        source.code.push(`display.drawPixel(${layer.position.x}, ${layer.position.y},  ${this.getColor(layer)});`);
     }
 
     addText(layer: TextLayer, source: TSourceCode): void {
-        source.code.push(`display.setTextColor(${hexColor(layer.color)});
+        source.code.push(`display.setTextColor(${this.getColor(layer)});
 display.setTextSize(${layer.scaleFactor});
 display.setCursor(${layer.position.x}, ${layer.position.y - layer.bounds.h});
 display.setTextWrap(false);
@@ -39,34 +43,34 @@ display.print("${layer.text}");`);
 
     addLine(layer: LineLayer, source: TSourceCode): void {
         const {p1, p2} = layer;
-        source.code.push(`display.drawLine(${p1.x}, ${p1.y}, ${p2.x}, ${p2.y}, ${hexColor(layer.color)});`);
+        source.code.push(`display.drawLine(${p1.x}, ${p1.y}, ${p2.x}, ${p2.y}, ${this.getColor(layer)});`);
     }
 
     addBox(layer: BoxLayer, source: TSourceCode): void {
         source.code.push(
-            `display.fillRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${hexColor(
-                layer.color
-            )});`
+            `display.fillRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${
+                layer.size.y
+            }, ${this.getColor(layer)});`
         );
     }
 
     addCircle(layer: CircleLayer, source: TSourceCode): void {
         const {radius, position} = layer;
         const center = position.clone().add(radius);
-        source.code.push(`display.drawCircle(${center.x}, ${center.y}, ${radius},  ${hexColor(layer.color)});`);
+        source.code.push(`display.drawCircle(${center.x}, ${center.y}, ${radius},  ${this.getColor(layer)});`);
     }
 
     addDisc(layer: DiscLayer, source: TSourceCode): void {
         const {radius, position} = layer;
         const center = position.clone().add(radius);
-        source.code.push(`display.fillCircle(${center.x}, ${center.y}, ${radius}, ${hexColor(layer.color)});`);
+        source.code.push(`display.fillCircle(${center.x}, ${center.y}, ${radius}, ${this.getColor(layer)});`);
     }
 
     addFrame(layer: FrameLayer, source: TSourceCode): void {
         source.code.push(
-            `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${hexColor(
-                layer.color
-            )});`
+            `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${
+                layer.size.y
+            }, ${this.getColor(layer)});`
         );
     }
 
@@ -91,7 +95,7 @@ display.print("${layer.text}");`);
         source.code.push(
             `display.drawBitmap(${layer.position.x}, ${layer.position.y}, ${varName}, ${layer.size.x}, ${
                 layer.size.y
-            }, ${hexColor(layer.color)});`
+            }, ${this.getColor(layer)});`
         );
     }
 
