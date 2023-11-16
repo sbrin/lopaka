@@ -127,7 +127,6 @@ function onChange(event: Event, param: TLayerModifier) {
                         type="color"
                         :value="param.getValue()"
                         @input="onChange($event, param)"
-                        style="width: 60px"
                         list="presetColors"
                     />
                 </div>
@@ -180,6 +179,12 @@ function onChange(event: Event, param: TLayerModifier) {
     padding: 2px 0px 2px 4px;
     outline: none;
     width: 100%;
+}
+
+.inspector__input[type='color'] {
+    height: 20px;
+    padding: 0px;
+    width: 60px;
 }
 
 .selected {
