@@ -7,17 +7,15 @@ import {IconLayer} from '../core/layers/icon.layer';
 import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
 import {TextLayer} from '../core/layers/text.layer';
-import { fontTypes } from "../draw/fonts/fontTypes";
-import {imgDataToUint32Array, toCppVariableName} from '../utils';
+import {fontTypes} from '../draw/fonts/fontTypes';
+import {imgDataToXBMP, toCppVariableName} from '../utils';
 import {Platform} from './platform';
 
 export class AdafruitPlatform extends Platform {
     public static id = 'adafruit_gfx';
     protected name = 'Adafruit GFX';
     protected description = 'Adafruit GFX';
-    protected fonts: TPlatformFont[] = [
-        fontTypes['adafruit'],
-    ];
+    protected fonts: TPlatformFont[] = [fontTypes['adafruit']];
     private color = 'SSD1306_WHITE';
 
     addDot(layer: DotLayer, source: TSourceCode): void {
@@ -39,29 +37,25 @@ display.print("${layer.text}");`);
 
     addBox(layer: BoxLayer, source: TSourceCode): void {
         source.code.push(
-            `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x + 1}, ${layer.size.y + 1}, ${
-                this.color
-            });`
+            `display.fillRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${this.color});`
         );
     }
 
     addCircle(layer: CircleLayer, source: TSourceCode): void {
         const {radius, position} = layer;
-        const center = position.clone().add(radius).add(1);
+        const center = position.clone().add(radius);
         source.code.push(`display.drawCircle(${center.x}, ${center.y}, ${radius},  ${this.color});`);
     }
 
     addDisc(layer: DiscLayer, source: TSourceCode): void {
         const {radius, position} = layer;
-        const center = position.clone().add(radius).add(1);
+        const center = position.clone().add(radius);
         source.code.push(`display.fillCircle(${center.x}, ${center.y}, ${radius}, ${this.color});`);
     }
 
     addFrame(layer: FrameLayer, source: TSourceCode): void {
         source.code.push(
-            `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x + 1}, ${layer.size.y + 1}, ${
-                this.color
-            });`
+            `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${this.color});`
         );
     }
 
@@ -77,9 +71,12 @@ display.print("${layer.text}");`);
                 .getContext('2d')
                 .getImageData(layer.position.x, layer.position.y, layer.size.x, layer.size.y);
         }
-        const XBMP = imgDataToUint32Array(image);
+        const XBMP = imgDataToXBMP(image, 0, 0, layer.size.x, layer.size.y, true);
         const varName = `image_${toCppVariableName(layer.name)}_bits`;
-        source.declarations.push(`static const unsigned char PROGMEM ${varName}[] = {${XBMP}};`);
+        const varDeclaration = `static const unsigned char PROGMEM ${varName}[] = {${XBMP}};`;
+        if (!source.declarations.includes(varDeclaration)) {
+            source.declarations.push(varDeclaration);
+        }
         source.code.push(
             `display.drawBitmap(${layer.position.x}, ${layer.position.y}, ${varName}, ${layer.size.x}, ${layer.size.y}, ${this.color});`
         );

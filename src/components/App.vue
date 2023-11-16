@@ -26,26 +26,26 @@ const fuiCanvas = ref(null),
     activeTab = ref('code');
 const session = useSession();
 const {editor, virtualScreen, state} = session;
-const {platform, layers, customImages} = toRefs(state);
+const {platform, customImages} = toRefs(state);
 const {updates} = toRefs(virtualScreen.state);
 
 // computed
-const isEmpty = computed(() => layers.value.length === 0);
+const isEmpty = computed(() => updates.value && session.state.layers.length === 0);
 const isFlipper = computed(() => platform.value === FlipperPlatform.id);
 const isSerialSupported = computed(() => window.navigator.serial !== undefined);
 const flipperPreviewBtnText = computed(() => (flipper.value ? 'Disconnect' : 'Live View'));
-const showCopyCode = computed(() => (layers.value.length > 0));
+const showCopyCode = computed(() => updates.value && session.state.layers.length > 0);
 
 const flipper: ShallowRef<FlipperRPC> = ref(null);
 
-watch(
-    updates,
-    throttle(() => {
-        console.log('postMessage');
-        postParentMessage('updateLayers', JSON.stringify(layers.value));
-        postParentMessage('updateThumbnail', fuiCanvas.value?.screen?.toDataURL());
-    })
-);
+// watch(
+//     updates,
+//     throttle(() => {
+//         console.log('postMessage');
+//         postParentMessage('updateLayers', JSON.stringify(session.state.layers.map((l) => l.getState())));
+//         postParentMessage('updateThumbnail', session.virtualScreen.canvas.toDataURL());
+//     })
+// );
 
 watch(
     updates,
@@ -67,18 +67,18 @@ function prepareImages(e) {
 }
 
 function resetScreen() {
-    layers.value = [];
+    session.clearLayers();
     editor.setTool(null);
     logEvent('button_reset');
 }
 
 function copyCode() {
-    navigator.clipboard.writeText(session.state.codePreview);
+    navigator.clipboard.writeText(session.generateCode());
     logEvent('button_copy');
 }
 
 function addImageToCanvas(data) {
-    layers.value.forEach((layer) => (layer.selected = false));
+    session.state.layers.forEach((layer) => (layer.selected = false));
     const newLayer = new IconLayer();
     newLayer.name = data.name;
     newLayer.size = new Point(data.width, data.height);
@@ -147,7 +147,9 @@ window.addEventListener('message', async (event) => {
         console.log('CHILD', event.data);
         switch (event.data.type) {
             case 'loadProject':
-                layers.value = event.data.payload.layers;
+                // layers.value = event.data.payload.layers;
+                // TODO loading project
+                // move to session and provider
                 session.setPlatform(event.data.payload.library);
                 const displayArr = event.data.payload.display.split('×').map((n) => parseInt(n));
                 session.setDisplay(new Point(displayArr[0], displayArr[1]));
@@ -161,7 +163,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 <template>
     <div class="fui-editor">
         <div class="fui-editor__left">
-            <FuiLayers v-show="!!layers.length"></FuiLayers>
+            <FuiLayers v-show="!isEmpty"></FuiLayers>
             <FuiButton @click="resetScreen" class="button_danger" v-show="!isEmpty">reset</FuiButton>
         </div>
         <div class="fui-editor__center">

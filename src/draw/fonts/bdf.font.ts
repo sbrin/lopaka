@@ -52,32 +52,27 @@ export class BDFFont extends Font {
     }
 
     getSize(dc: DrawContext, text: string): Point {
-        return this.meta.bounds.size.clone().multiply(text.length, 1);
+        return this.meta.bounds.size.clone().multiply(text.length, 1).subtract(1, 0);
     }
 
     drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
-        const kerningBias = 0; // TODO
-        const points = this.meta.size.points;
-        const fontDescent = this.meta.properties.fontDescent;
+        const {bounds} = this.meta;
         const charPos = position.clone();
-        const textBounds = new Rect(position, new Point(0, points));
         dc.ctx.beginPath();
         for (let i = 0; i < text.length; i++) {
             const charCode = text.charCodeAt(i);
             if (this.glyphs.has(charCode)) {
                 const glyphData = this.glyphs.get(charCode);
-                for (var y = 0; y < 8; y++) {
-                    for (var x = 0; x < 8; x++) {
-                        var row = y + glyphData.bounds.y + fontDescent + charPos.y;
-                        var column = x + charPos.x;
-                        if (glyphData.bitmap[y][x]) {
-                            dc.ctx.rect(column, row, 1, 1);
+                const {bytes} = glyphData;
+                for (let j = 0; j < bytes.byteLength; j++) {
+                    const byte = bytes[j];
+                    for (let i = 0; i < 8; i++) {
+                        if (byte & (1 << (7 - i))) {
+                            dc.ctx.rect(i + charPos.x, j + charPos.y - bounds.y, 1, 1);
                         }
                     }
                 }
-                charPos.x += glyphData.deviceSize.x + kerningBias;
-            } else {
-                textBounds.w += this.meta.bounds.w;
+                charPos.x += glyphData.deviceSize.x;
             }
         }
         dc.ctx.fill();
@@ -90,6 +85,7 @@ export class BDFFont extends Font {
 
     /**
      * Based on https://github.com/victorporof/BDF.js
+     * https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format
      */
     parseBDF(source: string): void {
         this.glyphs.clear();
@@ -167,13 +163,16 @@ export class BDFFont extends Font {
                     glyph.bounds = new Rect(parseInt(data[3]), parseInt(data[4]), parseInt(data[1]), parseInt(data[2]));
                     break;
                 case 'BITMAP':
+                    // BITMAP begins the bitmap for the current glyph.
+                    // This line must be followed by one line per pixel on the Y-axis.
+                    // Each line contains the hexadecimal representation of pixels in a row.
+                    // A “1” bit indicates a rendered pixel. Each line is rounded to an 8 bit (one byte) boundary,
+                    // padded with zeroes on the right. In this example, the glyph is exactly 8 pixels wide,
+                    // and so occupies exactly 8 bits (one byte) per line so that there is no padding.
+                    // The most significant bit of a line of raster data represents the leftmost pixel.
                     for (let row = 0; row < this.meta.size.points; row++, i++) {
                         const byte = parseInt(fontLines[i + 1], 16);
                         bytes.push(byte);
-                        glyph.bitmap[row] = [];
-                        for (var bit = 7; bit >= 0; bit--) {
-                            glyph.bitmap[row][7 - bit] = byte & (1 << bit) ? 1 : 0;
-                        }
                     }
                     break;
                 case 'ENDCHAR':

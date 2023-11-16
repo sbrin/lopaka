@@ -10,7 +10,7 @@ import {CircleLayer} from '../core/layers/circle.layer';
 import {DiscLayer} from '../core/layers/disc.layer';
 import {IconLayer} from '../core/layers/icon.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
-import { fontTypes } from "../draw/fonts/fontTypes";
+import {fontTypes} from '../draw/fonts/fontTypes';
 
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
@@ -22,12 +22,13 @@ export class U8g2Platform extends Platform {
         fontTypes['profont22_tr'],
         fontTypes['4x6_tr'],
         fontTypes['5x8_tr'],
-        fontTypes['6x10_tr'],
+        fontTypes['6x10_tr']
     ];
 
     public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
         const source = super.generateSourceCode(layers, ctx);
         source.declarations.unshift('u8g2.setBitmapMode(1);');
+        source.declarations.unshift('u8g2.setFontMode(1);');
         return source;
     }
 
@@ -73,7 +74,10 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
         }
         const XBMP = imgDataToXBMP(image, 0, 0, layer.size.x, layer.size.y);
         const varName = `image_${toCppVariableName(layer.name)}_bits`;
-        source.declarations.push(`static const unsigned char ${varName}[] U8X8_PROGMEM = {${XBMP}};`);
+        const varDeclaration = `static const unsigned char ${varName}[] U8X8_PROGMEM = {${XBMP}};`;
+        if (!source.declarations.includes(varDeclaration)) {
+            source.declarations.push(varDeclaration);
+        }
         source.code.push(
             `u8g2.drawXBMP( ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${varName});`
         );
