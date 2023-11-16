@@ -20,7 +20,7 @@ export class CopyPlugin extends AbstractEditorPlugin {
             if (this.buffer) {
                 layers.forEach((layer) => (layer.selected = false));
                 this.buffer.forEach((record) => {
-                    const l: AbstractLayer = new record.constructor();
+                    const l: AbstractLayer = new record.constructor(this.session.getPlatformFeatures());
                     const uid = l.uid;
                     l.loadState(record.state);
                     l.uid = uid;
