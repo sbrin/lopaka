@@ -137,7 +137,9 @@ export class Session {
     setDisplay = (display: Point, isLogged?: boolean) => {
         this.state.display = display;
         this.virtualScreen.resize();
-        this.virtualScreen.redraw();
+        requestAnimationFrame(() => {
+            this.virtualScreen.redraw();
+        });
     };
     setScale = (scale, isLogged?: boolean) => {
         this.state.scale = new Point(scale / 100, scale / 100);
