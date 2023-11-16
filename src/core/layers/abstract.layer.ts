@@ -17,7 +17,8 @@ export enum TModifierType {
     'number',
     'boolean',
     'font',
-    'image'
+    'image',
+    'color'
 }
 export type TModifierName =
     | 'x'
@@ -35,6 +36,7 @@ export type TModifierName =
     | 'color'
     | 'image'
     | 'overlay'
+    | 'color'
     | 'fontSize';
 
 export type TLayerModifier = {
@@ -57,6 +59,7 @@ export type TLayerState = {
     i: number; // index
     g: number; // group
     u: string; // uid
+    c?: string; // color
 };
 
 /**
@@ -96,7 +99,9 @@ export abstract class AbstractLayer {
     // is layer resizable
     public resizable: boolean = true;
     // modifiers
-    public modifiers: TLayerModifiers;
+    public modifiers: TLayerModifiers = {};
+    // color
+    public color: string = '#000000';
 
     public editPoints: TLayerEditPoint[] = [];
 

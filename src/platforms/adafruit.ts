@@ -8,7 +8,7 @@ import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
 import {TextLayer} from '../core/layers/text.layer';
 import {fontTypes} from '../draw/fonts/fontTypes';
-import {imgDataToUint32Array, imgDataToXBMP, toCppVariableName} from '../utils';
+import {imgDataToXBMP, hexColor, toCppVariableName} from '../utils';
 import {Platform} from './platform';
 
 export class AdafruitPlatform extends Platform {
@@ -21,14 +21,16 @@ export class AdafruitPlatform extends Platform {
     constructor() {
         super();
         this.features.hasCustomFontSize = true;
+        this.features.hasRGBSupport = true;
+        this.features.hasInvertedColors = true;
     }
 
     addDot(layer: DotLayer, source: TSourceCode): void {
-        source.code.push(`display.drawPixel(${layer.position.x}, ${layer.position.y},  ${this.color});`);
+        source.code.push(`display.drawPixel(${layer.position.x}, ${layer.position.y},  ${hexColor(layer.color)});`);
     }
 
     addText(layer: TextLayer, source: TSourceCode): void {
-        source.code.push(`display.setTextColor(${this.color});
+        source.code.push(`display.setTextColor(${hexColor(layer.color)});
 display.setTextSize(${layer.scaleFactor});
 display.setCursor(${layer.position.x}, ${layer.position.y - layer.bounds.h});
 display.setTextWrap(false);
@@ -37,30 +39,34 @@ display.print("${layer.text}");`);
 
     addLine(layer: LineLayer, source: TSourceCode): void {
         const {p1, p2} = layer;
-        source.code.push(`display.drawLine(${p1.x}, ${p1.y}, ${p2.x}, ${p2.y}, ${this.color});`);
+        source.code.push(`display.drawLine(${p1.x}, ${p1.y}, ${p2.x}, ${p2.y}, ${hexColor(layer.color)});`);
     }
 
     addBox(layer: BoxLayer, source: TSourceCode): void {
         source.code.push(
-            `display.fillRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${this.color});`
+            `display.fillRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${hexColor(
+                layer.color
+            )});`
         );
     }
 
     addCircle(layer: CircleLayer, source: TSourceCode): void {
         const {radius, position} = layer;
         const center = position.clone().add(radius);
-        source.code.push(`display.drawCircle(${center.x}, ${center.y}, ${radius},  ${this.color});`);
+        source.code.push(`display.drawCircle(${center.x}, ${center.y}, ${radius},  ${hexColor(layer.color)});`);
     }
 
     addDisc(layer: DiscLayer, source: TSourceCode): void {
         const {radius, position} = layer;
         const center = position.clone().add(radius);
-        source.code.push(`display.fillCircle(${center.x}, ${center.y}, ${radius}, ${this.color});`);
+        source.code.push(`display.fillCircle(${center.x}, ${center.y}, ${radius}, ${hexColor(layer.color)});`);
     }
 
     addFrame(layer: FrameLayer, source: TSourceCode): void {
         source.code.push(
-            `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${this.color});`
+            `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${hexColor(
+                layer.color
+            )});`
         );
     }
 
@@ -83,7 +89,9 @@ display.print("${layer.text}");`);
             source.declarations.push(varDeclaration);
         }
         source.code.push(
-            `display.drawBitmap(${layer.position.x}, ${layer.position.y}, ${varName}, ${layer.size.x}, ${layer.size.y}, ${this.color});`
+            `display.drawBitmap(${layer.position.x}, ${layer.position.y}, ${varName}, ${layer.size.x}, ${
+                layer.size.y
+            }, ${hexColor(layer.color)});`
         );
     }
 

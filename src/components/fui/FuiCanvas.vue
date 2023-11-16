@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import {computed, onBeforeUnmount, onMounted, ref, toRefs} from 'vue';
 import {useSession} from '../../core/session';
+import {Platform} from '../../platforms/platform';
 
 const emit = defineEmits(['updateFuiImages']);
 const screen = ref(null);
@@ -37,13 +38,12 @@ const canvasClassNames = computed(() => {
     return {
         'fui-canvas_select': isSelectTool(),
         'fui-canvas_moving': isMoving(),
-        'fui-canvas_draw': isDrawingTool(),
-        locked: lock.value
+        'fui-canvas_draw': isDrawingTool()
     };
 });
 </script>
 <template>
-    <div class="canvas-wrapper">
+    <div class="canvas-wrapper" :class="{inverted: session.getPlatformFeatures().hasInvertedColors, locked: lock}">
         <div class="fui-grid" :style="{backgroundSize: `${scale.x}px ${scale.y}px`}">
             <div
                 ref="container"
@@ -106,12 +106,16 @@ const canvasClassNames = computed(() => {
     -webkit-font-smoothing: none;
     opacity: 0.9;
 }
+.inverted .screen {
+    background: #000;
+}
 .fui-grid {
     position: relative;
     background-size: 4px 4px;
     background-image: linear-gradient(to right, var(--bg-color) 0.5px, transparent 1px),
         linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 1px);
 }
+
 .fui-canvas_select {
     cursor: default;
 }

@@ -4,6 +4,9 @@ export class SmartRulerPlugin extends DrawPlugin {
     public update(ctx: CanvasRenderingContext2D): void {
         const {layers, scale, display} = this.session.state;
         const selected = layers.filter((layer) => layer.selected || layer.isEditing());
+        const features = this.session.getPlatformFeatures();
+        const textColor = '#ff8200';
+        const lineColor = features.hasInvertedColors ? '#955B2F' : '#000000';
         if (selected.length) {
             // show distance to left and top
             ctx.save();
@@ -17,7 +20,7 @@ export class SmartRulerPlugin extends DrawPlugin {
             ctx.moveTo(-9, p1.y);
             ctx.lineTo(maxPoint.x, p1.y);
 
-            ctx.fillStyle = "#ff8200";
+            ctx.fillStyle = textColor;
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'right';
             ctx.fillText(`${bounds.y}`, -12, p1.y);
@@ -41,7 +44,7 @@ export class SmartRulerPlugin extends DrawPlugin {
                 ctx.textAlign = 'center';
                 ctx.fillText(`${Math.round(bounds.w + bounds.x)}`, p2.x, -12);
             }
-            ctx.strokeStyle = '#000';
+            ctx.strokeStyle = lineColor;
             ctx.setLineDash([2, 4]);
             ctx.lineWidth = 1;
             ctx.stroke();

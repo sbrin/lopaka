@@ -1,3 +1,4 @@
+import {TPlatformFeatures} from '../../platforms/platform';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
@@ -82,6 +83,20 @@ export class IconLayer extends AbstractLayer {
             position: this.position.clone(),
             size: this.size.clone()
         };
+    }
+
+    constructor(protected features: TPlatformFeatures) {
+        super(features);
+        if (!this.features.hasCustomFontSize) {
+            delete this.modifiers.fontSize;
+        }
+        if (!this.features.hasRGBSupport) {
+            delete this.modifiers.color;
+            this.color = '#000000';
+        }
+        if (this.features.hasInvertedColors) {
+            this.color = '#FFFFFF';
+        }
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
