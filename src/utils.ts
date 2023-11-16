@@ -35,19 +35,14 @@ export function hexToRgb(hexColor: string) {
     return {r, g, b};
 }
 
-export function hexColor(color: string) {
-    const hex = '0x' + color.replace('#', '').toUpperCase();
-    return hex;
+export function packedHexColor(color: string) {
+    const c = packColor565(color);
+    return `0x${c.toString(16).toUpperCase()}`;
 }
 
 export function packColor565(hexColor: string) {
     const rgb = hexToRgb(hexColor);
     return ((rgb.r >> 3) << 11) | ((rgb.g >> 2) << 5) | (rgb.b >> 3);
-}
-
-export function packColor(hexColor: string) {
-    const rgb = hexToRgb(hexColor);
-    return (rgb.r << 16) | (rgb.g << 8) | rgb.b;
 }
 
 export function imgDataToXBMP(

@@ -20,6 +20,7 @@ import {LineLayer} from './layers/line.layer';
 import {PaintLayer} from './layers/paint.layer';
 import {TextLayer} from './layers/text.layer';
 import {Point} from './point';
+import {AdafruitMonochromePlatform} from '../platforms/adafruit_mono';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -39,6 +40,7 @@ export class Session {
         [FlipperPlatform.id]: new FlipperPlatform(),
         [U8g2Platform.id]: new U8g2Platform(),
         [AdafruitPlatform.id]: new AdafruitPlatform(),
+        [AdafruitMonochromePlatform.id]: new AdafruitMonochromePlatform(),
         [Uint32RawPlatform.id]: new Uint32RawPlatform()
     };
     displays: Point[] = [
