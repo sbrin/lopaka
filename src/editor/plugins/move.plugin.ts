@@ -41,25 +41,36 @@ export class MovePlugin extends AbstractEditorPlugin {
     onKeyDown(key: Keys, event: KeyboardEvent): void {
         if (key === Keys.ArrowDown || key === Keys.ArrowUp || key === Keys.ArrowLeft || key === Keys.ArrowRight) {
             const {layers} = this.session.state;
+            const selectedLayers = layers.filter((l) => l.selected);
+            if (selectedLayers.length === 0) return;
             const delta = new Point();
             const shift = event.shiftKey ? 10 : 1;
-            switch (key) {
-                case Keys.ArrowDown:
-                    delta.y = shift;
-                    break;
-                case Keys.ArrowUp:
-                    delta.y = -shift;
-                    break;
-                case Keys.ArrowLeft:
-                    delta.x = -shift;
-                    break;
-                case Keys.ArrowRight:
-                    delta.x = shift;
-                    break;
-            }
-            layers
-                .filter((l) => l.selected)
-                .forEach((l) => {
+            // move layer to front / back
+            if (selectedLayers.length == 1 && (event.metaKey || event.ctrlKey)) {
+                switch (key) {
+                    case Keys.ArrowDown:
+                        selectedLayers[0].index--;
+                        break;
+                    case Keys.ArrowUp:
+                        selectedLayers[0].index++;
+                        break;
+                }
+            } else {
+                switch (key) {
+                    case Keys.ArrowDown:
+                        delta.y = shift;
+                        break;
+                    case Keys.ArrowUp:
+                        delta.y = -shift;
+                        break;
+                    case Keys.ArrowLeft:
+                        delta.x = -shift;
+                        break;
+                    case Keys.ArrowRight:
+                        delta.x = shift;
+                        break;
+                }
+                selectedLayers.forEach((l) => {
                     // TODO bound to screen size
                     if (l.modifiers.x && l.modifiers.y) {
                         l.modifiers.x.setValue(l.modifiers.x.getValue() + delta.x);
@@ -71,6 +82,7 @@ export class MovePlugin extends AbstractEditorPlugin {
                         l.modifiers.y2.setValue(l.modifiers.y2.getValue() + delta.y);
                     }
                 });
+            }
             this.session.virtualScreen.redraw();
         }
     }
