@@ -85,6 +85,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
     }
 
     onKeyDown(key: Keys, event: KeyboardEvent): void {
+        if (this.session.editor.state.activeTool) return;
         if (key === Keys.Escape) {
             this.session.state.layers.forEach((l) => (l.selected = false));
             this.session.virtualScreen.redraw();
