@@ -1,4 +1,5 @@
 import {TPlatformFeatures} from '../../platforms/platform';
+import {inverImageDataWithAlpha} from '../../utils';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
@@ -56,11 +57,12 @@ export class IconLayer extends AbstractLayer {
                 const ctx = buf.getContext('2d');
                 buf.width = v.width;
                 buf.height = v.height;
-                if (this.features.hasInvertedColors) {
-                    ctx.filter = 'invert(1)';
-                }
                 ctx.drawImage(v, 0, 0);
-                this.image = ctx.getImageData(0, 0, v.width, v.height);
+                if (this.features.hasInvertedColors) {
+                    this.image = inverImageDataWithAlpha(ctx.getImageData(0, 0, v.width, v.height));
+                } else {
+                    this.image = ctx.getImageData(0, 0, v.width, v.height);
+                }
                 this.size = new Point(v.width, v.height);
                 this.updateBounds();
                 this.saveState();
@@ -129,8 +131,6 @@ export class IconLayer extends AbstractLayer {
         const {dc, position, image, size} = this;
         dc.clear();
         if (image) {
-            if (this.overlay) {
-            }
             dc.ctx.putImageData(image, position.x, position.y);
         } else {
             dc.rect(position, size, false);
