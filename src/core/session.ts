@@ -124,6 +124,7 @@ export class Session {
             layer,
             state: layer.getState()
         });
+        this.virtualScreen.redraw();
     };
     addLayer = (layer: AbstractLayer) => {
         const {display, scale, layers} = this.state;
