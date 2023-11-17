@@ -1,29 +1,51 @@
 # Lopaka — Stunning graphics for embedded screens
 
-The GUI editor and code generator for [U8g2](https://github.com/olikraus/u8g2), and [Flipper Zero](https://flipperzero.one/).
+Lopaka is an open-source graphics editor aimed at providing an interface for creating graphics for [U8g2](https://github.com/olikraus/u8g2), [AdafruitGFX](https://github.com/adafruit/Adafruit-GFX-Library) and [Flipper Zero](https://flipperzero.one/).
 
-Draw any graphics and use generated code in your application!
-
-* select screen size
-* use many draw shapes and tools
-* popular fonts support
-* import, drag and drop custom images
-* auto-generate XBMP graphics
-* remove, edit elements
-* generate and copy the code
+Draw any graphics and use generated code in your Arduino, ESP32 or STM32project!
 
 ![Lopaka Graphics Editor Screenshot](lopaka-screenshot.png)
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Credits](#credits)
+- [How to Contribute](#how-can-you-help)
+
+## Features
+
+[Release notes](https://github.com/sbrin/lopaka/releases)
+
+[Keyboard shortcuts](https://github.com/sbrin/lopaka/wiki/Keyboard-shortcuts)
+
+* pixel perfect editor
+* various screen sizes
+* many draw shapes and tools
+* popular fonts support
+* use custom images
+* auto-generate XBMP graphics
+* move, resize, edit elements
+* u8g2, AdafruitGFX, raw Uint32, FlipperZero export
+* generate the source code in C/C++
+* FlipperZero live preview
+* select zoom scale
+
+
+
 ## Cloud App (no registation required)
+
+We have a fork of this project deployed to CloudFlare pages:
 
 [https://lopaka.app](https://lopaka.app)
 
-All data is stored locally.
+All data is stored in your browser.
 
-## How to run locally
+Follow us on Twitter: https://twitter.com/lopaka_app
 
-All you need is any kind of HTTP server to run index.html
-### Using Docker
+## Installation
+
+### Using docker-compose
 
 ```
 docker-compose up --build
@@ -33,37 +55,36 @@ docker-compose up --build
 
 ```
 yarn install
-yarn start
 ```
 
-Then go to `http://127.0.0.1:3000/`
+#### Development server
+```
+yarn dev
+```
 
-### Disclaimer
+#### Produciton build
 
-It is a reeeeeally simple Vue.JS application. Use it with care. 
+```
+yarn build
+```
 
-The main concept I follow is: there should be **no build stage**, which is typically a step in the software development process that involves compiling code and creating executables, for applications.
+## Credits
 
-Instead, the idea being proposed is that applications should be designed to be easy to start, or run, in any environment, without the need for a build stage.
+Lopaka is made possible thanks to all the contributions from the community. Special thanks go out to:
 
-This means that the application should be able to run on any device or operating system without the need for additional setup or configuration.
+- [deadlink](https://github.com/deadlink)
+- [ilin_pt](https://github.com/sbrin)
+- [bjornd](https://github.com/bjornd)
 
-The goal of this approach is to make it easier for users to start using the application, and to reduce the complexity of the development process.
+And many others who've contributed in various ways.
 
-- No mobile devices support
+For a full list of contributors, see the [contributors graph](https://github.com/sbrin/lopaka/graphs/contributors).
 
-- No tests (so far)
 
-- No typings
-
-- No build
-
-It was started as a simple tool for Flipper Zero app development. That's why you can see some references here and there. But it is going to become something bigger...
-
-### How can you help?
+### How can you help
 
 Like, share and subscribe is the easiest way to endorse this pet project.
 
-If you're really into embedded development or an every day GUI designer or just a person who loves to make Arduino projects — contact me to arrange a quick interview call. I need to know what my audience pain points are to make Lopaka better.
+If you're embedded engineer or GUI designer or just a person who loves to make Arduino projects — [send me an email](mailto:feedback@lopaka.app) and share all your thougts. I need to know what my audience pain points are to make Lopaka better.
 
-You can become a sponsor — see sponsorship options on my GitHub profile ❤️
+You can become a sponsor — see [sponsorship options](https://github.com/sponsors/sbrin) ❤️
