@@ -187,6 +187,14 @@ function onChange(event: Event, param: TLayerModifier) {
     width: 60px;
 }
 
+.inspector__input[type='text'] {
+    width: 163px;
+}
+
+select.inspector__input {
+    width: 165px;
+}
+
 .selected {
     border: 1px dashed #01f9d8 !important;
 }

@@ -46,15 +46,15 @@ export class TextLayer extends AbstractLayer {
             },
             type: TModifierType.number
         },
-        text: {
-            getValue: () => this.text,
+        fontSize: {
+            getValue: () => this.scaleFactor,
             setValue: (v: string) => {
-                this.text = v;
+                this.scaleFactor = Math.max(parseInt(v), 1);
                 this.updateBounds();
                 this.saveState();
                 this.draw();
             },
-            type: TModifierType.string
+            type: TModifierType.number
         },
         font: {
             getValue: () => this.font?.name,
@@ -66,15 +66,15 @@ export class TextLayer extends AbstractLayer {
             },
             type: TModifierType.font
         },
-        fontSize: {
-            getValue: () => this.scaleFactor,
+        text: {
+            getValue: () => this.text,
             setValue: (v: string) => {
-                this.scaleFactor = Math.max(parseInt(v), 1);
+                this.text = v;
                 this.updateBounds();
                 this.saveState();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.string
         },
         color: {
             getValue: () => this.color,
