@@ -100,7 +100,7 @@ const canvasClassNames = computed(() => {
 .screen {
     /* cursor: crosshair; */
     image-rendering: pixelated;
-    background: #ed791b;
+    background: var(--primary-color);
     text-rendering: geometricPrecision;
     font-smooth: never;
     -webkit-font-smoothing: none;
