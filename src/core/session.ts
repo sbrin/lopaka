@@ -151,7 +151,9 @@ export class Session {
     setDisplay = (display: Point, isLogged?: boolean) => {
         this.state.display = display;
         this.virtualScreen.resize();
-        this.virtualScreen.redraw();
+        requestAnimationFrame(() => {
+            this.virtualScreen.redraw();
+        });
         // TODO: update cloud and storage to avoid display conversion
         const displayString = `${display.x}×${display.y}`;
         localStorage.setItem('lopaka_display', displayString);
