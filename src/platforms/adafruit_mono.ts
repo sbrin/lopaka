@@ -12,6 +12,6 @@ export class AdafruitMonochromePlatform extends AdafruitPlatform {
     }
 
     protected getColor(layer: AbstractLayer): string {
-        return 'SSD1306_WHITE';
+        return '1'; // SSD1306_WHITE or WHITE for different platforms, but we can use 1 instead
     }
 }
