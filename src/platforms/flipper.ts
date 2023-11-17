@@ -10,6 +10,13 @@ import {IconLayer} from '../core/layers/icon.layer';
 import { fontTypes } from "../draw/fonts/fontTypes";
 import { toCppVariableName } from "../utils";
 
+const flipperFontMap = {
+    'helvB08_tr': "FontPrimary",
+    'haxrcorp4089_tr': "FontSecondary",
+    'profont11_mr': "FontKeyboard",
+    'profont22_tr': "FontBigNumbers",
+}
+
 export class FlipperPlatform extends Platform {
     public static id = 'flipper';
     protected name = 'Flipper Zero';
@@ -29,7 +36,7 @@ export class FlipperPlatform extends Platform {
     }
     addText(layer: TextLayer, source: TSourceCode): void {
         source.code.push(
-            `canvas_draw_text(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}", &F_${layer.font.name});`
+            `canvas_draw_text(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}", ${flipperFontMap[layer.font.name]});`
         );
     }
     addBox(layer: BoxLayer, source: TSourceCode): void {
@@ -44,12 +51,12 @@ export class FlipperPlatform extends Platform {
     }
     addCircle(layer: CircleLayer, source: TSourceCode): void {
         const {radius, position} = layer;
-        const center = position.clone().add(radius).add(1);
+        const center = position.clone().add(radius);
         source.code.push(`canvas_draw_circle(canvas, ${center.x}, ${center.y}, ${radius});`);
     }
     addDisc(layer: DiscLayer, source: TSourceCode): void {
         const {radius, position} = layer;
-        const center = position.clone().add(radius).add(1);
+        const center = position.clone().add(radius);
         source.code.push(`canvas_draw_disc(canvas, ${center.x}, ${center.y}, ${radius});`);
     }
     addImage(layer: IconLayer, source: TSourceCode): void {

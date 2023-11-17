@@ -42,6 +42,20 @@ export const fontTypes = {
         format: FontFormat.FORMAT_TTF
     },
 
+    // TODO: add profont11_mr
+    //
+    // 'profont11_mr': {
+    //     name: 'profont11_mr',
+    //     title: 'Profont 11',
+    //     file: profont22,
+    //     options: {
+    //         textCharHeight: 16,
+    //         textCharWidth: 11,
+    //         size: 11
+    //     },
+    //     format: FontFormat.FORMAT_TTF
+    // },
+
     'profont22_tr': {
         name: 'profont22_tr',
         title: 'Profont 22',
