@@ -1,11 +1,8 @@
-# Use the official lightweight NGINX image
-# https://hub.docker.com/_/nginx
-FROM nginx:1.25-alpine
+# Start from the official Nginx image
+FROM nginx:alpine
 
 # Remove any default files that might be in our way
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy our static HTML and CSS files
-COPY . /usr/share/nginx/html
-
-# NGINX will start by default
+# Copy the dist folder to Nginx's serve directory
+COPY ./dist /usr/share/nginx/html
