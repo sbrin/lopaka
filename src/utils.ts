@@ -47,7 +47,6 @@ export function packColor565(hexColor: string) {
 
 export function inverImageDataWithAlpha(imgData: ImageData) {
     const data = imgData.data;
-    console.log(data[0], data[1], data[2], data[3]);
     for (let i = 0; i < data.length; i += 4) {
         let [r, g, b, a] = [data[i], data[i + 1], data[i + 2], data[i + 3]];
         // if alpha more than 50%
