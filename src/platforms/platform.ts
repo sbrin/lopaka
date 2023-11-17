@@ -13,6 +13,7 @@ export type TPlatformFeatures = {
     hasCustomFontSize: boolean;
     hasInvertedColors: boolean;
     hasRGBSupport: boolean;
+    defaultColor: string;
 };
 
 /**
@@ -26,7 +27,8 @@ export abstract class Platform {
     public features: TPlatformFeatures = {
         hasCustomFontSize: false,
         hasInvertedColors: false,
-        hasRGBSupport: false
+        hasRGBSupport: false,
+        defaultColor: '#000000'
     };
 
     public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {

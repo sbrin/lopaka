@@ -23,6 +23,7 @@ export class AdafruitPlatform extends Platform {
         this.features.hasCustomFontSize = true;
         this.features.hasRGBSupport = true;
         this.features.hasInvertedColors = true;
+        this.features.defaultColor = '#FFFFFF';
     }
 
     protected getColor(layer: AbstractLayer): string {

@@ -19,11 +19,8 @@ export class DotLayer extends RectangleLayer {
         }
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
-            this.color = '#000000';
         }
-        if (this.features.hasInvertedColors) {
-            this.color = '#FFFFFF';
-        }
+        this.color = this.features.defaultColor;
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
