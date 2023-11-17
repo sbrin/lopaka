@@ -146,14 +146,16 @@ export class VirtualScreen {
         if (!this.canvas) return;
         this.clear();
         const overlays = [];
-        this.session.state.layers.forEach((layer) => {
-            // skip all oberlays
-            if (layer.modifiers.overlay && layer.modifiers.overlay.getValue()) {
-                overlays.push(layer);
-                return;
-            }
-            this.ctx.drawImage(layer.getBuffer(), 0, 0);
-        });
+        this.session.state.layers
+            .sort((a, b) => b.index - a.index)
+            .forEach((layer) => {
+                // skip all oberlays
+                if (layer.modifiers.overlay && layer.modifiers.overlay.getValue()) {
+                    overlays.push(layer);
+                    return;
+                }
+                this.ctx.drawImage(layer.getBuffer(), 0, 0);
+            });
         this.state.updates++;
         // create data without alpha channel
         const data = this.ctx.getImageData(0, 0, this.screen.width, this.screen.height).data.map((v, i) => {
