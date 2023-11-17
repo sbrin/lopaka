@@ -56,6 +56,9 @@ export class IconLayer extends AbstractLayer {
                 const ctx = buf.getContext('2d');
                 buf.width = v.width;
                 buf.height = v.height;
+                if (this.features.hasInvertedColors) {
+                    ctx.filter = 'invert(1)';
+                }
                 ctx.drawImage(v, 0, 0);
                 this.image = ctx.getImageData(0, 0, v.width, v.height);
                 this.size = new Point(v.width, v.height);
