@@ -47,11 +47,23 @@ export function packColor565(hexColor: string) {
 
 export function inverImageDataWithAlpha(imgData: ImageData) {
     const data = imgData.data;
+    console.log(data[0], data[1], data[2], data[3]);
     for (let i = 0; i < data.length; i += 4) {
-        data[i] = 255 - data[i];
-        data[i + 1] = 255 - data[i + 1];
-        data[i + 2] = 255 - data[i + 2];
-        data[i + 3] = data[i + 3] > 127 ? 255 : 0;
+        let [r, g, b, a] = [data[i], data[i + 1], data[i + 2], data[i + 3]];
+        // if alpha more than 50%
+        if (r + g + b > 255 / 2 || a < 255 / 2) {
+            // transparent
+            a = 0;
+            r = g = b = 0;
+        } else {
+            // white pixels
+            r = g = b = 255;
+            a = 255;
+        }
+        data[i] = r;
+        data[i + 1] = g;
+        data[i + 2] = b;
+        data[i + 3] = a;
     }
     return imgData;
 }
