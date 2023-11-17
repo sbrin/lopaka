@@ -36,7 +36,8 @@ export class FlipperPlatform extends Platform {
     }
     addText(layer: TextLayer, source: TSourceCode): void {
         source.code.push(
-            `canvas_draw_text(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}", ${flipperFontMap[layer.font.name]});`
+            `canvas_set_font(canvas, ${flipperFontMap[layer.font.name]});
+canvas_draw_str(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}");`
         );
     }
     addBox(layer: BoxLayer, source: TSourceCode): void {
