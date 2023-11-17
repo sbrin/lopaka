@@ -39,7 +39,7 @@ export class Session {
     platforms: {[key: string]: Platform} = {
         [FlipperPlatform.id]: new FlipperPlatform(),
         [U8g2Platform.id]: new U8g2Platform(),
-        [AdafruitPlatform.id]: new AdafruitPlatform(),
+        // [AdafruitPlatform.id]: new AdafruitPlatform(),
         [AdafruitMonochromePlatform.id]: new AdafruitMonochromePlatform(),
         [Uint32RawPlatform.id]: new Uint32RawPlatform()
     };
