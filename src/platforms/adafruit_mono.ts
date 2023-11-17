@@ -9,6 +9,7 @@ export class AdafruitMonochromePlatform extends AdafruitPlatform {
     constructor() {
         super();
         this.features.hasRGBSupport = false;
+        this.features.defaultColor = '#FFFFFF';
     }
 
     protected getColor(layer: AbstractLayer): string {
