@@ -45,6 +45,17 @@ export function packColor565(hexColor: string) {
     return ((rgb.r >> 3) << 11) | ((rgb.g >> 2) << 5) | (rgb.b >> 3);
 }
 
+export function inverImageDataWithAlpha(imgData: ImageData) {
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+        data[i] = 255 - data[i];
+        data[i + 1] = 255 - data[i + 1];
+        data[i + 2] = 255 - data[i + 2];
+        data[i + 3] = data[i + 3] > 127 ? 255 : 0;
+    }
+    return imgData;
+}
+
 export function imgDataToXBMP(
     imgData: ImageData,
     xStart: number,
@@ -65,7 +76,7 @@ export function imgDataToXBMP(
                 imgData.data[imgDataIndex] + imgData.data[imgDataIndex + 1] + imgData.data[imgDataIndex + 2];
             const alphaValue = imgData.data[imgDataIndex + 3];
             // b&w + alpha masking
-            if (alphaValue > 127 && rgbSumValue < 381) {
+            if (alphaValue > 127 /*&& rgbSumValue < 381*/) {
                 const xbmpIndex = (y - yStart) * bytesPerRow + Math.floor((x - xStart) / 8);
                 const bitPosition = (x - xStart) % 8;
                 xbmp[xbmpIndex] |= 1 << bitPosition;
