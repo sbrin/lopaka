@@ -14,9 +14,8 @@ export class TTFFont extends Font {
     async loadFont(): Promise<any> {
         const font = new FontFace(this.name, `url(${this.url})`);
         font.load();
-        font.loaded.then(() => {
-            (document.fonts as any).add(font);
-        }) 
+        await font.loaded;
+        (document.fonts as any).add(font);
     }
 
     getSize(dc: DrawContext, text: string): Point {
