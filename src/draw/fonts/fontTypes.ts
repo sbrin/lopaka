@@ -68,7 +68,7 @@ export const fontTypes = {
         format: FontFormat.FORMAT_TTF
     },
     '4x6_tr': {
-        name: '4x6_tr',
+        name: 'f4x6_tr', // Firefox has a bug if font name starts with a number
         title: '4x6',
         file: f4x6,
         options: {
