@@ -12,6 +12,10 @@ import {IconLayer} from '../core/layers/icon.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
 import {fontTypes} from '../draw/fonts/fontTypes';
 
+const u8g2FontMap = {
+    'f4x6_tr': "4x6_tr",
+}
+
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
     protected name = 'U8g2';
@@ -46,7 +50,7 @@ export class U8g2Platform extends Platform {
         source.code.push(`u8g2.drawLine(${p1.x}, ${p1.y}, ${p2.x}, ${p2.y});`);
     }
     addText(layer: TextLayer, source: TSourceCode): void {
-        const fontName = `u8g2_font_${layer.font.name}`;
+        const fontName = `u8g2_font_${u8g2FontMap[layer.font.name] ?? layer.font.name}`;
         source.code.push(`u8g2.setFont(${fontName});
 u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
     }
