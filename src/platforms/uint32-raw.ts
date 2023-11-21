@@ -18,6 +18,12 @@ export class Uint32RawPlatform extends Platform {
         ];
     }
 
+    constructor() {
+        super();
+        this.features.hasInvertedColors = true;
+        this.features.defaultColor = '#FFFFFF';
+    }
+
     addDot(layer: AbstractLayer, source: TSourceCode): void {}
     addLine(layer: AbstractLayer, source: TSourceCode): void {}
     addText(layer: AbstractLayer, source: TSourceCode): void {}
