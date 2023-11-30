@@ -1,6 +1,4 @@
-// import {PNG} from 'pngjs/browser';
 import {decode, encode} from 'base64-arraybuffer';
-// import {deflateRawSync, deflateSync, inflateRawSync, inflateSync} from 'zlib';
 import pako from 'pako';
 
 function bitswap(b) {
@@ -226,13 +224,12 @@ export function debounce(func, delay = 500) {
 export function packImage(imageData: ImageData): string {
     const deflate = new pako.Deflate({level: 9});
     deflate.push(imageData.data, true);
-    return `${imageData.width},${imageData.height},${encode(deflate.result)}`;
+    return encode(deflate.result);
 }
 
-export function unpackImage(data: string): ImageData {
-    const [width, height, base64] = data.split(',');
+export function unpackImage(base64: string, width: number, height: number): ImageData {
     const inflate = new pako.Inflate({level: 9});
     const arr = new Uint8Array(decode(base64));
     inflate.push(arr, true);
-    return new ImageData(new Uint8ClampedArray(inflate.result), parseInt(width), parseInt(height));
+    return new ImageData(new Uint8ClampedArray(inflate.result), width, height);
 }
