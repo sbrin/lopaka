@@ -21,7 +21,6 @@ export class PaintLayer extends AbstractLayer {
     public size: Point = null;
     public data: ImageData;
     public points: number[][] = [];
-    private maxPoint = new Point();
 
     modifiers: TLayerModifiers = {
         x: {
@@ -111,20 +110,25 @@ export class PaintLayer extends AbstractLayer {
                             this.points.push(p.xy);
                         }
                     }
-                    if (!this.position) {
-                        this.position = point.clone();
-                        this.size = new Point(1);
-                    } else {
-                        this.position = this.position.min(point);
-                        this.maxPoint = this.maxPoint.max(point);
-                        this.size = this.maxPoint.clone().subtract(this.position).add(1);
-                    }
                     this.editState.position = point.clone();
                 }
+                this.recalculate();
                 break;
         }
         this.updateBounds();
         this.draw();
+    }
+
+    recalculate() {
+        if (this.points.length) {
+            this.position = new Point(this.points[0]);
+            let maxPoint = new Point(this.points[0]);
+            this.points.forEach((p) => {
+                this.position = this.position.min(new Point(p));
+                maxPoint = maxPoint.max(new Point(p));
+            });
+            this.size = maxPoint.clone().subtract(this.position).add(1);
+        }
     }
 
     stopEdit() {
