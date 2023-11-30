@@ -44,6 +44,8 @@
     },
     "dependencies": {
         "@types/dom-serial": "^1.0.4",
+        "base64-arraybuffer": "^1.0.2",
+        "pako": "^2.1.0",
         "typescript": "^5.2.2",
         "vue": "^3.3.4"
     }

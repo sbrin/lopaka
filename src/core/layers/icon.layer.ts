@@ -1,5 +1,5 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {inverImageDataWithAlpha} from '../../utils';
+import {inverImageDataWithAlpha, packImage, unpackImage} from '../../utils';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
@@ -7,7 +7,7 @@ import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, T
 type TIconState = TLayerState & {
     p: number[]; // position [x, y]
     s: number[]; // size [w, h]
-    d: number[]; // data
+    d: string; // data
     in: string; // image name
     o: boolean; // is overlay
 };
@@ -144,10 +144,11 @@ export class IconLayer extends AbstractLayer {
     }
 
     saveState() {
+        if (!this.image) return;
         const state: TIconState = {
             p: this.position.xy,
             s: this.size.xy,
-            d: Array.from(this.image?.data || []), //TODO image data
+            d: packImage(this.image), //TODO image data
             in: this.imageName,
             n: this.name,
             i: this.index,
@@ -165,7 +166,7 @@ export class IconLayer extends AbstractLayer {
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;
-        this.image = new ImageData(new Uint8ClampedArray(state.d), this.size.x, this.size.y);
+        this.image = unpackImage(state.d);
         this.imageName = state.in;
         this.overlay = state.o;
         this.uid = state.u;
