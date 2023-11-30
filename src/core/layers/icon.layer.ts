@@ -166,7 +166,7 @@ export class IconLayer extends AbstractLayer {
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;
-        this.image = unpackImage(state.d);
+        this.image = unpackImage(state.d, this.size.x, this.size.y);
         this.imageName = state.in;
         this.overlay = state.o;
         this.uid = state.u;
