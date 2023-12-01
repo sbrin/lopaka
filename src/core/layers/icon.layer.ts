@@ -64,6 +64,18 @@ export class IconLayer extends AbstractLayer {
                     this.image = ctx.getImageData(0, 0, v.width, v.height);
                 }
                 this.size = new Point(v.width, v.height);
+                // uncomment to see compression ratio
+                // const png = buf.toDataURL();
+                // const zlib = packImage(this.image);
+                // console.log(
+                //     this.imageName,
+                //     'png:',
+                //     png.length,
+                //     'zlib:',
+                //     zlib.length,
+                //     '%',
+                //     (zlib.length / png.length) * 100
+                // );
                 this.updateBounds();
                 this.saveState();
                 this.draw();
