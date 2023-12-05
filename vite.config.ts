@@ -28,7 +28,8 @@ export default defineConfig({
         rollupOptions: {
             treeshake: true,
             input: {
-                app: resolve(__dirname, 'index.html')
+                app: resolve(__dirname, 'index.html'),
+                bdfconf: resolve(__dirname, 'bdfconv/index.html')
             }
         }
     },
