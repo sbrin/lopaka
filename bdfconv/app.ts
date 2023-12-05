@@ -1,4 +1,6 @@
 import bdfconvModule from './wasm/bdfconv.wasm?url';
+import sumModule from './wasm/sum.wasm?url';
+
 const importObject = {
     env: {
         __memory_base: 0,
@@ -8,9 +10,10 @@ const importObject = {
 };
 
 const main = async () => {
-    const responsePromise = fetch(bdfconvModule);
+    const responsePromise = fetch(sumModule);
     const {module, instance} = await WebAssembly.instantiateStreaming(responsePromise, importObject);
     console.log(module, instance);
+    console.log(instance.exports.sum(1, 112));
 };
 
 main();
