@@ -9,8 +9,22 @@ Module({
     thisProgram: false,
 }).then((instance) => {
     moduleInstance = instance;
-    // instance.callMain([]);
 });
+
+export async function loadAndRun(args, file) {
+    const filePath = file.name;
+    await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            moduleInstance.FS.writeFile(filePath, data);
+            resolve(null);
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    runMain([...args, filePath]);
+}
     
 export function runMain(args) {
   if (moduleInstance) {
