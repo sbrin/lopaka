@@ -1,19 +1,23 @@
-import bdfconvModule from './wasm/bdfconv.wasm?url';
-import sumModule from './wasm/sum.wasm?url';
+import { createApp } from "vue";
+import Module from './wasm/bdfconv';
+import AppVue from "./App.vue";
 
-const importObject = {
-    env: {
-        __memory_base: 0,
-        __table_base: 0,
-        memory: new WebAssembly.Memory({initial: 1})
-    }
-};
+let moduleInstance = null;
 
-const main = async () => {
-    const responsePromise = fetch(sumModule);
-    const {module, instance} = await WebAssembly.instantiateStreaming(responsePromise, importObject);
-    console.log(module, instance);
-    console.log(instance.exports.sum(1, 112));
-};
+Module({
+    noInitialRun: true,
+    thisProgram: false,
+}).then((instance) => {
+    moduleInstance = instance;
+    // instance.callMain([]);
+});
+    
+export function runMain(args) {
+  if (moduleInstance) {
+    moduleInstance.callMain(args);
+  } else {
+    console.error("Module is not initialized.");
+  }
+}
 
-main();
+createApp(AppVue).mount('#bdfconv_app');
