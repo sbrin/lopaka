@@ -2,6 +2,7 @@ import f4x6 from '/fonts/f4x6.ttf?url';
 import haxrcorp4089 from '/fonts/haxrcorp4089.ttf?url';
 import u8g2_font_helvB08 from '/fonts/helvb08.ttf?url';
 import profont22 from '/fonts/profont22.ttf?url';
+import iRiver from '/fonts/iRiver.ttf?url';
 import bdf5x8 from './bdf/5x8.bdf?url';
 import bdf6x10 from './bdf/6x10.bdf?url';
 import adafruitFont from './binary/adafruit-5x7.bin?url';
@@ -99,5 +100,16 @@ export const fontTypes = {
             size: 10
         },
         format: FontFormat.FORMAT_BDF
+    },
+    'iRiver': {
+        name: 'iRiver',
+        title: 'iRiver',
+        file: iRiver,
+        options: {
+            textCharHeight: 11,
+            textCharWidth: 8,
+            size: 16
+        },
+        format: FontFormat.FORMAT_TTF
     }
 }
