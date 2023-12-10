@@ -89,6 +89,7 @@ export class Session {
         new Point(240, 128),
         new Point(240, 160),
         new Point(240, 240),
+        new Point(250, 122),
         new Point(256, 128),
         new Point(256, 32),
         new Point(256, 64),
