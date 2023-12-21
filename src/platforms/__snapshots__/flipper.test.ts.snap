@@ -5,12 +5,13 @@ exports[`Flipper zero platform > generating source code 1`] = `
 canvas_draw_box(canvas, 107, 46, 18, 15);
 canvas_draw_box(canvas, 97, 2, 27, 11);
 canvas_draw_box(canvas, 106, 19, 19, 18);
-canvas_draw_text(canvas, 3, 11, \\"Text\\", &F_helvB08_tr);
+canvas_set_font(canvas, FontPrimary);
+canvas_draw_str(canvas, 3, 11, \\"Text\\");
 canvas_draw_line(canvas, 2, 16, 68, 16);
 canvas_draw_dot(canvas, 62, 4);
 canvas_draw_dot(canvas, 67, 8);
 canvas_draw_dot(canvas, 72, 12);
-canvas_draw_circle(canvas, 21, 42, 12);
-canvas_draw_disc(canvas, 18, 44, 3);
+canvas_draw_circle(canvas, 20, 41, 12);
+canvas_draw_disc(canvas, 17, 43, 3);
 canvas_draw_frame(canvas, 44, 29, 44, 28);"
 `;
