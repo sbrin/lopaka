@@ -98,6 +98,8 @@ export class BDFFont extends Font {
             const line = fontLines[i];
             let data = line.split(/\s+/);
             const declaration = data[0];
+                                
+            // console.log(data);
             switch (declaration) {
                 case 'STARTFONT':
                     stack.push(declaration);
@@ -144,8 +146,21 @@ export class BDFFont extends Font {
                 case 'STARTCHAR':
                     stack.push(declaration);
                     bytes = [];
+                    let glyphName = '';
+                    
+                    console.log(data);
+
+                    if (/^\d+$/.test(data[1])) {
+                        // Convert Unicode sequence to a character
+                        const charCode = parseInt(data[1]);
+                        glyphName = String.fromCharCode(data[1]);
+                        console.log(glyphName);
+                    } else {
+                        glyphName = data[1];
+                    }
+                
                     glyph = {
-                        name: data[1],
+                        name: glyphName,
                         bitmap: []
                     };
                     break;
@@ -170,15 +185,28 @@ export class BDFFont extends Font {
                     // padded with zeroes on the right. In this example, the glyph is exactly 8 pixels wide,
                     // and so occupies exactly 8 bits (one byte) per line so that there is no padding.
                     // The most significant bit of a line of raster data represents the leftmost pixel.
-                    for (let row = 0; row < this.meta.size.points; row++, i++) {
-                        const byte = parseInt(fontLines[i + 1], 16);
-                        bytes.push(byte);
+                    
+                    if (fontLines[i + 1].length === 2) {
+                        for (let row = 0; row < this.meta.size.points; row++, i++) {
+                            if (fontLines[i + 1].length > 2) {
+                                for (let pad = row; pad < this.meta.size.points; pad++) {
+                                    bytes.unshift(0);
+                                }
+                                break;       
+                            }
+                            const byte = parseInt(fontLines[i + 1], 16);
+                            bytes.push(byte);
+                        }
                     }
+                    console.log(glyph.bounds);
+                    
                     break;
                 case 'ENDCHAR':
                     stack.pop();
                     glyph.bytes = new Uint8Array(bytes);
                     this.glyphs.set(glyph.code, glyph);
+                    console.log('ENDCHAR', bytes, glyph);
+                    
                     glyph = null;
                     break;
                 case 'ENDFONT':

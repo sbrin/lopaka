@@ -4,8 +4,8 @@ import {Platform} from './platform';
 import {fontTypes} from '../draw/fonts/fontTypes';
 export class Uint32RawPlatform extends Platform {
     public static id = 'uint32';
-    protected name = 'Uint32 Raw';
-    protected description = 'Uint32 Raw';
+    protected name = 'Uint32 Bitmap';
+    protected description = 'Uint32 Bitmap';
 
     public getFonts(): TPlatformFont[] {
         return [
