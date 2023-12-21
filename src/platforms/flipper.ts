@@ -67,7 +67,7 @@ canvas_draw_str(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}
         );
     }
     addIcon(layer: IconLayer, source: TSourceCode): void {
-        const varName = `&I_${toCppVariableName(layer.imageName)}`;
+        const varName = `&I_${toCppVariableName(layer.name)}`;
         source.code.push(`canvas_draw_icon(canvas, ${layer.position.x}, ${layer.position.y}, ${varName});`);
     }
 }

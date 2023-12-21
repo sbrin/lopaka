@@ -178,7 +178,12 @@ export class IconLayer extends AbstractLayer {
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;
-        this.image = unpackImage(state.d, this.size.x, this.size.y);
+        try {
+            this.image = unpackImage(state.d, this.size.x, this.size.y);
+        } catch (error) {
+            // TODO: fix types for backwards compatibility with uncompressed images
+            this.image = new ImageData(new Uint8ClampedArray(state.d), this.size.x, this.size.y);
+        }
         this.imageName = state.in;
         this.overlay = state.o;
         this.uid = state.u;
