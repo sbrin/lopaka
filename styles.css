@@ -1,53 +1,9 @@
-/* @font-face {
-    font-family: 'helvB08_tr';
-    src: url('fonts/helvb08.ttf');
-    font-weight: normal;
-    font-style: normal;
-} */
-
 @font-face {
     font-family: 'haxrcorp4089_tr';
     src: url('fonts/haxrcorp4089.ttf');
     font-weight: normal;
     font-style: normal;
 }
-/* 
-@font-face {
-    font-family: 'profont22_tr';
-    src: url('fonts/profont22.ttf');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'f4x6_tr';
-    src: url('fonts/f4x6.ttf');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'adafruit';
-    src: url('fonts/adafruit.ttf');
-    font-weight: normal;
-    font-style: normal;
-} */
-/* 
-.fonts-helvb08 {
-    font-family: 'helvB08_tr';
-}
-.fonts-haxrcorp4089 {
-    font-family: 'haxrcorp4089_tr';
-}
-.fonts-profont22 {
-    font-family: 'profont22_tr';
-}
-.fonts-f4x6 {
-    font-family: 'f4x6_tr';
-}
-.fonts-adafruit {
-    font-family: 'adafruit', monospace;
-} */
 
 :root {
     --primary-color: #ff8200;
@@ -72,12 +28,12 @@ body {
     background: var(--bg-color);
     color: var(--primary-color);
     font-family: 'haxrcorp4089_tr';
-    text-transform: uppercase;
     visibility: hidden;
 }
 
 .fui-editor {
     background: var(--bg-color);
+    margin: 0 auto;
     padding: 16px;
     display: grid;
     grid-template-columns: 178px fit-content(1ch) 178px;
@@ -107,31 +63,9 @@ body {
 .fui-editor__right {
     /* width: 178px; */
     margin-left: 16px;
+    margin-top: 100px;
 }
 
-/* .fui-canvas_draw {
-  cursor: none;
-} 
-
-.fui-cursor {
-  width: 8px;
-  height: 8px;
-  position: fixed;
-  left: 0px;
-  top: 0px;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.canvas-wrapper:hover .fui-cursor {
-  visibility: visible;
-}
-
-.fui-cursor_pixel {
-  width: 4px;
-  height: 4px;
-  background: black;
-} */
 
 .input-select {
     background: var(--secondary-color);
@@ -205,9 +139,15 @@ a.button {
     display: flex;
     align-items: center;
     cursor: pointer;
-    height: 24px;
-    margin: 4px 0;
+    height: 20px;
+    padding: 2px 0 2px 8px;
+    margin-bottom: 1px;
+    border-radius: 4px;
     justify-content: space-between;
+}
+
+.layer:hover {
+    background-color: var(--secondary-color)
 }
 
 .layer:hover .layer__remove {
@@ -238,6 +178,7 @@ a.button {
     display: none;
     color: var(--danger-color);
     margin: 0 8px;
+    padding-bottom: 4px;
 }
 
 .fui-code {
@@ -278,7 +219,6 @@ a.button {
     image-rendering: pixelated;
     display: block;
     margin: 8px;
-    /* mix-blend-mode: darken; */
     border: 1px solid var(--border-color);
     max-width: 128px;
     height: auto;
@@ -291,6 +231,7 @@ a.button {
     height: 24px;
     width: 100%;
 }
+
 .fui-icons__header:hover .fui-icons__remove-custom {
     display: block;
 }
@@ -356,6 +297,7 @@ a.button {
 .fui-select {
     margin: 2px 20px 8px 0;
 }
+
 .fui-select__label {
     font-size: 24px;
 }
