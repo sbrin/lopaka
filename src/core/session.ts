@@ -222,8 +222,8 @@ export function loadLayers(layers: any[]) {
         if (type in LayerClassMap) {
             const layer = new LayerClassMap[type](session.getPlatformFeatures());
             layer.loadState(l);
-            layer.stopEdit();
             session.addLayer(layer);
+            layer.saveState();
         }
     });
     session.virtualScreen.redraw();
@@ -231,10 +231,9 @@ export function loadLayers(layers: any[]) {
 
 export function saveLayers() {
     const session = useSession();
-    localStorage.setItem(
-        `${session.state.platform}_lopaka_layers`,
-        JSON.stringify(session.state.layers.map((l) => l.getState()))
-    );
+    const packedSession = JSON.stringify(session.state.layers.map((l) => l.getState()));
+    console.log('Saved session size', packedSession.length, 'bytes');
+    localStorage.setItem(`${session.state.platform}_lopaka_layers`, packedSession);
 }
 // for testing
 window['saveLayers'] = saveLayers;

@@ -103,6 +103,7 @@ function onChange(event: Event, param: TLayerModifier) {
                         type="number"
                         :value="param.getValue()"
                         @change="onChange($event, param)"
+                        :readonly="!param.setValue"
                     />
                 </div>
                 <div v-else-if="param.type == TModifierType.string">
@@ -111,6 +112,7 @@ function onChange(event: Event, param: TLayerModifier) {
                         type="text"
                         :value="param.getValue()"
                         @keyup="onChange($event, param)"
+                        :readonly="!param.setValue"
                     />
                 </div>
                 <div v-else-if="param.type == TModifierType.boolean">
@@ -119,6 +121,7 @@ function onChange(event: Event, param: TLayerModifier) {
                         type="checkbox"
                         :checked="param.getValue()"
                         @change="onChange($event, param)"
+                        :readonly="!param.setValue"
                     />
                 </div>
                 <div v-else-if="param.type == TModifierType.color">
@@ -127,11 +130,17 @@ function onChange(event: Event, param: TLayerModifier) {
                         type="color"
                         :value="param.getValue()"
                         @input="onChange($event, param)"
+                        :readonly="!param.setValue"
                         list="presetColors"
                     />
                 </div>
                 <div v-else-if="param.type == TModifierType.font">
-                    <select class="inspector__input" :value="param.getValue()" @change="onChange($event, param)">
+                    <select
+                        class="inspector__input"
+                        :value="param.getValue()"
+                        :readonly="!param.setValue"
+                        @change="onChange($event, param)"
+                    >
                         <option v-for="font in fonts" :value="font.name">{{ font.title }}</option>
                     </select>
                 </div>

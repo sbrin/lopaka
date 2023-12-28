@@ -182,6 +182,7 @@ export class TextLayer extends AbstractLayer {
         this.scaleFactor = state.z;
         this.color = state.c;
         this.updateBounds();
+        this.mode = EditMode.NONE;
     }
 
     updateBounds(): void {

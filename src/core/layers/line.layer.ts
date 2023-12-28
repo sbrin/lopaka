@@ -171,6 +171,7 @@ export class LineLayer extends AbstractLayer {
         this.uid = state.u;
         this.color = state.c;
         this.updateBounds();
+        this.mode = EditMode.NONE;
     }
 
     updateBounds() {

@@ -1,31 +1,11 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {inverImageDataWithAlpha, packImage, unpackImage} from '../../utils';
+import {inverImageDataWithAlpha} from '../../utils';
 import {Point} from '../point';
-import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifier, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
+import {AbstractImageLayer} from './abstract-image.layer';
+import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
 
-type TIconState = TLayerState & {
-    p: number[]; // position [x, y]
-    s: number[]; // size [w, h]
-    d: string; // data
-    in: string; // image name
-    o: boolean; // is overlay
-};
-
-export class IconLayer extends AbstractLayer {
+export class IconLayer extends AbstractImageLayer {
     protected type: ELayerType = 'icon';
-    protected state: TIconState;
-    protected editState: {
-        firstPoint: Point;
-        position: Point;
-        size: Point;
-    } = null;
-
-    public position: Point = new Point();
-    public size: Point = new Point();
-    public image: ImageData = null;
-    public imageName: string = '';
-    public overlay: boolean = false;
 
     modifiers: TLayerModifiers = {
         x: {
@@ -49,8 +29,16 @@ export class IconLayer extends AbstractLayer {
             },
             type: TModifierType.number
         },
+        w: {
+            getValue: () => this.size.x,
+            type: TModifierType.number
+        },
+        h: {
+            getValue: () => this.size.y,
+            type: TModifierType.number
+        },
         icon: {
-            getValue: () => this.image,
+            getValue: () => this.data,
             setValue: (v: HTMLImageElement) => {
                 this.imageName = v.dataset.name;
                 const buf = document.createElement('canvas');
@@ -59,23 +47,11 @@ export class IconLayer extends AbstractLayer {
                 buf.height = v.height;
                 ctx.drawImage(v, 0, 0);
                 if (this.features.hasInvertedColors) {
-                    this.image = inverImageDataWithAlpha(ctx.getImageData(0, 0, v.width, v.height));
+                    this.data = inverImageDataWithAlpha(ctx.getImageData(0, 0, v.width, v.height));
                 } else {
-                    this.image = ctx.getImageData(0, 0, v.width, v.height);
+                    this.data = ctx.getImageData(0, 0, v.width, v.height);
                 }
                 this.size = new Point(v.width, v.height);
-                // uncomment to see compression ratio
-                // const png = buf.toDataURL();
-                // const zlib = packImage(this.image);
-                // console.log(
-                //     this.imageName,
-                //     'png:',
-                //     png.length,
-                //     'zlib:',
-                //     zlib.length,
-                //     '%',
-                //     (zlib.length / png.length) * 100
-                // );
                 this.updateBounds();
                 this.saveState();
                 this.draw();
@@ -104,9 +80,6 @@ export class IconLayer extends AbstractLayer {
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
-        if (!this.features.hasCustomFontSize) {
-            delete this.modifiers.fontSize;
-        }
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
         }
@@ -137,55 +110,5 @@ export class IconLayer extends AbstractLayer {
         this.editState = null;
         this.saveState();
         this.history.push(this.state);
-    }
-
-    draw() {
-        const {dc, position, image, size} = this;
-        dc.clear();
-        if (image) {
-            dc.ctx.putImageData(image, position.x, position.y);
-        } else {
-            dc.rect(position, size, false);
-        }
-        dc.ctx.save();
-        dc.ctx.fillStyle = 'rgba(0,0,0,0)';
-        dc.ctx.beginPath();
-        dc.ctx.rect(position.x, position.y, size.x, size.y);
-        dc.ctx.fill();
-        dc.ctx.restore();
-    }
-
-    saveState() {
-        if (!this.image) return;
-        const state: TIconState = {
-            p: this.position.xy,
-            s: this.size.xy,
-            d: packImage(this.image), //TODO image data
-            in: this.imageName,
-            n: this.name,
-            i: this.index,
-            g: this.group,
-            t: this.type,
-            o: this.overlay,
-            u: this.uid
-        };
-        this.state = state;
-    }
-
-    loadState(state: TIconState) {
-        this.position = new Point(state.p);
-        this.size = new Point(state.s);
-        this.name = state.n;
-        this.index = state.i;
-        this.group = state.g;
-        this.image = unpackImage(state.d, this.size.x, this.size.y);
-        this.imageName = state.in;
-        this.overlay = state.o;
-        this.uid = state.u;
-        this.updateBounds();
-    }
-
-    updateBounds(): void {
-        this.bounds = new Rect(this.position, this.size);
     }
 }

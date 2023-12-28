@@ -1,34 +1,17 @@
 import {TPlatformFeatures} from '../../platforms/platform';
 import {Point} from '../point';
-import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
+import {AbstractImageLayer, TImageState} from './abstract-image.layer';
+import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
 
-type TPaintState = TLayerState & {
-    p: number[]; // position
-    s: number[]; // size
-    d: number[][]; // data
-};
-
-export class PaintLayer extends AbstractLayer {
+export class PaintLayer extends AbstractImageLayer {
     protected type: ELayerType = 'paint';
-    protected state: TPaintState;
-    protected editState: {
-        firstPoint?: Point;
-        position?: Point;
-    } = {};
-
-    public position: Point = null;
-    public size: Point = null;
-    public data: ImageData;
-    public points: number[][] = [];
 
     modifiers: TLayerModifiers = {
         x: {
-            getValue: () => this.position?.x || '',
+            getValue: () => this.position.x,
             setValue: (v: number) => {
-                const diff = new Point(v - this.position.x, 0);
-                this.movePoints(diff);
                 this.position.x = v;
+
                 this.updateBounds();
                 this.saveState();
                 this.draw();
@@ -36,10 +19,8 @@ export class PaintLayer extends AbstractLayer {
             type: TModifierType.number
         },
         y: {
-            getValue: () => this.position?.y || '',
+            getValue: () => this.position.y,
             setValue: (v: number) => {
-                const diff = new Point(0, v - this.position.y);
-                this.movePoints(diff);
                 this.position.y = v;
                 this.updateBounds();
                 this.saveState();
@@ -47,15 +28,13 @@ export class PaintLayer extends AbstractLayer {
             },
             type: TModifierType.number
         },
-        color: {
-            getValue: () => this.color,
-            setValue: (v: string) => {
-                this.color = v;
-                this.updateBounds();
-                this.saveState();
-                this.draw();
-            },
-            type: TModifierType.color
+        w: {
+            getValue: () => this.size.x,
+            type: TModifierType.number
+        },
+        h: {
+            getValue: () => this.size.y,
+            type: TModifierType.number
         }
     };
 
@@ -74,7 +53,8 @@ export class PaintLayer extends AbstractLayer {
         this.mode = mode;
         this.editState = {
             firstPoint: point,
-            position: this.position?.clone()
+            position: this.position?.clone() || new Point(),
+            size: this.size?.clone() || new Point()
         };
         if (mode === EditMode.CREATING) {
             this.editState.position = point.clone();
@@ -83,12 +63,11 @@ export class PaintLayer extends AbstractLayer {
 
     edit(point: Point, originalEvent: MouseEvent) {
         const {position, firstPoint} = this.editState;
+        const {ctx} = this.dc;
         switch (this.mode) {
             case EditMode.MOVING:
                 const newPos = position.clone().add(point.clone().subtract(firstPoint)).round();
-                const diff = newPos.clone().subtract(this.position);
                 this.position = newPos.clone();
-                this.movePoints(diff);
                 break;
             case EditMode.RESIZING:
                 // this.size = size.clone().add(point.clone().subtract(firstPoint)).round();
@@ -96,21 +75,32 @@ export class PaintLayer extends AbstractLayer {
                 break;
             case EditMode.CREATING:
                 if (originalEvent && originalEvent.which == 3) {
-                    this.points = this.points.filter((p) => p[0] !== point.x || p[1] !== point.y);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(point.x, point.y, 1, 1);
+                    ctx.fillStyle = this.features.hasInvertedColors ? '#000' : '#fff';
+                    ctx.fill();
+                    ctx.closePath();
+                    ctx.restore();
                 } else {
+                    ctx.save();
+                    ctx.beginPath();
                     if (position.distanceTo(point) < 1) {
-                        this.points.push(point.xy);
+                        ctx.rect(point.x, point.y, 1, 1);
                     } else {
-                        // add missing points
                         const diff = point.clone().subtract(position);
                         const steps = Math.max(Math.abs(diff.x), Math.abs(diff.y));
                         const step = diff.clone().divide(steps);
                         for (let i = 0; i < steps; i++) {
                             const p = position.clone().add(step.clone().multiply(i)).round();
-                            this.points.push(p.xy);
+                            ctx.rect(p.x, p.y, 1, 1);
                         }
                     }
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
                     this.editState.position = point.clone();
+                    ctx.closePath();
+                    ctx.restore();
                 }
                 this.recalculate();
                 break;
@@ -120,15 +110,25 @@ export class PaintLayer extends AbstractLayer {
     }
 
     recalculate() {
-        if (this.points.length) {
-            this.position = new Point(this.points[0]);
-            let maxPoint = new Point(this.points[0]);
-            this.points.forEach((p) => {
-                this.position = this.position.min(new Point(p));
-                maxPoint = maxPoint.max(new Point(p));
-            });
-            this.size = maxPoint.clone().subtract(this.position).add(1);
+        const {dc} = this;
+        const {width, height} = dc.ctx.canvas;
+        const data = dc.ctx.getImageData(0, 0, width, height);
+        let min: Point = new Point(width, height);
+        let max: Point = new Point(0, 0);
+        for (let i = 0; i < data.data.length; i += 4) {
+            const x = (i / 4) % width;
+            const y = Math.floor(i / 4 / width);
+            const [r, g, b, a] = data.data.slice(i, i + 4);
+            const colorSum = r + g + b;
+            let isTransparent = this.features.hasInvertedColors && colorSum == 0;
+            if (!isTransparent) {
+                min = min.min(new Point(x, y));
+                max = max.max(new Point(x, y));
+            }
         }
+        this.position = min.clone();
+        this.size = max.clone().subtract(min).add(1);
+        this.data = dc.ctx.getImageData(min.x, min.y, this.size.x, this.size.y);
     }
 
     stopEdit() {
@@ -136,55 +136,21 @@ export class PaintLayer extends AbstractLayer {
         this.updateBounds();
         this.editState = null;
         this.saveState();
-        this.history.push(this.state);
-    }
-
-    movePoints(diff: Point) {
-        this.points.forEach((p) => {
-            p[0] += diff.x;
-            p[1] += diff.y;
-        });
     }
 
     draw() {
-        const {dc} = this;
-        dc.clear();
-        dc.ctx.beginPath();
-        dc.ctx.fillStyle = this.color;
-        this.points.forEach((p) => {
-            dc.ctx.rect(p[0], p[1], 1, 1);
-        });
-        dc.ctx.fill();
+        if (this.data) {
+            super.draw();
+        }
     }
 
     saveState() {
-        const state: TPaintState = {
-            p: this.position.xy,
-            s: this.size.xy,
-            d: Array.from(this.points).map((p) => [p[0], p[1]]),
-            n: this.name,
-            i: this.index,
-            g: this.group,
-            t: this.type,
-            u: this.uid,
-            c: this.color
-        };
-        this.state = JSON.parse(JSON.stringify(state));
+        if (this.data) {
+            super.saveState();
+        }
     }
 
-    loadState(state: TPaintState) {
-        this.position = new Point(state.p);
-        this.size = new Point(state.s);
-        this.points = state.d;
-        this.name = state.n;
-        this.index = state.i;
-        this.group = state.g;
-        this.uid = state.u;
-        this.color = state.c;
-        this.updateBounds();
-    }
-
-    updateBounds() {
-        this.bounds = new Rect(this.position, this.size);
+    loadState(state: TImageState) {
+        super.loadState(state);
     }
 }
