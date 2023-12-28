@@ -1,3 +1,4 @@
+import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {BoxLayer} from '../core/layers/box.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
@@ -77,15 +78,9 @@ display.print("${layer.text}");`);
 
     addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void {
         let image;
-        if (layer instanceof IconLayer) {
-            if (!layer.image) return;
-            image = layer.image;
-        } else if (layer instanceof PaintLayer) {
-            if (!layer.position || !layer.size.x || !layer.size.y) return;
-            image = layer
-                .getBuffer()
-                .getContext('2d')
-                .getImageData(layer.position.x, layer.position.y, layer.size.x, layer.size.y);
+        if (layer instanceof AbstractImageLayer) {
+            if (!layer.data) return;
+            image = layer.data;
         }
         const XBMP = imgDataToXBMP(image, 0, 0, layer.size.x, layer.size.y, true);
         const varName = `image_${toCppVariableName(layer.name)}_bits`;

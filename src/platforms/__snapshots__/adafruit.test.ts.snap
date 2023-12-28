@@ -17,5 +17,5 @@ display.drawPixel(72, 12,  0x0);
 display.drawCircle(20, 41, 12,  0x1F);
 display.fillCircle(17, 43, 3, 0xF800);
 display.drawRect(44, 29, 44, 28, 0x7E0);
-display.drawBitmap(0, 0, image_draw_rrsjcz4oz2ln6jx4y4_bits, 128, 64, 0xF800);"
+display.drawBitmap(0, 0, image_draw_rrsjcz4oz2ln6jx4y4_bits, 128, 64, 0x0);"
 `;

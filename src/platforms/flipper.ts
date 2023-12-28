@@ -13,11 +13,11 @@ import { PaintLayer } from "../core/layers/paint.layer";
 import { AbstractLayer } from "../core/layers/abstract.layer";
 
 const flipperFontMap = {
-    'helvB08_tr': "FontPrimary",
-    'haxrcorp4089_tr': "FontSecondary",
-    'profont11_mr': "FontKeyboard",
-    'profont22_tr': "FontBigNumbers",
-}
+    helvB08_tr: 'FontPrimary',
+    haxrcorp4089_tr: 'FontSecondary',
+    profont11_mr: 'FontKeyboard',
+    profont22_tr: 'FontBigNumbers'
+};
 
 export class FlipperPlatform extends Platform {
     public static id = 'flipper';
@@ -26,7 +26,7 @@ export class FlipperPlatform extends Platform {
     protected fonts: TPlatformFont[] = [
         fontTypes['haxrcorp4089_tr'],
         fontTypes['helvB08_tr'],
-        fontTypes['profont22_tr'],
+        fontTypes['profont22_tr']
     ];
 
     public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
