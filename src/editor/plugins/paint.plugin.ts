@@ -22,7 +22,9 @@ export class PaintPlugin extends AbstractEditorPlugin {
                     this.session.editor.state.activeLayer = layer;
                 }
             }
-            this.session.editor.state.activeLayer.startEdit(EditMode.CREATING, point);
+            const layer = this.session.editor.state.activeLayer;
+            layer.startEdit(EditMode.CREATING, point);
+            layer.edit(point.clone(), event);
         }
         this.session.virtualScreen.redraw();
     }
