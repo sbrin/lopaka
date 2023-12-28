@@ -24,8 +24,16 @@ export class PaintPlugin extends AbstractEditorPlugin {
             }
             const layer = this.session.editor.state.activeLayer;
             layer.startEdit(EditMode.CREATING, point);
-            layer.edit(point.clone(), event);
+            if (event.shiftKey) {
+                if (this.firstPoint) {
+                    layer.edit(this.firstPoint, event);
+                    layer.edit(point, event);
+                }
+            } else {
+                layer.edit(point.clone(), event);
+            }
         }
+        this.firstPoint = point;
         this.session.virtualScreen.redraw();
     }
 
@@ -34,6 +42,7 @@ export class PaintPlugin extends AbstractEditorPlugin {
         if (this.captured) {
             activeLayer.edit(point.clone(), event);
             this.session.virtualScreen.redraw();
+            this.firstPoint = point;
         }
     }
 
