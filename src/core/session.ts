@@ -3,11 +3,11 @@ import {UnwrapRef, reactive} from 'vue';
 import {getFont, loadFont} from '../draw/fonts';
 import {VirtualScreen} from '../draw/virtual-screen';
 import {Editor} from '../editor/editor';
-import {AdafruitPlatform} from '../platforms/adafruit';
+import {AdafruitMonochromePlatform} from '../platforms/adafruit_mono';
 import {FlipperPlatform} from '../platforms/flipper';
 import {U8g2Platform} from '../platforms/u8g2';
 import {Uint32RawPlatform} from '../platforms/uint32-raw';
-import {generateUID, logEvent} from '../utils';
+import {generateUID, logEvent, postParentMessage} from '../utils';
 import {ChangeHistory, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
 import {BoxLayer} from './layers/box.layer';
@@ -20,7 +20,6 @@ import {LineLayer} from './layers/line.layer';
 import {PaintLayer} from './layers/paint.layer';
 import {TextLayer} from './layers/text.layer';
 import {Point} from './point';
-import {AdafruitMonochromePlatform} from '../platforms/adafruit_mono';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -37,11 +36,11 @@ type TSessionState = {
 export class Session {
     id: string = generateUID();
     platforms: {[key: string]: Platform} = {
-        [FlipperPlatform.id]: new FlipperPlatform(),
         [U8g2Platform.id]: new U8g2Platform(),
         // [AdafruitPlatform.id]: new AdafruitPlatform(),
         [AdafruitMonochromePlatform.id]: new AdafruitMonochromePlatform(),
-        [Uint32RawPlatform.id]: new Uint32RawPlatform()
+        [Uint32RawPlatform.id]: new Uint32RawPlatform(),
+        [FlipperPlatform.id]: new FlipperPlatform()
     };
     displays: Point[] = [
         new Point(8, 8),
@@ -89,9 +88,11 @@ export class Session {
         new Point(240, 128),
         new Point(240, 160),
         new Point(240, 240),
+        new Point(250, 122),
         new Point(256, 128),
         new Point(256, 32),
         new Point(256, 64),
+        new Point(280, 240),
         new Point(296, 128),
         new Point(320, 200),
         new Point(320, 240),
@@ -156,7 +157,9 @@ export class Session {
         });
         // TODO: update cloud and storage to avoid display conversion
         const displayString = `${display.x}×${display.y}`;
-        localStorage.setItem('lopaka_display', displayString);
+        if (window.top === window.self) {
+            localStorage.setItem('lopaka_display', displayString);
+        }
         isLogged && logEvent('select_display', displayString);
     };
     setScale = (scale, isLogged?: boolean) => {
@@ -172,14 +175,15 @@ export class Session {
         return Promise.all(fonts.map((font) => loadFont(font))).then(() => {
             this.editor.font = getFont(fonts[0].name);
             this.unlock();
-
-            loadLayers(
-                localStorage.getItem(`${name}_lopaka_layers`)
-                    ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
-                    : []
-            );
+            if (window.top === window.self) {
+                loadLayers(
+                    localStorage.getItem(`${name}_lopaka_layers`)
+                        ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
+                        : []
+                );
+                localStorage.setItem('lopaka_library', name);
+            }
             this.virtualScreen.redraw();
-            localStorage.setItem('lopaka_library', name);
             isLogged && logEvent('select_library', name);
         });
     };
@@ -233,7 +237,15 @@ export function saveLayers() {
     const session = useSession();
     const packedSession = JSON.stringify(session.state.layers.map((l) => l.getState()));
     console.log('Saved session size', packedSession.length, 'bytes');
-    localStorage.setItem(`${session.state.platform}_lopaka_layers`, packedSession);
+    if (window.top !== window.self) {
+        postParentMessage('updateLayers', packedSession);
+        postParentMessage('updateThumbnail', session.virtualScreen.canvas.toDataURL());
+    } else {
+        localStorage.setItem(
+            `${session.state.platform}_lopaka_layers`,
+            JSON.stringify(session.state.layers.map((l) => l.getState()))
+        );
+    }
 }
 // for testing
 window['saveLayers'] = saveLayers;
@@ -243,8 +255,12 @@ export function useSession(id?: string) {
         return sessions.get(currentSessionId);
     } else {
         const session = new Session();
-        const platformLocal = localStorage.getItem('lopaka_library');
-        session.setPlatform(platformLocal ?? U8g2Platform.id);
+        if (window.top === window.self) {
+            const platformLocal = localStorage.getItem('lopaka_library');
+            session.setPlatform(platformLocal ?? U8g2Platform.id);
+        } else {
+            session.setPlatform(U8g2Platform.id);
+        }
         let displayStored = localStorage.getItem('lopaka_display');
         if (displayStored) {
             const displayStoredArr = displayStored.split('×').map((n) => parseInt(n));

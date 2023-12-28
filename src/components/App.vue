@@ -2,7 +2,7 @@
 import {ShallowRef, computed, onMounted, ref, toRefs, watch} from 'vue';
 import {IconLayer} from '../core/layers/icon.layer';
 import {Point} from '../core/point';
-import {useSession} from '../core/session';
+import {loadLayers, saveLayers, useSession} from '../core/session';
 import {FlipperRPC} from '../flipper-rpc';
 import {FlipperPlatform} from '../platforms/flipper';
 import {debounce, loadImageAsync, logEvent, postParentMessage, throttle} from '../utils';
@@ -37,15 +37,7 @@ const flipperPreviewBtnText = computed(() => (flipper.value ? 'Disconnect' : 'Li
 const showCopyCode = computed(() => updates.value && session.state.layers.length > 0);
 
 const flipper: ShallowRef<FlipperRPC> = ref(null);
-
-// watch(
-//     updates,
-//     throttle(() => {
-//         console.log('postMessage');
-//         postParentMessage('updateLayers', JSON.stringify(session.state.layers.map((l) => l.getState())));
-//         postParentMessage('updateThumbnail', session.virtualScreen.canvas.toDataURL());
-//     })
-// );
+let isChanged = ref(false);
 
 watch(
     updates,
@@ -53,6 +45,7 @@ watch(
         if (flipper.value) {
             sendFlipperImage();
         }
+        isChanged.value = true;
     }, 500)
 );
 
@@ -138,6 +131,11 @@ function sendFlipperImage() {
     flipper.value.sendImage(virtualScreen.canvasContext.getImageData(0, 0, 128, 64));
 }
 
+function saveChanges() {
+    saveLayers();
+    isChanged.value = false;
+}
+
 onMounted(() => {
     postParentMessage('mounted', {});
 });
@@ -147,12 +145,15 @@ window.addEventListener('message', async (event) => {
         console.log('CHILD', event.data);
         switch (event.data.type) {
             case 'loadProject':
-                // layers.value = event.data.payload.layers;
                 // TODO loading project
-                // move to session and provider
+                // move to session and provider        
+                session.unlock();
                 session.setPlatform(event.data.payload.library);
                 const displayArr = event.data.payload.display.split('×').map((n) => parseInt(n));
                 session.setDisplay(new Point(displayArr[0], displayArr[1]));
+                loadLayers(
+                    event.data.payload.layers ?? []
+                );
                 loadCustomImages(event.data.payload.images);
                 break;
         }
@@ -178,6 +179,11 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 >
                     {{ flipperPreviewBtnText }}
                 </FuiButton>
+                <FuiButton
+                    v-if="isChanged"
+                    @click="saveChanges"
+                    title="Save changes for selected library"
+                >Save</FuiButton>
             </div>
             <FuiTools></FuiTools>
             <FuiCanvas ref="fuiCanvas" />

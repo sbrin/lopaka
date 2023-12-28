@@ -14,7 +14,7 @@ const {activeTool} = toRefs(session.editor.state);
 function setActive(tool: AbstractTool, isLogged?: boolean) {
     session.editor.setTool(tool?.getName());
     activeTool.value = tool;
-    isLogged && logEvent('select_tool', tool.getName());
+    isLogged && logEvent('select_tool', tool?.getName() ?? 'select');
 }
 
 function isActive(name: string) {
@@ -23,12 +23,12 @@ function isActive(name: string) {
 </script>
 <template>
     <div class="tools">
-        <FuiButton class="tools__btn" @click="setActive(null)" :active="activeTool == null">select</FuiButton>
+        <FuiButton class="tools__btn" @click="setActive(null, true)" :active="activeTool == null">select</FuiButton>
         <FuiButton
             v-for="(tool, idx) in tools"
             :key="idx"
             class="tools__btn"
-            @click="setActive(tool)"
+            @click="setActive(tool, true)"
             :active="isActive(tool.getName())"
         >
             {{ tool.getName() }}
