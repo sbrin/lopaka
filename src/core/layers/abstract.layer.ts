@@ -40,7 +40,7 @@ export type TModifierName =
     | 'fontSize';
 
 export type TLayerModifier = {
-    setValue(value: any): void;
+    setValue?(value: any): void;
     getValue(): any;
     type: TModifierType;
 };
