@@ -32,9 +32,9 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
         newLayer.size = size;
         newLayer.position = point.clone().subtract(size.clone().divide(2));
         newLayer.selected = true;
+        newLayer.modifiers.icon.setValue(icon);
         newLayer.stopEdit();
         this.session.addLayer(newLayer);
-        newLayer.modifiers.icon.setValue(icon);
         virtualScreen.redraw();
     }
 }

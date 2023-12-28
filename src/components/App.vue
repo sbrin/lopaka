@@ -76,9 +76,9 @@ function addImageToCanvas(data) {
     newLayer.name = data.name;
     newLayer.size = new Point(data.width, data.height);
     newLayer.selected = true;
+    newLayer.modifiers.icon.setValue(data.icon);
     newLayer.stopEdit();
     session.addLayer(newLayer);
-    newLayer.modifiers.icon.setValue(data.icon);
     virtualScreen.redraw();
 }
 

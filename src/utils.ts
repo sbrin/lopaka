@@ -1,6 +1,5 @@
 import {decode, encode} from 'base64-arraybuffer';
 import pako from 'pako';
-
 function bitswap(b) {
     b = ((b & 0xf0) >> 4) | ((b & 0x0f) << 4);
     b = ((b & 0xcc) >> 2) | ((b & 0x33) << 2);
@@ -28,6 +27,16 @@ export async function loadImageAsync(src): Promise<HTMLImageElement> {
         img.onerror = reject;
         img.onload = () => resolve(img);
     });
+}
+
+export async function loadImageDataAsync(src): Promise<ImageData> {
+    const img = await loadImageAsync(src);
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return ctx.getImageData(0, 0, img.width, img.height);
 }
 
 export function hexToRgb(hexColor: string) {
@@ -181,7 +190,7 @@ export function toCppVariableName(str) {
 }
 
 export function generateUID() {
-    return Math.random().toString(36).substring(2) + Date.now().toString(36);
+    return Date.now().toString(32);
 }
 
 export function postParentMessage(type, data) {
