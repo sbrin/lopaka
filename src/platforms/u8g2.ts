@@ -1,20 +1,21 @@
-import {imgDataToXBMP, toCppVariableName} from '../utils';
-import {Platform} from './platform';
+import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
-import {DotLayer} from '../core/layers/dot.layer';
-import {LineLayer} from '../core/layers/line.layer';
-import {TextLayer} from '../core/layers/text.layer';
 import {BoxLayer} from '../core/layers/box.layer';
-import {FrameLayer} from '../core/layers/frame.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {DiscLayer} from '../core/layers/disc.layer';
+import {DotLayer} from '../core/layers/dot.layer';
+import {FrameLayer} from '../core/layers/frame.layer';
 import {IconLayer} from '../core/layers/icon.layer';
+import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
+import {TextLayer} from '../core/layers/text.layer';
 import {fontTypes} from '../draw/fonts/fontTypes';
+import {imgDataToXBMP, toCppVariableName} from '../utils';
+import {Platform} from './platform';
 
 const u8g2FontMap = {
-    'f4x6_tr': "4x6_tr",
-}
+    f4x6_tr: '4x6_tr'
+};
 
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
@@ -72,15 +73,9 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
     }
     addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void {
         let image;
-        if (layer instanceof IconLayer) {
-            if (!layer.image) return;
-            image = layer.image;
-        } else if (layer instanceof PaintLayer) {
-            if (!layer.position || !layer.size.x || !layer.size.y) return;
-            image = layer
-                .getBuffer()
-                .getContext('2d')
-                .getImageData(layer.position.x, layer.position.y, layer.size.x, layer.size.y);
+        if (layer instanceof AbstractImageLayer) {
+            if (!layer.data) return;
+            image = layer.data;
         }
         const XBMP = imgDataToXBMP(image, 0, 0, layer.size.x, layer.size.y);
         const varName = `image_${toCppVariableName(layer.name)}_bits`;
