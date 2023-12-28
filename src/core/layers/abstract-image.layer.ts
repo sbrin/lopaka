@@ -1,3 +1,4 @@
+import {TPlatformFeatures} from '../../platforms/platform';
 import {packImage, unpackImage} from '../../utils';
 import {Point} from '../point';
 import {Rect} from '../rect';
@@ -25,6 +26,10 @@ export abstract class AbstractImageLayer extends AbstractLayer {
     public data: ImageData;
     public overlay: boolean;
     public imageName: string;
+
+    constructor(protected features: TPlatformFeatures) {
+        super(features);
+    }
 
     draw() {
         const {dc, position, data, size} = this;

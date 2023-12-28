@@ -7,15 +7,15 @@ import {FrameLayer} from '../core/layers/frame.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {DiscLayer} from '../core/layers/disc.layer';
 import {IconLayer} from '../core/layers/icon.layer';
-import { fontTypes } from "../draw/fonts/fontTypes";
-import { toCppVariableName } from "../utils";
+import {fontTypes} from '../draw/fonts/fontTypes';
+import {toCppVariableName} from '../utils';
 
 const flipperFontMap = {
-    'helvB08_tr': "FontPrimary",
-    'haxrcorp4089_tr': "FontSecondary",
-    'profont11_mr': "FontKeyboard",
-    'profont22_tr': "FontBigNumbers",
-}
+    helvB08_tr: 'FontPrimary',
+    haxrcorp4089_tr: 'FontSecondary',
+    profont11_mr: 'FontKeyboard',
+    profont22_tr: 'FontBigNumbers'
+};
 
 export class FlipperPlatform extends Platform {
     public static id = 'flipper';
@@ -24,7 +24,7 @@ export class FlipperPlatform extends Platform {
     protected fonts: TPlatformFont[] = [
         fontTypes['haxrcorp4089_tr'],
         fontTypes['helvB08_tr'],
-        fontTypes['profont22_tr'],
+        fontTypes['profont22_tr']
     ];
 
     addDot(layer: DotLayer, source: TSourceCode): void {
@@ -61,7 +61,7 @@ canvas_draw_str(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}
         source.code.push(`canvas_draw_disc(canvas, ${center.x}, ${center.y}, ${radius});`);
     }
     addImage(layer: IconLayer, source: TSourceCode): void {
-        if (!layer.image) return;
+        if (!layer.data) return;
         source.declarations.push(
             `// PAINT tool is not yet supported for Flipper Zero, sorry. It is being ignored from code output`
         );
