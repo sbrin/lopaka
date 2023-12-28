@@ -15,8 +15,12 @@ export class DrawContext {
         return this;
     }
 
-    drawImage(image: OffscreenCanvas, position: Point) {
-        this.ctx.drawImage(image, position.x, position.y);
+    drawImage(image: OffscreenCanvas | ImageData, position: Point) {
+        if (image instanceof ImageData) {
+            this.ctx.putImageData(image, position.x, position.y);
+        } else {
+            this.ctx.drawImage(image, position.x, position.y);
+        }
     }
 
     line(from: Point, to: Point): DrawContext {

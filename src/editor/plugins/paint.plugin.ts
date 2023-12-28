@@ -19,6 +19,7 @@ export class PaintPlugin extends AbstractEditorPlugin {
                     const layer = (this.session.editor.state.activeLayer = activeTool.createLayer());
                     layer.selected = true;
                     this.session.addLayer(layer);
+                    this.session.editor.state.activeLayer = layer;
                 }
             }
             this.session.editor.state.activeLayer.startEdit(EditMode.CREATING, point);
