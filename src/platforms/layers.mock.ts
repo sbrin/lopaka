@@ -112,14 +112,15 @@ export const layersMock: AbstractLayer[] = [
         p: [0, 0],
         u: 'rrsjcz4oz2ln6jx4y4',
         s: [128, 64],
-        d: []
+        d: 'eNpjYECA/1gAAxZ5dDFcctjMZcADCMkPZTUAc/dPsQ=='
     }
 ].map((l) => {
     const type: ELayerType = l.t as any;
     const layer = new LayerClassMap[type]({
         hasCustomFontSize: false,
         hasInvertedColors: false,
-        hasRGBSupport: false
+        hasRGBSupport: false,
+        defaultColor: '#000000'
     });
     layer.loadState(l);
     return layer;
