@@ -28,6 +28,13 @@ export class PaintLayer extends AbstractImageLayer {
             },
             type: TModifierType.number
         },
+        color: {
+            getValue: () => this.color,
+            setValue: (v: string) => {
+                this.color = v;
+            },
+            type: TModifierType.color
+        },
         w: {
             getValue: () => this.size.x,
             type: TModifierType.number
