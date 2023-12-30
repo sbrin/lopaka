@@ -4,6 +4,7 @@ import {getFont, loadFont} from '../draw/fonts';
 import {VirtualScreen} from '../draw/virtual-screen';
 import {Editor} from '../editor/editor';
 import {AdafruitPlatform} from '../platforms/adafruit';
+import {AdafruitMonochromePlatform} from '../platforms/adafruit_mono';
 import {FlipperPlatform} from '../platforms/flipper';
 import {U8g2Platform} from '../platforms/u8g2';
 import {Uint32RawPlatform} from '../platforms/uint32-raw';
@@ -20,7 +21,6 @@ import {LineLayer} from './layers/line.layer';
 import {PaintLayer} from './layers/paint.layer';
 import {TextLayer} from './layers/text.layer';
 import {Point} from './point';
-import {AdafruitMonochromePlatform} from '../platforms/adafruit_mono';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -38,7 +38,7 @@ export class Session {
     id: string = generateUID();
     platforms: {[key: string]: Platform} = {
         [U8g2Platform.id]: new U8g2Platform(),
-        // [AdafruitPlatform.id]: new AdafruitPlatform(),
+        [AdafruitPlatform.id]: new AdafruitPlatform(),
         [AdafruitMonochromePlatform.id]: new AdafruitMonochromePlatform(),
         [Uint32RawPlatform.id]: new Uint32RawPlatform(),
         [FlipperPlatform.id]: new FlipperPlatform(),
@@ -172,6 +172,7 @@ export class Session {
         this.state.platform = name;
         const fonts = this.platforms[name].getFonts();
         this.lock();
+        this.editor.clear();
         // preload default font
         return Promise.all(fonts.map((font) => loadFont(font))).then(() => {
             this.editor.font = getFont(fonts[0].name);
