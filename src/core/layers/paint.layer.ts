@@ -95,13 +95,7 @@ export class PaintLayer extends AbstractImageLayer {
                     if (position.distanceTo(point) < 1) {
                         ctx.rect(point.x, point.y, 1, 1);
                     } else {
-                        const diff = point.clone().subtract(position);
-                        const steps = Math.max(Math.abs(diff.x), Math.abs(diff.y));
-                        const step = diff.clone().divide(steps);
-                        for (let i = 0; i < steps; i++) {
-                            const p = position.clone().add(step.clone().multiply(i)).round();
-                            ctx.rect(p.x, p.y, 1, 1);
-                        }
+                        this.dc.pixelateLine(position, point, 1);
                     }
                     ctx.fillStyle = this.color;
                     ctx.fill();
