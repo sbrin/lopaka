@@ -19,4 +19,5 @@ export abstract class AbstractEditorPlugin {
     onMouseDoubleClick(point: Point, event: MouseEvent): void {}
     onKeyDown(key: Keys, event: KeyboardEvent): void {}
     onDrop(point: Point, event: DragEvent): void {}
+    onClear(): void {}
 }
