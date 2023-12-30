@@ -1,3 +1,4 @@
+import {AbstractImageLayer} from '../../core/layers/abstract-image.layer';
 import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
 import {PaintLayer} from '../../core/layers/paint.layer';
 import {Point} from '../../core/point';
@@ -28,13 +29,25 @@ export class PaintTool extends AbstractTool {
         if (selectedPaints.length) {
             const layer = selectedPaints[0];
             layer.selected = true;
+        } else {
+            const layer = this.createLayer();
+            this.editor.session.addLayer(layer);
+            layer.selected = true;
+            this.editor.state.activeLayer = layer;
         }
     }
 
     onDeactivate(): void {
         if (this.editor.state.activeLayer) {
-            this.editor.state.activeLayer.stopEdit();
-            this.editor.state.activeLayer = null;
+            if (this.editor.state.activeLayer instanceof AbstractImageLayer) {
+                const layer: AbstractImageLayer = this.editor.state.activeLayer;
+                if (!layer.data) {
+                    this.editor.session.removeLayer(layer);
+                }
+            } else {
+                this.editor.state.activeLayer.stopEdit();
+                this.editor.state.activeLayer = null;
+            }
         }
     }
 }
