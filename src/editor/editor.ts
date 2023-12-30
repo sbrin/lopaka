@@ -89,6 +89,10 @@ export class Editor {
         );
     }
 
+    clear(): void {
+        this.plugins.forEach((p: AbstractEditorPlugin) => p.onClear());
+    }
+
     setTool(name: string) {
         if (this.state.activeTool) {
             this.state.activeTool.onDeactivate();
