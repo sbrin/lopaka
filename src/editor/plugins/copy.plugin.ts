@@ -44,6 +44,6 @@ export class CopyPlugin extends AbstractEditorPlugin {
         }
     }
     onClear(): void {
-        this.buffer.splice(0);
+        this.buffer = null;
     }
 }
