@@ -54,4 +54,8 @@ export class PaintPlugin extends AbstractEditorPlugin {
             this.session.virtualScreen.redraw();
         }
     }
+
+    onClear(): void {
+        this.firstPoint = null;
+    }
 }
