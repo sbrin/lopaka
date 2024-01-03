@@ -1,8 +1,7 @@
 import {AbstractImageLayer} from '../../core/layers/abstract-image.layer';
-import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
+import {AbstractLayer} from '../../core/layers/abstract.layer';
 import {PaintLayer} from '../../core/layers/paint.layer';
 import {Point} from '../../core/point';
-import {DrawPlugin} from '../../draw/plugins/draw.plugin';
 import {FlipperPlatform} from '../../platforms/flipper';
 import {AbstractEditorPlugin} from '../plugins/abstract-editor.plugin';
 import {PaintPlugin} from '../plugins/paint.plugin';

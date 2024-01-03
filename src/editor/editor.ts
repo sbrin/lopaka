@@ -140,7 +140,7 @@ export class Editor {
                     this.onMouseDoubleClick(point, event);
                     break;
             }
-            virtualScreen.updateMousePosition(screenPoint);
+            virtualScreen.updateMousePosition(screenPoint, event);
         }
     };
 
