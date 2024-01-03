@@ -13,7 +13,7 @@ export class PaintHighlightPlugin extends DrawPlugin {
                 (p: AbstractEditorPlugin) => p instanceof PaintPlugin
             ) as PaintPlugin;
         }
-        const {scale, display} = this.session.state;
+        const {display, scale} = this.session.state;
         if (point) {
             if (
                 event.shiftKey &&
