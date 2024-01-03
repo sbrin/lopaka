@@ -29,6 +29,7 @@ export class PaintTool extends AbstractTool {
         if (selectedPaints.length) {
             const layer = selectedPaints[0];
             layer.selected = true;
+            this.editor.state.activeLayer = layer;
         } else {
             const layer = this.createLayer();
             this.editor.session.addLayer(layer);
