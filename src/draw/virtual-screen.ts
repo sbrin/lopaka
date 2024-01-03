@@ -8,6 +8,7 @@ import {HighlightPlugin} from './plugins/highlight.plugin';
 import {PointerPlugin} from './plugins/pointer.plugin';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {ResizeIconsPlugin} from './plugins/resize-icons.plugin';
+import {PaintHighlightPlugin} from './plugins/paint-highlight.plugin';
 
 type VirtualScreenOptions = {
     ruler: boolean;
@@ -52,6 +53,7 @@ export class VirtualScreen {
             this.plugins.push(new PointerPlugin(session));
         }
         this.plugins.push(new ResizeIconsPlugin(session));
+        this.plugins.push(new PaintHighlightPlugin(session));
         this.scope = new EffectScope();
         this.scope.run(() => {
             this.state = reactive({
@@ -93,7 +95,7 @@ export class VirtualScreen {
         this.redraw();
     }
 
-    updateMousePosition(position: Point) {
+    updateMousePosition(position: Point, event: MouseEvent) {
         if (this.pluginLayer) {
             requestAnimationFrame(() => {
                 const ctx = this.pluginLayerContext;
@@ -102,7 +104,7 @@ export class VirtualScreen {
                     ctx.save();
                     ctx.scale(2, 2);
                     ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
-                    plugin.update(ctx, position);
+                    plugin.update(ctx, position, event);
                     ctx.setTransform(1, 0, 0, 1, 0, 0);
                     ctx.restore();
                 });
@@ -181,7 +183,7 @@ export class VirtualScreen {
                     ctx.save();
                     ctx.scale(2, 2);
                     ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
-                    plugin.update(ctx, null);
+                    plugin.update(ctx, null, null);
                     ctx.setTransform(1, 0, 0, 1, 0, 0);
                     ctx.restore();
                 });
