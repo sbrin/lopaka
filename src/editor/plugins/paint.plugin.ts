@@ -4,7 +4,7 @@ import {Point} from '../../core/point';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
 export class PaintPlugin extends AbstractEditorPlugin {
-    firstPoint: Point;
+    lastPoint: Point;
     captured: boolean = false;
 
     onMouseDown(point: Point, event: MouseEvent): void {
@@ -25,15 +25,15 @@ export class PaintPlugin extends AbstractEditorPlugin {
             const layer = this.session.editor.state.activeLayer;
             layer.startEdit(EditMode.CREATING, point);
             if (event.shiftKey) {
-                if (this.firstPoint) {
-                    layer.edit(this.firstPoint, event);
+                if (this.lastPoint) {
+                    layer.edit(this.lastPoint, event);
                     layer.edit(point, event);
                 }
             } else {
                 layer.edit(point.clone(), event);
             }
         }
-        this.firstPoint = point;
+        this.lastPoint = point;
         this.session.virtualScreen.redraw();
     }
 
@@ -42,7 +42,7 @@ export class PaintPlugin extends AbstractEditorPlugin {
         if (this.captured) {
             activeLayer.edit(point.clone(), event);
             this.session.virtualScreen.redraw();
-            this.firstPoint = point;
+            this.lastPoint = point;
         }
     }
 
@@ -56,6 +56,6 @@ export class PaintPlugin extends AbstractEditorPlugin {
     }
 
     onClear(): void {
-        this.firstPoint = null;
+        this.lastPoint = null;
     }
 }
