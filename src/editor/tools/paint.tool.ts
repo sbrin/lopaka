@@ -53,8 +53,8 @@ export class PaintTool extends AbstractTool {
                 }
             } else {
                 this.editor.state.activeLayer.stopEdit();
-                this.editor.state.activeLayer = null;
             }
+            this.editor.state.activeLayer = null;
         }
     }
 }
