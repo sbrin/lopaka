@@ -93,6 +93,7 @@ export class Editor {
 
     clear(): void {
         this.plugins.forEach((p: AbstractEditorPlugin) => p.onClear());
+        this.state.activeTool = null;
     }
 
     setTool(name: string) {
