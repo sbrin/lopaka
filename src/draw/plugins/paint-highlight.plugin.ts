@@ -2,6 +2,7 @@ import {PaintLayer} from '../../core/layers/paint.layer';
 import {Point} from '../../core/point';
 import {AbstractEditorPlugin} from '../../editor/plugins/abstract-editor.plugin';
 import {PaintPlugin} from '../../editor/plugins/paint.plugin';
+import {DrawContext} from '../draw-context';
 import {DrawPlugin} from './draw.plugin';
 
 export class PaintHighlightPlugin extends DrawPlugin {
@@ -13,7 +14,7 @@ export class PaintHighlightPlugin extends DrawPlugin {
                 (p: AbstractEditorPlugin) => p instanceof PaintPlugin
             ) as PaintPlugin;
         }
-        const {display, scale} = this.session.state;
+        const {scale} = this.session.state;
         if (point) {
             if (
                 event.shiftKey &&
@@ -21,14 +22,14 @@ export class PaintHighlightPlugin extends DrawPlugin {
                 this.session.editor.state.activeLayer instanceof PaintLayer &&
                 this.paintEditorPlugin.lastPoint
             ) {
-                console.log('paint highlight', point, this.paintEditorPlugin.lastPoint);
+                const lastPoint = this.paintEditorPlugin.lastPoint.clone().add(0.5).multiply(scale);
                 ctx.save();
                 ctx.beginPath();
                 ctx.moveTo(point.x, point.y);
-                ctx.lineTo(this.paintEditorPlugin.lastPoint.x * scale.x, this.paintEditorPlugin.lastPoint.y * scale.y);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-                ctx.setLineDash([5, 5]);
-                ctx.lineWidth = 2;
+                ctx.lineTo(lastPoint.x, lastPoint.y);
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
+                ctx.setLineDash([scale.x * 2, scale.x]);
+                ctx.lineWidth = scale.x;
                 ctx.stroke();
                 ctx.restore();
             }
