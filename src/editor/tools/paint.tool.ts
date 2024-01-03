@@ -2,7 +2,10 @@ import {AbstractImageLayer} from '../../core/layers/abstract-image.layer';
 import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
 import {PaintLayer} from '../../core/layers/paint.layer';
 import {Point} from '../../core/point';
+import {DrawPlugin} from '../../draw/plugins/draw.plugin';
 import {FlipperPlatform} from '../../platforms/flipper';
+import {AbstractEditorPlugin} from '../plugins/abstract-editor.plugin';
+import {PaintPlugin} from '../plugins/paint.plugin';
 import {AbstractTool} from './abstract.tool';
 
 export class PaintTool extends AbstractTool {
@@ -31,6 +34,10 @@ export class PaintTool extends AbstractTool {
             this.editor.session.addLayer(layer);
             layer.selected = true;
             this.editor.state.activeLayer = layer;
+        }
+        const paintPlugin = this.editor.plugins.find((p: AbstractEditorPlugin) => p instanceof PaintPlugin);
+        if (paintPlugin) {
+            paintPlugin.onClear();
         }
     }
 
