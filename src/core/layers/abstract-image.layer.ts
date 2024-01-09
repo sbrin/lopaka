@@ -10,6 +10,7 @@ export type TImageState = TLayerState & {
     d: string; // data
     nm: string; // name
     o: boolean; // overlay
+    c?: string; // color
 };
 
 export abstract class AbstractImageLayer extends AbstractLayer {
@@ -54,7 +55,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             g: this.group,
             t: this.type,
             o: this.overlay,
-            u: this.uid
+            u: this.uid,
+            c: this.color
         };
         this.state = state;
     }
@@ -65,6 +67,7 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;
+        this.color = state.c || this.features.defaultColor;
         try {
             this.data = unpackImage(state.d, this.size.x, this.size.y);
         } catch (error) {

@@ -15,9 +15,9 @@ export class PaintTool extends AbstractTool {
         return new PaintLayer(session.getPlatformFeatures());
     }
 
-    isSupported(platform: string): boolean {
-        return platform !== FlipperPlatform.id;
-    }
+    // isSupported(platform: string): boolean {
+    //     return platform !== FlipperPlatform.id;
+    // }
 
     onStopEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent): void {
         // do nothing
