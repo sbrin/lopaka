@@ -1,4 +1,5 @@
 import {TPlatformFeatures} from '../../platforms/platform';
+import {hexToRgb} from '../../utils';
 import {Point} from '../point';
 import {AbstractImageLayer, TImageState} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
@@ -32,6 +33,15 @@ export class PaintLayer extends AbstractImageLayer {
             getValue: () => this.color,
             setValue: (v: string) => {
                 this.color = v;
+                const {r, g, b} = hexToRgb(this.color);
+                // transparation fix
+                if (this.features.hasInvertedColors && r + g + b === 0) {
+                    this.color = '#000001';
+                } else if (this.features.hasInvertedColors && r + g + b === 255 * 3) {
+                    this.color = '#fffffe';
+                }
+                this.recalculate();
+                this.saveState();
             },
             type: TModifierType.color
         },
@@ -85,6 +95,7 @@ export class PaintLayer extends AbstractImageLayer {
                     ctx.save();
                     ctx.beginPath();
                     ctx.rect(point.x, point.y, 1, 1);
+                    // todo add support for another colors
                     ctx.fillStyle = this.features.hasInvertedColors ? '#000' : '#fff';
                     ctx.fill();
                     ctx.closePath();
@@ -116,17 +127,24 @@ export class PaintLayer extends AbstractImageLayer {
         const data = dc.ctx.getImageData(0, 0, width, height);
         let min: Point = new Point(width, height);
         let max: Point = new Point(0, 0);
+        dc.ctx.beginPath();
         for (let i = 0; i < data.data.length; i += 4) {
             const x = (i / 4) % width;
             const y = Math.floor(i / 4 / width);
             const [r, g, b, a] = data.data.slice(i, i + 4);
             const colorSum = r + g + b;
-            let isTransparent = this.features.hasInvertedColors && colorSum == 0;
+            let isTransparent =
+                (this.features.hasInvertedColors && colorSum == 0) ||
+                (!this.features.hasInvertedColors && colorSum == 255 * 3) ||
+                a === 0;
             if (!isTransparent) {
                 min = min.min(new Point(x, y));
                 max = max.max(new Point(x, y));
+                dc.ctx.rect(x, y, 1, 1);
             }
         }
+        dc.ctx.fillStyle = this.color;
+        dc.ctx.fill();
         this.position = min.clone();
         this.size = max.clone().subtract(min).add(1);
         this.data = dc.ctx.getImageData(min.x, min.y, this.size.x, this.size.y);

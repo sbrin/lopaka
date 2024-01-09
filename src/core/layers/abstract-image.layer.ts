@@ -10,6 +10,7 @@ export type TImageState = TLayerState & {
     d: string; // data
     nm: string; // name
     o: boolean; // overlay
+    c?: string; // color
 };
 
 export abstract class AbstractImageLayer extends AbstractLayer {
@@ -54,7 +55,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             g: this.group,
             t: this.type,
             o: this.overlay,
-            u: this.uid
+            u: this.uid,
+            c: this.color
         };
         this.state = state;
     }
@@ -66,6 +68,13 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         this.index = state.i;
         this.group = state.g;
         this.data = unpackImage(state.d, this.size.x, this.size.y);
+        this.color = state.c || this.features.defaultColor;
+        try {
+            this.data = unpackImage(state.d, this.size.x, this.size.y);
+        } catch (error) {
+            // TODO: fix types for backwards compatibility with uncompressed images
+            this.data = new ImageData(new Uint8ClampedArray(state.d as any), this.size.x, this.size.y);
+        }
         this.imageName = state.nm;
         this.overlay = state.o;
         this.uid = state.u;

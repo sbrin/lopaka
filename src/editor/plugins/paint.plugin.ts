@@ -33,7 +33,7 @@ export class PaintPlugin extends AbstractEditorPlugin {
                 layer.edit(point.clone(), event);
             }
         }
-        this.lastPoint = point;
+        this.lastPoint = point.clone().floor();
         this.session.virtualScreen.redraw();
     }
 
