@@ -2,7 +2,6 @@ import {PaintLayer} from '../../core/layers/paint.layer';
 import {Point} from '../../core/point';
 import {AbstractEditorPlugin} from '../../editor/plugins/abstract-editor.plugin';
 import {PaintPlugin} from '../../editor/plugins/paint.plugin';
-import {DrawContext} from '../draw-context';
 import {DrawPlugin} from './draw.plugin';
 
 export class PaintHighlightPlugin extends DrawPlugin {
@@ -14,7 +13,7 @@ export class PaintHighlightPlugin extends DrawPlugin {
                 (p: AbstractEditorPlugin) => p instanceof PaintPlugin
             ) as PaintPlugin;
         }
-        const {scale} = this.session.state;
+        const {scale, display} = this.session.state;
         if (point) {
             if (
                 event.shiftKey &&
@@ -22,16 +21,32 @@ export class PaintHighlightPlugin extends DrawPlugin {
                 this.session.editor.state.activeLayer instanceof PaintLayer &&
                 this.paintEditorPlugin.lastPoint
             ) {
-                const lastPoint = this.paintEditorPlugin.lastPoint.clone().add(0.5).multiply(scale);
-                ctx.save();
-                ctx.beginPath();
-                ctx.moveTo(point.x, point.y);
-                ctx.lineTo(lastPoint.x, lastPoint.y);
-                ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
-                ctx.setLineDash([scale.x * 2, scale.x]);
-                ctx.lineWidth = scale.x;
-                ctx.stroke();
-                ctx.restore();
+                if (point) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(0, point.y);
+                    ctx.lineTo(display.x * scale.x, point.y);
+                    ctx.moveTo(point.x, 0);
+                    ctx.lineTo(point.x, display.y * scale.y);
+                    ctx.strokeStyle = this.session.getPlatformFeatures().hasInvertedColors
+                        ? 'rgba(255, 255, 255, 0.3)'
+                        : 'rgba(0, 0, 0, 0.3)';
+                    ctx.setLineDash([5, 5]);
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    ctx.beginPath();
+                    const lastPoint = this.paintEditorPlugin.lastPoint
+                        .clone()
+                        .multiply(scale)
+                        .add(scale.x / 2);
+                    ctx.moveTo(lastPoint.x, lastPoint.y);
+                    ctx.lineTo(point.x, point.y);
+                    ctx.strokeStyle = this.session.getPlatformFeatures().hasInvertedColors
+                        ? 'rgba(255, 255, 255, 0.7)'
+                        : 'rgba(0, 0, 0, 0.7)';
+                    ctx.stroke();
+                    ctx.restore();
+                }
             }
         }
     }

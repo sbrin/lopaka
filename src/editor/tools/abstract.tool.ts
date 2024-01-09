@@ -18,9 +18,7 @@ export abstract class AbstractTool {
         return true;
     }
 
-    onActivate(): void {
-        // do nothing
-    }
+    onActivate(): void {}
 
     onDeactivate(): void {
         // do nothing
