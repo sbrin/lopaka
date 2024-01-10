@@ -29,6 +29,14 @@ export class PaintLayer extends AbstractImageLayer {
             },
             type: TModifierType.number
         },
+        w: {
+            getValue: () => this.size.x,
+            type: TModifierType.number
+        },
+        h: {
+            getValue: () => this.size.y,
+            type: TModifierType.number
+        },
         color: {
             getValue: () => this.color,
             setValue: (v: string) => {
@@ -45,14 +53,6 @@ export class PaintLayer extends AbstractImageLayer {
             },
             type: TModifierType.color
         },
-        w: {
-            getValue: () => this.size.x,
-            type: TModifierType.number
-        },
-        h: {
-            getValue: () => this.size.y,
-            type: TModifierType.number
-        }
     };
 
     constructor(protected features: TPlatformFeatures) {
