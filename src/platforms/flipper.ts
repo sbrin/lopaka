@@ -7,10 +7,11 @@ import {FrameLayer} from '../core/layers/frame.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {DiscLayer} from '../core/layers/disc.layer';
 import {IconLayer} from '../core/layers/icon.layer';
-import { fontTypes } from "../draw/fonts/fontTypes";
-import { imgDataToXBMP, toCppVariableName } from "../utils";
-import { PaintLayer } from "../core/layers/paint.layer";
-import { AbstractLayer } from "../core/layers/abstract.layer";
+import {fontTypes} from '../draw/fonts/fontTypes';
+import {imgDataToXBMP, toCppVariableName} from '../utils';
+import {PaintLayer} from '../core/layers/paint.layer';
+import {AbstractLayer} from '../core/layers/abstract.layer';
+import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 
 const flipperFontMap = {
     helvB08_tr: 'FontPrimary',
@@ -68,15 +69,13 @@ canvas_draw_str(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}
         const center = position.clone().add(radius);
         source.code.push(`canvas_draw_disc(canvas, ${center.x}, ${center.y}, ${radius});`);
     }
-    addImage(layer: PaintLayer, source: TSourceCode): void {
-        let image;
+    addImage(layer: AbstractImageLayer, source: TSourceCode): void {
+        if (layer.imageName) {
+            return this.addIcon(layer, source);
+        }
         if (!layer.position || !layer.size.x || !layer.size.y) return;
-        image = layer
-            .getBuffer()
-            .getContext('2d')
-            .getImageData(layer.position.x, layer.position.y, layer.size.x, layer.size.y);
-        const XBMP = imgDataToXBMP(image, 0, 0, layer.size.x, layer.size.y);
-        const varName = `image_${toCppVariableName(layer.name)}_bits`;
+        const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y);
+        const varName = `image_${toCppVariableName(layer.imageId)}_bits`;
         const varDeclaration = `const uint8_t ${varName}[] = {${XBMP}};`;
         if (!source.declarations.includes(varDeclaration)) {
             source.declarations.push(varDeclaration);
@@ -85,7 +84,7 @@ canvas_draw_str(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}
             `canvas_draw_xbm(canvas, ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${varName});`
         );
     }
-    addIcon(layer: IconLayer, source: TSourceCode): void {
+    addIcon(layer: AbstractImageLayer, source: TSourceCode): void {
         const varName = `&I_${toCppVariableName(layer.name)}`;
         source.code.push(`canvas_draw_icon(canvas, ${layer.position.x}, ${layer.position.y}, ${varName});`);
     }

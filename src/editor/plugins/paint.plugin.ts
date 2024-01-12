@@ -1,3 +1,4 @@
+import {AbstractImageLayer} from '../../core/layers/abstract-image.layer';
 import {EditMode} from '../../core/layers/abstract.layer';
 import {PaintLayer} from '../../core/layers/paint.layer';
 import {Point} from '../../core/point';
@@ -6,6 +7,14 @@ import {AbstractEditorPlugin} from './abstract-editor.plugin';
 export class PaintPlugin extends AbstractEditorPlugin {
     lastPoint: Point;
     captured: boolean = false;
+
+    onMouseDoubleClick(point: Point, event: MouseEvent): void {
+        const {activeTool, activeLayer} = this.session.editor.state;
+        const selected = this.session.state.layers.filter((l) => l.selected && l instanceof PaintLayer);
+        if (selected.length == 1) {
+            this.session.editor.state.activeTool = this.session.editor.tools.paint;
+        }
+    }
 
     onMouseDown(point: Point, event: MouseEvent): void {
         const {activeTool, activeLayer} = this.session.editor.state;

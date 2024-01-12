@@ -71,14 +71,9 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
         const center = position.clone().add(radius);
         source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radius});`);
     }
-    addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void {
-        let image;
-        if (layer instanceof AbstractImageLayer) {
-            if (!layer.data) return;
-            image = layer.data;
-        }
-        const XBMP = imgDataToXBMP(image, 0, 0, layer.size.x, layer.size.y);
-        const varName = `image_${toCppVariableName(layer.name)}_bits`;
+    addImage(layer: AbstractImageLayer, source: TSourceCode): void {
+        const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y);
+        const varName = `image_${toCppVariableName(layer.imageId)}_bits`;
         const varDeclaration = `static const unsigned char ${varName}[] U8X8_PROGMEM = {${XBMP}};`;
         if (!source.declarations.includes(varDeclaration)) {
             source.declarations.push(varDeclaration);

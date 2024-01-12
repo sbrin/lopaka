@@ -21,6 +21,7 @@ import {LineLayer} from './layers/line.layer';
 import {PaintLayer} from './layers/paint.layer';
 import {TextLayer} from './layers/text.layer';
 import {Point} from './point';
+import {TImage} from './image-library';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -32,6 +33,7 @@ type TSessionState = {
     scale: Point;
     lock: boolean;
     customImages: TLayerImageData[];
+    images: Map<String, TImage>;
 };
 
 export class Session {
@@ -41,7 +43,7 @@ export class Session {
         [AdafruitPlatform.id]: new AdafruitPlatform(),
         [AdafruitMonochromePlatform.id]: new AdafruitMonochromePlatform(),
         [Uint32RawPlatform.id]: new Uint32RawPlatform(),
-        [FlipperPlatform.id]: new FlipperPlatform(),
+        [FlipperPlatform.id]: new FlipperPlatform()
     };
     displays: Point[] = [
         new Point(8, 8),
@@ -106,7 +108,8 @@ export class Session {
         display: new Point(128, 64),
         layers: [],
         scale: new Point(4, 4),
-        customImages: []
+        customImages: [],
+        images: new Map<String, TImage>()
     });
 
     history: ChangeHistory = useHistory();
@@ -178,10 +181,15 @@ export class Session {
             this.editor.font = getFont(fonts[0].name);
             this.unlock();
             if (window.top === window.self) {
+                loadImageLibrary(
+                    localStorage.getItem(`${name}_lopaka_images`)
+                        ? JSON.parse(localStorage.getItem(`${name}_lopaka_images`))
+                        : []
+                );
                 loadLayers(
                     localStorage.getItem(`${name}_lopaka_layers`)
-                    ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
-                    : []
+                        ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
+                        : []
                 );
                 localStorage.setItem('lopaka_library', name);
             }
@@ -219,7 +227,23 @@ export const LayerClassMap: {[key in ELayerType]: any} = {
     string: TextLayer,
     paint: PaintLayer
 };
-// for testing
+
+export function loadImageLibrary(images: TImage[]) {
+    const session = useSession();
+    session.state.images.clear();
+    images.forEach((img: TImage) => {
+        session.state.images.set(img.id, img);
+    });
+}
+
+export function saveImageLibrary() {
+    const session = useSession();
+    localStorage.setItem(
+        `${session.state.platform}_lopaka_images`,
+        JSON.stringify(Array.from(session.state.images.values()).filter((i) => !i.unused))
+    );
+}
+
 export function loadLayers(layers: any[]) {
     const session = useSession();
     session.state.layers = [];
@@ -246,8 +270,6 @@ export function saveLayers() {
     }
     console.log('Saved session size', packedSession.length, 'bytes');
 }
-// for testing
-window['saveLayers'] = saveLayers;
 
 export function useSession(id?: string) {
     if (currentSessionId) {

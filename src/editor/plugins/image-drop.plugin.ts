@@ -1,4 +1,5 @@
-import {IconLayer} from '../../core/layers/icon.layer';
+import {getImage, updateImageLibrary} from '../../core/image-library';
+import {PaintLayer} from '../../core/layers/paint.layer';
 import {Point} from '../../core/point';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
@@ -6,11 +7,26 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
     onDrop(point: Point, event: DragEvent): void {
         const name = event.dataTransfer.getData('text/plain');
         const url = event.dataTransfer.getData('text/uri');
-        this.session.state.layers.forEach((layer) => (layer.selected = false));
-        if (event.dataTransfer.files.length > 0) {
-            // todo drop from desktop
+        const session = this.session;
+        // get image by id
+        if (name === 'ID') {
+            const image = getImage(url);
+            session.state.layers.forEach((layer) => (layer.selected = false));
+            const newLayer = new PaintLayer(session.getPlatformFeatures());
+            newLayer.size = new Point(image.width, image.height);
+            newLayer.selected = true;
+            newLayer.modifiers.TImage.setValue(image);
+            newLayer.stopEdit();
+            session.addLayer(newLayer);
+            session.virtualScreen.redraw();
+            updateImageLibrary();
         } else {
-            this.addImageLayer(name, url, point);
+            session.state.layers.forEach((layer) => (layer.selected = false));
+            if (event.dataTransfer.files.length > 0) {
+                // todo drop from desktop
+            } else {
+                this.addImageLayer(name, url, point);
+            }
         }
     }
 
@@ -27,7 +43,7 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
             };
             icon.onerror = reject;
         });
-        const newLayer = new IconLayer(this.session.getPlatformFeatures());
+        const newLayer = new PaintLayer(this.session.getPlatformFeatures());
         newLayer.name = name;
         newLayer.size = size;
         newLayer.position = point.clone().subtract(size.clone().divide(2));

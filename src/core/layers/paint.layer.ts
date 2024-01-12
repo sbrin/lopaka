@@ -1,11 +1,13 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {hexToRgb} from '../../utils';
+import {hexToRgb, inverImageDataWithAlpha, unpackImage} from '../../utils';
+import {TImage} from '../image-library';
 import {Point} from '../point';
 import {AbstractImageLayer, TImageState} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
 
 export class PaintLayer extends AbstractImageLayer {
     protected type: ELayerType = 'paint';
+    private emptyPixel: ImageData = new ImageData(new Uint8ClampedArray([0, 0, 0, 0]), 1, 1);
 
     modifiers: TLayerModifiers = {
         x: {
@@ -41,18 +43,53 @@ export class PaintLayer extends AbstractImageLayer {
             getValue: () => this.color,
             setValue: (v: string) => {
                 this.color = v;
-                const {r, g, b} = hexToRgb(this.color);
-                // transparation fix
-                if (this.features.hasInvertedColors && r + g + b === 0) {
-                    this.color = '#000001';
-                } else if (this.features.hasInvertedColors && r + g + b === 255 * 3) {
-                    this.color = '#fffffe';
-                }
-                this.recalculate();
                 this.saveState();
+                this.draw();
             },
             type: TModifierType.color
         },
+        icon: {
+            getValue: () => this.data,
+            setValue: (v: HTMLImageElement) => {
+                this.imageName = v.dataset.name;
+                const buf = document.createElement('canvas');
+                const ctx = buf.getContext('2d');
+                buf.width = v.width;
+                buf.height = v.height;
+                ctx.drawImage(v, 0, 0);
+                if (this.features.hasInvertedColors) {
+                    this.data = inverImageDataWithAlpha(ctx.getImageData(0, 0, v.width, v.height));
+                } else {
+                    this.data = ctx.getImageData(0, 0, v.width, v.height);
+                }
+                this.size = new Point(v.width, v.height);
+                this.updateBounds();
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.image
+        },
+        image: {
+            setValue: (v: TImage) => {
+                this.imageId = v.id;
+                this.data = unpackImage(v.data, v.width, v.height);
+                this.size = new Point(v.width, v.height);
+                this.updateBounds();
+                this.saveState();
+                this.draw();
+            },
+            getValue: () => this.imageId,
+            type: TModifierType.TImage
+        },
+        overlay: {
+            getValue: () => this.overlay,
+            setValue: (v: boolean) => {
+                this.overlay = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
+        }
     };
 
     constructor(protected features: TPlatformFeatures) {
@@ -91,15 +128,11 @@ export class PaintLayer extends AbstractImageLayer {
                 // todo
                 break;
             case EditMode.CREATING:
-                if (originalEvent && originalEvent.which == 3) {
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.rect(point.x, point.y, 1, 1);
-                    // todo add support for another colors
-                    ctx.fillStyle = this.features.hasInvertedColors ? '#000' : '#fff';
-                    ctx.fill();
-                    ctx.closePath();
-                    ctx.restore();
+                // if edit existed image, we should remove imageName for flipper platform know that this layer
+                // should be drawn using canvas_draw_xbm
+                this.imageName = null;
+                if (originalEvent && (originalEvent.which == 3 || originalEvent.altKey)) {
+                    ctx.putImageData(this.emptyPixel, point.x, point.y);
                 } else {
                     ctx.save();
                     ctx.beginPath();
@@ -108,7 +141,6 @@ export class PaintLayer extends AbstractImageLayer {
                     } else {
                         this.dc.pixelateLine(position, point, 1);
                     }
-                    ctx.fillStyle = this.color;
                     ctx.fill();
                     this.editState.position = point.clone();
                     ctx.closePath();
@@ -127,7 +159,6 @@ export class PaintLayer extends AbstractImageLayer {
         const data = dc.ctx.getImageData(0, 0, width, height);
         let min: Point = new Point(width, height);
         let max: Point = new Point(0, 0);
-        dc.ctx.beginPath();
         for (let i = 0; i < data.data.length; i += 4) {
             const x = (i / 4) % width;
             const y = Math.floor(i / 4 / width);
@@ -140,21 +171,19 @@ export class PaintLayer extends AbstractImageLayer {
             if (!isTransparent) {
                 min = min.min(new Point(x, y));
                 max = max.max(new Point(x, y));
-                dc.ctx.rect(x, y, 1, 1);
             }
         }
-        dc.ctx.fillStyle = this.color;
-        dc.ctx.fill();
         this.position = min.clone();
         this.size = max.clone().subtract(min).add(1);
         this.data = dc.ctx.getImageData(min.x, min.y, this.size.x, this.size.y);
     }
 
     stopEdit() {
+        const updateImageInLibrary = this.mode == EditMode.CREATING;
         this.mode = EditMode.NONE;
         this.updateBounds();
         this.editState = null;
-        this.saveState();
+        this.saveState(updateImageInLibrary);
     }
 
     draw() {
@@ -163,9 +192,9 @@ export class PaintLayer extends AbstractImageLayer {
         }
     }
 
-    saveState() {
+    saveState(updateImageInLibrary: boolean = false) {
         if (this.data) {
-            super.saveState();
+            super.saveState(updateImageInLibrary);
         }
     }
 

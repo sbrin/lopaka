@@ -2,7 +2,7 @@
 import {ShallowRef, computed, onMounted, ref, toRefs, watch} from 'vue';
 import {IconLayer} from '../core/layers/icon.layer';
 import {Point} from '../core/point';
-import {loadLayers, saveLayers, useSession} from '../core/session';
+import {loadLayers, saveImageLibrary, saveLayers, useSession} from '../core/session';
 import {FlipperRPC} from '../flipper-rpc';
 import {FlipperPlatform} from '../platforms/flipper';
 import {debounce, loadImageAsync, logEvent, postParentMessage, throttle} from '../utils';
@@ -18,6 +18,7 @@ import FuiSelectPlatform from './fui/FuiSelectPlatform.vue';
 import FuiSelectScale from './fui/FuiSelectScale.vue';
 import FuiTabs from './fui/FuiTabs.vue';
 import FuiTools from './fui/FuiTools.vue';
+import {PaintLayer} from '../core/layers/paint.layer';
 
 let fuiImages = {},
     imageDataCache = {};
@@ -72,7 +73,7 @@ function copyCode() {
 
 function addImageToCanvas(data) {
     session.state.layers.forEach((layer) => (layer.selected = false));
-    const newLayer = new IconLayer(session.getPlatformFeatures());
+    const newLayer = new PaintLayer(session.getPlatformFeatures());
     newLayer.name = data.name;
     newLayer.size = new Point(data.width, data.height);
     newLayer.selected = true;
@@ -132,6 +133,7 @@ function sendFlipperImage() {
 }
 
 function saveChanges() {
+    saveImageLibrary();
     saveLayers();
     isChanged.value = false;
 }
@@ -146,14 +148,12 @@ window.addEventListener('message', async (event) => {
         switch (event.data.type) {
             case 'loadProject':
                 // TODO loading project
-                // move to session and provider        
+                // move to session and provider
                 session.unlock();
                 session.setPlatform(event.data.payload.library);
                 const displayArr = event.data.payload.display.split('×').map((n) => parseInt(n));
                 session.setDisplay(new Point(displayArr[0], displayArr[1]));
-                loadLayers(
-                    event.data.payload.layers ?? []
-                );
+                loadLayers(event.data.payload.layers ?? []);
                 loadCustomImages(event.data.payload.images);
                 break;
         }
@@ -179,11 +179,9 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 >
                     {{ flipperPreviewBtnText }}
                 </FuiButton>
-                <FuiButton
-                    v-if="isChanged"
-                    @click="saveChanges"
-                    title="Save changes for selected library"
-                >Save</FuiButton>
+                <FuiButton v-if="isChanged" @click="saveChanges" title="Save changes for selected library">
+                    Save
+                </FuiButton>
             </div>
             <FuiTools></FuiTools>
             <FuiCanvas ref="fuiCanvas" />

@@ -1,3 +1,4 @@
+import {updateImageLibrary} from '../../core/image-library';
 import {Keys} from '../../core/keys.enum';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
@@ -11,5 +12,6 @@ export class DeletePlugin extends AbstractEditorPlugin {
             }
         }
         this.session.virtualScreen.redraw();
+        updateImageLibrary();
     }
 }

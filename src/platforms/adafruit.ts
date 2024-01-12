@@ -1,3 +1,4 @@
+import {getImage} from '../core/image-library';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {BoxLayer} from '../core/layers/box.layer';
@@ -76,14 +77,9 @@ display.print("${layer.text}");`);
         );
     }
 
-    addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void {
-        let image;
-        if (layer instanceof AbstractImageLayer) {
-            if (!layer.data) return;
-            image = layer.data;
-        }
-        const XBMP = imgDataToXBMP(image, 0, 0, layer.size.x, layer.size.y, true);
-        const varName = `image_${toCppVariableName(layer.name)}_bits`;
+    addImage(layer: AbstractImageLayer, source: TSourceCode): void {
+        const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y, true);
+        const varName = `image_${toCppVariableName(layer.imageId)}_bits`;
         const varDeclaration = `static const unsigned char PROGMEM ${varName}[] = {${XBMP}};`;
         if (!source.declarations.includes(varDeclaration)) {
             source.declarations.push(varDeclaration);

@@ -2,9 +2,13 @@
 import {useSession} from '../../core/session';
 import iconsUrls from '../../icons';
 import {computed, toRefs} from 'vue';
+import FuiImageDataPreview from './FuiImageDataPreview.vue';
+import {TImage, updateImageLibrary} from '../../core/image-library';
+import {PaintLayer} from '../../core/layers/paint.layer';
+import {Point} from '../../core/point';
 
 const session = useSession();
-const {customImages, scale} = toRefs(session.state);
+const {customImages, scale, images} = toRefs(session.state);
 const emit = defineEmits(['cleanCustomIcons', 'prepareImages', 'iconClicked']);
 
 const icons = computed((): TLayerImageData[] => {
@@ -31,12 +35,13 @@ function cleanCustom() {
     customImages.value = [];
 }
 
-function iconClick(e) {
+function iconClick(e: MouseEvent) {
+    const target = e.target as HTMLImageElement;
     const image =
-        icons.value.find((item) => item.name === e.target.dataset.name) ??
-        customImages.value.find((item) => item.name === e.target.dataset.name);
+        icons.value.find((item) => item.name === target.dataset.name) ??
+        customImages.value.find((item) => item.name === target.dataset.name);
     const data = {
-        name: e.target.dataset.name,
+        name: target.dataset.name,
         width: image.width,
         height: image.height,
         icon: image.image
@@ -50,9 +55,37 @@ function iconDragStart(e: DragEvent) {
     e.dataTransfer.setData('text/plain', target.dataset.name);
     e.dataTransfer.setData('text/uri', target.src);
 }
+
+function canvasClick(image: TImage) {
+    session.state.layers.forEach((layer) => (layer.selected = false));
+    const newLayer = new PaintLayer(session.getPlatformFeatures());
+    newLayer.size = new Point(image.width, image.height);
+    newLayer.selected = true;
+    newLayer.modifiers.image.setValue(image);
+    newLayer.stopEdit();
+    session.addLayer(newLayer);
+    session.virtualScreen.redraw();
+    updateImageLibrary();
+}
+
+function canvasDragStart(e: DragEvent, image: TImage) {
+    e.dataTransfer.dropEffect = 'move';
+    e.dataTransfer.setData('text/plain', 'ID');
+    e.dataTransfer.setData('text/uri', image.id);
+}
 </script>
 <template>
     <div class="fui-icons">
+        <div class="fui-icons__header" v-if="images.size">
+            <div>In use</div>
+        </div>
+        <FuiImageDataPreview
+            v-for="image in images.values()"
+            :image="image"
+            @click="canvasClick(image)"
+            @dragstart="canvasDragStart($event, image)"
+        />
+
         <div v-if="customImages.length > 0" class="fui-icons__header">
             <div>Custom</div>
             <div class="fui-icons__remove-custom" @click="cleanCustom" title="Remove all custom icons">×</div>
@@ -61,7 +94,6 @@ function iconDragStart(e: DragEvent) {
             v-for="(item, index) in customImages"
             @dragstart="iconDragStart"
             @click="iconClick"
-            draggable="true"
             :key="index"
             :src="item.image.src"
             :data-name="item.name"
@@ -70,7 +102,7 @@ function iconDragStart(e: DragEvent) {
             :alt="item.name"
             :title="item.name"
         />
-        <div v-if="customImages.length > 0" class="fui-icons__header">Default</div>
+        <div class="fui-icons__header" v-if="images.size || customImages.length">Default</div>
         <img
             v-for="(item, index) in icons"
             @dragstart="iconDragStart"

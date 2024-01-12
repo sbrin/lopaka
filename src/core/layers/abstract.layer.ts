@@ -18,7 +18,8 @@ export enum TModifierType {
     'boolean',
     'font',
     'image',
-    'color'
+    'color',
+    'TImage'
 }
 export type TModifierName =
     | 'x'
@@ -35,6 +36,7 @@ export type TModifierName =
     | 'y2'
     | 'color'
     | 'image'
+    | 'TImage'
     | 'overlay'
     | 'color'
     | 'fontSize';
