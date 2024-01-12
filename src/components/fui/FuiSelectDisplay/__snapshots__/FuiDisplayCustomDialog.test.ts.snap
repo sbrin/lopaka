@@ -3,33 +3,40 @@
 exports[`FuiDisplayCustomDialog > renders a popup element 1`] = `
 <div
   class="fui-display-custom-dialog"
+  data-v-519941f7=""
 >
   <div
     class="fui-form-row fui-form-header"
+    data-v-519941f7=""
   >
-    Custom display size
+    Set display size
   </div>
   <div
     class="fui-form-row"
+    data-v-519941f7=""
   >
     <label
       class="fui-form-label fui-form-column"
+      data-v-519941f7=""
       for="displayCustomWidth"
     >
       Width: 
       <input
         class="fui-form-input fui-form-input__size"
+        data-v-519941f7=""
         id="displayCustomWidth"
         type="number"
       />
     </label>
     <label
       class="fui-form-label fui-form-column"
+      data-v-519941f7=""
       for="displayCustomWidth"
     >
       Height: 
       <input
         class="fui-form-input fui-form-input__size"
+        data-v-519941f7=""
         id="displayCustomHeight"
         type="number"
       />
@@ -37,14 +44,17 @@ exports[`FuiDisplayCustomDialog > renders a popup element 1`] = `
   </div>
   <div
     class="buttons-bottom"
+    data-v-519941f7=""
   >
     <button
       class="button button_danger fui-display-custom-dialog__cancel"
+      data-v-519941f7=""
     >
       Cancel
     </button>
     <button
       class="button fui-display-custom-dialog__save"
+      data-v-519941f7=""
     >
       Save
     </button>
