@@ -96,10 +96,10 @@ function onChange(event: Event, param: TLayerModifier) {
         <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
             <div v-for="(param, name) in params" class="inspector-panel__param">
-                <span v-if="param.type !== TModifierType.image">{{ name }}</span>
+                <span class="fui-form-label" v-if="param.type !== TModifierType.image">{{ name }}</span>
                 <div v-if="param.type == TModifierType.number">
                     <input
-                        class="inspector__input"
+                        class="inspector__input fui-form-input"
                         type="number"
                         :value="param.getValue()"
                         @change="onChange($event, param)"
@@ -108,7 +108,7 @@ function onChange(event: Event, param: TLayerModifier) {
                 </div>
                 <div v-else-if="param.type == TModifierType.string">
                     <input
-                        class="inspector__input"
+                        class="inspector__input fui-form-input"
                         type="text"
                         :value="param.getValue()"
                         @keyup="onChange($event, param)"
@@ -117,7 +117,7 @@ function onChange(event: Event, param: TLayerModifier) {
                 </div>
                 <div v-else-if="param.type == TModifierType.boolean">
                     <input
-                        class="inspector__input"
+                        class="inspector__input fui-form-input"
                         type="checkbox"
                         :checked="param.getValue()"
                         @change="onChange($event, param)"
@@ -126,7 +126,7 @@ function onChange(event: Event, param: TLayerModifier) {
                 </div>
                 <div v-else-if="param.type == TModifierType.color">
                     <input
-                        class="inspector__input"
+                        class="inspector__input fui-form-input"
                         type="color"
                         :value="param.getValue()"
                         @input="onChange($event, param)"
@@ -136,7 +136,7 @@ function onChange(event: Event, param: TLayerModifier) {
                 </div>
                 <div v-else-if="param.type == TModifierType.font">
                     <select
-                        class="inspector__input"
+                        class="inspector__input fui-form-input"
                         :value="param.getValue()"
                         :readonly="!param.setValue"
                         @change="onChange($event, param)"
@@ -182,16 +182,13 @@ function onChange(event: Event, param: TLayerModifier) {
 }
 
 .inspector__input {
-    background: var(--secondary-color);
-    color: var(--primary-color);
     border: none;
-    padding: 2px 0px 2px 4px;
     outline: none;
     width: 100%;
 }
 
 .inspector__input[type='color'] {
-    height: 20px;
+    /* height: 20px; */
     padding: 0px;
     width: 60px;
 }
