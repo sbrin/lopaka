@@ -55,7 +55,7 @@ function setCustomDisplay() {
             <a @click="enablePopup" href="#">Custom {{ display.x }}x{{ display.y }}</a>
             <span @click="resetDisplay" class="custom-value__reset" title="Reset display">×</span>
         </div>
-        <select v-else id="display-size" class="fui-select__select input-select" @change="selectDisplay" :value="selectedDisplay">
+        <select v-else id="display-size" class="fui-select__select fui-form-input" @change="selectDisplay" :value="selectedDisplay">
             <option key="custom" value="custom">Custom...</option>
             <option
                 v-for="(item, idx) in displays"
@@ -74,11 +74,14 @@ function setCustomDisplay() {
 <style lang="css">
 .fui-displays {
     display: flex;
+    align-items: center;
 }
 .custom-value {
     font-size: 24px;
     margin-left: 8px;
-    margin-top: -6px;
+}
+.custom-value * {
+    line-height: 16px;
 }
 .custom-value__reset {
     color: var(--danger-color);

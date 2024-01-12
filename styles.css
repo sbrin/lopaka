@@ -67,13 +67,6 @@ body {
 }
 
 
-.input-select {
-    background: var(--secondary-color);
-    border: none;
-    padding: 2px 0px 2px 4px;
-    color: var(--primary-color);
-}
-
 .title {
     margin: 0 0 8px 0;
     font-size: 32px;
@@ -304,4 +297,28 @@ a.button {
 
 a {
     color: var(--primary-color);
+}
+
+.fui-form-column {
+    margin-left: 16px;
+}
+.fui-form-row {
+    margin-bottom: 16px;
+}
+.fui-form-column:first-child {
+    margin: 0;
+}
+.fui-form-label {
+    font-size: 24px;
+}
+.fui-form-header {
+    font-size: 32px;
+}
+.fui-form-input {
+    background-color: var(--secondary-color);
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    color: var(--primary-color);
+    box-sizing: border-box;
 }
