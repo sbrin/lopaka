@@ -14,8 +14,8 @@ watch(selectedScale, (val) => {
 </script>
 <template>
     <div class="fui-select">
-        <label for="display-size" class="fui-select__label">Scale:</label>
-        <select id="display-size" class="fui-select__select input-select" v-model="selectedScale">
+        <label for="canvas-scale" class="fui-select__label">Scale:</label>
+        <select id="canvas-scale" class="fui-select__select input-select" v-model="selectedScale">
             <option v-for="(item, idx) in scales" :key="idx" :value="item">{{ item }}%</option>
         </select>
     </div>

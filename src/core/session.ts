@@ -28,6 +28,7 @@ let currentSessionId = null;
 type TSessionState = {
     platform: string;
     display: Point;
+    isDisplayCustom: boolean;
     layers: AbstractLayer[];
     scale: Point;
     lock: boolean;
@@ -104,6 +105,8 @@ export class Session {
         lock: false,
         platform: null,
         display: new Point(128, 64),
+        isDisplayCustom: false,
+        customDisplay: new Point(128, 64),
         layers: [],
         scale: new Point(4, 4),
         customImages: []
@@ -162,6 +165,15 @@ export class Session {
             localStorage.setItem('lopaka_display', displayString);
         }
         isLogged && logEvent('select_display', displayString);
+    };
+    setDisplayCustom = (enabled: boolean) => {
+        this.state.isDisplayCustom = enabled;
+    };
+    saveDisplayCustom = (enabled: boolean) => {
+        this.setDisplayCustom(enabled)
+        if (window.top === window.self) {
+            localStorage.setItem('lopaka_display_custom', enabled ? 'true' : 'false');
+        }
     };
     setScale = (scale, isLogged?: boolean) => {
         this.state.scale = new Point(scale / 100, scale / 100);
@@ -260,7 +272,8 @@ export function useSession(id?: string) {
         } else {
             session.setPlatform(U8g2Platform.id);
         }
-        let displayStored = localStorage.getItem('lopaka_display');
+        session.setDisplayCustom(localStorage.getItem('lopaka_display_custom') === 'true');
+        const displayStored = localStorage.getItem('lopaka_display');
         if (displayStored) {
             const displayStoredArr = displayStored.split('×').map((n) => parseInt(n));
             session.setDisplay(new Point(displayStoredArr[0], displayStoredArr[1]));
