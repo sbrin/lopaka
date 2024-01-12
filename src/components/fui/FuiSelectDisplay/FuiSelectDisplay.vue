@@ -71,7 +71,7 @@ function setCustomDisplay() {
         ></FuiDisplayCustomDialog>
     </FuiPopup>
 </template>
-<style lang="css">
+<style lang="css" scoped>
 .fui-displays {
     display: flex;
     align-items: center;

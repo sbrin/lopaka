@@ -161,7 +161,7 @@ function onChange(event: Event, param: TLayerModifier) {
         </div>
     </div>
 </template>
-<style lang="css">
+<style lang="css" scoped>
 .inspector-panel {
     display: flex;
     flex-direction: row;
