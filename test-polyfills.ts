@@ -7,6 +7,14 @@ vi.mock('./src/draw/fonts/index.ts', () => ({
                 return 1;
             }
         };
+    },
+    loadFont: (platformFont) => {
+        return Promise.resolve({
+            name: platformFont.name,
+            getSize: () => {
+                return 1;
+            }
+        });
     }
 }));
 const getContextMock = (type: string) => {
