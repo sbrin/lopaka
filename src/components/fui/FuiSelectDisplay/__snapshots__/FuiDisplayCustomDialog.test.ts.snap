@@ -5,22 +5,31 @@ exports[`FuiDisplayCustomDialog > renders a popup element 1`] = `
   class="fui-display-custom-dialog"
 >
   <div
-    class="form-row"
+    class="fui-form-row fui-form-header"
+  >
+    Custom display size
+  </div>
+  <div
+    class="fui-form-row"
   >
     <label
+      class="fui-form-label fui-form-column"
       for="displayCustomWidth"
     >
       Width: 
       <input
+        class="fui-form-input fui-form-input__size"
         id="displayCustomWidth"
         type="number"
       />
     </label>
     <label
+      class="fui-form-label fui-form-column"
       for="displayCustomWidth"
     >
-      Width: 
+      Height: 
       <input
+        class="fui-form-input fui-form-input__size"
         id="displayCustomHeight"
         type="number"
       />
