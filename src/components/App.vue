@@ -13,7 +13,7 @@ import FuiFile from './fui/FuiFile.vue';
 import FuiIcons from './fui/FuiIcons.vue';
 import FuiInspector from './fui/FuiInspector.vue';
 import FuiLayers from './fui/FuiLayers.vue';
-import FuiSelectDisplay from './fui/FuiSelectDisplay.vue';
+import FuiSelectDisplay from './fui/FuiSelectDisplay/FuiSelectDisplay.vue';
 import FuiSelectPlatform from './fui/FuiSelectPlatform.vue';
 import FuiSelectScale from './fui/FuiSelectScale.vue';
 import FuiTabs from './fui/FuiTabs.vue';
