@@ -1,0 +1,44 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`FuiDisplayCustomDialog > renders a popup element 1`] = `
+<div
+  class="fui-display-custom-dialog"
+>
+  <div
+    class="form-row"
+  >
+    <label
+      for="displayCustomWidth"
+    >
+      Width: 
+      <input
+        id="displayCustomWidth"
+        type="number"
+      />
+    </label>
+    <label
+      for="displayCustomWidth"
+    >
+      Width: 
+      <input
+        id="displayCustomHeight"
+        type="number"
+      />
+    </label>
+  </div>
+  <div
+    class="buttons-bottom"
+  >
+    <button
+      class="button button_danger fui-display-custom-dialog__cancel"
+    >
+      Cancel
+    </button>
+    <button
+      class="button fui-display-custom-dialog__save"
+    >
+      Save
+    </button>
+  </div>
+</div>
+`;
