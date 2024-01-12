@@ -26,7 +26,7 @@ function setCustomDisplay() {
 </script>
 <template>
     <div class="fui-display-custom-dialog">
-        <div class="fui-form-row fui-form-header">Custom display size</div>
+        <div class="fui-form-row fui-form-header">Set display size</div>
         <div class="fui-form-row">
             <label class="fui-form-label fui-form-column" for="displayCustomWidth">Width:
                 <input class="fui-form-input fui-form-input__size"  type="number" v-model="customWidth" id="displayCustomWidth"/>
@@ -41,7 +41,7 @@ function setCustomDisplay() {
         </div>
     </div>
 </template>
-<style lang="css">
+<style lang="css" scoped>
 .fui-form-input__size {
     width: 68px;
 }
