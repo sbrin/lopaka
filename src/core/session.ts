@@ -157,7 +157,7 @@ export class Session {
         this.state.display = display;
         this.virtualScreen.resize();
         requestAnimationFrame(() => {
-            this.virtualScreen.redraw();
+            this.virtualScreen.redraw(false);
         });
         // TODO: update cloud and storage to avoid display conversion
         const displayString = `${display.x}×${display.y}`;
@@ -197,7 +197,7 @@ export class Session {
                 );
                 localStorage.setItem('lopaka_library', name);
             }
-            this.virtualScreen.redraw();
+            this.virtualScreen.redraw(false);
             isLogged && logEvent('select_library', name);
         });
     };
@@ -244,7 +244,7 @@ export function loadLayers(layers: any[]) {
             layer.saveState();
         }
     });
-    session.virtualScreen.redraw();
+    session.virtualScreen.redraw(false);
 }
 
 export function saveLayers() {

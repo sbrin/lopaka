@@ -88,10 +88,10 @@ export class SelectPlugin extends AbstractEditorPlugin {
         if (this.session.editor.state.activeTool) return;
         if (key === Keys.Escape) {
             this.session.state.layers.forEach((l) => (l.selected = false));
-            this.session.virtualScreen.redraw();
+            this.session.virtualScreen.redraw(false);
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {
             this.session.state.layers.forEach((l) => (l.selected = true));
-            this.session.virtualScreen.redraw();
+            this.session.virtualScreen.redraw(false);
         }
     }
 }
