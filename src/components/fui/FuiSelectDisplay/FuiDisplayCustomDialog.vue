@@ -18,7 +18,7 @@ function cancelPopup() {
 
 function setCustomDisplay() {
     emit('setCustomDisplay')
-    const displayCustom = new Point(customWidth.value, customHeight.value);
+    const displayCustom = new Point(customWidth.value || 1, customHeight.value || 1);
     setDisplay(displayCustom, true);
     saveDisplayCustom(true);
 }
@@ -32,7 +32,7 @@ function setCustomDisplay() {
                 <input class="fui-form-input fui-form-input__size"  type="number" v-model="customWidth" id="displayCustomWidth"/>
             </label>
             <label class="fui-form-label fui-form-column"  for="displayCustomWidth">Height:
-                <input class="fui-form-input fui-form-input__size"  type="number" v-model="customHeight" id="displayCustomHeight"/>
+                <input class="fui-form-input fui-form-input__size"  type="number" min="1" v-model="customHeight" id="displayCustomHeight"/>
             </label>
         </div>
         <div class="buttons-bottom">
