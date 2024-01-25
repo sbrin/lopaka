@@ -164,8 +164,9 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 <template>
     <div class="fui-editor">
         <div class="fui-editor__left">
-            <FuiLayers v-show="!isEmpty"></FuiLayers>
-            <FuiButton @click="resetScreen" class="button_danger" v-show="!isEmpty">reset</FuiButton>
+            <FuiLayers v-show="!isEmpty">
+                <FuiButton @click="resetScreen" small danger v-show="!isEmpty">clear</FuiButton>
+            </FuiLayers>
         </div>
         <div class="fui-editor__center">
             <div class="fui-editor-header">
@@ -192,7 +193,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                     <FuiTabs :active-tab="activeTab" @set-active-tab="setactiveTab"></FuiTabs>
                 </div>
                 <FuiIcons
-                    v-show="activeTab === 'icons'"
+                    v-show="activeTab === 'images'"
                     :fui-images="fuiImages"
                     :custom-images="customImages"
                     @prepare-images="prepareImages"
