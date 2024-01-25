@@ -53,6 +53,15 @@ export class PaintLayer extends AbstractImageLayer {
             },
             type: TModifierType.color
         },
+        overlay: {
+            getValue: () => this.overlay,
+            setValue: (v: boolean) => {
+                this.overlay = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
+        }
     };
 
     constructor(protected features: TPlatformFeatures) {

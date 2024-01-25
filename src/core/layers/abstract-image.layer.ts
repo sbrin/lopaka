@@ -69,12 +69,6 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         this.group = state.g;
         this.data = unpackImage(state.d, this.size.x, this.size.y);
         this.color = state.c || this.features.defaultColor;
-        try {
-            this.data = unpackImage(state.d, this.size.x, this.size.y);
-        } catch (error) {
-            // TODO: fix types for backwards compatibility with uncompressed images
-            this.data = new ImageData(new Uint8ClampedArray(state.d as any), this.size.x, this.size.y);
-        }
         this.imageName = state.nm;
         this.overlay = state.o;
         this.uid = state.u;
