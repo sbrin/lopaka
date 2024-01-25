@@ -1,14 +1,13 @@
 <script lang="ts" setup>
-import {UnwrapRef, computed, toRefs} from 'vue';
-import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
+import {UnwrapRef, computed} from 'vue';
+import {AbstractLayer} from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
 import {TextLayer} from '../../core/layers/text.layer';
 import {IconLayer} from '../../core/layers/icon.layer';
 const session = useSession();
-const {updates} = toRefs(session.virtualScreen.state);
 
 const layers = computed(() => {
-    return updates.value && session.state.layers.sort((a, b) => b.index - a.index);
+    return session.state.layers.sort((a, b) => b.index - a.index);
 });
 
 function classNames(layer) {

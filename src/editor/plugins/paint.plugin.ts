@@ -34,14 +34,14 @@ export class PaintPlugin extends AbstractEditorPlugin {
             }
         }
         this.lastPoint = point.clone().floor();
-        this.session.virtualScreen.redraw();
+        this.session.virtualScreen.redraw(false);
     }
 
     onMouseMove(point: Point, event: MouseEvent): void {
         const {activeLayer} = this.session.editor.state;
         if (this.captured) {
             activeLayer.edit(point.clone(), event);
-            this.session.virtualScreen.redraw();
+            this.session.virtualScreen.redraw(false);
             this.lastPoint = point;
         }
     }
