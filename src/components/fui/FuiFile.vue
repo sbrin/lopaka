@@ -31,7 +31,7 @@ async function onFileChange(e) {
         image: image,
         isCustom: true
     });
-    emit('setActiveTab', 'icons');
+    emit('setActiveTab', 'images');
 }
 
 function resetFileInput() {
