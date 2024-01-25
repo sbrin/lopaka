@@ -34,7 +34,7 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
 </script>
 <template>
     <div class="layers">
-        <h2 class="title">Layers</h2>
+        <h2 class="title">Layers <slot></slot></h2>
         <ul class="layers__list">
             <li
                 v-for="(item, idx) in layers"
