@@ -60,11 +60,11 @@ export class VirtualScreen {
                 updates: 0
             });
             watch([platform], () => {
-                this.redraw();
+                this.redraw(false);
             });
             watch([scale, display], () => {
                 this.resize();
-                this.redraw();
+                this.redraw(false);
             });
         });
     }
@@ -92,7 +92,7 @@ export class VirtualScreen {
             });
         }
         this.resize();
-        this.redraw();
+        this.redraw(false);
     }
 
     updateMousePosition(position: Point, event: MouseEvent) {
@@ -144,7 +144,7 @@ export class VirtualScreen {
         });
     }
 
-    public redraw() {
+    public redraw(update = true) {
         if (!this.canvas) return;
         this.clear();
         const overlays = [];
@@ -158,7 +158,9 @@ export class VirtualScreen {
                 }
                 this.ctx.drawImage(layer.getBuffer(), 0, 0);
             });
-        this.state.updates++;
+        if (update) {
+            this.state.updates++;
+        }
         // create data without alpha channel
         const data = this.ctx.getImageData(0, 0, this.screen.width, this.screen.height).data.map((v, i) => {
             if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;
