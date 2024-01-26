@@ -12,6 +12,7 @@
     --border-color: #955b2f;
     --border-dark-color: #5f2f0d;
     --danger-color: #eb4e27;
+    --success-color: #cddc39;
     --input-font-size: 18px;
 }
 
@@ -160,7 +161,7 @@ a.button {
 .layer_selected .layer__name:before {
     display: inline-block;
     content: '';
-    background: #cddc39;
+    background: var(--success-color);
     transform: translateY(-4px);
     width: 4px;
     height: 4px;
@@ -189,51 +190,6 @@ a.button {
 
 .fui-code pre {
     margin: 0;
-}
-
-.fui-icons {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    overflow-y: auto;
-    background: var(--primary-color);
-    border: 2px solid var(--border-dark-color);
-    border-radius: 0 10px 10px 10px;
-    border-top: 0;
-    margin: 0 0 8px 0;
-    padding: 16px;
-    height: 256px;
-    color: var(--secondary-color);
-}
-
-.fui-icons img {
-    cursor: pointer;
-    image-rendering: pixelated;
-    display: block;
-    margin: 8px;
-    border: 1px solid var(--border-color);
-    max-width: 128px;
-    height: auto;
-}
-
-.fui-icons__header {
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    height: 24px;
-    width: 100%;
-}
-
-.fui-icons__header:hover .fui-icons__remove-custom {
-    display: block;
-}
-
-.fui-icons__remove-custom {
-    display: none;
-    cursor: pointer;
-    color: var(--danger-color);
-    margin: 0 8px;
 }
 
 .fui-tabs {
@@ -288,7 +244,7 @@ a.button {
 }
 
 .fui-select {
-    margin: 2px 20px 8px 0;
+    margin: 0 20px 0 0;
 }
 
 .fui-select__label {
