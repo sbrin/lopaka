@@ -38,6 +38,7 @@ exports[`FuiDisplayCustomDialog > renders a popup element 1`] = `
         class="fui-form-input fui-form-input__size"
         data-v-519941f7=""
         id="displayCustomHeight"
+        min="1"
         type="number"
       />
     </label>
