@@ -1,20 +1,20 @@
-import iconsGaai from './gaai';
-import iconsFlipper from '../icons/flipper';
+import flipperPack from './flipper.icons.pack';
+import gaaiPack from './gaai.icons.pack';
 
 interface IIconsList {
     [key: string]: {
-        title: string,
-        icons: Record<any, ImageData>
-    }
+        title: string;
+        icons: TPackImage[];
+    };
 }
 
 export const iconsList: IIconsList = {
-    'gaai': {
+    gaai: {
         title: 'Gaai',
-        icons: iconsGaai,
+        icons: gaaiPack
     },
-    'flipper': {
+    flipper: {
         title: 'Flipper Zero',
-        icons: iconsFlipper,
-    },
-}
+        icons: flipperPack
+    }
+};
