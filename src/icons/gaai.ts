@@ -1,133 +1,161 @@
-import Battery_0_16x24 from '../../img/gaai/battery_0_16x24.png';
-import Battery_10_16x24 from '../../img/gaai/battery_10_16x24.png';
-import Battery_17_16x24 from '../../img/gaai/battery_17_16x24.png';
-import Battery_20_16x24 from '../../img/gaai/battery_20_16x24.png';
-import Battery_30_16x24 from '../../img/gaai/battery_30_16x24.png';
-import Battery_33_16x24 from '../../img/gaai/battery_33_16x24.png';
-import Battery_40_16x24 from '../../img/gaai/battery_40_16x24.png';
-import Battery_50_2_16x24 from '../../img/gaai/battery_50_2_16x24.png';
-import Battery_50_16x24 from '../../img/gaai/battery_50_16x24.png';
-import Battery_60_16x24 from '../../img/gaai/battery_60_16x24.png';
-import Battery_67_16x24 from '../../img/gaai/battery_67_16x24.png';
-import Battery_70_16x24 from '../../img/gaai/battery_70_16x24.png';
-import Battery_80_16x24 from '../../img/gaai/battery_80_16x24.png';
-import Battery_83_16x24 from '../../img/gaai/battery_83_16x24.png';
-import Battery_90_16x24 from '../../img/gaai/battery_90_16x24.png';
-import Battery_100_16x24 from '../../img/gaai/battery_100_16x24.png';
-import Battery_Charger_Connected_16x24 from '../../img/gaai/battery_charger_connected_16x24.png';
-import Battery_Charging_16x24 from '../../img/gaai/battery_charging_16x24.png';
-import Battery_Empty_16x24 from '../../img/gaai/battery_empty_16x24.png';
-import Battery_Full_16x24 from '../../img/gaai/battery_full_16x24.png';
-import Battery_Full2_16x24 from '../../img/gaai/battery_full2_16x24.png';
-import Bluetooth_16x14 from '../../img/gaai/bluetooth_16x14.png';
-import Bluetooth_Not_Connected_16x14 from '../../img/gaai/bluetooth_not_connected_16x14.png';
-import Call_In_Out_16x15 from '../../img/gaai/call_in_out_16x15.png';
-import Call_In_Progress_16x15 from '../../img/gaai/call_in_progress_16x15.png';
-import Call_In_Progress2_16x15 from '../../img/gaai/call_in_progress2_16x15.png';
-import Call_Incoming_16x15 from '../../img/gaai/call_incoming_16x15.png';
-import Call_Outgoing_16x15 from '../../img/gaai/call_outgoing_16x15.png';
-import Error_16x15 from '../../img/gaai/error_16x15.png';
+import Battery_0_24x16 from '../../img/gaai/battery_0_24x16.png';
+import Battery_10_24x16 from '../../img/gaai/battery_10_24x16.png';
+import Battery_17_24x16 from '../../img/gaai/battery_17_24x16.png';
+import Battery_20_24x16 from '../../img/gaai/battery_20_24x16.png';
+import Battery_30_24x16 from '../../img/gaai/battery_30_24x16.png';
+import Battery_33_24x16 from '../../img/gaai/battery_33_24x16.png';
+import Battery_40_24x16 from '../../img/gaai/battery_40_24x16.png';
+import Battery_50_2_24x16 from '../../img/gaai/battery_50_2_24x16.png';
+import Battery_50_24x16 from '../../img/gaai/battery_50_24x16.png';
+import Battery_60_24x16 from '../../img/gaai/battery_60_24x16.png';
+import Battery_67_24x16 from '../../img/gaai/battery_67_24x16.png';
+import Battery_70_24x16 from '../../img/gaai/battery_70_24x16.png';
+import Battery_80_24x16 from '../../img/gaai/battery_80_24x16.png';
+import Battery_83_24x16 from '../../img/gaai/battery_83_24x16.png';
+import Battery_90_24x16 from '../../img/gaai/battery_90_24x16.png';
+import Battery_100_24x16 from '../../img/gaai/battery_100_24x16.png';
+import Battery_Charger_Connected_24x16 from '../../img/gaai/battery_charger_connected_24x16.png';
+import Battery_Charging_24x16 from '../../img/gaai/battery_charging_24x16.png';
+import Battery_Empty_24x16 from '../../img/gaai/battery_empty_24x16.png';
+import Battery_Full_24x16 from '../../img/gaai/battery_full_24x16.png';
+import Battery_Full2_24x16 from '../../img/gaai/battery_full2_24x16.png';
+import Bluetooth_14x16 from '../../img/gaai/bluetooth_14x16.png';
+import Bluetooth_Connected_14x16 from '../../img/gaai/bluetooth_connected_14x16.png';
+import Bluetooth_Not_Connected_14x16 from '../../img/gaai/bluetooth_not_connected_14x16.png';
+import Call_In_Out_15x16 from '../../img/gaai/call_in_out_15x16.png';
+import Call_In_Progress_15x16 from '../../img/gaai/call_in_progress_15x16.png';
+import Call_In_Progress2_15x16 from '../../img/gaai/call_in_progress2_15x16.png';
+import Call_Incoming_15x16 from '../../img/gaai/call_incoming_15x16.png';
+import Call_Outgoing_15x16 from '../../img/gaai/call_outgoing_15x16.png';
+import Error_15x16 from '../../img/gaai/error_15x16.png';
+import Memo_17x16 from '../../img/gaai/memo_17x16.png';
+import Memo_Recorder_14x16 from '../../img/gaai/memo_recorder_14x16.png';
+import Menu_Arrow_Down_Left_3x3 from '../../img/gaai/menu_arrow_down_left_3x3.png';
+import Menu_Arrow_Down_Left_4x4 from '../../img/gaai/menu_arrow_down_left_4x4.png';
+import Menu_Arrow_Down_Right_3x3 from '../../img/gaai/menu_arrow_down_right_3x3.png';
+import Menu_Arrow_Down_Right_4x4 from '../../img/gaai/menu_arrow_down_right_4x4.png';
+import Menu_Arrow_Up_Left_3x3 from '../../img/gaai/menu_arrow_up_left_3x3.png';
+import Menu_Arrow_Up_Left_4x4 from '../../img/gaai/menu_arrow_up_left_4x4.png';
+import Menu_Arrow_Up_Right_3x3 from '../../img/gaai/menu_arrow_up_right_3x3.png';
+import Menu_Arrow_Up_Right_4x4 from '../../img/gaai/menu_arrow_up_right_4x4.png';
 import Message_16x16 from '../../img/gaai/message_16x16.png';
-import Micro_Sd_16x14 from '../../img/gaai/micro_sd_16x14.png';
-import Micro_Sd_No_Card_16x14 from '../../img/gaai/micro_sd_no_card_16x14.png';
-import Microphone_16x15 from '../../img/gaai/microphone_16x15.png';
-import Microphone_Muted_16x15 from '../../img/gaai/microphone_muted_16x15.png';
-import Music_16x14 from '../../img/gaai/music_16x14.png';
-import Network_1_Bar_16x15 from '../../img/gaai/network_1_bar_16x15.png';
-import Network_2_Bars_16x15 from '../../img/gaai/network_2_bars_16x15.png';
-import Network_3_Bars_16x15 from '../../img/gaai/network_3_bars_16x15.png';
-import Network_4_Bars_16x15 from '../../img/gaai/network_4_bars_16x15.png';
-import Network_16x15 from '../../img/gaai/network_16x15.png';
-import Network_Not_Connected_16x15 from '../../img/gaai/network_not_connected_16x15.png';
+import Micro_Sd_14x16 from '../../img/gaai/micro_sd_14x16.png';
+import Micro_Sd_No_Card_14x16 from '../../img/gaai/micro_sd_no_card_14x16.png';
+import Microphone_15x16 from '../../img/gaai/microphone_15x16.png';
+import Microphone_Muted_15x16 from '../../img/gaai/microphone_muted_15x16.png';
+import Microphone_Recording_17x16 from '../../img/gaai/microphone_recording_17x16.png';
+import Music_14x16 from '../../img/gaai/music_14x16.png';
+import Network_1_Bar_15x16 from '../../img/gaai/network_1_bar_15x16.png';
+import Network_2_Bars_15x16 from '../../img/gaai/network_2_bars_15x16.png';
+import Network_3_Bars_15x16 from '../../img/gaai/network_3_bars_15x16.png';
+import Network_4_Bars_15x16 from '../../img/gaai/network_4_bars_15x16.png';
+import Network_15x16 from '../../img/gaai/network_15x16.png';
+import Network_Not_Connected_15x16 from '../../img/gaai/network_not_connected_15x16.png';
 import Notification_Bell_16x16 from '../../img/gaai/notification_bell_16x16.png';
-import Phone_Connected_16x15 from '../../img/gaai/phone_connected_16x15.png';
-import Phone_Hook_16x20 from '../../img/gaai/phone_hook_16x20.png';
-import Phone_Not_Connected_16x15 from '../../img/gaai/phone_not_connected_16x15.png';
-import Phone_On_Hook_16x21 from '../../img/gaai/phone_on_hook_16x21.png';
-import Volume_1_Bar_16x20 from '../../img/gaai/volume_1_bar_16x20.png';
-import Volume_2_Bars_16x20 from '../../img/gaai/volume_2_bars_16x20.png';
-import Volume_3_Bars_16x20 from '../../img/gaai/volume_3_bars_16x20.png';
-import Volume_Loud_16x20 from '../../img/gaai/volume_loud_16x20.png';
-import Volume_Low_16x18 from '../../img/gaai/volume_low_16x18.png';
-import Volume_Muted_16x18 from '../../img/gaai/volume_muted_16x18.png';
-import Volume_No_Sound_16x18 from '../../img/gaai/volume_no_sound_16x18.png';
-import Volume_Normal_16x18 from '../../img/gaai/volume_normal_16x18.png';
+import Phone_Connected_15x16 from '../../img/gaai/phone_connected_15x16.png';
+import Phone_Hook_20x16 from '../../img/gaai/phone_hook_20x16.png';
+import Phone_Not_Connected_15x16 from '../../img/gaai/phone_not_connected_15x16.png';
+import Phone_On_Hook_21x16 from '../../img/gaai/phone_on_hook_21x16.png';
+import Radio_16x16 from '../../img/gaai/radio_16x16.png';
+import Recorder_14x16 from '../../img/gaai/recorder_14x16.png';
+import Volume_1_Bar_20x16 from '../../img/gaai/volume_1_bar_20x16.png';
+import Volume_2_Bars_20x16 from '../../img/gaai/volume_2_bars_20x16.png';
+import Volume_3_Bars_20x16 from '../../img/gaai/volume_3_bars_20x16.png';
+import Volume_Loud_20x16 from '../../img/gaai/volume_loud_20x16.png';
+import Volume_Low_18x16 from '../../img/gaai/volume_low_18x16.png';
+import Volume_Muted_18x16 from '../../img/gaai/volume_muted_18x16.png';
+import Volume_No_Sound_18x16 from '../../img/gaai/volume_no_sound_18x16.png';
+import Volume_Normal_18x16 from '../../img/gaai/volume_normal_18x16.png';
 import Warning_16x16 from '../../img/gaai/warning_16x16.png';
-import Wifi_2_Bars_16x19 from '../../img/gaai/wifi_2_bars_16x19.png';
-import Wifi_3_Bars_16x19 from '../../img/gaai/wifi_3_bars_16x19.png';
-import Wifi_4_Bars_16x19 from '../../img/gaai/wifi_4_bars_16x19.png';
-import Wifi_5_Bars_16x19 from '../../img/gaai/wifi_5_bars_16x19.png';
-import Wifi_16x19 from '../../img/gaai/wifi_16x19.png';
-import Wifi_25_16x19 from '../../img/gaai/wifi_25_16x19.png';
-import Wifi_50_16x19 from '../../img/gaai/wifi_50_16x19.png';
-import Wifi_75_16x19 from '../../img/gaai/wifi_75_16x19.png';
-import Wifi_Full_16x19 from '../../img/gaai/wifi_full_16x19.png';
-import Wifi_Not_Connected_16x19 from '../../img/gaai/wifi_not_connected_16x19.png';
+import Wifi_2_Bars_19x16 from '../../img/gaai/wifi_2_bars_19x16.png';
+import Wifi_3_Bars_19x16 from '../../img/gaai/wifi_3_bars_19x16.png';
+import Wifi_4_Bars_19x16 from '../../img/gaai/wifi_4_bars_19x16.png';
+import Wifi_5_Bars_19x16 from '../../img/gaai/wifi_5_bars_19x16.png';
+import Wifi_19x16 from '../../img/gaai/wifi_19x16.png';
+import Wifi_25_19x16 from '../../img/gaai/wifi_25_19x16.png';
+import Wifi_50_19x16 from '../../img/gaai/wifi_50_19x16.png';
+import Wifi_75_19x16 from '../../img/gaai/wifi_75_19x16.png';
+import Wifi_Full_19x16 from '../../img/gaai/wifi_full_19x16.png';
+import Wifi_Not_Connected_19x16 from '../../img/gaai/wifi_not_connected_19x16.png';
 
 export default {
-    Battery_0_16x24,
-    Battery_10_16x24,
-    Battery_17_16x24,
-    Battery_20_16x24,
-    Battery_30_16x24,
-    Battery_33_16x24,
-    Battery_40_16x24,
-    Battery_50_2_16x24,
-    Battery_50_16x24,
-    Battery_60_16x24,
-    Battery_67_16x24,
-    Battery_70_16x24,
-    Battery_80_16x24,
-    Battery_83_16x24,
-    Battery_90_16x24,
-    Battery_100_16x24,
-    Battery_Charger_Connected_16x24,
-    Battery_Charging_16x24,
-    Battery_Empty_16x24,
-    Battery_Full_16x24,
-    Battery_Full2_16x24,
-    Bluetooth_16x14,
-    Bluetooth_Not_Connected_16x14,
-    Call_In_Out_16x15,
-    Call_In_Progress_16x15,
-    Call_In_Progress2_16x15,
-    Call_Incoming_16x15,
-    Call_Outgoing_16x15,
-    Error_16x15,
+    Battery_0_24x16,
+    Battery_10_24x16,
+    Battery_17_24x16,
+    Battery_20_24x16,
+    Battery_30_24x16,
+    Battery_33_24x16,
+    Battery_40_24x16,
+    Battery_50_2_24x16,
+    Battery_50_24x16,
+    Battery_60_24x16,
+    Battery_67_24x16,
+    Battery_70_24x16,
+    Battery_80_24x16,
+    Battery_83_24x16,
+    Battery_90_24x16,
+    Battery_100_24x16,
+    Battery_Charger_Connected_24x16,
+    Battery_Charging_24x16,
+    Battery_Empty_24x16,
+    Battery_Full_24x16,
+    Battery_Full2_24x16,
+    Bluetooth_14x16,
+    Bluetooth_Connected_14x16,
+    Bluetooth_Not_Connected_14x16,
+    Call_In_Out_15x16,
+    Call_In_Progress_15x16,
+    Call_In_Progress2_15x16,
+    Call_Incoming_15x16,
+    Call_Outgoing_15x16,
+    Error_15x16,
+    Memo_17x16,
+    Memo_Recorder_14x16,
+    Menu_Arrow_Down_Left_3x3,
+    Menu_Arrow_Down_Left_4x4,
+    Menu_Arrow_Down_Right_3x3,
+    Menu_Arrow_Down_Right_4x4,
+    Menu_Arrow_Up_Left_3x3,
+    Menu_Arrow_Up_Left_4x4,
+    Menu_Arrow_Up_Right_3x3,
+    Menu_Arrow_Up_Right_4x4,
     Message_16x16,
-    Micro_Sd_16x14,
-    Micro_Sd_No_Card_16x14,
-    Microphone_16x15,
-    Microphone_Muted_16x15,
-    Music_16x14,
-    Network_1_Bar_16x15,
-    Network_2_Bars_16x15,
-    Network_3_Bars_16x15,
-    Network_4_Bars_16x15,
-    Network_16x15,
-    Network_Not_Connected_16x15,
+    Micro_Sd_14x16,
+    Micro_Sd_No_Card_14x16,
+    Microphone_15x16,
+    Microphone_Muted_15x16,
+    Microphone_Recording_17x16,
+    Music_14x16,
+    Network_1_Bar_15x16,
+    Network_2_Bars_15x16,
+    Network_3_Bars_15x16,
+    Network_4_Bars_15x16,
+    Network_15x16,
+    Network_Not_Connected_15x16,
     Notification_Bell_16x16,
-    Phone_Connected_16x15,
-    Phone_Hook_16x20,
-    Phone_Not_Connected_16x15,
-    Phone_On_Hook_16x21,
-    Volume_1_Bar_16x20,
-    Volume_2_Bars_16x20,
-    Volume_3_Bars_16x20,
-    Volume_Loud_16x20,
-    Volume_Low_16x18,
-    Volume_Muted_16x18,
-    Volume_No_Sound_16x18,
-    Volume_Normal_16x18,
+    Phone_Connected_15x16,
+    Phone_Hook_20x16,
+    Phone_Not_Connected_15x16,
+    Phone_On_Hook_21x16,
+    Radio_16x16,
+    Recorder_14x16,
+    Volume_1_Bar_20x16,
+    Volume_2_Bars_20x16,
+    Volume_3_Bars_20x16,
+    Volume_Loud_20x16,
+    Volume_Low_18x16,
+    Volume_Muted_18x16,
+    Volume_No_Sound_18x16,
+    Volume_Normal_18x16,
     Warning_16x16,
-    Wifi_2_Bars_16x19,
-    Wifi_3_Bars_16x19,
-    Wifi_4_Bars_16x19,
-    Wifi_5_Bars_16x19,
-    Wifi_16x19,
-    Wifi_25_16x19,
-    Wifi_50_16x19,
-    Wifi_75_16x19,
-    Wifi_Full_16x19,
-    Wifi_Not_Connected_16x19,
+    Wifi_2_Bars_19x16,
+    Wifi_3_Bars_19x16,
+    Wifi_4_Bars_19x16,
+    Wifi_5_Bars_19x16,
+    Wifi_19x16,
+    Wifi_25_19x16,
+    Wifi_50_19x16,
+    Wifi_75_19x16,
+    Wifi_Full_19x16,
+    Wifi_Not_Connected_19x16,
 };
