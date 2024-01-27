@@ -7,6 +7,17 @@ declare module '*.png' {
     export default string;
 }
 
+declare type TPackImage = {
+    name: string;
+    width: number;
+    height: number;
+    image: string;
+};
+
+declare module '*.icons.pack' {
+    export default Record<string, TPackImage>;
+}
+
 declare module '*.ttf' {
     export default string;
 }

@@ -2,10 +2,11 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 import vue from '@vitejs/plugin-vue';
 import {resolve} from 'path';
 import {defineConfig} from 'vite';
+import iconsPackPlugin from './vite-plugins/icons-pack';
 
 export default defineConfig({
     base: '',
-    plugins: [vue(), basicSsl()],
+    plugins: [vue(), basicSsl(), iconsPackPlugin],
     esbuild: {
         keepNames: true
     },
