@@ -15,7 +15,7 @@ declare type TPackImage = {
 };
 
 declare module '*.icons.pack' {
-    export default Record<string, TPackImage>;
+    export default [];
 }
 
 declare module '*.ttf' {
