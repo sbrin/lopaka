@@ -53,7 +53,6 @@ import Fast_Backward_Button_15x16 from '../../img/gaai/fast_backward_button_15x1
 import Fast_Forward_17x16 from '../../img/gaai/fast_forward_17x16.png';
 import Fast_Forward_Button_15x16 from '../../img/gaai/fast_forward_button_15x16.png';
 import Folder_Explorer_17x16 from '../../img/gaai/folder_explorer_17x16.png';
-import Folder_Large_17x16 from '../../img/gaai/folder_large_17x16.png';
 import Forbidden_Sign_15x16 from '../../img/gaai/forbidden_sign_15x16.png';
 import Headphones_15x16 from '../../img/gaai/headphones_15x16.png';
 import Light_16x16 from '../../img/gaai/light_16x16.png';
@@ -85,7 +84,6 @@ import Network_Not_Connected_15x16 from '../../img/gaai/network_not_connected_15
 import Notification_Bell_16x16 from '../../img/gaai/notification_bell_16x16.png';
 import Open_File_18x16 from '../../img/gaai/open_file_18x16.png';
 import Open_Folder_18x16 from '../../img/gaai/open_folder_18x16.png';
-import Open_Folder_19x16 from '../../img/gaai/open_folder_19x16.png';
 import Pause_12x16 from '../../img/gaai/pause_12x16.png';
 import Pause_Button_15x16 from '../../img/gaai/pause_button_15x16.png';
 import Phone_Connected_15x16 from '../../img/gaai/phone_connected_15x16.png';
@@ -109,7 +107,6 @@ import Speaker_19x16 from '../../img/gaai/speaker_19x16.png';
 import Stop_14x16 from '../../img/gaai/stop_14x16.png';
 import Stop_Button_15x16 from '../../img/gaai/stop_button_15x16.png';
 import Streaming_17x16 from '../../img/gaai/streaming_17x16.png';
-import Tape_Recorder_12x16 from '../../img/gaai/tape_recorder_12x16.png';
 import Tools_14x16 from '../../img/gaai/tools_14x16.png';
 import Tool_Wrench_14x16 from '../../img/gaai/tool_wrench_14x16.png';
 import Volume_1_Bar_20x16 from '../../img/gaai/volume_1_bar_20x16.png';
@@ -189,7 +186,6 @@ export default {
     Fast_Forward_17x16, 
     Fast_Forward_Button_15x16, 
     Folder_Explorer_17x16, 
-    Folder_Large_17x16, 
     Forbidden_Sign_15x16, 
     Headphones_15x16, 
     Light_16x16, 
@@ -221,7 +217,6 @@ export default {
     Notification_Bell_16x16, 
     Open_File_18x16, 
     Open_Folder_18x16, 
-    Open_Folder_19x16, 
     Pause_12x16, 
     Pause_Button_15x16, 
     Phone_Connected_15x16, 
@@ -245,7 +240,6 @@ export default {
     Stop_14x16, 
     Stop_Button_15x16, 
     Streaming_17x16, 
-    Tape_Recorder_12x16, 
     Tools_14x16, 
     Tool_Wrench_14x16, 
     Volume_1_Bar_20x16, 
