@@ -53,6 +53,15 @@ export class CircleLayer extends AbstractLayer {
             },
             type: TModifierType.number
         },
+        fill: {
+            getValue: () => this.fill,
+            setValue: (v: boolean) => {
+                this.fill = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
+        },
         color: {
             getValue: () => this.color,
             setValue: (v: string) => {
