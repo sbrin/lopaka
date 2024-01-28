@@ -133,4 +133,43 @@ export class DrawContext {
         this.ctx.closePath();
         return this;
     }
+
+    pixelateEllipse(center: Point, radiusX: number, radiusY: number, fill: boolean): DrawContext {
+        this.ctx.beginPath();
+        for (let n = 0; n < radiusX; n++) {
+            const x = n;
+            const y = Math.round(Math.sqrt(radiusY * radiusY * (1 - (x * x) / radiusX / radiusX)));
+            this.ctx.rect(center.x - x, center.y - y, 1, 1);
+            this.ctx.rect(center.x - x, center.y + y, 1, 1);
+            this.ctx.rect(center.x + x, center.y - y, 1, 1);
+            this.ctx.rect(center.x + x, center.y + y, 1, 1);
+            if (fill) {
+                this.ctx.rect(center.x - x, center.y - y, 1, y * 2);
+                this.ctx.rect(center.x + x, center.y - y, 1, y * 2);
+            }
+        }
+        for (let n = 0; n < radiusY; n++) {
+            const y = n;
+            const x = Math.round(Math.sqrt(radiusX * radiusX * (1 - (y * y) / radiusY / radiusY)));
+            this.ctx.rect(center.x - x, center.y - y, 1, 1);
+            this.ctx.rect(center.x - x, center.y + y, 1, 1);
+            this.ctx.rect(center.x + x, center.y - y, 1, 1);
+            this.ctx.rect(center.x + x, center.y + y, 1, 1);
+            if (fill) {
+                this.ctx.rect(center.x - x, center.y - y, 1, y * 2);
+                this.ctx.rect(center.x + x, center.y - y, 1, y * 2);
+            }
+        }
+        this.ctx.fill();
+        if (!fill) {
+            this.ctx.save();
+            this.ctx.fillStyle = 'rgba(0,0,0,0)';
+            this.ctx.beginPath();
+            this.ctx.ellipse(center.x + 0.5, center.y + 0.5, radiusX + 0.5, radiusY + 0.5, 0, 0, 2 * Math.PI);
+            this.ctx.fill();
+            this.ctx.restore();
+        }
+        this.ctx.closePath();
+        return this;
+    }
 }

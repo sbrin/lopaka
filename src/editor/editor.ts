@@ -25,6 +25,7 @@ import {PaintTool} from './tools/paint.tool';
 import {PaintPlugin} from './plugins/paint.plugin';
 import {ImageDropPlugin} from './plugins/image-drop.plugin';
 import {SavePlugin} from './plugins/save.plugin';
+import {EllipseTool} from './tools/ellipse.tool';
 
 type TEditorState = {
     // creatingLayyer: boolean;
@@ -61,6 +62,7 @@ export class Editor {
         dot: new DotTool(this),
         circle: new CircleTool(this),
         disc: new DiscTool(this),
+        ellipse: new EllipseTool(this),
         string: new TextTool(this)
         // icon: new IconTool(this)
     };
