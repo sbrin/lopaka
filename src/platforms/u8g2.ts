@@ -84,7 +84,7 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
             source.declarations.push(varDeclaration);
         }
         source.code.push(
-            `u8g2.drawXBMP( ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${varName});`
+            `u8g2.drawXBMP(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${varName});`
         );
     }
     addIcon(layer: IconLayer, source: TSourceCode): void {
