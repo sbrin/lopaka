@@ -58,9 +58,13 @@ display.print("${layer.text}");`);
     }
 
     addCircle(layer: CircleLayer, source: TSourceCode): void {
-        const {radius, position} = layer;
+        const {radius, position, fill} = layer;
         const center = position.clone().add(radius);
-        source.code.push(`display.drawCircle(${center.x}, ${center.y}, ${radius},  ${this.getColor(layer)});`);
+        if (fill) {
+            source.code.push(`display.fillCircle(${center.x}, ${center.y}, ${radius}, ${this.getColor(layer)});`);
+        } else {
+            source.code.push(`display.drawCircle(${center.x}, ${center.y}, ${radius},  ${this.getColor(layer)});`);
+        }
     }
 
     addDisc(layer: DiscLayer, source: TSourceCode): void {
