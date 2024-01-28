@@ -67,7 +67,6 @@ body {
     margin-top: 100px;
 }
 
-
 .title {
     margin: 0 0 8px 0;
     font-size: 32px;
@@ -141,7 +140,7 @@ a.button {
 }
 
 .layer:hover {
-    background-color: var(--secondary-color)
+    background-color: var(--secondary-color);
 }
 
 .layer:hover .layer__remove {
@@ -182,10 +181,16 @@ a.button {
     border-top: 0;
     margin: 0 0 8px 0;
     padding: 16px;
+    width: 100%;
     height: 256px;
     color: var(--secondary-color);
     text-transform: none;
-    overflow-y: auto;
+    overflow: auto;
+    white-space: pre;
+}
+
+.fui-code:focus {
+    outline: none;
 }
 
 .fui-code pre {
