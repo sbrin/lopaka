@@ -21,6 +21,7 @@ import {LineLayer} from './layers/line.layer';
 import {PaintLayer} from './layers/paint.layer';
 import {TextLayer} from './layers/text.layer';
 import {Point} from './point';
+import {EllipseLayer} from './layers/ellipse.layer';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -42,7 +43,7 @@ export class Session {
         [AdafruitPlatform.id]: new AdafruitPlatform(),
         [AdafruitMonochromePlatform.id]: new AdafruitMonochromePlatform(),
         [Uint32RawPlatform.id]: new Uint32RawPlatform(),
-        [FlipperPlatform.id]: new FlipperPlatform(),
+        [FlipperPlatform.id]: new FlipperPlatform()
     };
     displays: Point[] = [
         new Point(8, 8),
@@ -170,7 +171,7 @@ export class Session {
         this.state.isDisplayCustom = enabled;
     };
     saveDisplayCustom = (enabled: boolean) => {
-        this.setDisplayCustom(enabled)
+        this.setDisplayCustom(enabled);
         if (window.top === window.self) {
             localStorage.setItem('lopaka_display_custom', enabled ? 'true' : 'false');
         }
@@ -192,8 +193,8 @@ export class Session {
             if (window.top === window.self) {
                 loadLayers(
                     localStorage.getItem(`${name}_lopaka_layers`)
-                    ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
-                    : []
+                        ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
+                        : []
                 );
                 localStorage.setItem('lopaka_library', name);
             }
@@ -229,7 +230,8 @@ export const LayerClassMap: {[key in ELayerType]: any} = {
     icon: IconLayer,
     line: LineLayer,
     string: TextLayer,
-    paint: PaintLayer
+    paint: PaintLayer,
+    ellipse: EllipseLayer
 };
 // for testing
 export function loadLayers(layers: any[]) {

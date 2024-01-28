@@ -4,6 +4,7 @@ import {BoxLayer} from '../core/layers/box.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {DiscLayer} from '../core/layers/disc.layer';
 import {DotLayer} from '../core/layers/dot.layer';
+import {EllipseLayer} from '../core/layers/ellipse.layer';
 import {FrameLayer} from '../core/layers/frame.layer';
 import {IconLayer} from '../core/layers/icon.layer';
 import {LineLayer} from '../core/layers/line.layer';
@@ -70,6 +71,23 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
         const {radius, position} = layer;
         const center = position.clone().add(radius);
         source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radius});`);
+    }
+    addEllipse(layer: EllipseLayer, source: TSourceCode): void {
+        const {radiusX, radiusY, position} = layer;
+        const center = position.clone().add(radiusX, radiusY);
+        if (radiusX === radiusY) {
+            if (layer.fill) {
+                source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radiusX});`);
+            } else {
+                source.code.push(`u8g2.drawCircle(${center.x}, ${center.y}, ${radiusX});`);
+            }
+        } else {
+            if (layer.fill) {
+                source.code.push(`u8g2.drawFilledEllipse(${center.x}, ${center.y}, ${radiusX}, ${radiusY});`);
+            } else {
+                source.code.push(`u8g2.drawEllipse(${center.x}, ${center.y}, ${radiusX}, ${radiusY});`);
+            }
+        }
     }
     addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void {
         let image;
