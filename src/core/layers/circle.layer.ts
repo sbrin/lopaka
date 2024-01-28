@@ -13,7 +13,7 @@ export class CircleLayer extends AbstractLayer {
     protected state: TCircleState;
     public radius: number = 1;
     public position: Point = new Point();
-    protected fill: boolean = false;
+    public fill: boolean = false;
 
     protected editState: {
         firstPoint: Point;
