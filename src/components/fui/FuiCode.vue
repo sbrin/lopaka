@@ -11,8 +11,6 @@ watch(
 );
 </script>
 <template>
-    <div class="fui-code">
-        <pre>{{ content }}</pre>
-    </div>
+    <textarea class="fui-code" v-model="content" readonly></textarea>
 </template>
 <style lang="css"></style>
