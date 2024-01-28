@@ -60,9 +60,13 @@ canvas_draw_str(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}
         );
     }
     addCircle(layer: CircleLayer, source: TSourceCode): void {
-        const {radius, position} = layer;
+        const {radius, position, fill} = layer;
         const center = position.clone().add(radius);
-        source.code.push(`canvas_draw_circle(canvas, ${center.x}, ${center.y}, ${radius});`);
+        if (fill) {
+            source.code.push(`canvas_draw_disc(canvas, ${center.x}, ${center.y}, ${radius});`);
+        } else {
+            source.code.push(`canvas_draw_circle(canvas, ${center.x}, ${center.y}, ${radius});`);
+        }
     }
     addDisc(layer: DiscLayer, source: TSourceCode): void {
         const {radius, position} = layer;
