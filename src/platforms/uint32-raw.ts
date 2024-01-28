@@ -1,7 +1,7 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {imgDataToUint32Array} from '../utils';
 import {Platform} from './platform';
-import { fontTypes } from "../draw/fonts/fontTypes";
+import {fontTypes} from '../draw/fonts/fontTypes';
 export class Uint32RawPlatform extends Platform {
     public static id = 'uint32';
     protected name = 'Uint32 Raw';
@@ -14,7 +14,7 @@ export class Uint32RawPlatform extends Platform {
             fontTypes['haxrcorp4089_tr'],
             fontTypes['helvB08_tr'],
             fontTypes['6x10_tr'],
-            fontTypes['profont22_tr'],
+            fontTypes['profont22_tr']
         ];
     }
 
@@ -33,6 +33,7 @@ export class Uint32RawPlatform extends Platform {
     addDisc(layer: AbstractLayer, source: TSourceCode): void {}
     addImage(layer: AbstractLayer, source: TSourceCode): void {}
     addIcon(layer: AbstractLayer, source: TSourceCode): void {}
+    addEllipse(layer: AbstractLayer, source: TSourceCode): void {}
 
     public generateSourceCode(layers: AbstractLayer[], ctx: OffscreenCanvasRenderingContext2D): TSourceCode {
         const source: TSourceCode = {code: [], declarations: []};
