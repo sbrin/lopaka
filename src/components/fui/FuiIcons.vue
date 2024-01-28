@@ -67,6 +67,8 @@ function iconDragStart(e: DragEvent) {
                 :data-name="item.name"
                 :width="item.width * 2"
                 :height="item.height * 2"
+                :data-w="item.width"
+                :data-h="item.height"
                 :alt="item.name"
                 :title="item.name"
             />
@@ -87,6 +89,8 @@ function iconDragStart(e: DragEvent) {
                     :key="index"
                     :src="item.image"
                     :data-name="item.name"
+                    :data-w="item.width"
+                    :data-h="item.height"
                     :width="item.width * 2"
                     :height="item.height * 2"
                     :alt="item.name"
