@@ -61,6 +61,16 @@ interface Window {
     gtag: any;
 }
 
-declare type ELayerType = 'box' | 'line' | 'dot' | 'circle' | 'disc' | 'string' | 'icon' | 'frame' | 'paint';
+declare type ELayerType =
+    | 'box'
+    | 'line'
+    | 'dot'
+    | 'circle'
+    | 'disc'
+    | 'string'
+    | 'icon'
+    | 'frame'
+    | 'paint'
+    | 'ellipse';
 
 declare function gtag(...args: any[]): void;

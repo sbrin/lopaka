@@ -3,6 +3,7 @@ import {BoxLayer} from '../core/layers/box.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {DiscLayer} from '../core/layers/disc.layer';
 import {DotLayer} from '../core/layers/dot.layer';
+import {EllipseLayer} from '../core/layers/ellipse.layer';
 import {FrameLayer} from '../core/layers/frame.layer';
 import {IconLayer} from '../core/layers/icon.layer';
 import {LineLayer} from '../core/layers/line.layer';
@@ -62,6 +63,8 @@ export abstract class Platform {
                 case PaintLayer:
                     this.addImage(layer as PaintLayer, source);
                     break;
+                case EllipseLayer:
+                    this.addEllipse(layer as EllipseLayer, source);
                 default:
                     console.warn(`Unknown layer type: ${layer.constructor.name}`);
             }
@@ -88,6 +91,7 @@ export abstract class Platform {
     abstract addFrame(layer: FrameLayer, source: TSourceCode): void;
     abstract addCircle(layer: CircleLayer, source: TSourceCode): void;
     abstract addDisc(layer: DiscLayer, source: TSourceCode): void;
+    abstract addEllipse(layer: EllipseLayer, source: TSourceCode): void;
     abstract addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void;
     abstract addIcon(layer: IconLayer, source: TSourceCode): void;
 }

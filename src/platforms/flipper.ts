@@ -7,10 +7,11 @@ import {FrameLayer} from '../core/layers/frame.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {DiscLayer} from '../core/layers/disc.layer';
 import {IconLayer} from '../core/layers/icon.layer';
-import { fontTypes } from "../draw/fonts/fontTypes";
-import { imgDataToXBMP, toCppVariableName } from "../utils";
-import { PaintLayer } from "../core/layers/paint.layer";
-import { AbstractLayer } from "../core/layers/abstract.layer";
+import {fontTypes} from '../draw/fonts/fontTypes';
+import {imgDataToXBMP, toCppVariableName} from '../utils';
+import {PaintLayer} from '../core/layers/paint.layer';
+import {AbstractLayer} from '../core/layers/abstract.layer';
+import {EllipseLayer} from '../core/layers/ellipse.layer';
 
 const flipperFontMap = {
     helvB08_tr: 'FontPrimary',
@@ -68,6 +69,7 @@ canvas_draw_str(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}
         const center = position.clone().add(radius);
         source.code.push(`canvas_draw_disc(canvas, ${center.x}, ${center.y}, ${radius});`);
     }
+    addEllipse(layer: EllipseLayer, source: TSourceCode): void {}
     addImage(layer: PaintLayer, source: TSourceCode): void {
         let image;
         if (!layer.position || !layer.size.x || !layer.size.y) return;
