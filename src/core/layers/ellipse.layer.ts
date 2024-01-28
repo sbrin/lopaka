@@ -112,9 +112,11 @@ export class EllipseLayer extends AbstractLayer {
             move: (offset: Point): void => {
                 const dx = Math.round(offset.x / 2);
                 const dy = Math.round(offset.y / 2);
-                this.position.y = this.editState.position.y - dy * 2;
-                this.radiusX = Math.max(0, Math.floor(this.editState.radiusX - dx));
-                this.radiusY = Math.max(0, Math.floor(this.editState.radiusY + dy));
+                if (Math.floor(this.editState.radiusY + dy) >= 1) {
+                    this.position.y = this.editState.position.y - dy * 2;
+                }
+                this.radiusX = Math.max(1, Math.floor(this.editState.radiusX - dx));
+                this.radiusY = Math.max(1, Math.floor(this.editState.radiusY + dy));
             }
         },
         {
@@ -127,8 +129,8 @@ export class EllipseLayer extends AbstractLayer {
             move: (offset: Point): void => {
                 const dx = Math.round(offset.x / 2);
                 const dy = Math.round(offset.y / 2);
-                this.radiusX = Math.max(0, Math.round(this.editState.radiusX - dx));
-                this.radiusY = Math.max(0, Math.round(this.editState.radiusY - dy));
+                this.radiusX = Math.max(1, Math.round(this.editState.radiusX - dx));
+                this.radiusY = Math.max(1, Math.round(this.editState.radiusY - dy));
             }
         },
         {
@@ -143,9 +145,11 @@ export class EllipseLayer extends AbstractLayer {
             move: (offset: Point): void => {
                 const dx = Math.round(offset.x / 2);
                 const dy = Math.round(offset.y / 2);
-                this.position.x = this.editState.position.x - dx * 2;
-                this.radiusX = Math.max(0, Math.floor(this.editState.radiusX + dx));
-                this.radiusY = Math.max(0, Math.floor(this.editState.radiusY - dy));
+                if (Math.ceil(this.editState.radiusX + dx) >= 1) {
+                    this.position.x = this.editState.position.x - dx * 2;
+                }
+                this.radiusX = Math.max(1, Math.ceil(this.editState.radiusX + dx));
+                this.radiusY = Math.max(1, Math.ceil(this.editState.radiusY - dy));
             }
         },
         {
@@ -155,10 +159,15 @@ export class EllipseLayer extends AbstractLayer {
             move: (offset: Point): void => {
                 const dx = Math.round(offset.x / 2);
                 const dy = Math.round(offset.y / 2);
-                this.position.x = this.editState.position.x - dx * 2;
-                this.position.y = this.editState.position.y - dy * 2;
-                this.radiusX = Math.max(0, Math.floor(this.editState.radiusX + dx));
-                this.radiusY = Math.max(0, Math.floor(this.editState.radiusY + dy));
+
+                if (Math.ceil(this.editState.radiusX + dx) >= 1) {
+                    this.position.x = this.editState.position.x - dx * 2;
+                }
+                if (Math.ceil(this.editState.radiusY + dy) >= 1) {
+                    this.position.y = this.editState.position.y - dy * 2;
+                }
+                this.radiusX = Math.max(1, Math.ceil(this.editState.radiusX + dx));
+                this.radiusY = Math.max(1, Math.ceil(this.editState.radiusY + dy));
             }
         }
     ];
