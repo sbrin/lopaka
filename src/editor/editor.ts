@@ -15,13 +15,12 @@ import {ResizePlugin} from './plugins/resize.plugin';
 import {SavePlugin} from './plugins/save.plugin';
 import {SelectPlugin} from './plugins/select.plugin';
 import {AbstractTool} from './tools/abstract.tool';
-import {BoxTool} from './tools/box.tool';
 import {CircleTool} from './tools/circle.tool';
 import {DotTool} from './tools/dot.tool';
 import {EllipseTool} from './tools/ellipse.tool';
-import {FrameTool} from './tools/frame.tool';
 import {LineTool} from './tools/line.tool';
 import {PaintTool} from './tools/paint.tool';
+import {RectTool} from './tools/rect.tool';
 import {TextTool} from './tools/text.tool';
 
 type TEditorState = {
@@ -48,10 +47,9 @@ export class Editor {
 
     tools: {[key: string]: AbstractTool} = {
         paint: new PaintTool(this),
-        frame: new FrameTool(this),
-        box: new BoxTool(this),
-        line: new LineTool(this),
         dot: new DotTool(this),
+        line: new LineTool(this),
+        rect: new RectTool(this),
         circle: new CircleTool(this),
         ellipse: new EllipseTool(this),
         string: new TextTool(this)

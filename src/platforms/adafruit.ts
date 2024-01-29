@@ -1,14 +1,12 @@
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
-import {BoxLayer} from '../core/layers/box.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
-import {DiscLayer} from '../core/layers/disc.layer';
 import {DotLayer} from '../core/layers/dot.layer';
 import {EllipseLayer} from '../core/layers/ellipse.layer';
-import {FrameLayer} from '../core/layers/frame.layer';
 import {IconLayer} from '../core/layers/icon.layer';
 import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
+import {RectangleLayer} from '../core/layers/rectangle.layer';
 import {TextLayer} from '../core/layers/text.layer';
 import {fontTypes} from '../draw/fonts/fontTypes';
 import {imgDataToXBMP, packedHexColor, toCppVariableName} from '../utils';
@@ -49,12 +47,20 @@ display.print("${layer.text}");`);
         source.code.push(`display.drawLine(${p1.x}, ${p1.y}, ${p2.x}, ${p2.y}, ${this.getColor(layer)});`);
     }
 
-    addBox(layer: BoxLayer, source: TSourceCode): void {
-        source.code.push(
-            `display.fillRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${
-                layer.size.y
-            }, ${this.getColor(layer)});`
-        );
+    addRect(layer: RectangleLayer, source: TSourceCode): void {
+        if (layer.fill) {
+            source.code.push(
+                `display.fillRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${
+                    layer.size.y
+                }, ${this.getColor(layer)});`
+            );
+        } else {
+            source.code.push(
+                `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${
+                    layer.size.y
+                }, ${this.getColor(layer)});`
+            );
+        }
     }
 
     addCircle(layer: CircleLayer, source: TSourceCode): void {
@@ -67,21 +73,7 @@ display.print("${layer.text}");`);
         }
     }
 
-    addDisc(layer: DiscLayer, source: TSourceCode): void {
-        const {radius, position} = layer;
-        const center = position.clone().add(radius);
-        source.code.push(`display.fillCircle(${center.x}, ${center.y}, ${radius}, ${this.getColor(layer)});`);
-    }
-
     addEllipse(layer: EllipseLayer, source: TSourceCode): void {}
-
-    addFrame(layer: FrameLayer, source: TSourceCode): void {
-        source.code.push(
-            `display.drawRect(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${
-                layer.size.y
-            }, ${this.getColor(layer)});`
-        );
-    }
 
     addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void {
         let image;
