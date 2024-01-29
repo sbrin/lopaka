@@ -60,7 +60,7 @@ import Cloud_17x16 from '../../img/gaai/cloud_17x16.png';
 import Cloud_Download_17x16 from '../../img/gaai/cloud_download_17x16.png';
 import Cloud_Download_Fat_17x16 from '../../img/gaai/cloud_download_fat_17x16.png';
 import Cloud_Lightning_Bolt_17x16 from '../../img/gaai/cloud_lightning_bolt_17x16.png';
-import Cloud_Rain3_17x16 from '../../img/gaai/cloud_rain3_17x16.png';
+import Cloud_Rain_17x16 from '../../img/gaai/cloud_rain_17x16.png';
 import Cloud_Snow_17x16 from '../../img/gaai/cloud_snow_17x16.png';
 import Cloud_Sunny_17x16 from '../../img/gaai/cloud_sunny_17x16.png';
 import Cloud_Sync_17x16 from '../../img/gaai/cloud_sync_17x16.png';
@@ -157,7 +157,9 @@ import Power_Button_15x16 from '../../img/gaai/power_button_15x16.png';
 import Previous_16x16 from '../../img/gaai/previous_16x16.png';
 import Previous_Button_15x16 from '../../img/gaai/previous_button_15x16.png';
 import Radio_16x16 from '../../img/gaai/radio_16x16.png';
+import Record_15x16 from '../../img/gaai/record_15x16.png';
 import Record_Button_15x16 from '../../img/gaai/record_button_15x16.png';
+import Record_Button_Black_15x16 from '../../img/gaai/record_button_black_15x16.png';
 import Refresh_13x16 from '../../img/gaai/refresh_13x16.png';
 import Reset_11x16 from '../../img/gaai/reset_11x16.png';
 import Reset_13x16 from '../../img/gaai/reset_13x16.png';
@@ -269,7 +271,7 @@ export default {
     Cloud_Download_17x16, 
     Cloud_Download_Fat_17x16, 
     Cloud_Lightning_Bolt_17x16, 
-    Cloud_Rain3_17x16, 
+    Cloud_Rain_17x16, 
     Cloud_Snow_17x16, 
     Cloud_Sunny_17x16, 
     Cloud_Sync_17x16, 
@@ -366,7 +368,9 @@ export default {
     Previous_16x16, 
     Previous_Button_15x16, 
     Radio_16x16, 
+    Record_15x16, 
     Record_Button_15x16, 
+    Record_Button_Black_15x16, 
     Refresh_13x16, 
     Reset_11x16, 
     Reset_13x16, 
