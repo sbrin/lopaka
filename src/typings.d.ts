@@ -71,6 +71,7 @@ declare type ELayerType =
     | 'icon'
     | 'frame'
     | 'paint'
+    | 'rect'
     | 'ellipse';
 
 declare function gtag(...args: any[]): void;
