@@ -6,6 +6,7 @@ import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, 
 type TCircleState = TLayerState & {
     p: number[]; // position
     r: number; // radius
+    f: boolean; // fill
 };
 
 export class CircleLayer extends AbstractLayer {
@@ -208,7 +209,8 @@ export class CircleLayer extends AbstractLayer {
             g: this.group,
             t: this.type,
             u: this.uid,
-            c: this.color
+            c: this.color,
+            f: this.fill
         };
         this.state = state;
     }
@@ -221,6 +223,7 @@ export class CircleLayer extends AbstractLayer {
         this.group = state.g;
         this.uid = state.u;
         this.color = state.c;
+        this.fill = state.f;
         this.updateBounds();
         this.mode = EditMode.NONE;
     }

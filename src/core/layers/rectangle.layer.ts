@@ -6,9 +6,11 @@ import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, 
 type TRectangleState = TLayerState & {
     p: number[]; // position [x, y]
     s: number[]; // size [w, h]
+    f: boolean; // fill
 };
 
-export abstract class RectangleLayer extends AbstractLayer {
+export class RectangleLayer extends AbstractLayer {
+    protected type: ELayerType = 'rect';
     protected state: TRectangleState;
     protected editState: {
         firstPoint: Point;
@@ -19,7 +21,7 @@ export abstract class RectangleLayer extends AbstractLayer {
 
     public position: Point = new Point();
     public size: Point = new Point();
-    protected fill: boolean = false;
+    public fill: boolean = false;
 
     modifiers: TLayerModifiers = {
         x: {
@@ -62,6 +64,15 @@ export abstract class RectangleLayer extends AbstractLayer {
                 this.draw();
             },
             type: TModifierType.number
+        },
+        fill: {
+            getValue: () => this.fill,
+            setValue: (v: boolean) => {
+                this.fill = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
         },
         color: {
             getValue: () => this.color,
@@ -199,7 +210,8 @@ export abstract class RectangleLayer extends AbstractLayer {
             g: this.group,
             t: this.type,
             u: this.uid,
-            c: this.color
+            c: this.color,
+            f: this.fill
         };
         this.state = state;
     }
@@ -212,6 +224,7 @@ export abstract class RectangleLayer extends AbstractLayer {
         this.group = state.g;
         this.uid = state.u;
         this.color = state.c;
+        this.fill = state.f;
         this.updateBounds();
         this.mode = EditMode.NONE;
     }
