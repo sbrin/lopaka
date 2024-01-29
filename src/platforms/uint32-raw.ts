@@ -27,8 +27,7 @@ export class Uint32RawPlatform extends Platform {
     addDot(layer: AbstractLayer, source: TSourceCode): void {}
     addLine(layer: AbstractLayer, source: TSourceCode): void {}
     addText(layer: AbstractLayer, source: TSourceCode): void {}
-    addBox(layer: AbstractLayer, source: TSourceCode): void {}
-    addFrame(layer: AbstractLayer, source: TSourceCode): void {}
+    addRect(layer: AbstractLayer, source: TSourceCode): void {}
     addCircle(layer: AbstractLayer, source: TSourceCode): void {}
     addDisc(layer: AbstractLayer, source: TSourceCode): void {}
     addImage(layer: AbstractLayer, source: TSourceCode): void {}

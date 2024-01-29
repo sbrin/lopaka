@@ -11,17 +11,15 @@ import {Uint32RawPlatform} from '../platforms/uint32-raw';
 import {generateUID, logEvent, postParentMessage} from '../utils';
 import {ChangeHistory, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
-import {BoxLayer} from './layers/box.layer';
 import {CircleLayer} from './layers/circle.layer';
-import {DiscLayer} from './layers/disc.layer';
 import {DotLayer} from './layers/dot.layer';
-import {FrameLayer} from './layers/frame.layer';
+import {EllipseLayer} from './layers/ellipse.layer';
 import {IconLayer} from './layers/icon.layer';
 import {LineLayer} from './layers/line.layer';
 import {PaintLayer} from './layers/paint.layer';
+import {RectangleLayer} from './layers/rectangle.layer';
 import {TextLayer} from './layers/text.layer';
 import {Point} from './point';
-import {EllipseLayer} from './layers/ellipse.layer';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -222,11 +220,12 @@ export class Session {
     constructor() {}
 }
 export const LayerClassMap: {[key in ELayerType]: any} = {
-    box: BoxLayer,
+    box: RectangleLayer,
+    frame: RectangleLayer,
+    rect: RectangleLayer,
     circle: CircleLayer,
-    disc: DiscLayer,
+    disc: CircleLayer,
     dot: DotLayer,
-    frame: FrameLayer,
     icon: IconLayer,
     line: LineLayer,
     string: TextLayer,
