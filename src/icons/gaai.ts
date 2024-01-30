@@ -65,7 +65,6 @@ import Cross_11x16 from '../../img/gaai/cross_11x16.png';
 import Cross_9x16 from '../../img/gaai/cross_9x16.png';
 import Date_Day_15x16 from '../../img/gaai/date_day_15x16.png';
 import Date_Day_Empty_15x16 from '../../img/gaai/date_day_empty_15x16.png';
-import Delete_Bin_13x16 from '../../img/gaai/delete_bin_13x16.png';
 import Device_Key_15x16 from '../../img/gaai/device_key_15x16.png';
 import Device_Lock_13x16 from '../../img/gaai/device_lock_13x16.png';
 import Device_Power_Button_15x16 from '../../img/gaai/device_power_button_15x16.png';
@@ -80,6 +79,7 @@ import Door_Closed_13x16 from '../../img/gaai/door_closed_13x16.png';
 import Earth_15x16 from '../../img/gaai/earth_15x16.png';
 import Envelope_17x16 from '../../img/gaai/envelope_17x16.png';
 import File_12x16 from '../../img/gaai/file_12x16.png';
+import File_Delete_Bin_13x16 from '../../img/gaai/file_delete_bin_13x16.png';
 import File_Download_15x16 from '../../img/gaai/file_download_15x16.png';
 import File_Image_15x16 from '../../img/gaai/file_image_15x16.png';
 import File_Save_16x16 from '../../img/gaai/file_save_16x16.png';
@@ -281,7 +281,6 @@ export default {
     Cross_9x16, 
     Date_Day_15x16, 
     Date_Day_Empty_15x16, 
-    Delete_Bin_13x16, 
     Device_Key_15x16, 
     Device_Lock_13x16, 
     Device_Power_Button_15x16, 
@@ -296,6 +295,7 @@ export default {
     Earth_15x16, 
     Envelope_17x16, 
     File_12x16, 
+    File_Delete_Bin_13x16, 
     File_Download_15x16, 
     File_Image_15x16, 
     File_Save_16x16, 
