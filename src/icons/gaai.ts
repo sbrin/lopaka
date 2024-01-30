@@ -201,6 +201,7 @@ import Weather_Humidity_11x16 from '../../img/gaai/weather_humidity_11x16.png';
 import Weather_Humidity_White_11x16 from '../../img/gaai/weather_humidity_white_11x16.png';
 import Weather_Sun_15x16 from '../../img/gaai/weather_sun_15x16.png';
 import Weather_Temperature_16x16 from '../../img/gaai/weather_temperature_16x16.png';
+import Weather_Wind_15x16 from '../../img/gaai/weather_wind_15x16.png';
 import Wifi_19x16 from '../../img/gaai/wifi_19x16.png';
 import Wifi_25_19x16 from '../../img/gaai/wifi_25_19x16.png';
 import Wifi_2_Bars_19x16 from '../../img/gaai/wifi_2_bars_19x16.png';
@@ -416,6 +417,7 @@ export default {
     Weather_Humidity_White_11x16, 
     Weather_Sun_15x16, 
     Weather_Temperature_16x16, 
+    Weather_Wind_15x16, 
     Wifi_19x16, 
     Wifi_25_19x16, 
     Wifi_2_Bars_19x16, 
