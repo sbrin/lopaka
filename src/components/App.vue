@@ -74,9 +74,10 @@ function addImageToCanvas(data) {
     session.state.layers.forEach((layer) => (layer.selected = false));
     const newLayer = new IconLayer(session.getPlatformFeatures());
     newLayer.name = data.name;
-    newLayer.size = new Point(data.width, data.height);
     newLayer.selected = true;
     newLayer.modifiers.icon.setValue(data.icon);
+    newLayer.size = new Point(data.width, data.height);
+    newLayer.updateBounds();
     newLayer.stopEdit();
     session.addLayer(newLayer);
     virtualScreen.redraw();
@@ -146,14 +147,12 @@ window.addEventListener('message', async (event) => {
         switch (event.data.type) {
             case 'loadProject':
                 // TODO loading project
-                // move to session and provider        
+                // move to session and provider
                 session.unlock();
                 await session.setPlatform(event.data.payload.library);
                 const displayArr = event.data.payload.display.split('×').map((n) => parseInt(n));
                 session.setDisplay(new Point(displayArr[0], displayArr[1]));
-                loadLayers(
-                    event.data.payload.layers ?? []
-                );
+                loadLayers(event.data.payload.layers ?? []);
                 loadCustomImages(event.data.payload.images);
                 break;
         }
@@ -164,8 +163,9 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 <template>
     <div class="fui-editor">
         <div class="fui-editor__left">
-            <FuiLayers v-show="!isEmpty"></FuiLayers>
-            <FuiButton @click="resetScreen" class="button_danger" v-show="!isEmpty">reset</FuiButton>
+            <FuiLayers v-show="!isEmpty">
+                <FuiButton @click="resetScreen" small danger v-show="!isEmpty">clear</FuiButton>
+            </FuiLayers>
         </div>
         <div class="fui-editor__center">
             <div class="fui-editor-header">
@@ -179,11 +179,9 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 >
                     {{ flipperPreviewBtnText }}
                 </FuiButton>
-                <FuiButton
-                    v-if="isChanged"
-                    @click="saveChanges"
-                    title="Save changes for selected library"
-                >Save</FuiButton>
+                <FuiButton v-if="isChanged" @click="saveChanges" title="Save changes for selected library">
+                    Save
+                </FuiButton>
             </div>
             <FuiTools></FuiTools>
             <FuiCanvas ref="fuiCanvas" />
@@ -192,7 +190,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                     <FuiTabs :active-tab="activeTab" @set-active-tab="setactiveTab"></FuiTabs>
                 </div>
                 <FuiIcons
-                    v-show="activeTab === 'icons'"
+                    v-show="activeTab === 'images'"
                     :fui-images="fuiImages"
                     :custom-images="customImages"
                     @prepare-images="prepareImages"

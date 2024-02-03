@@ -1,36 +1,29 @@
+import {UnwrapRef, reactive} from 'vue';
 import {Keys} from '../core/keys.enum';
+import {AbstractLayer} from '../core/layers/abstract.layer';
 import {Point} from '../core/point';
-import {Rect} from '../core/rect';
 import {Session} from '../core/session';
-import {CopyPlugin} from './plugins/copy.plugin';
-import {DeletePlugin} from './plugins/delete.plugin';
+import {Font} from '../draw/fonts/font';
 import {AbstractEditorPlugin} from './plugins/abstract-editor.plugin';
 import {AddPlugin} from './plugins/add.plugin';
+import {CopyPlugin} from './plugins/copy.plugin';
+import {DeletePlugin} from './plugins/delete.plugin';
+import {ImageDropPlugin} from './plugins/image-drop.plugin';
 import {MovePlugin} from './plugins/move.plugin';
+import {PaintPlugin} from './plugins/paint.plugin';
 import {ResizePlugin} from './plugins/resize.plugin';
+import {SavePlugin} from './plugins/save.plugin';
 import {SelectPlugin} from './plugins/select.plugin';
 import {AbstractTool} from './tools/abstract.tool';
-import {BoxTool} from './tools/box.tool';
 import {CircleTool} from './tools/circle.tool';
-import {DiscTool} from './tools/disc.tool';
 import {DotTool} from './tools/dot.tool';
-import {FrameTool} from './tools/frame.tool';
-import {IconTool} from './tools/icon.tool';
+import {EllipseTool} from './tools/ellipse.tool';
 import {LineTool} from './tools/line.tool';
-import {TextTool} from './tools/text.tool';
-import {Font} from '../draw/fonts/font';
-import {AbstractLayer} from '../core/layers/abstract.layer';
-import {UnwrapRef, reactive} from 'vue';
 import {PaintTool} from './tools/paint.tool';
-import {PaintPlugin} from './plugins/paint.plugin';
-import {ImageDropPlugin} from './plugins/image-drop.plugin';
-import {SavePlugin} from './plugins/save.plugin';
+import {RectTool} from './tools/rect.tool';
+import {TextTool} from './tools/text.tool';
 
 type TEditorState = {
-    // creatingLayyer: boolean;
-    // resizingLayer: boolean;
-    // movingLayer: boolean;
-    // selecting: boolean;
     activeLayer: AbstractLayer;
     activeTool: AbstractTool;
 };
@@ -51,16 +44,13 @@ export class Editor {
     constructor(public session: Session) {}
 
     tools: {[key: string]: AbstractTool} = {
-        // select: new SelectTool(this),
         paint: new PaintTool(this),
-        frame: new FrameTool(this),
-        box: new BoxTool(this),
-        line: new LineTool(this),
         dot: new DotTool(this),
+        line: new LineTool(this),
+        rect: new RectTool(this),
         circle: new CircleTool(this),
-        disc: new DiscTool(this),
+        ellipse: new EllipseTool(this),
         string: new TextTool(this)
-        // icon: new IconTool(this)
     };
 
     getSupportedTools(platform: string): {[key: string]: AbstractTool} {

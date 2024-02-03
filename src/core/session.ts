@@ -11,14 +11,13 @@ import {Uint32RawPlatform} from '../platforms/uint32-raw';
 import {generateUID, logEvent, postParentMessage} from '../utils';
 import {ChangeHistory, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
-import {BoxLayer} from './layers/box.layer';
 import {CircleLayer} from './layers/circle.layer';
-import {DiscLayer} from './layers/disc.layer';
 import {DotLayer} from './layers/dot.layer';
-import {FrameLayer} from './layers/frame.layer';
+import {EllipseLayer} from './layers/ellipse.layer';
 import {IconLayer} from './layers/icon.layer';
 import {LineLayer} from './layers/line.layer';
 import {PaintLayer} from './layers/paint.layer';
+import {RectangleLayer} from './layers/rectangle.layer';
 import {TextLayer} from './layers/text.layer';
 import {Point} from './point';
 
@@ -42,7 +41,7 @@ export class Session {
         [AdafruitPlatform.id]: new AdafruitPlatform(),
         [AdafruitMonochromePlatform.id]: new AdafruitMonochromePlatform(),
         [Uint32RawPlatform.id]: new Uint32RawPlatform(),
-        [FlipperPlatform.id]: new FlipperPlatform(),
+        [FlipperPlatform.id]: new FlipperPlatform()
     };
     displays: Point[] = [
         new Point(8, 8),
@@ -157,7 +156,7 @@ export class Session {
         this.state.display = display;
         this.virtualScreen.resize();
         requestAnimationFrame(() => {
-            this.virtualScreen.redraw();
+            this.virtualScreen.redraw(false);
         });
         // TODO: update cloud and storage to avoid display conversion
         const displayString = `${display.x}×${display.y}`;
@@ -170,7 +169,7 @@ export class Session {
         this.state.isDisplayCustom = enabled;
     };
     saveDisplayCustom = (enabled: boolean) => {
-        this.setDisplayCustom(enabled)
+        this.setDisplayCustom(enabled);
         if (window.top === window.self) {
             localStorage.setItem('lopaka_display_custom', enabled ? 'true' : 'false');
         }
@@ -192,12 +191,12 @@ export class Session {
             if (window.top === window.self) {
                 loadLayers(
                     localStorage.getItem(`${name}_lopaka_layers`)
-                    ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
-                    : []
+                        ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
+                        : []
                 );
                 localStorage.setItem('lopaka_library', name);
             }
-            this.virtualScreen.redraw();
+            this.virtualScreen.redraw(false);
             isLogged && logEvent('select_library', name);
         });
     };
@@ -221,15 +220,17 @@ export class Session {
     constructor() {}
 }
 export const LayerClassMap: {[key in ELayerType]: any} = {
-    box: BoxLayer,
+    box: RectangleLayer,
+    frame: RectangleLayer,
+    rect: RectangleLayer,
     circle: CircleLayer,
-    disc: DiscLayer,
+    disc: CircleLayer,
     dot: DotLayer,
-    frame: FrameLayer,
     icon: IconLayer,
     line: LineLayer,
     string: TextLayer,
-    paint: PaintLayer
+    paint: PaintLayer,
+    ellipse: EllipseLayer
 };
 // for testing
 export function loadLayers(layers: any[]) {
@@ -244,7 +245,7 @@ export function loadLayers(layers: any[]) {
             layer.saveState();
         }
     });
-    session.virtualScreen.redraw();
+    session.virtualScreen.redraw(false);
 }
 
 export function saveLayers() {

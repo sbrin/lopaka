@@ -1,36 +1,20 @@
 <script lang="ts" setup>
 import {useSession} from '../../core/session';
 import {computed, ref, toRefs} from 'vue';
-import { iconsList } from "../../icons/icons";
+import {iconsList} from '../../icons/icons';
 
 const session = useSession();
 const {customImages} = toRefs(session.state);
 const emit = defineEmits(['cleanCustomIcons', 'prepareImages', 'iconClicked']);
 const iconsActive = ref('gaai');
 
-const icons = computed((): TLayerImageData[] => {
-    return Object.entries(iconsList[iconsActive.value].icons)
-        .map((item) => {
-            const [name, file] = item;
-            const matchedSizeArr = name.match(/_([0-9]+)x([0-9]+)/i) ? name.match(/_([0-9]+)x([0-9]+)/i) : [0, 10, 10];
-            const [, width, height] = matchedSizeArr.map((num) => parseInt(num, 10));
-            const image = new Image(width, height);
-            image.crossOrigin = 'Anonymous';
-            image.dataset.name = name;
-            image.src = file;
-            return {
-                name,
-                width,
-                height,
-                image
-            };
-        })
-        .sort((a, b) => a.width * a.height - b.width * b.height);
+const icons = computed(() => {
+    return iconsList[iconsActive.value].icons.sort((a, b) => a.width * a.height - b.width * b.height);
 });
 
 function toggleIcons(val) {
     if (iconsActive.value === val) {
-        iconsActive.value = val = "none";
+        iconsActive.value = val = 'none';
     } else {
         iconsActive.value = val;
     }
@@ -48,7 +32,7 @@ function iconClick(e) {
         name: e.target.dataset.name,
         width: image.width,
         height: image.height,
-        icon: image.image
+        icon: e.target //image.image
     };
     emit('iconClicked', data);
 }
@@ -65,7 +49,13 @@ function iconDragStart(e: DragEvent) {
         <div v-if="customImages.length > 0" class="fui-iconset">
             <div class="fui-icons__header">
                 <div>Custom</div>
-                <div class="fui-icons__button fui-icons__remove-custom" @click="cleanCustom" title="Remove all custom icons">×</div>
+                <div
+                    class="fui-icons__button fui-icons__remove-custom"
+                    @click="cleanCustom"
+                    title="Remove all custom icons"
+                >
+                    ×
+                </div>
             </div>
             <img
                 v-for="(item, index) in customImages"
@@ -77,13 +67,17 @@ function iconDragStart(e: DragEvent) {
                 :data-name="item.name"
                 :width="item.width * 2"
                 :height="item.height * 2"
+                :data-w="item.width"
+                :data-h="item.height"
                 :alt="item.name"
                 :title="item.name"
             />
         </div>
         <div v-for="(value, key) in iconsList" class="fui-iconset">
             <div class="fui-icons__header" @click="toggleIcons(key)">
-                <div class="fui-icons__button fui-icons__toggle" title="Toggle">{{ key === iconsActive ? `-` : `+` }}</div>
+                <div class="fui-icons__button fui-icons__toggle" title="Toggle">
+                    {{ key === iconsActive ? `-` : `+` }}
+                </div>
                 <div>{{ value.title }}</div>
             </div>
             <template v-if="key === iconsActive">
@@ -93,8 +87,10 @@ function iconDragStart(e: DragEvent) {
                     @click="iconClick"
                     draggable="true"
                     :key="index"
-                    :src="item.image.src"
+                    :src="item.image"
                     :data-name="item.name"
+                    :data-w="item.width"
+                    :data-h="item.height"
                     :width="item.width * 2"
                     :height="item.height * 2"
                     :alt="item.name"
@@ -161,5 +157,4 @@ function iconDragStart(e: DragEvent) {
     border-radius: 4px;
     text-align: center;
 }
-
 </style>

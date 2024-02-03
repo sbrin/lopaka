@@ -7,6 +7,17 @@ declare module '*.png' {
     export default string;
 }
 
+declare type TPackImage = {
+    name: string;
+    width: number;
+    height: number;
+    image: string;
+};
+
+declare module '*.icons.pack' {
+    export default [];
+}
+
 declare module '*.ttf' {
     export default string;
 }
@@ -50,6 +61,17 @@ interface Window {
     gtag: any;
 }
 
-declare type ELayerType = 'box' | 'line' | 'dot' | 'circle' | 'disc' | 'string' | 'icon' | 'frame' | 'paint';
+declare type ELayerType =
+    | 'box'
+    | 'line'
+    | 'dot'
+    | 'circle'
+    | 'disc'
+    | 'string'
+    | 'icon'
+    | 'frame'
+    | 'paint'
+    | 'rect'
+    | 'ellipse';
 
 declare function gtag(...args: any[]): void;

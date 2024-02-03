@@ -1,12 +1,11 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
-import {BoxLayer} from '../core/layers/box.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
-import {DiscLayer} from '../core/layers/disc.layer';
 import {DotLayer} from '../core/layers/dot.layer';
-import {FrameLayer} from '../core/layers/frame.layer';
+import {EllipseLayer} from '../core/layers/ellipse.layer';
 import {IconLayer} from '../core/layers/icon.layer';
 import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
+import {RectangleLayer} from '../core/layers/rectangle.layer';
 import {TextLayer} from '../core/layers/text.layer';
 
 export type TPlatformFeatures = {
@@ -44,17 +43,11 @@ export abstract class Platform {
                 case TextLayer:
                     this.addText(layer as TextLayer, source);
                     break;
-                case BoxLayer:
-                    this.addBox(layer as BoxLayer, source);
-                    break;
-                case FrameLayer:
-                    this.addFrame(layer as FrameLayer, source);
+                case RectangleLayer:
+                    this.addRect(layer as RectangleLayer, source);
                     break;
                 case CircleLayer:
                     this.addCircle(layer as CircleLayer, source);
-                    break;
-                case DiscLayer:
-                    this.addDisc(layer as DiscLayer, source);
                     break;
                 case IconLayer:
                     this.addIcon(layer as IconLayer, source);
@@ -62,6 +55,8 @@ export abstract class Platform {
                 case PaintLayer:
                     this.addImage(layer as PaintLayer, source);
                     break;
+                case EllipseLayer:
+                    this.addEllipse(layer as EllipseLayer, source);
                 default:
                     console.warn(`Unknown layer type: ${layer.constructor.name}`);
             }
@@ -84,10 +79,9 @@ export abstract class Platform {
     abstract addDot(layer: DotLayer, source: TSourceCode): void;
     abstract addLine(layer: LineLayer, source: TSourceCode): void;
     abstract addText(layer: TextLayer, source: TSourceCode): void;
-    abstract addBox(layer: BoxLayer, source: TSourceCode): void;
-    abstract addFrame(layer: FrameLayer, source: TSourceCode): void;
+    abstract addRect(layer: RectangleLayer, source: TSourceCode): void;
     abstract addCircle(layer: CircleLayer, source: TSourceCode): void;
-    abstract addDisc(layer: DiscLayer, source: TSourceCode): void;
+    abstract addEllipse(layer: EllipseLayer, source: TSourceCode): void;
     abstract addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void;
     abstract addIcon(layer: IconLayer, source: TSourceCode): void;
 }

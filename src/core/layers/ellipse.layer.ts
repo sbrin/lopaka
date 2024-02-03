@@ -3,23 +3,26 @@ import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
 
-type TCircleState = TLayerState & {
+type TEllipseState = TLayerState & {
     p: number[]; // position
-    r: number; // radius
+    rx: number; // radius X
+    ry: number; // radius Y
     f: boolean; // fill
 };
 
-export class CircleLayer extends AbstractLayer {
-    protected type: ELayerType = 'circle';
-    protected state: TCircleState;
-    public radius: number = 1;
+export class EllipseLayer extends AbstractLayer {
+    protected type: ELayerType = 'ellipse';
+    protected state: TEllipseState;
+    public radiusX: number = 1;
+    public radiusY: number = 1;
     public position: Point = new Point();
     public fill: boolean = false;
 
     protected editState: {
         firstPoint: Point;
         position: Point;
-        radius: number;
+        radiusX: number;
+        radiusY: number;
         editPoint: TLayerEditPoint;
     } = null;
 
@@ -44,10 +47,20 @@ export class CircleLayer extends AbstractLayer {
             },
             type: TModifierType.number
         },
-        radius: {
-            getValue: () => this.radius,
+        radiusX: {
+            getValue: () => this.radiusX,
             setValue: (v: number) => {
-                this.radius = v;
+                this.radiusX = v;
+                this.updateBounds();
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.number
+        },
+        radiusY: {
+            getValue: () => this.radiusY,
+            setValue: (v: number) => {
+                this.radiusY = v;
                 this.updateBounds();
                 this.saveState();
                 this.draw();
@@ -97,8 +110,13 @@ export class CircleLayer extends AbstractLayer {
                     0
                 ),
             move: (offset: Point): void => {
-                this.position.y = Math.floor(this.editState.position.y + Math.round(offset.x / 2) * 2);
-                this.radius = Math.floor(this.editState.radius - offset.x / 2);
+                const dx = Math.round(offset.x / 2);
+                const dy = Math.round(offset.y / 2);
+                if (Math.floor(this.editState.radiusY + dy) >= 1) {
+                    this.position.y = this.editState.position.y - dy * 2;
+                }
+                this.radiusX = Math.max(1, Math.floor(this.editState.radiusX - dx));
+                this.radiusY = Math.max(1, Math.floor(this.editState.radiusY + dy));
             }
         },
         {
@@ -109,7 +127,10 @@ export class CircleLayer extends AbstractLayer {
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
             move: (offset: Point): void => {
-                this.radius = Math.round(this.editState.radius - offset.x / 2);
+                const dx = Math.round(offset.x / 2);
+                const dy = Math.round(offset.y / 2);
+                this.radiusX = Math.max(1, Math.round(this.editState.radiusX - dx));
+                this.radiusY = Math.max(1, Math.round(this.editState.radiusY - dy));
             }
         },
         {
@@ -122,8 +143,13 @@ export class CircleLayer extends AbstractLayer {
                     0
                 ),
             move: (offset: Point): void => {
-                this.position.x = Math.ceil(this.editState.position.x - Math.round(offset.x / 2) * 2);
-                this.radius = Math.ceil(this.editState.radius + offset.x / 2);
+                const dx = Math.round(offset.x / 2);
+                const dy = Math.round(offset.y / 2);
+                if (Math.ceil(this.editState.radiusX + dx) >= 1) {
+                    this.position.x = this.editState.position.x - dx * 2;
+                }
+                this.radiusX = Math.max(1, Math.ceil(this.editState.radiusX + dx));
+                this.radiusY = Math.max(1, Math.ceil(this.editState.radiusY - dy));
             }
         },
         {
@@ -131,11 +157,17 @@ export class CircleLayer extends AbstractLayer {
             getRect: (): Rect =>
                 new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
             move: (offset: Point): void => {
-                this.position = this.editState.position
-                    .clone()
-                    .subtract(Math.round(offset.x / 2) * 2)
-                    .ceil();
-                this.radius = Math.ceil(this.editState.radius + offset.x / 2);
+                const dx = Math.round(offset.x / 2);
+                const dy = Math.round(offset.y / 2);
+
+                if (Math.ceil(this.editState.radiusX + dx) >= 1) {
+                    this.position.x = this.editState.position.x - dx * 2;
+                }
+                if (Math.ceil(this.editState.radiusY + dy) >= 1) {
+                    this.position.y = this.editState.position.y - dy * 2;
+                }
+                this.radiusX = Math.max(1, Math.ceil(this.editState.radiusX + dx));
+                this.radiusY = Math.max(1, Math.ceil(this.editState.radiusY + dy));
             }
         }
     ];
@@ -144,14 +176,16 @@ export class CircleLayer extends AbstractLayer {
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
-            this.radius = 1;
+            this.radiusX = 1;
+            this.radiusY = 1;
             this.updateBounds();
             this.draw();
         }
         this.editState = {
             firstPoint: point,
             position: this.position.clone(),
-            radius: this.radius,
+            radiusX: this.radiusX,
+            radiusY: this.radiusY,
             editPoint
         };
     }
@@ -167,17 +201,16 @@ export class CircleLayer extends AbstractLayer {
                 editPoint.move(firstPoint.clone().subtract(point));
                 break;
             case EditMode.CREATING:
-                const radius = Math.max(
-                    Math.max(...point.clone().subtract(firstPoint).abs().divide(2).round().xy) - 2,
-                    1
+                const radius = point.clone().subtract(firstPoint).abs().divide(2).round().subtract(2);
+                this.radiusX = Math.max(radius.x, 0);
+                this.radiusY = Math.max(radius.y, 0);
+                const signs = point.clone().subtract(firstPoint).xy.map(Math.sign);
+                this.position = firstPoint.min(
+                    firstPoint
+                        .clone()
+                        .add(new Point(radius.clone().multiply(2).add(1)).multiply(signs))
+                        .floor()
                 );
-                this.radius = radius;
-                if (originalEvent.altKey) {
-                    this.position = firstPoint.clone().subtract(radius);
-                } else {
-                    const signs = point.clone().subtract(firstPoint).xy.map(Math.sign);
-                    this.position = firstPoint.min(firstPoint.clone().add(new Point(radius * 2 + 1).multiply(signs)));
-                }
                 break;
         }
         this.updateBounds();
@@ -192,32 +225,34 @@ export class CircleLayer extends AbstractLayer {
     }
 
     draw() {
-        const {dc, radius, position} = this;
-        const center = position.clone().add(radius);
+        const {dc, radiusX, radiusY, position} = this;
+        const center = position.clone().add(radiusX, radiusY);
         dc.clear();
         dc.ctx.fillStyle = this.color;
         dc.ctx.strokeStyle = this.color;
-        dc.pixelateCircle(center, radius, this.fill);
+        dc.pixelateEllipse(center, radiusX, radiusY, this.fill);
     }
 
     saveState() {
-        const state: TCircleState = {
+        const state: TEllipseState = {
             p: this.position.xy,
-            r: this.radius,
+            rx: this.radiusX,
+            ry: this.radiusY,
+            f: this.fill,
             n: this.name,
             i: this.index,
             g: this.group,
             t: this.type,
             u: this.uid,
-            c: this.color,
-            f: this.fill
+            c: this.color
         };
         this.state = state;
     }
 
-    loadState(state: TCircleState) {
+    loadState(state: TEllipseState) {
         this.position = new Point(state.p);
-        this.radius = state.r;
+        this.radiusX = state.rx;
+        this.radiusY = state.ry;
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;
@@ -229,6 +264,6 @@ export class CircleLayer extends AbstractLayer {
     }
 
     updateBounds() {
-        this.bounds = new Rect(this.position, new Point(this.radius * 2)).add(0, 0, 1, 1);
+        this.bounds = new Rect(this.position, new Point(this.radiusX, this.radiusY).multiply(2)).add(0, 0, 1, 1);
     }
 }

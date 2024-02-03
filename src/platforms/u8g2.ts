@@ -1,13 +1,12 @@
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
-import {BoxLayer} from '../core/layers/box.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
-import {DiscLayer} from '../core/layers/disc.layer';
 import {DotLayer} from '../core/layers/dot.layer';
-import {FrameLayer} from '../core/layers/frame.layer';
+import {EllipseLayer} from '../core/layers/ellipse.layer';
 import {IconLayer} from '../core/layers/icon.layer';
 import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
+import {RectangleLayer} from '../core/layers/rectangle.layer';
 import {TextLayer} from '../core/layers/text.layer';
 import {fontTypes} from '../draw/fonts/fontTypes';
 import {imgDataToXBMP, toCppVariableName} from '../utils';
@@ -55,21 +54,42 @@ export class U8g2Platform extends Platform {
         source.code.push(`u8g2.setFont(${fontName});
 u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
     }
-    addBox(layer: BoxLayer, source: TSourceCode): void {
-        source.code.push(`u8g2.drawBox(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`);
-    }
-    addFrame(layer: FrameLayer, source: TSourceCode): void {
-        source.code.push(`u8g2.drawFrame(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`);
+    addRect(layer: RectangleLayer, source: TSourceCode): void {
+        if (layer.fill) {
+            source.code.push(
+                `u8g2.drawBox(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`
+            );
+        } else {
+            source.code.push(
+                `u8g2.drawFrame(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y});`
+            );
+        }
     }
     addCircle(layer: CircleLayer, source: TSourceCode): void {
-        const {radius, position} = layer;
+        const {radius, position, fill} = layer;
         const center = position.clone().add(radius);
-        source.code.push(`u8g2.drawCircle(${center.x}, ${center.y}, ${radius});`);
+        if (fill) {
+            source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radius});`);
+        } else {
+            source.code.push(`u8g2.drawCircle(${center.x}, ${center.y}, ${radius});`);
+        }
     }
-    addDisc(layer: DiscLayer, source: TSourceCode): void {
-        const {radius, position} = layer;
-        const center = position.clone().add(radius);
-        source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radius});`);
+    addEllipse(layer: EllipseLayer, source: TSourceCode): void {
+        const {radiusX, radiusY, position} = layer;
+        const center = position.clone().add(radiusX, radiusY);
+        if (radiusX === radiusY) {
+            if (layer.fill) {
+                source.code.push(`u8g2.drawDisc(${center.x}, ${center.y}, ${radiusX});`);
+            } else {
+                source.code.push(`u8g2.drawCircle(${center.x}, ${center.y}, ${radiusX});`);
+            }
+        } else {
+            if (layer.fill) {
+                source.code.push(`u8g2.drawFilledEllipse(${center.x}, ${center.y}, ${radiusX}, ${radiusY});`);
+            } else {
+                source.code.push(`u8g2.drawEllipse(${center.x}, ${center.y}, ${radiusX}, ${radiusY});`);
+            }
+        }
     }
     addImage(layer: IconLayer | PaintLayer, source: TSourceCode): void {
         let image;
@@ -84,7 +104,7 @@ u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
             source.declarations.push(varDeclaration);
         }
         source.code.push(
-            `u8g2.drawXBMP( ${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${varName});`
+            `u8g2.drawXBMP(${layer.position.x}, ${layer.position.y}, ${layer.size.x}, ${layer.size.y}, ${varName});`
         );
     }
     addIcon(layer: IconLayer, source: TSourceCode): void {

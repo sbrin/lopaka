@@ -41,17 +41,18 @@ export class IconLayer extends AbstractImageLayer {
             getValue: () => this.data,
             setValue: (v: HTMLImageElement) => {
                 this.imageName = v.dataset.name;
+                const [w, h] = [Number(v.dataset.w), Number(v.dataset.h)];
                 const buf = document.createElement('canvas');
                 const ctx = buf.getContext('2d');
-                buf.width = v.width;
-                buf.height = v.height;
+                buf.width = w;
+                buf.height = h;
                 ctx.drawImage(v, 0, 0);
                 if (this.features.hasInvertedColors) {
-                    this.data = inverImageDataWithAlpha(ctx.getImageData(0, 0, v.width, v.height));
+                    this.data = inverImageDataWithAlpha(ctx.getImageData(0, 0, w, h));
                 } else {
-                    this.data = ctx.getImageData(0, 0, v.width, v.height);
+                    this.data = ctx.getImageData(0, 0, w, h);
                 }
-                this.size = new Point(v.width, v.height);
+                this.size = new Point(w, h);
                 this.updateBounds();
                 this.saveState();
                 this.draw();

@@ -1,14 +1,13 @@
 <script lang="ts" setup>
-import {UnwrapRef, computed, toRefs} from 'vue';
-import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
+import {UnwrapRef, computed} from 'vue';
+import {AbstractLayer} from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
 import {TextLayer} from '../../core/layers/text.layer';
 import {IconLayer} from '../../core/layers/icon.layer';
 const session = useSession();
-const {updates} = toRefs(session.virtualScreen.state);
 
 const layers = computed(() => {
-    return updates.value && session.state.layers.sort((a, b) => b.index - a.index);
+    return session.state.layers.sort((a, b) => b.index - a.index);
 });
 
 function classNames(layer) {
@@ -34,7 +33,7 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
 </script>
 <template>
     <div class="layers">
-        <h2 class="title">Layers</h2>
+        <h2 class="title">Layers <slot></slot></h2>
         <ul class="layers__list">
             <li
                 v-for="(item, idx) in layers"

@@ -24,7 +24,7 @@ export class AddPlugin extends AbstractEditorPlugin {
             this.session.addLayer(state.activeLayer as AbstractLayer);
             state.activeLayer.startEdit(EditMode.CREATING, point);
             state.activeTool.onStartEdit(state.activeLayer as AbstractLayer, point, event);
-            this.session.virtualScreen.redraw();
+            this.session.virtualScreen.redraw(false);
         }
     }
 
@@ -32,7 +32,7 @@ export class AddPlugin extends AbstractEditorPlugin {
         if (this.captured) {
             const {activeLayer} = this.session.editor.state;
             activeLayer.edit(point, event);
-            this.session.virtualScreen.redraw();
+            this.session.virtualScreen.redraw(false);
         }
     }
 
