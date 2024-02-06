@@ -149,7 +149,7 @@ export class VirtualScreen {
         this.clear();
         const overlays = [];
         this.session.state.layers
-            .sort((a, b) => b.index - a.index)
+            .sort((a, b) => a.index - b.index)
             .forEach((layer) => {
                 // skip all oberlays
                 if (layer.modifiers.overlay && layer.modifiers.overlay.getValue()) {
