@@ -99,6 +99,7 @@ function onChange(event: Event, param: TLayerModifier) {
                 <span class="fui-form-label" v-if="param.type !== TModifierType.image">{{ name }}</span>
                 <div v-if="param.type == TModifierType.number">
                     <input
+                        :disabled="session.state.isPublic"
                         class="inspector__input fui-form-input"
                         type="number"
                         :value="param.getValue()"
@@ -108,6 +109,7 @@ function onChange(event: Event, param: TLayerModifier) {
                 </div>
                 <div v-else-if="param.type == TModifierType.string">
                     <input
+                        :disabled="session.state.isPublic"
                         class="inspector__input fui-form-input"
                         type="text"
                         :value="param.getValue()"
@@ -117,6 +119,7 @@ function onChange(event: Event, param: TLayerModifier) {
                 </div>
                 <div v-else-if="param.type == TModifierType.boolean">
                     <input
+                        :disabled="session.state.isPublic"
                         class="inspector__input fui-form-input"
                         type="checkbox"
                         :checked="param.getValue()"
@@ -126,6 +129,7 @@ function onChange(event: Event, param: TLayerModifier) {
                 </div>
                 <div v-else-if="param.type == TModifierType.color">
                     <input
+                        :disabled="session.state.isPublic"
                         class="inspector__input fui-form-input"
                         type="color"
                         :value="param.getValue()"
@@ -136,6 +140,7 @@ function onChange(event: Event, param: TLayerModifier) {
                 </div>
                 <div v-else-if="param.type == TModifierType.font">
                     <select
+                        :disabled="session.state.isPublic"
                         class="inspector__input fui-form-input"
                         :value="param.getValue()"
                         :readonly="!param.setValue"

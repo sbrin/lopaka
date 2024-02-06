@@ -102,6 +102,9 @@ export class Editor {
         const {virtualScreen, state} = this.session;
         const {display, scale, layers} = state;
         if (event instanceof KeyboardEvent) {
+            if (this.session.state.isPublic) {
+                return;
+            }
             if (event.target === document.body && Object.values(Keys).indexOf(event.code as Keys) != -1) {
                 event.preventDefault();
                 this.onKeyDown(Keys[event.code], event);
@@ -123,7 +126,7 @@ export class Editor {
                     this.onMouseDown(point, event);
                     break;
                 case 'mousemove':
-                    this.onMouseMove(point, event);
+                    !this.session.state.isPublic && this.onMouseMove(point, event);
                     break;
                 case 'mouseup':
                     if (this.mouseDownCaptured) {
