@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {defineProps} from 'vue';
+import {computed, defineProps} from 'vue';
 
 const props = defineProps<{
     active?: boolean;
@@ -7,11 +7,12 @@ const props = defineProps<{
     danger?: boolean;
 }>();
 
-const classNames = {
+const classNames = computed(() => ({
     button_active: props.active,
     button_small: props.small,
     button_danger: props.danger,
-}
+}));
+
 </script>
 <template>
     <span class="button" :class="classNames">
