@@ -26,7 +26,9 @@ export class SelectPlugin extends AbstractEditorPlugin {
         const {layers, scale, display} = this.session.state;
         const {activeTool} = this.session.editor.state;
         if (!activeTool) {
-            const hovered = layers.filter((l) => l.contains(point));
+            const hovered = layers
+                .filter((l) => l.contains(point))
+                .sort((a, b) => b.index - a.index);
             if (hovered.length) {
                 // if there is a hovered layer
                 const upperLayer = hovered[0];
