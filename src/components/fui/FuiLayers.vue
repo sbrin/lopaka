@@ -45,7 +45,7 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
                 <div class="layer__name" @click="setActive(item)">
                     {{ getLayerListItem(item) }}
                 </div>
-                <div class="layer__remove" @click="session.removeLayer(item as any)">×</div>
+                <div v-if="!session.state.isPublic" class="layer__remove" @click="session.removeLayer(item as any)">×</div>
             </li>
         </ul>
     </div>

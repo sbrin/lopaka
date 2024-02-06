@@ -32,6 +32,7 @@ type TSessionState = {
     scale: Point;
     lock: boolean;
     customImages: TLayerImageData[];
+    isPublic: boolean;
 };
 
 export class Session {
@@ -108,7 +109,8 @@ export class Session {
         customDisplay: new Point(128, 64),
         layers: [],
         scale: new Point(4, 4),
-        customImages: []
+        customImages: [],
+        isPublic: false,
     });
 
     history: ChangeHistory = useHistory();
