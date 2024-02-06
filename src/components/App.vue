@@ -164,7 +164,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
     <div class="fui-editor">
         <div class="fui-editor__left">
             <FuiLayers v-show="!isEmpty">
-                <FuiButton @click="resetScreen" small danger v-show="!isEmpty">clear</FuiButton>
+                <FuiButton v-if="!session.state.isPublic" @click="resetScreen" small danger v-show="!isEmpty">clear</FuiButton>
             </FuiLayers>
         </div>
         <div class="fui-editor__center">
@@ -179,14 +179,16 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 >
                     {{ flipperPreviewBtnText }}
                 </FuiButton>
-                <FuiButton v-if="isChanged" @click="saveChanges" title="Save changes for selected library">
-                    Save
-                </FuiButton>
+                <FuiButton
+                    v-if="!session.state.isPublic && isChanged"
+                    @click="saveChanges"
+                    title="Save changes for selected library"
+                >Save</FuiButton>
             </div>
-            <FuiTools></FuiTools>
+            <FuiTools v-if="!session.state.isPublic"></FuiTools>
             <FuiCanvas ref="fuiCanvas" />
             <div class="fui-editor__tools">
-                <div class="fui-editor-header">
+                <div v-if="!session.state.isPublic" class="fui-editor-header">
                     <FuiTabs :active-tab="activeTab" @set-active-tab="setactiveTab"></FuiTabs>
                 </div>
                 <FuiIcons
@@ -200,7 +202,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 ></FuiIcons>
                 <FuiCode v-show="activeTab === 'code'"></FuiCode>
                 <div class="buttons-bottom">
-                    <FuiFile type="file" title="import image" @set-active-tab="setactiveTab"></FuiFile>
+                    <FuiFile v-if="!session.state.isPublic" type="file" title="import image" @set-active-tab="setactiveTab"></FuiFile>
                     <FuiButton @click="copyCode" v-show="showCopyCode">copy code</FuiButton>
                 </div>
             </div>
