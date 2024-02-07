@@ -11,6 +11,7 @@ type BDFGlyph = {
     bounds?: Rect;
     scalableSize?: Point;
     deviceSize?: Point;
+    bytesPerRow?: number;
     bitmap?: number[][];
 };
 
@@ -52,23 +53,28 @@ export class BDFFont extends Font {
     }
 
     getSize(dc: DrawContext, text: string): Point {
-        return this.meta.bounds.size.clone().multiply(text.length, 1).subtract(1, 0);
+        const size = this.meta.bounds.size.clone().multiply(text.length, 1).add(this.meta.bounds.pos);
+        return size;
     }
 
     drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
-        const {bounds} = this.meta;
         const charPos = position.clone();
         dc.ctx.beginPath();
         for (let i = 0; i < text.length; i++) {
+            const pos = charPos.clone().add(this.meta.bounds.size.x * i, 0);
             const charCode = text.charCodeAt(i);
             if (this.glyphs.has(charCode)) {
                 const glyphData = this.glyphs.get(charCode);
+                const offset = new Point().subtract(0, glyphData.bounds.pos.y).add(0, this.meta.bounds.pos.y);
+                console.log(glyphData.char, glyphData, this.meta, this.meta.bounds.pos.y, glyphData.bounds.pos.y);
                 const {bytes} = glyphData;
-                for (let j = 0; j < bytes.byteLength; j++) {
-                    const byte = bytes[j];
-                    for (let i = 0; i < 8; i++) {
-                        if (byte & (1 << (7 - i))) {
-                            dc.ctx.rect(i + charPos.x, j + charPos.y - bounds.y, 1, 1);
+                for (let j = 0; j < bytes.byteLength / glyphData.bytesPerRow; j++) {
+                    for (let k = 0; k < glyphData.bytesPerRow; k++) {
+                        const byte = bytes[j * glyphData.bytesPerRow + k];
+                        for (let l = 0; l < 8; l++) {
+                            if (byte & (1 << (7 - l))) {
+                                dc.ctx.rect(charPos.x + k * 8 + l, charPos.y + j + offset.y, 1, 1);
+                            }
                         }
                     }
                 }
@@ -98,8 +104,6 @@ export class BDFFont extends Font {
             const line = fontLines[i];
             let data = line.split(/\s+/);
             const declaration = data[0];
-                                
-            // console.log(data);
             switch (declaration) {
                 case 'STARTFONT':
                     stack.push(declaration);
@@ -147,18 +151,13 @@ export class BDFFont extends Font {
                     stack.push(declaration);
                     bytes = [];
                     let glyphName = '';
-                    
-                    console.log(data);
-
                     if (/^\d+$/.test(data[1])) {
                         // Convert Unicode sequence to a character
                         const charCode = parseInt(data[1]);
-                        glyphName = String.fromCharCode(data[1]);
-                        console.log(glyphName);
+                        glyphName = String.fromCharCode(charCode);
                     } else {
                         glyphName = data[1];
                     }
-                
                     glyph = {
                         name: glyphName,
                         bitmap: []
@@ -173,6 +172,7 @@ export class BDFFont extends Font {
                     break;
                 case 'DWIDTH':
                     glyph.deviceSize = new Point(parseInt(data[1]), parseInt(data[2]));
+                    glyph.bytesPerRow = Math.ceil(parseInt(data[1]) / 8);
                     break;
                 case 'BBX':
                     glyph.bounds = new Rect(parseInt(data[3]), parseInt(data[4]), parseInt(data[1]), parseInt(data[2]));
@@ -185,28 +185,23 @@ export class BDFFont extends Font {
                     // padded with zeroes on the right. In this example, the glyph is exactly 8 pixels wide,
                     // and so occupies exactly 8 bits (one byte) per line so that there is no padding.
                     // The most significant bit of a line of raster data represents the leftmost pixel.
-                    
-                    if (fontLines[i + 1].length === 2) {
-                        for (let row = 0; row < this.meta.size.points; row++, i++) {
-                            if (fontLines[i + 1].length > 2) {
-                                for (let pad = row; pad < this.meta.size.points; pad++) {
-                                    bytes.unshift(0);
-                                }
-                                break;       
-                            }
-                            const byte = parseInt(fontLines[i + 1], 16);
+                    let row = i;
+                    while (fontLines[row + 1] != 'ENDCHAR') {
+                        row++;
+                        for (let j = 0; j < glyph.bytesPerRow; j++) {
+                            const byte = parseInt(fontLines[row].slice(j * 2, (j + 1) * 2), 16);
                             bytes.push(byte);
                         }
                     }
-                    console.log(glyph.bounds);
-                    
                     break;
                 case 'ENDCHAR':
                     stack.pop();
+                    if (bytes.length < this.meta.size.points * glyph.bytesPerRow) {
+                        const padding = new Array(this.meta.size.points * glyph.bytesPerRow - bytes.length).fill(0x00);
+                        bytes = [...padding, ...bytes];
+                    }
                     glyph.bytes = new Uint8Array(bytes);
                     this.glyphs.set(glyph.code, glyph);
-                    console.log('ENDCHAR', bytes, glyph);
-                    
                     glyph = null;
                     break;
                 case 'ENDFONT':

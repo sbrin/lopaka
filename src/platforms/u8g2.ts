@@ -26,7 +26,8 @@ export class U8g2Platform extends Platform {
         fontTypes['haxrcorp4089_tr'],
         fontTypes['helvB08_tr'],
         fontTypes['6x10_tr'],
-        fontTypes['profont22_tr']
+        fontTypes['profont22_tr'],
+        fontTypes['profont11']
     ];
 
     constructor() {
