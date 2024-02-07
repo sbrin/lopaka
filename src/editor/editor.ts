@@ -47,12 +47,12 @@ export class Editor {
 
     tools: {[key: string]: AbstractTool} = {
         paint: new PaintTool(this),
-        dot: new DotTool(this),
-        line: new LineTool(this),
+        string: new TextTool(this),
         rect: new RectTool(this),
         circle: new CircleTool(this),
         ellipse: new EllipseTool(this),
-        string: new TextTool(this)
+        line: new LineTool(this),
+        dot: new DotTool(this),
     };
 
     getSupportedTools(platform: string): {[key: string]: AbstractTool} {
