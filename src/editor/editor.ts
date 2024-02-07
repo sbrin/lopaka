@@ -36,6 +36,8 @@ export class Editor {
 
     layer: AbstractLayer;
 
+    mouseDownCaptured: boolean = false;
+
     state: UnwrapRef<TEditorState> = reactive({
         activeLayer: null,
         activeTool: null
@@ -114,18 +116,25 @@ export class Editor {
         } else if (event instanceof MouseEvent) {
             const screenPoint = new Point(event.offsetX, event.offsetY).clone();
             const point = screenPoint.clone().divide(scale).floor(); //.boundTo(new Rect(new Point(), display));
+            let alienEvent: boolean = false;
             switch (event.type) {
                 case 'click':
                     this.onMouseClick(point, event);
                     break;
                 case 'mousedown':
+                    this.mouseDownCaptured = true;
                     this.onMouseDown(point, event);
                     break;
                 case 'mousemove':
                     !this.session.state.isPublic && this.onMouseMove(point, event);
                     break;
                 case 'mouseup':
-                    this.onMouseUp(point, event);
+                    if (this.mouseDownCaptured) {
+                        this.onMouseUp(point, event);
+                        this.mouseDownCaptured = false;
+                    } else {
+                        alienEvent = true;
+                    }
                     break;
                 case 'mouseleave':
                     this.onMouseLeave(point, event);
@@ -134,7 +143,9 @@ export class Editor {
                     this.onMouseDoubleClick(point, event);
                     break;
             }
-            virtualScreen.updateMousePosition(screenPoint, event);
+            if (!alienEvent) {
+                virtualScreen.updateMousePosition(screenPoint);
+            }
         }
     };
 
