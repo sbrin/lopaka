@@ -54,6 +54,7 @@ const classNames = computed(() => ({
 
 a.button {
   text-decoration: none;
+  text-wrap: nowrap;
 }
 
 .button_small {

@@ -202,6 +202,9 @@ export class Session {
             isLogged && logEvent('select_library', name);
         });
     };
+    setIsPublic = (enabled: boolean) => {
+        this.state.isPublic = enabled;
+    };
     generateCode = () => {
         const {platform, layers} = this.state;
         const sourceCode = this.platforms[platform].generateSourceCode(
