@@ -16,10 +16,6 @@ const u8g2FontMap = {
     f4x6_tr: '4x6_tr'
 };
 
-const u8g2FontMap = {
-    'f4x6_tr': "4x6_tr",
-}
-
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
     protected name = 'U8g2';
