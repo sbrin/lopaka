@@ -6,10 +6,16 @@ import profont22 from '/fonts/profont22.ttf?url';
 import bdf5x8 from './bdf/5x8.bdf?url';
 import bdf6x10 from './bdf/6x10.bdf?url';
 import adafruitFont from './binary/adafruit-5x7.bin?url';
-import { FontFormat } from "./font";
+import {FontFormat} from './font';
+import timR10 from './bdf/timR10.bdf?url';
+import timR12 from './bdf/timR12.bdf?url';
+import timR14 from './bdf/timR14.bdf?url';
+import timR18 from './bdf/timR18.bdf?url';
+import timR24 from './bdf/timR24.bdf?url';
+//src/draw/fonts/bdf/timR10.bdf src/draw/fonts/bdf/timR12.bdf src/draw/fonts/bdf/timR14.bdf src/draw/fonts/bdf/timR18.bdf src/draw/fonts/bdf/timR24.bdf
 
 export const fontTypes = {
-    'adafruit': {
+    adafruit: {
         name: 'adafruit',
         title: 'Adafruit 5x7',
         file: adafruitFont,
@@ -20,7 +26,7 @@ export const fontTypes = {
         },
         format: FontFormat.FORMAT_5x7
     },
-    'haxrcorp4089_tr': {
+    haxrcorp4089_tr: {
         name: 'haxrcorp4089_tr',
         title: 'HaXRcorp 4089 8',
         file: haxrcorp4089,
@@ -31,7 +37,7 @@ export const fontTypes = {
         },
         format: FontFormat.FORMAT_TTF
     },
-    'helvB08_tr': {
+    helvB08_tr: {
         name: 'helvB08_tr',
         title: 'Helvetica Bold 8',
         file: u8g2_font_helvB08,
@@ -43,7 +49,7 @@ export const fontTypes = {
         format: FontFormat.FORMAT_TTF
     },
 
-    'profont11': {
+    profont11: {
         name: 'profont11_mr',
         title: 'Profont 11',
         file: profont11,
@@ -55,7 +61,7 @@ export const fontTypes = {
         format: FontFormat.FORMAT_BDF
     },
 
-    'profont22_tr': {
+    profont22_tr: {
         name: 'profont22_tr',
         title: 'Profont 22',
         file: profont22,
@@ -98,5 +104,60 @@ export const fontTypes = {
             size: 10
         },
         format: FontFormat.FORMAT_BDF
+    },
+    timR10: {
+        name: 'timR10',
+        title: 'TimR 10',
+        file: timR10,
+        options: {
+            textCharHeight: 10,
+            textCharWidth: 6,
+            size: 10
+        },
+        format: FontFormat.FORMAT_BDF
+    },
+    timR12: {
+        name: 'timR12',
+        title: 'TimR 12',
+        file: timR12,
+        options: {
+            textCharHeight: 12,
+            textCharWidth: 7,
+            size: 12
+        },
+        format: FontFormat.FORMAT_BDF
+    },
+    timR14: {
+        name: 'timR14',
+        title: 'TimR 14',
+        file: timR14,
+        options: {
+            textCharHeight: 14,
+            textCharWidth: 8,
+            size: 14
+        },
+        format: FontFormat.FORMAT_BDF
+    },
+    timR18: {
+        name: 'timR18',
+        title: 'TimR 18',
+        file: timR18,
+        options: {
+            textCharHeight: 18,
+            textCharWidth: 10,
+            size: 18
+        },
+        format: FontFormat.FORMAT_BDF
+    },
+    timR24: {
+        name: 'timR24',
+        title: 'TimR 24',
+        file: timR24,
+        options: {
+            textCharHeight: 24,
+            textCharWidth: 14,
+            size: 24
+        },
+        format: FontFormat.FORMAT_BDF
     }
-}
+};
