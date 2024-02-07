@@ -32,6 +32,27 @@ type BDFMeta = {
     totalChars?: number;
 };
 
+enum BDFKeys {
+    STARTFONT = 'STARTFONT',
+    FONT = 'FONT',
+    SIZE = 'SIZE',
+    FONTBOUNDINGBOX = 'FONTBOUNDINGBOX',
+    STARTPROPERTIES = 'STARTPROPERTIES',
+    FONT_DESCENT = 'FONT_DESCENT',
+    FONT_ASCENT = 'FONT_ASCENT',
+    DEFAULT_CHAR = 'DEFAULT_CHAR',
+    ENDPROPERTIES = 'ENDPROPERTIES',
+    CHARS = 'CHARS',
+    STARTCHAR = 'STARTCHAR',
+    ENCODING = 'ENCODING',
+    SWIDTH = 'SWIDTH',
+    DWIDTH = 'DWIDTH',
+    BBX = 'BBX',
+    BITMAP = 'BITMAP',
+    ENDCHAR = 'ENDCHAR',
+    ENDFONT = 'ENDFONT'
+}
+
 export class BDFFont extends Font {
     meta: BDFMeta;
     glyphs: Map<number, BDFGlyph> = new Map();
@@ -53,19 +74,29 @@ export class BDFFont extends Font {
     }
 
     getSize(dc: DrawContext, text: string): Point {
-        const size = this.meta.bounds.size.clone().multiply(text.length, 1).add(this.meta.bounds.pos);
+        const size = new Point();
+        for (let i = 0; i < text.length; i++) {
+            const charCode = text.charCodeAt(i);
+            if (this.glyphs.has(charCode)) {
+                const glyphData = this.glyphs.get(charCode);
+                size.x += glyphData.deviceSize.x;
+                const h = glyphData.bounds.size.y + glyphData.bounds.pos.y;
+                if (h > size.y) {
+                    size.y = h;
+                }
+            }
+        }
         return size;
     }
 
     drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
-        const charPos = position.clone();
+        const charPos = position.clone().subtract(0, this.meta.size.points);
         dc.ctx.beginPath();
         for (let i = 0; i < text.length; i++) {
-            const pos = charPos.clone().add(this.meta.bounds.size.x * i, 0);
             const charCode = text.charCodeAt(i);
             if (this.glyphs.has(charCode)) {
                 const glyphData = this.glyphs.get(charCode);
-                const offset = new Point().subtract(0, glyphData.bounds.pos.y).add(0, this.meta.bounds.pos.y);
+                const offset = new Point().subtract(0, glyphData.bounds.pos.y);
                 console.log(glyphData.char, glyphData, this.meta, this.meta.bounds.pos.y, glyphData.bounds.pos.y);
                 const {bytes} = glyphData;
                 for (let j = 0; j < bytes.byteLength / glyphData.bytesPerRow; j++) {
@@ -105,21 +136,21 @@ export class BDFFont extends Font {
             let data = line.split(/\s+/);
             const declaration = data[0];
             switch (declaration) {
-                case 'STARTFONT':
+                case BDFKeys.STARTFONT:
                     stack.push(declaration);
                     this.meta.version = data[1];
                     break;
-                case 'FONT':
+                case BDFKeys.FONT:
                     this.meta.name = data[1];
                     break;
-                case 'SIZE':
+                case BDFKeys.SIZE:
                     this.meta.size = {
                         points: parseInt(data[1]),
                         resolutionX: parseInt(data[2]),
                         resolutionY: parseInt(data[3])
                     };
                     break;
-                case 'FONTBOUNDINGBOX':
+                case BDFKeys.FONTBOUNDINGBOX:
                     this.meta.bounds = new Rect(
                         parseInt(data[3]),
                         parseInt(data[4]),
@@ -127,27 +158,27 @@ export class BDFFont extends Font {
                         parseInt(data[2])
                     );
                     break;
-                case 'STARTPROPERTIES':
+                case BDFKeys.STARTPROPERTIES:
                     stack.push(declaration);
                     this.meta.properties = {};
                     break;
-                case 'FONT_DESCENT':
+                case BDFKeys.FONT_DESCENT:
                     this.meta.properties.fontDescent = parseInt(data[1]);
                     break;
-                case 'FONT_ASCENT':
+                case BDFKeys.FONT_ASCENT:
                     this.meta.properties.fontAscent = parseInt(data[1]);
                     break;
-                case 'DEFAULT_CHAR':
+                case BDFKeys.DEFAULT_CHAR:
                     this.meta.properties.defaultChar = parseInt(data[1]);
                     break;
-                case 'ENDPROPERTIES':
+                case BDFKeys.ENDPROPERTIES:
                     stack.pop();
                     break;
 
-                case 'CHARS':
+                case BDFKeys.CHARS:
                     this.meta.totalChars = parseInt(data[1]);
                     break;
-                case 'STARTCHAR':
+                case BDFKeys.STARTCHAR:
                     stack.push(declaration);
                     bytes = [];
                     let glyphName = '';
@@ -163,21 +194,21 @@ export class BDFFont extends Font {
                         bitmap: []
                     };
                     break;
-                case 'ENCODING':
+                case BDFKeys.ENCODING:
                     glyph.code = parseInt(data[1]);
                     glyph.char = String.fromCharCode(parseInt(data[1]));
                     break;
-                case 'SWIDTH':
+                case BDFKeys.SWIDTH:
                     glyph.scalableSize = new Point(parseInt(data[1]), parseInt(data[2]));
                     break;
-                case 'DWIDTH':
+                case BDFKeys.DWIDTH:
                     glyph.deviceSize = new Point(parseInt(data[1]), parseInt(data[2]));
                     glyph.bytesPerRow = Math.ceil(parseInt(data[1]) / 8);
                     break;
-                case 'BBX':
+                case BDFKeys.BBX:
                     glyph.bounds = new Rect(parseInt(data[3]), parseInt(data[4]), parseInt(data[1]), parseInt(data[2]));
                     break;
-                case 'BITMAP':
+                case BDFKeys.BITMAP:
                     // BITMAP begins the bitmap for the current glyph.
                     // This line must be followed by one line per pixel on the Y-axis.
                     // Each line contains the hexadecimal representation of pixels in a row.
@@ -186,7 +217,7 @@ export class BDFFont extends Font {
                     // and so occupies exactly 8 bits (one byte) per line so that there is no padding.
                     // The most significant bit of a line of raster data represents the leftmost pixel.
                     let row = i;
-                    while (fontLines[row + 1] != 'ENDCHAR') {
+                    while (fontLines[row + 1] != BDFKeys.ENDCHAR) {
                         row++;
                         for (let j = 0; j < glyph.bytesPerRow; j++) {
                             const byte = parseInt(fontLines[row].slice(j * 2, (j + 1) * 2), 16);
@@ -194,7 +225,7 @@ export class BDFFont extends Font {
                         }
                     }
                     break;
-                case 'ENDCHAR':
+                case BDFKeys.ENDCHAR:
                     stack.pop();
                     if (bytes.length < this.meta.size.points * glyph.bytesPerRow) {
                         const padding = new Array(this.meta.size.points * glyph.bytesPerRow - bytes.length).fill(0x00);
@@ -204,10 +235,11 @@ export class BDFFont extends Font {
                     this.glyphs.set(glyph.code, glyph);
                     glyph = null;
                     break;
-                case 'ENDFONT':
+                case BDFKeys.ENDFONT:
                     stack.pop();
                     break;
             }
         }
+        console.log(this.name, this.meta);
     }
 }

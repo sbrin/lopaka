@@ -146,7 +146,7 @@ export class TextLayer extends AbstractLayer {
         dc.clear();
         dc.ctx.fillStyle = this.color;
         dc.ctx.strokeStyle = this.color;
-        font.drawText(dc, text, position.clone().subtract(0, bounds.size.y), this.scaleFactor);
+        font.drawText(dc, text, position.clone(), this.scaleFactor);
         dc.ctx.save();
         dc.ctx.fillStyle = 'rgba(0,0,0,0)';
         dc.ctx.beginPath();

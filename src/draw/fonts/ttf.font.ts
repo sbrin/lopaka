@@ -35,6 +35,6 @@ export class TTFFont extends Font {
         ctx.font = `${this.options.size}px '${this.name}', monospace`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'alphabetic';
-        ctx.fillText(text, position.x, position.y + this.options.textCharHeight);
+        ctx.fillText(text, position.x, position.y);
     }
 }
