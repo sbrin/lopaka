@@ -41,9 +41,9 @@ We have a fork of this project deployed to CloudFlare pages:
 
 All data is stored in your browser.
 
-Follow us on Twitter: https://twitter.com/lopaka_app
-
 ## Installation
+
+Lopaka is made with VueJS 3 and Vite build tool.
 
 ### Using docker-compose
 
@@ -70,10 +70,11 @@ yarn build
 
 ## Credits
 
-Lopaka is made possible thanks to all the contributions from the community. Special thanks go out to:
+Thanks to all the contributions from the community. Special thanks go out to:
 
 - [deadlink](https://github.com/deadlink)
-- [ilin_pt](https://github.com/sbrin)
+- [sbrin](https://github.com/sbrin)
+- [gaai](https://github.com/Gaai)
 - [bjornd](https://github.com/bjornd)
 
 And many others who've contributed in various ways.
@@ -81,10 +82,18 @@ And many others who've contributed in various ways.
 For a full list of contributors, see the [contributors graph](https://github.com/sbrin/lopaka/graphs/contributors).
 
 
-### How can you help
+## How can you help
 
-Like, share and subscribe is the easiest way to endorse this pet project.
+Users feedback is the most precious thing for us. Feel free to start [Discussion](https://github.com/sbrin/lopaka/discussions), [submit an Issue](https://github.com/sbrin/lopaka/issues), [send me an email](mailto:feedback@lopaka.app) or fill in the [Feedback form](https://airtable.com/apps27BkejrUF0DWT/shryaJaGovGUA03XA).
+
+Like, share and subscribe is the easiest way to endorse this project.
+
+Follow us on [Twitter](https://twitter.com/lopaka_app) and [Instagram](https://www.instagram.com/lopaka_app/)
 
 If you're embedded engineer or GUI designer or just a person who loves to make Arduino projects — [send me an email](mailto:feedback@lopaka.app) and share all your thougts. I need to know what my audience pain points are to make Lopaka better.
 
-You can become a sponsor — see [sponsorship options](https://github.com/sponsors/sbrin) ❤️
+## We are looking for a sponsor
+
+See [GitHub sponsorship options](https://github.com/sponsors/sbrin) ❤️
+
+Feel free to contact us [info@lopaka.app](mailto:info@lopaka.app) ❤️
