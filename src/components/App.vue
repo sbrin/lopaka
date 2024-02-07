@@ -149,6 +149,7 @@ window.addEventListener('message', async (event) => {
                 // TODO loading project
                 // move to session and provider
                 session.unlock();
+                session.setIsPublic(!!event.data.payload.isPublic);
                 await session.setPlatform(event.data.payload.library);
                 const displayArr = event.data.payload.display.split('×').map((n) => parseInt(n));
                 session.setDisplay(new Point(displayArr[0], displayArr[1]));
