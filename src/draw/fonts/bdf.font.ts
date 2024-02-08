@@ -95,14 +95,17 @@ export class BDFFont extends Font {
             const charCode = text.charCodeAt(i);
             if (this.glyphs.has(charCode)) {
                 const glyphData = this.glyphs.get(charCode);
-                const offset = new Point().subtract(0, glyphData.bounds.pos.y);
+                const offset = glyphData.bounds.pos.clone().multiply(1, -1);
+                if (glyphData.bytes.byteLength / glyphData.bytesPerRow > this.meta.size.points) {
+                    offset.y = 0;
+                }
                 const {bytes} = glyphData;
                 for (let j = 0; j < bytes.byteLength / glyphData.bytesPerRow; j++) {
                     for (let k = 0; k < glyphData.bytesPerRow; k++) {
                         const byte = bytes[j * glyphData.bytesPerRow + k];
                         for (let l = 0; l < 8; l++) {
                             if (byte & (1 << (7 - l))) {
-                                dc.ctx.rect(charPos.x + k * 8 + l, charPos.y + j + offset.y, 1, 1);
+                                dc.ctx.rect(charPos.x + k * 8 + l + offset.x, charPos.y + j + offset.y, 1, 1);
                             }
                         }
                     }
