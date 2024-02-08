@@ -12,7 +12,6 @@ type BDFGlyph = {
     scalableSize?: Point;
     deviceSize?: Point;
     bytesPerRow?: number;
-    bitmap?: number[][];
 };
 
 type BDFMeta = {
@@ -97,7 +96,6 @@ export class BDFFont extends Font {
             if (this.glyphs.has(charCode)) {
                 const glyphData = this.glyphs.get(charCode);
                 const offset = new Point().subtract(0, glyphData.bounds.pos.y);
-                console.log(glyphData.char, glyphData, this.meta, this.meta.bounds.pos.y, glyphData.bounds.pos.y);
                 const {bytes} = glyphData;
                 for (let j = 0; j < bytes.byteLength / glyphData.bytesPerRow; j++) {
                     for (let k = 0; k < glyphData.bytesPerRow; k++) {
@@ -190,8 +188,7 @@ export class BDFFont extends Font {
                         glyphName = data[1];
                     }
                     glyph = {
-                        name: glyphName,
-                        bitmap: []
+                        name: glyphName
                     };
                     break;
                 case BDFKeys.ENCODING:
@@ -240,6 +237,5 @@ export class BDFFont extends Font {
                     break;
             }
         }
-        console.log(this.name, this.meta);
     }
 }
