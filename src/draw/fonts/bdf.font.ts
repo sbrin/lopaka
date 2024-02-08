@@ -78,13 +78,13 @@ export class BDFFont extends Font {
             if (this.glyphs.has(charCode)) {
                 const glyphData = this.glyphs.get(charCode);
                 size.x += glyphData.deviceSize.x;
-                const h = glyphData.bounds.h - glyphData.bounds.y;
+                const h = glyphData.bounds.h;
                 if (h > size.y) {
                     size.y = h;
                 }
             }
         }
-        return size.max(new Point(0, this.meta.size.points));
+        return size;
     }
 
     drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
