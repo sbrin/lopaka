@@ -11,7 +11,6 @@ type BDFGlyph = {
     bounds?: Rect;
     scalableSize?: Point;
     deviceSize?: Point;
-    bytesPerRow?: number;
 };
 
 type BDFMeta = {
@@ -73,19 +72,19 @@ export class BDFFont extends Font {
     }
 
     getSize(dc: DrawContext, text: string): Point {
-        const size = new Point();
+        const size = new Point(0, 0);
         for (let i = 0; i < text.length; i++) {
             const charCode = text.charCodeAt(i);
             if (this.glyphs.has(charCode)) {
                 const glyphData = this.glyphs.get(charCode);
                 size.x += glyphData.deviceSize.x;
-                const h = glyphData.bounds.size.y + glyphData.bounds.pos.y;
+                const h = glyphData.bounds.h - glyphData.bounds.y;
                 if (h > size.y) {
                     size.y = h;
                 }
             }
         }
-        return size;
+        return size.max(new Point(0, this.meta.size.points));
     }
 
     drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
@@ -95,17 +94,14 @@ export class BDFFont extends Font {
             const charCode = text.charCodeAt(i);
             if (this.glyphs.has(charCode)) {
                 const glyphData = this.glyphs.get(charCode);
-                const offset = glyphData.bounds.pos.clone().multiply(1, -1);
-                if (glyphData.bytes.byteLength / glyphData.bytesPerRow > this.meta.size.points) {
-                    offset.y = 0;
-                }
-                const {bytes} = glyphData;
-                for (let j = 0; j < bytes.byteLength / glyphData.bytesPerRow; j++) {
-                    for (let k = 0; k < glyphData.bytesPerRow; k++) {
-                        const byte = bytes[j * glyphData.bytesPerRow + k];
+                const {bytes, bounds} = glyphData;
+                const bytesPerRow = glyphData.bytes.length / bounds.h;
+                for (let j = 0; j < bounds.h; j++) {
+                    for (let k = 0; k < bytesPerRow; k++) {
+                        const byte = bytes[j * bytesPerRow + k];
                         for (let l = 0; l < 8; l++) {
                             if (byte & (1 << (7 - l))) {
-                                dc.ctx.rect(charPos.x + k * 8 + l + offset.x, charPos.y + j + offset.y, 1, 1);
+                                dc.ctx.rect(charPos.x + k * 8 + l + bounds.x, charPos.y + j - bounds.y, 1, 1);
                             }
                         }
                     }
@@ -203,34 +199,22 @@ export class BDFFont extends Font {
                     break;
                 case BDFKeys.DWIDTH:
                     glyph.deviceSize = new Point(parseInt(data[1]), parseInt(data[2]));
-                    glyph.bytesPerRow = Math.ceil(parseInt(data[1]) / 8);
                     break;
                 case BDFKeys.BBX:
                     glyph.bounds = new Rect(parseInt(data[3]), parseInt(data[4]), parseInt(data[1]), parseInt(data[2]));
                     break;
                 case BDFKeys.BITMAP:
-                    // BITMAP begins the bitmap for the current glyph.
-                    // This line must be followed by one line per pixel on the Y-axis.
-                    // Each line contains the hexadecimal representation of pixels in a row.
-                    // A “1” bit indicates a rendered pixel. Each line is rounded to an 8 bit (one byte) boundary,
-                    // padded with zeroes on the right. In this example, the glyph is exactly 8 pixels wide,
-                    // and so occupies exactly 8 bits (one byte) per line so that there is no padding.
-                    // The most significant bit of a line of raster data represents the leftmost pixel.
-                    let row = i;
-                    while (fontLines[row + 1] != BDFKeys.ENDCHAR) {
-                        row++;
-                        for (let j = 0; j < glyph.bytesPerRow; j++) {
+                    const bytesPerRow = Math.ceil(glyph.bounds.w / 8);
+                    for (let row = i + 1; row <= i + glyph.bounds.h; row++) {
+                        for (let j = 0; j < bytesPerRow; j++) {
                             const byte = parseInt(fontLines[row].slice(j * 2, (j + 1) * 2), 16);
                             bytes.push(byte);
                         }
                     }
+                    glyph.bounds.y -= this.meta.size.points - glyph.bounds.h;
                     break;
                 case BDFKeys.ENDCHAR:
                     stack.pop();
-                    if (bytes.length < this.meta.size.points * glyph.bytesPerRow) {
-                        const padding = new Array(this.meta.size.points * glyph.bytesPerRow - bytes.length).fill(0x00);
-                        bytes = [...padding, ...bytes];
-                    }
                     glyph.bytes = new Uint8Array(bytes);
                     this.glyphs.set(glyph.code, glyph);
                     glyph = null;
