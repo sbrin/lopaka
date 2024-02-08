@@ -78,7 +78,7 @@ export class BDFFont extends Font {
             if (this.glyphs.has(charCode)) {
                 const glyphData = this.glyphs.get(charCode);
                 size.x += glyphData.deviceSize.x;
-                const h = glyphData.bounds.h;
+                const h = this.meta.size.points + glyphData.bounds.y;
                 if (h > size.y) {
                     size.y = h;
                 }
