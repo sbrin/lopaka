@@ -5,13 +5,18 @@ import {Font, FontFormat} from './font';
 export class BinaryFont extends Font {
     data: ArrayBuffer;
     constructor(
-        protected url: string,
+        protected url: string | File,
         public name: string,
         protected options: TFontSizes
     ) {
         super(url, name, options, FontFormat.FORMAT_5x7);
     }
     async loadFont(): Promise<void> {
+        if (this.url instanceof File) {
+            return this.url.arrayBuffer().then((data) => {
+                this.data = new Uint8Array(data);
+            });
+        }
         return fetch(this.url)
             .then((res) => res.arrayBuffer())
             .then((data) => {

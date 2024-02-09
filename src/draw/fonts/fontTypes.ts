@@ -12,7 +12,6 @@ import timR12 from './bdf/timR12.bdf?url';
 import timR14 from './bdf/timR14.bdf?url';
 import timR18 from './bdf/timR18.bdf?url';
 import timR24 from './bdf/timR24.bdf?url';
-//src/draw/fonts/bdf/timR10.bdf src/draw/fonts/bdf/timR12.bdf src/draw/fonts/bdf/timR14.bdf src/draw/fonts/bdf/timR18.bdf src/draw/fonts/bdf/timR24.bdf
 
 export const fontTypes = {
     adafruit: {
