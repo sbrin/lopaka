@@ -29,7 +29,8 @@ export default defineConfig({
         rollupOptions: {
             treeshake: true,
             input: {
-                app: resolve(__dirname, 'index.html')
+                app: resolve(__dirname, 'index.html'),
+                fontPreview: resolve(__dirname, 'font-preview.html')
             }
         }
     },

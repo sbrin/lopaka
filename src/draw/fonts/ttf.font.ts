@@ -4,7 +4,7 @@ import {Font, FontFormat} from './font';
 
 export class TTFFont extends Font {
     constructor(
-        protected url: string,
+        protected url: string | File,
         public name: string,
         protected options: TFontSizes
     ) {
@@ -12,6 +12,13 @@ export class TTFFont extends Font {
     }
     // TODO: variable font size
     async loadFont(): Promise<any> {
+        if (this.url instanceof File) {
+            return this.url.arrayBuffer().then((data) => {
+                const font = new FontFace(this.name, new Uint8Array(data));
+                font.load();
+                return font.loaded;
+            });
+        }
         const font = new FontFace(this.name, `url(${this.url})`);
         font.load();
         await font.loaded;

@@ -12,7 +12,7 @@ export abstract class Font {
     protected fontLoaded: boolean = false;
 
     constructor(
-        protected url: string,
+        protected url: string | File,
         public name: string,
         protected options: TFontSizes,
         public format: FontFormat
