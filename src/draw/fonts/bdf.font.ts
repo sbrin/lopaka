@@ -56,7 +56,7 @@ export class BDFFont extends Font {
     glyphs: Map<number, BDFGlyph> = new Map();
 
     constructor(
-        protected url: string,
+        protected url: string | File,
         public name: string,
         protected options: TFontSizes
     ) {
@@ -64,6 +64,11 @@ export class BDFFont extends Font {
     }
 
     async loadFont(): Promise<void> {
+        if (this.url instanceof File) {
+            return this.url.text().then((data) => {
+                this.parseBDF(data);
+            });
+        }
         return fetch(this.url)
             .then((res) => res.text())
             .then((data) => {
