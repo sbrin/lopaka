@@ -5,6 +5,7 @@ import {ref} from 'vue';
 import {BDFFont} from '../draw/fonts/bdf.font';
 const u8g2Fonts = ref<BDFFont[]>([]);
 const fileInput = ref<HTMLInputElement | null>(null);
+const showBounds = ref(false);
 const loadFonts = async () => {
     u8g2Fonts.value = [];
     if (fileInput.value?.files) {
@@ -19,7 +20,11 @@ const loadFonts = async () => {
 <template>
     <div>
         <input type="file" ref="fileInput" multiple @change="loadFonts" />
-        <FontRender v-for="font in u8g2Fonts" :font="font as any" />
+        <label>
+            <input type="checkbox" v-model="showBounds" />
+            Show bounds
+        </label>
+        <FontRender v-for="font in u8g2Fonts" :font="font as any" :show-bounds="showBounds" />
     </div>
 </template>
 <style scoped></style>
