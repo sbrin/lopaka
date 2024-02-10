@@ -13,6 +13,10 @@ import {imgDataToXBMP, toCppVariableName} from '../utils';
 import {Platform} from './platform';
 import Profont11 from '../draw/fonts/bdf/profont11.bdf';
 import {FontFormat} from '../draw/fonts/font';
+
+const bdfFonts = (import.meta as any).glob('../draw/fonts/bdf/*.bdf');
+
+console.log(bdfFonts);
 const u8g2FontMap = {
     f4x6_tr: '4x6_tr'
 };
@@ -22,24 +26,33 @@ export class U8g2Platform extends Platform {
     protected name = 'U8g2';
     protected description = 'U8g2';
     protected fonts: TPlatformFont[] = [
-        fontTypes['4x6_tr'],
-        fontTypes['5x8_tr'],
-        fontTypes['haxrcorp4089_tr'],
-        fontTypes['helvB08_tr'],
-        fontTypes['6x10_tr'],
-        fontTypes['profont22_tr'],
-        // for example
-        {
-            name: 'profont11',
-            title: 'Profont 11',
-            file: Profont11,
-            format: FontFormat.FORMAT_BDF
-        },
-        fontTypes['timR10'],
-        fontTypes['timR12'],
-        fontTypes['timR14'],
-        fontTypes['timR18'],
-        fontTypes['timR24']
+        ...Object.keys(bdfFonts).map((path: string) => {
+            const name = path.split('/').pop().replace('.bdf', '');
+            return {
+                name,
+                title: name,
+                file: bdfFonts[path](),
+                format: FontFormat.FORMAT_BDF
+            };
+        })
+        // fontTypes['4x6_tr'],
+        // fontTypes['5x8_tr'],
+        // fontTypes['haxrcorp4089_tr'],
+        // fontTypes['helvB08_tr'],
+        // fontTypes['6x10_tr'],
+        // fontTypes['profont22_tr'],
+        // // for example
+        // {
+        //     name: 'profont11',
+        //     title: 'Profont 11',
+        //     file: Profont11,
+        //     format: FontFormat.FORMAT_BDF
+        // },
+        // fontTypes['timR10'],
+        // fontTypes['timR12'],
+        // fontTypes['timR14'],
+        // fontTypes['timR18'],
+        // fontTypes['timR24']
     ];
 
     constructor() {
