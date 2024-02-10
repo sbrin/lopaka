@@ -4,22 +4,22 @@ import {Font, FontFormat} from './font';
 
 export class TTFFont extends Font {
     constructor(
-        protected url: string | File,
+        protected source: string | File,
         public name: string,
         protected options: TFontSizes
     ) {
-        super(url, name, options, FontFormat.FORMAT_TTF);
+        super(source, name, FontFormat.FORMAT_TTF, options);
     }
     // TODO: variable font size
     async loadFont(): Promise<any> {
-        if (this.url instanceof File) {
-            return this.url.arrayBuffer().then((data) => {
+        if (this.source instanceof File) {
+            return this.source.arrayBuffer().then((data) => {
                 const font = new FontFace(this.name, new Uint8Array(data));
                 font.load();
                 return font.loaded;
             });
         }
-        const font = new FontFace(this.name, `url(${this.url})`);
+        const font = new FontFace(this.name, `url(${this.source})`);
         font.load();
         await font.loaded;
         (document.fonts as any).add(font);
