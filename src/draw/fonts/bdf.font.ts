@@ -26,6 +26,10 @@ export class BDFFont extends Font {
                 .then((data) => {
                     this.fontData = parseBDF(data);
                 });
+        } else if (this.source instanceof Promise) {
+            return this.source.then((data: {default: BDFFormat}) => {
+                this.fontData = data.default;
+            });
         } else if (typeof this.source === 'object') {
             // return this.source.then((data: BDFFormat) => {
             this.fontData = this.source;

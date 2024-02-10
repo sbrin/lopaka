@@ -37,7 +37,7 @@ declare type TFontSizes = {
     size: number;
 };
 
-declare type TFontSource = string | File | BDFFormat;
+declare type TFontSource = string | File | BDFFormat | Promise<{default: BDFFormat}>;
 
 declare type TPlatformFont = {
     name: string;
