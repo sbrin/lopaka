@@ -4,7 +4,7 @@ import {Font, FontFormat} from './font';
 
 export class TTFFont extends Font {
     constructor(
-        protected source: string | File,
+        protected source: TFontSource,
         public name: string,
         protected options: TFontSizes
     ) {

@@ -110,7 +110,7 @@ export class Session {
         layers: [],
         scale: new Point(4, 4),
         customImages: [],
-        isPublic: false,
+        isPublic: false
     });
 
     history: ChangeHistory = useHistory();
@@ -186,21 +186,24 @@ export class Session {
         const fonts = this.platforms[name].getFonts();
         this.lock();
         this.editor.clear();
-        // preload default font
-        return Promise.all(fonts.map((font) => loadFont(font))).then(() => {
-            this.editor.font = getFont(fonts[0].name);
-            this.unlock();
-            if (window.top === window.self) {
-                loadLayers(
-                    localStorage.getItem(`${name}_lopaka_layers`)
-                        ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
-                        : []
-                );
-                localStorage.setItem('lopaka_library', name);
+        // preload used fonts
+        const layersToload = JSON.parse(localStorage.getItem(`${name}_lopaka_layers`));
+        const usedFonts: string[] = layersToload ? layersToload.map((l) => l.f) : [fonts[0].name];
+        if (!usedFonts.includes(fonts[0].name)) {
+            usedFonts.push(fonts[0].name);
+        }
+        return Promise.all(fonts.filter((font) => usedFonts.includes(font.name)).map((font) => loadFont(font))).then(
+            () => {
+                this.editor.font = getFont(fonts[0].name);
+                this.unlock();
+                if (window.top === window.self) {
+                    loadLayers(layersToload ?? []);
+                    localStorage.setItem('lopaka_library', name);
+                }
+                this.virtualScreen.redraw(false);
+                isLogged && logEvent('select_library', name);
             }
-            this.virtualScreen.redraw(false);
-            isLogged && logEvent('select_library', name);
-        });
+        );
     };
     setIsPublic = (enabled: boolean) => {
         this.state.isPublic = enabled;
