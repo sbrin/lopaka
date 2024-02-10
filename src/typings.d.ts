@@ -26,22 +26,24 @@ declare module '*?url' {
     export default string;
 }
 
+declare module '*.bdf' {
+    const content: BDFFormat;
+    export default content;
+}
+
 declare type TFontSizes = {
     textCharHeight: number;
     textCharWidth: number;
     size: number;
 };
 
+declare type TFontSource = string | File | BDFFormat;
+
 declare type TPlatformFont = {
-    // name of the font, used in generated code
     name: string;
-    // title of the font, used in UI
     title: string;
-    // path to the font file
-    file: string;
-    // font options
-    options: TFontSizes;
-    // font format
+    file: TFontSource;
+    options?: TFontSizes;
     format: number;
 };
 declare type TLayerImageData = {
@@ -75,3 +77,35 @@ declare type ELayerType =
     | 'ellipse';
 
 declare function gtag(...args: any[]): void;
+
+declare type BDFGlyph = {
+    code?: number;
+    char?: string;
+    name?: string;
+    bytes?: number[];
+    bounds?: number[];
+    scalableSize?: number[];
+    deviceSize?: number[];
+};
+
+declare type BDFMeta = {
+    version?: string;
+    name?: string;
+    size?: {
+        points: number;
+        resolutionX: number;
+        resolutionY: number;
+    };
+    bounds?: number[4];
+    properties?: {
+        fontDescent?: number;
+        fontAscent?: number;
+        defaultChar?: number;
+    };
+    totalChars?: number;
+};
+
+declare type BDFFormat = {
+    meta: BDFMeta;
+    glyphs: Map<number, BDFGlyph>;
+};

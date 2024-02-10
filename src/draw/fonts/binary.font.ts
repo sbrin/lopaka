@@ -1,23 +1,25 @@
 import {Point} from '../../core/point';
 import {DrawContext} from '../draw-context';
 import {Font, FontFormat} from './font';
-
+/**
+ * @deprecated use BDFFont instead
+ */
 export class BinaryFont extends Font {
     data: ArrayBuffer;
     constructor(
-        protected url: string | File,
+        protected source: TFontSource,
         public name: string,
-        protected options: TFontSizes
+        protected options?: TFontSizes
     ) {
-        super(url, name, options, FontFormat.FORMAT_5x7);
+        super(source, name, FontFormat.FORMAT_5x7, options);
     }
     async loadFont(): Promise<void> {
-        if (this.url instanceof File) {
-            return this.url.arrayBuffer().then((data) => {
+        if (this.source instanceof File) {
+            return this.source.arrayBuffer().then((data) => {
                 this.data = new Uint8Array(data);
             });
         }
-        return fetch(this.url)
+        return fetch(this.source)
             .then((res) => res.arrayBuffer())
             .then((data) => {
                 this.data = new Uint8Array(data);

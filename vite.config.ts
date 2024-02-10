@@ -3,10 +3,10 @@ import vue from '@vitejs/plugin-vue';
 import {resolve} from 'path';
 import {defineConfig} from 'vite';
 import iconsPackPlugin from './vite-plugins/icons-pack';
-
+import bdfFormatPlugin from './vite-plugins/bdf-format';
 export default defineConfig({
     base: '',
-    plugins: [vue(), basicSsl(), iconsPackPlugin],
+    plugins: [vue(), basicSsl(), iconsPackPlugin, bdfFormatPlugin],
     esbuild: {
         keepNames: true
     },
