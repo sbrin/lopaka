@@ -8,18 +8,11 @@ import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
 import {RectangleLayer} from '../core/layers/rectangle.layer';
 import {TextLayer} from '../core/layers/text.layer';
-import {fontTypes} from '../draw/fonts/fontTypes';
+import {FontFormat} from '../draw/fonts/font';
 import {imgDataToXBMP, toCppVariableName} from '../utils';
 import {Platform} from './platform';
-import Profont11 from '../draw/fonts/bdf/profont11.bdf';
-import {FontFormat} from '../draw/fonts/font';
 
 const bdfFonts = (import.meta as any).glob('../draw/fonts/bdf/*.bdf');
-
-console.log(bdfFonts);
-const u8g2FontMap = {
-    f4x6_tr: '4x6_tr'
-};
 
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
@@ -31,28 +24,10 @@ export class U8g2Platform extends Platform {
             return {
                 name,
                 title: name,
-                file: bdfFonts[path](),
+                file: bdfFonts[path],
                 format: FontFormat.FORMAT_BDF
             };
         })
-        // fontTypes['4x6_tr'],
-        // fontTypes['5x8_tr'],
-        // fontTypes['haxrcorp4089_tr'],
-        // fontTypes['helvB08_tr'],
-        // fontTypes['6x10_tr'],
-        // fontTypes['profont22_tr'],
-        // // for example
-        // {
-        //     name: 'profont11',
-        //     title: 'Profont 11',
-        //     file: Profont11,
-        //     format: FontFormat.FORMAT_BDF
-        // },
-        // fontTypes['timR10'],
-        // fontTypes['timR12'],
-        // fontTypes['timR14'],
-        // fontTypes['timR18'],
-        // fontTypes['timR24']
     ];
 
     constructor() {
@@ -76,7 +51,7 @@ export class U8g2Platform extends Platform {
         source.code.push(`u8g2.drawLine(${p1.x}, ${p1.y}, ${p2.x}, ${p2.y});`);
     }
     addText(layer: TextLayer, source: TSourceCode): void {
-        const fontName = `u8g2_font_${u8g2FontMap[layer.font.name] ?? layer.font.name}`;
+        const fontName = `u8g2_font_${layer.font.name ?? layer.font.name}`;
         source.code.push(`u8g2.setFont(${fontName});
 u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
     }
