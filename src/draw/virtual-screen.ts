@@ -57,7 +57,7 @@ export class VirtualScreen {
         this.scope = new EffectScope();
         this.scope.run(() => {
             this.state = reactive({
-                updates: 0
+                updates: 1
             });
             watch([platform], () => {
                 this.redraw(false);
