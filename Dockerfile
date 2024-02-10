@@ -1,5 +1,5 @@
 # First stage: Node image to build the project
-FROM node:14 as build-stage
+FROM node:18 as build-stage
 
 # Set the working directory
 WORKDIR /app
