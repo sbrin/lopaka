@@ -25,5 +25,5 @@
       "typeRoots": ["./node_modules/@types", "src/typings"]
   },
   "exclude": ["dist", "node_modules", "coverage"],
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "vite-plugins/**/*.ts"]
 }

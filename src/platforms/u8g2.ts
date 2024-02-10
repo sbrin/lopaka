@@ -11,7 +11,9 @@ import {TextLayer} from '../core/layers/text.layer';
 import {fontTypes} from '../draw/fonts/fontTypes';
 import {imgDataToXBMP, toCppVariableName} from '../utils';
 import {Platform} from './platform';
-
+import Profont11 from '../draw/fonts/bdf/profont11.bdf';
+import {FontFormat} from '../draw/fonts/font';
+console.log(Profont11);
 const u8g2FontMap = {
     f4x6_tr: '4x6_tr'
 };
@@ -27,7 +29,12 @@ export class U8g2Platform extends Platform {
         fontTypes['helvB08_tr'],
         fontTypes['6x10_tr'],
         fontTypes['profont22_tr'],
-        fontTypes['profont11'],
+        {
+            name: 'profont11',
+            title: 'Profont 11',
+            file: Profont11,
+            format: FontFormat.FORMAT_BDF
+        },
         fontTypes['timR10'],
         fontTypes['timR12'],
         fontTypes['timR14'],
