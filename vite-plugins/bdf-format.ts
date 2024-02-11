@@ -25,7 +25,7 @@ const bdfFormatkPlugin: Plugin = {
     @glyphs: ${fontData.meta.totalChars}
 */
 const fontData = ${JSON.stringify(fontData)};
-fontData.glyphs = new Map(fontData.glyphs.map(([code, char, scalableSize, deviceSize, bounds, bytes]) => ([code, {code,char,scalableSize,deviceSize,bounds,bytes: new Uint8Array(bytes)}])));
+fontData.glyphs = new Map(fontData.glyphs.map(([code, char, scalableSize, deviceSize, bounds, bytes]) => ([code, {code,char,scalableSize,deviceSize,bounds,bytes: bytes}])));
 export default fontData;`,
                 map: null
             };
