@@ -6,7 +6,7 @@ const uint8_t image_draw_rrsjcz4oz2ln6jx4y4_bits[] = {0x00,0x00,0x00,0x00,0x00,0
 canvas_draw_box(canvas, 107, 46, 18, 15);
 canvas_draw_box(canvas, 97, 2, 27, 11);
 canvas_draw_box(canvas, 106, 19, 19, 18);
-canvas_set_font(canvas, FontPrimary);
+canvas_set_font(canvas, helvB08_tr);
 canvas_draw_str(canvas, 3, 11, \\"Text\\");
 canvas_draw_line(canvas, 2, 16, 68, 16);
 canvas_draw_dot(canvas, 62, 4);
