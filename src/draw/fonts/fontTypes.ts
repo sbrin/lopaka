@@ -13,6 +13,17 @@ import timR14 from './bdf/timR14.bdf?url';
 import timR18 from './bdf/timR18.bdf?url';
 import timR24 from './bdf/timR24.bdf?url';
 
+const bdfFiles = (import.meta as any).glob('./bdf/*.bdf');
+export const bdfFonts = Object.keys(bdfFiles).map((path: string) => {
+    const name = path.split('/').pop().replace('.bdf', '');
+    return {
+        name,
+        title: name,
+        file: bdfFiles[path],
+        format: FontFormat.FORMAT_BDF
+    };
+});
+
 export const fontTypes = {
     adafruit: {
         name: 'adafruit',

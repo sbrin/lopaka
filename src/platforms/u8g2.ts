@@ -9,26 +9,15 @@ import {PaintLayer} from '../core/layers/paint.layer';
 import {RectangleLayer} from '../core/layers/rectangle.layer';
 import {TextLayer} from '../core/layers/text.layer';
 import {FontFormat} from '../draw/fonts/font';
+import {bdfFonts} from '../draw/fonts/fontTypes';
 import {imgDataToXBMP, toCppVariableName} from '../utils';
 import {Platform} from './platform';
-
-const bdfFonts = (import.meta as any).glob('../draw/fonts/bdf/*.bdf');
 
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
     protected name = 'U8g2';
     protected description = 'U8g2';
-    protected fonts: TPlatformFont[] = [
-        ...Object.keys(bdfFonts).map((path: string) => {
-            const name = path.split('/').pop().replace('.bdf', '');
-            return {
-                name,
-                title: name,
-                file: bdfFonts[path],
-                format: FontFormat.FORMAT_BDF
-            };
-        })
-    ];
+    protected fonts: TPlatformFont[] = [...bdfFonts];
 
     constructor() {
         super();
