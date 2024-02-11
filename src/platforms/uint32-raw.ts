@@ -1,23 +1,13 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
+import {bdfFonts} from '../draw/fonts/fontTypes';
 import {imgDataToUint32Array} from '../utils';
 import {Platform} from './platform';
-import {fontTypes} from '../draw/fonts/fontTypes';
 export class Uint32RawPlatform extends Platform {
     public static id = 'uint32';
     protected name = 'Uint32 Bitmap';
     protected description = 'Uint32 Bitmap';
 
-    public getFonts(): TPlatformFont[] {
-        return [
-            fontTypes['4x6_tr'],
-            fontTypes['5x8_tr'],
-            fontTypes['haxrcorp4089_tr'],
-            fontTypes['helvB08_tr'],
-            fontTypes['6x10_tr'],
-            fontTypes['profont22_tr']
-        ];
-    }
-
+    protected fonts: TPlatformFont[] = [...bdfFonts];
     constructor() {
         super();
         this.features.hasInvertedColors = true;
