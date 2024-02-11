@@ -7,25 +7,40 @@ import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
 import {RectangleLayer} from '../core/layers/rectangle.layer';
 import {TextLayer} from '../core/layers/text.layer';
-import {fontTypes} from '../draw/fonts/fontTypes';
+import {FontFormat} from '../draw/fonts/font';
+import {bdfFonts} from '../draw/fonts/fontTypes';
 import {imgDataToXBMP, toCppVariableName} from '../utils';
 import {Platform} from './platform';
-
-const flipperFontMap = {
-    helvB08_tr: 'FontPrimary',
-    haxrcorp4089_tr: 'FontSecondary',
-    profont11_mr: 'FontKeyboard',
-    profont22_tr: 'FontBigNumbers'
-};
 
 export class FlipperPlatform extends Platform {
     public static id = 'flipper';
     protected name = 'Flipper Zero';
     protected description = 'Flipper Zero';
     protected fonts: TPlatformFont[] = [
-        fontTypes['haxrcorp4089_tr'],
-        fontTypes['helvB08_tr'],
-        fontTypes['profont22_tr']
+        {
+            title: 'FontPrimary',
+            name: 'FontPrimary',
+            file: () => import('../draw/fonts/flipper/helvb08.bdf'),
+            format: FontFormat.FORMAT_BDF
+        },
+        {
+            title: 'FontSecondary',
+            name: 'FontSecondary',
+            file: () => import('../draw/fonts/flipper/haxcorp-4089.bdf'),
+            format: FontFormat.FORMAT_BDF
+        },
+        {
+            title: 'FontKeyboard',
+            name: 'FontKeyboard',
+            file: bdfFonts.find((f) => f.name === 'profont11').file,
+            format: FontFormat.FORMAT_BDF
+        },
+        {
+            title: 'FontBigNumbers',
+            name: 'FontBigNumbers',
+            file: bdfFonts.find((f) => f.name === 'profont22').file,
+            format: FontFormat.FORMAT_BDF
+        }
     ];
 
     public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
@@ -43,7 +58,7 @@ export class FlipperPlatform extends Platform {
     }
     addText(layer: TextLayer, source: TSourceCode): void {
         source.code.push(
-            `canvas_set_font(canvas, ${flipperFontMap[layer.font.name]});
+            `canvas_set_font(canvas, ${layer.font.name});
 canvas_draw_str(canvas, ${layer.position.x}, ${layer.position.y}, "${layer.text}");`
         );
     }
