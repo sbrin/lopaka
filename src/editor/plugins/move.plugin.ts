@@ -34,7 +34,7 @@ export class MovePlugin extends AbstractEditorPlugin {
         if (this.captured) {
             const {layers} = this.session.state;
             this.captured = false;
-            layers.filter((l) => l.selected).forEach((layer) => layer.stopEdit());
+            layers.filter((l) => l.isEditing()).forEach((layer) => layer.stopEdit());
         }
     }
 
