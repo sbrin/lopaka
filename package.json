@@ -39,6 +39,7 @@
         "@vue/test-utils": "^2.4.1",
         "jsdom": "^22.1.0",
         "prettier": "^3.0.3",
+        "probe-image-size": "^7.2.3",
         "vite": "^4.4.9",
         "vitest": "^0.34.5"
     },
