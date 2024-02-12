@@ -1,11 +1,11 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {hexToRgb} from '../../utils';
 import {Point} from '../point';
 import {AbstractImageLayer, TImageState} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
 
 export class PaintLayer extends AbstractImageLayer {
     protected type: ELayerType = 'paint';
+    private emtyPixel: ImageData = new ImageData(new Uint8ClampedArray([0, 0, 0, 0]), 1, 1);
 
     modifiers: TLayerModifiers = {
         x: {
@@ -41,13 +41,6 @@ export class PaintLayer extends AbstractImageLayer {
             getValue: () => this.color,
             setValue: (v: string) => {
                 this.color = v;
-                const {r, g, b} = hexToRgb(this.color);
-                // transparation fix
-                if (this.features.hasInvertedColors && r + g + b === 0) {
-                    this.color = '#000001';
-                } else if (this.features.hasInvertedColors && r + g + b === 255 * 3) {
-                    this.color = '#fffffe';
-                }
                 this.recalculate();
                 this.saveState();
             },
@@ -100,15 +93,8 @@ export class PaintLayer extends AbstractImageLayer {
                 // todo
                 break;
             case EditMode.CREATING:
-                if (originalEvent && originalEvent.which == 3) {
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.rect(point.x, point.y, 1, 1);
-                    // todo add support for another colors
-                    ctx.fillStyle = this.features.hasInvertedColors ? '#000' : '#fff';
-                    ctx.fill();
-                    ctx.closePath();
-                    ctx.restore();
+                if (originalEvent && (originalEvent.which == 3 || originalEvent.metaKey)) {
+                    ctx.putImageData(this.emtyPixel, point.x, point.y);
                 } else {
                     ctx.save();
                     ctx.beginPath();
@@ -140,20 +126,11 @@ export class PaintLayer extends AbstractImageLayer {
         for (let i = 0; i < data.data.length; i += 4) {
             const x = (i / 4) % width;
             const y = Math.floor(i / 4 / width);
-            const [r, g, b, a] = data.data.slice(i, i + 4);
-            const colorSum = r + g + b;
-            let isTransparent =
-                (this.features.hasInvertedColors && colorSum == 0) ||
-                (!this.features.hasInvertedColors && colorSum == 255 * 3) ||
-                a === 0;
-            if (!isTransparent) {
+            if (data.data[i + 3] !== 0) {
                 min = min.min(new Point(x, y));
                 max = max.max(new Point(x, y));
-                dc.ctx.rect(x, y, 1, 1);
             }
         }
-        dc.ctx.fillStyle = this.color;
-        dc.ctx.fill();
         this.position = min.clone();
         this.size = max.clone().subtract(min).add(1);
         this.data = dc.ctx.getImageData(min.x, min.y, this.size.x, this.size.y);
