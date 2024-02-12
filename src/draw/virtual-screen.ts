@@ -95,23 +95,6 @@ export class VirtualScreen {
         this.redraw(false);
     }
 
-    updateMousePosition(position: Point, event: MouseEvent) {
-        if (this.pluginLayer) {
-            requestAnimationFrame(() => {
-                const ctx = this.pluginLayerContext;
-                ctx.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
-                this.plugins.forEach((plugin) => {
-                    ctx.save();
-                    ctx.scale(2, 2);
-                    ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
-                    plugin.update(ctx, position, event);
-                    ctx.setTransform(1, 0, 0, 1, 0, 0);
-                    ctx.restore();
-                });
-            });
-        }
-    }
-
     getLayersInPoint(position: Point): AbstractLayer[] {
         const point = position.clone().divide(this.session.state.scale).round();
         return this.session.state.layers.filter((layer) => layer.contains(point)).sort((a, b) => b.index - a.index);
@@ -156,6 +139,9 @@ export class VirtualScreen {
                     overlays.push(layer);
                     return;
                 }
+                if (layer.inverted) {
+                    this.ctx.globalCompositeOperation = 'difference';
+                }
                 this.ctx.drawImage(layer.getBuffer(), 0, 0);
             });
         if (update) {
@@ -177,6 +163,10 @@ export class VirtualScreen {
             this.canvasContext.drawImage(layer.getBuffer(), 0, 0);
         });
         this.canvasContext.globalAlpha = 1;
+        this.redrawPlugins();
+    }
+
+    public redrawPlugins(position?: Point, event?: MouseEvent) {
         if (this.pluginLayer) {
             requestAnimationFrame(() => {
                 const ctx = this.pluginLayerContext;
@@ -185,7 +175,7 @@ export class VirtualScreen {
                     ctx.save();
                     ctx.scale(2, 2);
                     ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
-                    plugin.update(ctx, null, null);
+                    plugin.update(ctx, position, event);
                     ctx.setTransform(1, 0, 0, 1, 0, 0);
                     ctx.restore();
                 });

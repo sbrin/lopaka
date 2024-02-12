@@ -39,6 +39,7 @@ export type TModifierName =
     | 'color'
     | 'image'
     | 'overlay'
+    | 'inverted'
     | 'color'
     | 'fontSize';
 
@@ -105,6 +106,8 @@ export abstract class AbstractLayer {
     public modifiers: TLayerModifiers = {};
     // color
     public color: string = '#000000';
+
+    public inverted: boolean = false;
 
     public editPoints: TLayerEditPoint[] = [];
 

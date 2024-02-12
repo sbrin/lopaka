@@ -10,9 +10,10 @@ import {TextLayer} from '../core/layers/text.layer';
 
 export type TPlatformFeatures = {
     hasCustomFontSize: boolean;
-    hasInvertedColors: boolean;
+    hasInvertedColors: boolean; // has iverted colors screen (pixel is white)
     hasRGBSupport: boolean;
     defaultColor: string;
+    hasInvertedMode: boolean; // support of inverted colors (xor node)
 };
 
 /**
@@ -27,7 +28,8 @@ export abstract class Platform {
         hasCustomFontSize: false,
         hasInvertedColors: false,
         hasRGBSupport: false,
-        defaultColor: '#000000'
+        defaultColor: '#000000',
+        hasInvertedMode: false
     };
 
     public generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): TSourceCode {
