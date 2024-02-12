@@ -26,7 +26,6 @@ const iconsPackPlugin: Plugin = {
                 const iconData: any = iconReg.exec(files[i]);
                 if (iconData) {
                     const info = await probe(stream);
-                    console.log(info);
                     icons.push({
                         name: iconData[1],
                         width: info.width,
