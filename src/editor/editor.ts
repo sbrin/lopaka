@@ -26,6 +26,7 @@ import {TextTool} from './tools/text.tool';
 type TEditorState = {
     activeLayer: AbstractLayer;
     activeTool: AbstractTool;
+    selectedLayers: AbstractLayer[];
 };
 
 export class Editor {
@@ -40,7 +41,8 @@ export class Editor {
 
     state: UnwrapRef<TEditorState> = reactive({
         activeLayer: null,
-        activeTool: null
+        activeTool: null,
+        selectedLayers: []
     });
 
     constructor(public session: Session) {}

@@ -18,12 +18,31 @@ const aceOptions = {
 const session = useSession();
 const {updates} = toRefs(session.virtualScreen.state);
 const {layers} = toRefs(session.state);
+const {selectedLayers} = toRefs(session.editor.state);
 const content = shallowRef('');
 const aceRef = shallowRef(null);
+
 watch(
     [updates, layers],
-    debounce(() => (content.value = parseCode(session.generateCode('Default'))), 250)
+    debounce(() => onUpdate(), 250)
 );
+
+watch(
+    selectedLayers,
+    () => {
+        if (selectedLayers.value.length == 1) {
+            const layer = selectedLayers.value[0];
+            const row = layersMap[layer.uid];
+            if (row) {
+                aceRef.value._editor.gotoLine(row + 1, 0, true);
+            }
+        }
+    },
+    {deep: true}
+);
+function onUpdate() {
+    content.value = parseCode(session.generateCode('Default'));
+}
 let layersMap = {};
 const layerNameRegex = /^@([\d\w]+);/g;
 const paramsRegex = /@(\w+):/g;
