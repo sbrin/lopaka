@@ -39,7 +39,8 @@ function selectRow() {
         const layer = selectedLayers.value[0];
         const row = layersMap[layer.uid];
         if (row) {
-            aceRef.value._editor.gotoLine(row + 1, 1000, true);
+            const {column} = aceRef.value._editor.getCursorPosition();
+            aceRef.value._editor.gotoLine(row + 1, column, true);
         }
     }
 }
