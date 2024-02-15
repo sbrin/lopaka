@@ -125,6 +125,8 @@ export abstract class AbstractLayer {
     // update layer bounds
     abstract updateBounds(): void;
 
+    abstract get properties(): any;
+
     /**
      * Check that point inside layer
      * @param point

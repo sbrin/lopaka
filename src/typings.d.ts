@@ -26,6 +26,14 @@ declare module '*?url' {
     export default string;
 }
 
+declare module '*?raw' {
+    export default string;
+}
+
+declare module '*.pug' {
+    export default (locals: any) => string;
+}
+
 declare module '*.bdf' {
     const content: BDFFormat;
     export default content;

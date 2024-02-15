@@ -6,16 +6,17 @@ display.fillRect(107, 46, 18, 15, 1);
 display.fillRect(97, 2, 27, 11, 1);
 display.fillRect(106, 19, 19, 18, 1);
 display.setTextColor(1);
-display.setTextSize(undefined);
+display.setTextSize();
 display.setCursor(3, 10);
 display.setTextWrap(false);
 display.print(\\"Text\\");
 display.drawLine(2, 16, 68, 16, 1);
-display.drawPixel(62, 4,  1);
-display.drawPixel(67, 8,  1);
-display.drawPixel(72, 12,  1);
-display.drawCircle(20, 41, 12,  1);
+display.drawPixel(62, 4, 1);
+display.drawPixel(67, 8, 1);
+display.drawPixel(72, 12, 1);
+display.drawCircle(20, 41, 12, 1);
 display.fillCircle(17, 43, 3, 1);
 display.drawRect(44, 29, 44, 28, 1);
-display.drawBitmap(0, 0, image_draw_rrsjcz4oz2ln6jx4y4_bits, 128, 64, 1);"
+display.drawBitmap(0, 0, image_draw_rrsjcz4oz2ln6jx4y4_bits, 128, 64, 1);
+"
 `;

@@ -22,6 +22,19 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         size: Point;
     } = null;
 
+    public get properties(): any {
+        return {
+            x: this.position.x,
+            y: this.position.y,
+            w: this.size.x,
+            h: this.size.y,
+            overlay: this.overlay,
+            color: this.color,
+            image: this.data,
+            type: this.type
+        };
+    }
+
     public position: Point = new Point();
     public size: Point = new Point();
     public data: ImageData;

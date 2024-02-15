@@ -23,6 +23,17 @@ export class CircleLayer extends AbstractLayer {
         editPoint: TLayerEditPoint;
     } = null;
 
+    public get properties(): any {
+        return {
+            x: this.position.x + this.radius,
+            y: this.position.y + this.radius,
+            r: this.radius,
+            fill: this.fill,
+            color: this.color,
+            type: this.type
+        };
+    }
+
     modifiers: TLayerModifiers = {
         x: {
             getValue: () => this.position.x,

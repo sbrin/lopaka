@@ -9,7 +9,17 @@ export class DotLayer extends RectangleLayer {
     protected brushSize: Point = new Point(1);
     public size: Point = this.brushSize.clone();
     public resizable: boolean = false;
-    protected fill: boolean = true;
+    public fill: boolean = true;
+
+    public get properties(): any {
+        return {
+            x: this.position.x,
+            y: this.position.y,
+            color: this.color,
+            type: this.type
+        };
+    }
+
     constructor(protected features: TPlatformFeatures) {
         super(features);
         delete this.modifiers.w;
