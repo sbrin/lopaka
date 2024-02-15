@@ -8,10 +8,20 @@ import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
 import {RectangleLayer} from '../core/layers/rectangle.layer';
 import {TextLayer} from '../core/layers/text.layer';
-import {FontFormat} from '../draw/fonts/font';
 import {bdfFonts} from '../draw/fonts/fontTypes';
 import {imgDataToXBMP, toCppVariableName} from '../utils';
 import {Platform} from './platform';
+
+// for backwards compatibility
+// TODO: remove after 15.04.2024
+const oldFontNames = {
+    'f4x6_tr': '4x6',
+    '5x8_tr': '5x8',
+    'haxrcorp4089_tr': 'haxcorp4089',
+    'helvB08_tr': 'helvb08',
+    '6x10_tr': '6x10',
+    'profont22_tr': 'profont22',
+}
 
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
@@ -40,7 +50,7 @@ export class U8g2Platform extends Platform {
         source.code.push(`u8g2.drawLine(${p1.x}, ${p1.y}, ${p2.x}, ${p2.y});`);
     }
     addText(layer: TextLayer, source: TSourceCode): void {
-        const fontName = `u8g2_font_${layer.font.name ?? layer.font.name}`;
+        const fontName = `u8g2_font_${oldFontNames[layer.font.name] ?? layer.font.name}`;
         source.code.push(`u8g2.setFont(${fontName}_tr);
 u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
     }
