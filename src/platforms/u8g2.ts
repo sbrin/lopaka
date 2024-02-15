@@ -41,7 +41,7 @@ export class U8g2Platform extends Platform {
     }
     addText(layer: TextLayer, source: TSourceCode): void {
         const fontName = `u8g2_font_${layer.font.name ?? layer.font.name}`;
-        source.code.push(`u8g2.setFont(${fontName});
+        source.code.push(`u8g2.setFont(${fontName}_tr);
 u8g2.drawStr(${layer.position.x}, ${layer.position.y}, "${layer.text}");`);
     }
     addRect(layer: RectangleLayer, source: TSourceCode): void {
