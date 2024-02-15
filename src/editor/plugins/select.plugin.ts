@@ -73,6 +73,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
             const size = point.clone().subtract(this.firstPoint).abs();
             if (size.x < 2 && size.y < 2) {
                 layers.filter((l) => l.selected).forEach((l) => (l.selected = false));
+                this.session.editor.state.selectedLayers = layers.filter((l) => l.selected);
                 return;
             }
             layers.forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));

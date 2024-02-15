@@ -6,25 +6,29 @@ each decl in declarations
 |
 if settings.wrap
     | void draw(Canvas* canvas) {
+- var font = ''
 each layer in layers 
     case layer.type
         when 'dot'
-            | canvas_draw_dot(canvas, !{layer.x}, !{layer.y});
+            | @!{layer.id};canvas_draw_dot(canvas, !{layer.x}, !{layer.y});
         when 'line'
-            | canvas_draw_line(canvas, !{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2});
+            | @!{layer.id};canvas_draw_line(canvas, !{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2});
         when 'rect'
             - var func = layer.fill ? 'canvas_draw_box' : 'canvas_draw_frame'
-            | !{func}(canvas, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h});
+            | @!{layer.id};!{func}(canvas, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h});
         when 'circle'
             - var func = layer.fill ? 'canvas_draw_disc' : 'canvas_draw_circle'
-            | !{func}(canvas, !{layer.x}, !{layer.y}, !{layer.r});
+            | @!{layer.id};!{func}(canvas, !{layer.x}, !{layer.y}, !{layer.r});
         when 'string'
-            | canvas_set_font(canvas, !{layer.font});
-            | canvas_draw_str(canvas, !{layer.x}, !{layer.y}, "!{layer.text}");
+            if layer.font != font
+                - font = layer.font
+                | canvas_set_font(canvas, !{layer.font});
+                |
+            | @!{layer.id};canvas_draw_str(canvas, !{layer.x}, !{layer.y}, "!{layer.text}");
         when 'paint'
-            | canvas_draw_xbm(canvas, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
+            | @!{layer.id};canvas_draw_xbm(canvas, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
         when 'icon'
-            | canvas_draw_icon(canvas, !{layer.x}, !{layer.y}, !{layer.imageName});
+            | @!{layer.id};canvas_draw_icon(canvas, !{layer.x}, !{layer.y}, !{layer.imageName});
         default 
             |
             | // Unknown layer type !{layer.type}

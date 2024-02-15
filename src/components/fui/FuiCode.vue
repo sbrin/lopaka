@@ -39,7 +39,7 @@ function selectRow() {
         const layer = selectedLayers.value[0];
         const row = layersMap[layer.uid];
         if (row) {
-            aceRef.value._editor.gotoLine(row + 1, 0, true);
+            aceRef.value._editor.gotoLine(row + 1, 1000, true);
         }
     }
 }
@@ -67,16 +67,15 @@ function parseCode(code: string) {
     }
     return result.join('\n');
 }
-function onChange(...args) {
+function onChange() {
     const {row, column} = aceRef.value._editor.getCursorPosition();
     const uid = Object.keys(layersMap).find((key) => layersMap[key] === row);
     if (uid) {
         const layer = session.state.layers.find((l) => l.uid === uid);
         session.state.layers.forEach((l) => (l.selected = false));
-        if (layer) {
-            layer.selected = true;
-        }
         session.virtualScreen.redraw();
+        layer.selected = true;
+        selectedLayers.value = [layer];
     }
 }
 </script>
