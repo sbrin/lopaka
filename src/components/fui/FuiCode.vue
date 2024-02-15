@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {nextTick, shallowRef, toRefs, watch} from 'vue';
+import {nextTick, onMounted, shallowRef, toRefs, watch} from 'vue';
 import {VAceEditor} from 'vue3-ace-editor';
 import {useSession} from '../../core/session';
 import {debounce} from '../../utils';
@@ -49,6 +49,9 @@ function onUpdate() {
         selectRow();
     });
 }
+onMounted(() => {
+    onUpdate();
+});
 let layersMap = {};
 const layerNameRegex = /^@([\d\w]+);/g;
 const paramsRegex = /@(\w+):/g;
