@@ -4,9 +4,10 @@ import {resolve} from 'path';
 import {defineConfig} from 'vite';
 import iconsPackPlugin from './vite-plugins/icons-pack';
 import bdfFormatPlugin from './vite-plugins/bdf-format';
+import pugTemplatePlugin from './vite-plugins/pug-template';
 export default defineConfig({
     base: '',
-    plugins: [vue(), basicSsl(), iconsPackPlugin, bdfFormatPlugin],
+    plugins: [vue(), basicSsl(), iconsPackPlugin, bdfFormatPlugin, pugTemplatePlugin],
     esbuild: {
         keepNames: true
     },

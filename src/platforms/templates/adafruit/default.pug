@@ -1,0 +1,36 @@
+
+each decl in declarations 
+    | !{decl}
+    |
+|
+if settings.wrap
+    | void draw(void) {
+each layer in layers 
+    case layer.type
+        when 'dot'
+            | display.drawPixel(!{layer.x}, !{layer.y}, !{packColor(layer.color)});
+        when 'line'
+            | display.drawLine(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{packColor(layer.color)});
+        when 'rect'
+            - var func = layer.fill ? 'fillRect' : 'drawRect'
+            | display.!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{packColor(layer.color)});
+        when 'circle'
+            - var func = layer.fill ? 'fillCircle' : 'drawCircle'
+            | display.!{func}(!{layer.x}, !{layer.y}, !{layer.r}, !{packColor(layer.color)});
+        when 'string'
+            | display.setTextColor(!{packColor(layer.color)});
+            | display.setTextSize(!{layer.scaleFactor});
+            | display.setCursor(!{layer.x}, !{layer.y - layer.h});
+            | display.setTextWrap(false);
+            | display.print("!{layer.text}");
+        when 'paint'
+        when 'icon'
+            | display.drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{packColor(layer.color)});
+        default 
+            |
+            | // Unknown layer type !{layer.type}
+            |
+    |
+    |
+if settings.wrap
+    | }

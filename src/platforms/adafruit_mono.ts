@@ -12,7 +12,7 @@ export class AdafruitMonochromePlatform extends AdafruitPlatform {
         this.features.defaultColor = '#FFFFFF';
     }
 
-    protected getColor(layer: AbstractLayer): string {
-        return '1'; // SSD1306_WHITE or WHITE for different platforms, but we can use 1 instead
+    protected packColor(color: string): string {
+        return '1';
     }
 }

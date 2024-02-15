@@ -145,9 +145,9 @@ body {
     border-radius: 0 10px 10px 10px;
     border-top: 0;
     margin: 0 0 8px 0;
-    padding: 16px;
+    padding: 8px;
     width: 100%;
-    height: 256px;
+    height: 350px;
     color: var(--secondary-color);
     text-transform: none;
     overflow: auto;
