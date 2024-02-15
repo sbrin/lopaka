@@ -16,7 +16,8 @@ export class DotLayer extends RectangleLayer {
             x: this.position.x,
             y: this.position.y,
             color: this.color,
-            type: this.type
+            type: this.type,
+            id: this.uid
         };
     }
 

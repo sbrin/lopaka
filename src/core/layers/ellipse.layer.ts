@@ -34,7 +34,8 @@ export class EllipseLayer extends AbstractLayer {
             ry: this.radiusY,
             fill: this.fill,
             color: this.color,
-            type: this.type
+            type: this.type,
+            id: this.uid
         };
     }
 

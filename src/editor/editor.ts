@@ -52,7 +52,7 @@ export class Editor {
         circle: new CircleTool(this),
         ellipse: new EllipseTool(this),
         line: new LineTool(this),
-        dot: new DotTool(this),
+        dot: new DotTool(this)
     };
 
     getSupportedTools(platform: string): {[key: string]: AbstractTool} {
@@ -143,7 +143,9 @@ export class Editor {
                     this.onMouseDoubleClick(point, event);
                     break;
             }
-            virtualScreen.updateMousePosition(screenPoint, event);
+            if (!alienEvent) {
+                virtualScreen.updateMousePosition(screenPoint, event);
+            }
         }
     };
 

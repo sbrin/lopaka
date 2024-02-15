@@ -31,7 +31,8 @@ export class TextLayer extends AbstractLayer {
             font: this.font.name,
             text: this.text,
             color: this.color,
-            type: this.type
+            type: this.type,
+            id: this.uid
         };
     }
 
