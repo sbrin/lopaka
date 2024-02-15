@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {shallowRef, toRefs, watch} from 'vue';
+import {nextTick, shallowRef, toRefs, watch} from 'vue';
 import {VAceEditor} from 'vue3-ace-editor';
 import {useSession} from '../../core/session';
 import {debounce} from '../../utils';
@@ -30,18 +30,24 @@ watch(
 watch(
     selectedLayers,
     () => {
-        if (selectedLayers.value.length == 1) {
-            const layer = selectedLayers.value[0];
-            const row = layersMap[layer.uid];
-            if (row) {
-                aceRef.value._editor.gotoLine(row + 1, 0, true);
-            }
-        }
+        selectRow();
     },
     {deep: true}
 );
+function selectRow() {
+    if (selectedLayers.value.length == 1) {
+        const layer = selectedLayers.value[0];
+        const row = layersMap[layer.uid];
+        if (row) {
+            aceRef.value._editor.gotoLine(row + 1, 0, true);
+        }
+    }
+}
 function onUpdate() {
     content.value = parseCode(session.generateCode('Default'));
+    nextTick(() => {
+        selectRow();
+    });
 }
 let layersMap = {};
 const layerNameRegex = /^@([\d\w]+);/g;
