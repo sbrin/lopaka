@@ -30,7 +30,8 @@ export class CircleLayer extends AbstractLayer {
             r: this.radius,
             fill: this.fill,
             color: this.color,
-            type: this.type
+            type: this.type,
+            id: this.uid
         };
     }
 

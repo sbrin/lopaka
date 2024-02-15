@@ -27,7 +27,8 @@ export class RectangleLayer extends AbstractLayer {
             h: this.size.y,
             fill: this.fill,
             color: this.color,
-            type: this.type
+            type: this.type,
+            id: this.uid
         };
     }
 

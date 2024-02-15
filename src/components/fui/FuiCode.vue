@@ -19,10 +19,41 @@ const session = useSession();
 const {updates} = toRefs(session.virtualScreen.state);
 const {layers} = toRefs(session.state);
 const content = shallowRef('');
+const aceRef = shallowRef(null);
 watch(
     [updates, layers],
-    debounce(() => (content.value = session.generateCode('Default')), 250)
+    debounce(() => (content.value = parseCode(session.generateCode('Default'))), 250)
 );
+let layersMap = {};
+const layerNameRegex = /^@([\d\w]+);/g;
+const paramsRegex = /@(\w+):/g;
+function parseCode(code: string) {
+    layersMap = {};
+    const lines = code.split('\n');
+    const result = [];
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const match = layerNameRegex.exec(line);
+        if (match?.length > 1) {
+            const id = match[1];
+            layersMap[id] = i;
+        }
+        result.push(line.replaceAll(paramsRegex, '').replace(layerNameRegex, ''));
+    }
+    return result.join('\n');
+}
+function onChange(...args) {
+    const {row, column} = aceRef.value._editor.getCursorPosition();
+    const uid = Object.keys(layersMap).find((key) => layersMap[key] === row);
+    if (uid) {
+        const layer = session.state.layers.find((l) => l.uid === uid);
+        session.state.layers.forEach((l) => (l.selected = false));
+        if (layer) {
+            layer.selected = true;
+        }
+        session.virtualScreen.redraw();
+    }
+}
 </script>
 <template>
     <div class="fui-code">
@@ -34,6 +65,7 @@ watch(
             style="height: 100%; width: 100%; border-radius: 8px"
             :options="aceOptions"
             :readonly="true"
+            @click="onChange"
         ></VAceEditor>
     </div>
     <!-- <textarea class="fui-code" v-model="content" readonly></textarea> -->
