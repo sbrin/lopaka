@@ -28,7 +28,8 @@ export class LineLayer extends AbstractLayer {
             x2: this.p2.x,
             y2: this.p2.y,
             color: this.color,
-            type: this.type
+            type: this.type,
+            id: this.uid
         };
     }
 

@@ -7,27 +7,31 @@ each decl in declarations
 |
 if settings.wrap
     | void draw(void) {
+- var font = ''
 each layer in layers 
     case layer.type
         when 'dot'
-            | u8g2.drawPixel(!{layer.x}, !{layer.y});
+            | @!{layer.id};u8g2.drawPixel(@x:!{layer.x}, @y:!{layer.y});
         when 'line'
-            | u8g2.drawLine(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2});
+            | @!{layer.id};u8g2.drawLine(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2});
         when 'rect'
             - var func = layer.fill ? 'drawBox' : 'drawFrame'
-            | u8g2.!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h});
+            | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h});
         when 'circle'
             - var func = layer.fill ? 'drawDisc' : 'drawCircle'
-            | u8g2.!{func}(!{layer.x}, !{layer.y}, !{layer.r});
+            | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.r});
         when 'ellipse'
             - var func = layer.fill ? 'drawEllipse' : 'drawCircle'
-            | u8g2.!{func}(!{layer.x}, !{layer.y}, !{layer.rx}, !{layer.ry});
+            | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
         when 'string'
-            | u8g2.setFont(u8g2_font_!{layer.font});
-            | u8g2.drawStr(!{layer.x}, !{layer.y}, "!{layer.text}");
+            if layer.font != font
+                - font = layer.font
+                | u8g2.setFont(u8g2_font_!{layer.font});
+                |
+            | @!{layer.id};u8g2.drawStr(@x:!{layer.x}, @y:!{layer.y}, @text:"!{layer.text}");
         when 'paint'
         when 'icon'
-            | u8g2.drawXBM(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
+            | @!{layer.id};u8g2.drawXBM(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}, @image:!{layer.imageName});
         default 
             |
             | // Unknown layer type !{layer.type}
