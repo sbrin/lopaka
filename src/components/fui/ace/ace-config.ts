@@ -1,9 +1,9 @@
 import ace from 'ace-builds';
 import mode from 'ace-builds/src-noconflict/mode-c_cpp?url';
-import theme from 'ace-builds/src-noconflict/theme-clouds_midnight?url';
+import theme from 'ace-builds/src-noconflict/theme-gruvbox?url';
 import beautify from 'ace-builds/src-noconflict/ext-beautify?url';
 import 'ace-builds/src-noconflict/ext-language_tools';
-export const aceTheme = 'clouds_midnight';
+export const aceTheme = 'theme-gruvbox'.replace('theme-', '');
 export const aceMode = 'c_cpp';
 ace.config.setModuleUrl(`ace/theme/${aceTheme}`, theme);
 ace.config.setModuleUrl(`ace/mode/${aceMode}`, mode);
