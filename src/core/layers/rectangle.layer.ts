@@ -19,6 +19,18 @@ export class RectangleLayer extends AbstractLayer {
         editPoint: TLayerEditPoint;
     } = null;
 
+    public get properties(): any {
+        return {
+            x: this.position.x,
+            y: this.position.y,
+            w: this.size.x,
+            h: this.size.y,
+            fill: this.fill,
+            color: this.color,
+            type: this.type
+        };
+    }
+
     public position: Point = new Point();
     public size: Point = new Point();
     public fill: boolean = false;

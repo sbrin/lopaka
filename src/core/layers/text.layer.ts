@@ -21,6 +21,20 @@ export class TextLayer extends AbstractLayer {
         text: string;
     } = null;
 
+    public get properties(): any {
+        return {
+            x: this.position.x,
+            y: this.position.y,
+            h: this.bounds.h,
+            scaleFactor: this.scaleFactor,
+            fontSize: this.scaleFactor,
+            font: this.font.name,
+            text: this.text,
+            color: this.color,
+            type: this.type
+        };
+    }
+
     public position: Point = new Point();
     public text: string = 'Text';
     public scaleFactor: number = 1;

@@ -15,5 +15,6 @@ canvas_draw_dot(canvas, 72, 12);
 canvas_draw_circle(canvas, 20, 41, 12);
 canvas_draw_disc(canvas, 17, 43, 3);
 canvas_draw_frame(canvas, 44, 29, 44, 28);
-canvas_draw_xbm(canvas, 0, 0, 128, 64, image_draw_rrsjcz4oz2ln6jx4y4_bits);"
+canvas_draw_xbm(canvas, 0, 0, 128, 64, image_draw_rrsjcz4oz2ln6jx4y4_bits);
+"
 `;
