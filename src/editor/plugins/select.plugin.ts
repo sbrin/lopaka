@@ -1,3 +1,4 @@
+import {toRefs} from 'vue';
 import {Keys} from '../../core/keys.enum';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
@@ -26,9 +27,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
         const {layers, scale, display} = this.session.state;
         const {activeTool} = this.session.editor.state;
         if (!activeTool) {
-            const hovered = layers
-                .filter((l) => l.contains(point))
-                .sort((a, b) => b.index - a.index);
+            const hovered = layers.filter((l) => l.contains(point)).sort((a, b) => b.index - a.index);
             if (hovered.length) {
                 // if there is a hovered layer
                 const upperLayer = hovered[0];
@@ -45,6 +44,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.captured = true;
                 this.firstPoint = point.clone();
             }
+            this.session.editor.state.selectedLayers = layers.filter((l) => l.selected);
         }
     }
 
@@ -84,16 +84,19 @@ export class SelectPlugin extends AbstractEditorPlugin {
             }
         }
         this.foreign = true;
+        this.session.editor.state.selectedLayers = layers.filter((l) => l.selected);
     }
 
     onKeyDown(key: Keys, event: KeyboardEvent): void {
+        const {layers} = this.session.state;
         if (this.session.editor.state.activeTool) return;
         if (key === Keys.Escape) {
-            this.session.state.layers.forEach((l) => (l.selected = false));
+            layers.forEach((l) => (l.selected = false));
             this.session.virtualScreen.redraw(false);
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {
-            this.session.state.layers.forEach((l) => (l.selected = true));
+            layers.forEach((l) => (l.selected = true));
             this.session.virtualScreen.redraw(false);
         }
+        this.session.editor.state.selectedLayers = layers.filter((l) => l.selected);
     }
 }
