@@ -20,13 +20,13 @@ export class FlipperPlatform extends Platform {
         {
             title: 'FontPrimary',
             name: 'FontPrimary',
-            file: () => import('../draw/fonts/flipper/helvb08.bdf'),
+            file: bdfFonts.find((f) => f.name === 'helvB08').file,
             format: FontFormat.FORMAT_BDF
         },
         {
             title: 'FontSecondary',
             name: 'FontSecondary',
-            file: () => import('../draw/fonts/flipper/haxcorp-4089.bdf'),
+            file: bdfFonts.find((f) => f.name === 'haxrcorp4089').file,
             format: FontFormat.FORMAT_BDF
         },
         {
