@@ -5,27 +5,39 @@ each decl in declarations
 |
 if settings.wrap
     | void draw(void) {
+- var textColor = ''
+- var textSize = ''
+- var textWrap = true
 each layer in layers 
     case layer.type
         when 'dot'
-            | display.drawPixel(!{layer.x}, !{layer.y}, !{packColor(layer.color)});
+            | @!{layer.id};display.drawPixel(!{layer.x}, !{layer.y}, !{packColor(layer.color)});
         when 'line'
-            | display.drawLine(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{packColor(layer.color)});
+            | @!{layer.id};display.drawLine(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{packColor(layer.color)});
         when 'rect'
             - var func = layer.fill ? 'fillRect' : 'drawRect'
-            | display.!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{packColor(layer.color)});
+            | @!{layer.id};display.!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{packColor(layer.color)});
         when 'circle'
             - var func = layer.fill ? 'fillCircle' : 'drawCircle'
-            | display.!{func}(!{layer.x}, !{layer.y}, !{layer.r}, !{packColor(layer.color)});
+            | @!{layer.id};display.!{func}(!{layer.x}, !{layer.y}, !{layer.r}, !{packColor(layer.color)});
         when 'string'
-            | display.setTextColor(!{packColor(layer.color)});
-            | display.setTextSize(!{layer.scaleFactor});
+            if layer.color != textColor
+                - textColor = layer.color
+                | display.setTextColor(!{packColor(layer.color)});
+                |
+            if layer.scaleFactor != textSize
+                - textSize = layer.scaleFactor
+                | display.setTextSize(!{layer.scaleFactor});
+                |
+            if layer.wrap != textWrap
+                - textWrap = layer.wrap
+                | display.setTextWrap(false);
+                |
             | display.setCursor(!{layer.x}, !{layer.y - layer.h});
-            | display.setTextWrap(false);
-            | display.print("!{layer.text}");
+            | @!{layer.id};display.print("!{layer.text}");
         when 'paint'
         when 'icon'
-            | display.drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{packColor(layer.color)});
+            | @!{layer.id};display.drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{packColor(layer.color)});
         default 
             |
             | // Unknown layer type !{layer.type}
