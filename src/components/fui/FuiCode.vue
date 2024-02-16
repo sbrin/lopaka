@@ -18,7 +18,7 @@ const aceOptions = {
 const session = useSession();
 const {updates} = toRefs(session.virtualScreen.state);
 const {layers} = toRefs(session.state);
-const {selectedLayers} = toRefs(session.editor.state);
+const {selectionUpdates} = toRefs(session.editor.state);
 const content = shallowRef('');
 const aceRef = shallowRef(null);
 
@@ -28,15 +28,16 @@ watch(
 );
 
 watch(
-    selectedLayers,
+    selectionUpdates,
     () => {
         selectRow();
     },
     {deep: true}
 );
 function selectRow() {
-    if (selectedLayers.value.length == 1) {
-        const layer = selectedLayers.value[0];
+    const selectedLayers = layers.value.filter((l) => l.selected);
+    if (selectedLayers.length == 1) {
+        const layer = selectedLayers[0];
         const row = layersMap[layer.uid];
         if (row) {
             const {column} = aceRef.value._editor.getCursorPosition();
@@ -79,7 +80,7 @@ function onChange() {
         session.state.layers.forEach((l) => (l.selected = false));
         session.virtualScreen.redraw();
         layer.selected = true;
-        selectedLayers.value = [layer];
+        session.editor.selectionUpdate();
     }
 }
 </script>
