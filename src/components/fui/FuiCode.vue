@@ -73,6 +73,7 @@ function parseCode(code: string) {
     return result.join('\n');
 }
 function onChange() {
+    console.log('on change');
     const {row, column} = aceRef.value._editor.getCursorPosition();
     const uid = Object.keys(layersMap).find((key) => layersMap[key] === row);
     if (uid) {
@@ -83,6 +84,8 @@ function onChange() {
         session.editor.selectionUpdate();
     }
 }
+
+const debouncedChange = debounce(() => onChange(), 500);
 </script>
 <template>
     <div class="fui-code">
@@ -95,6 +98,8 @@ function onChange() {
             :options="aceOptions"
             :readonly="true"
             @click="onChange"
+            @keyup.up="debouncedChange"
+            @keyup.down="debouncedChange"
         ></VAceEditor>
     </div>
     <!-- <textarea class="fui-code" v-model="content" readonly></textarea> -->
