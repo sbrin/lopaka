@@ -1,4 +1,3 @@
-import {toRefs} from 'vue';
 import {Keys} from '../../core/keys.enum';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
@@ -44,7 +43,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.captured = true;
                 this.firstPoint = point.clone();
             }
-            this.session.editor.state.selectedLayers = layers.filter((l) => l.selected);
+            this.session.editor.selectionUpdate();
         }
     }
 
@@ -73,7 +72,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
             const size = point.clone().subtract(this.firstPoint).abs();
             if (size.x < 2 && size.y < 2) {
                 layers.filter((l) => l.selected).forEach((l) => (l.selected = false));
-                this.session.editor.state.selectedLayers = layers.filter((l) => l.selected);
+                this.session.editor.selectionUpdate();
                 return;
             }
             layers.forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
@@ -85,7 +84,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
             }
         }
         this.foreign = true;
-        this.session.editor.state.selectedLayers = layers.filter((l) => l.selected);
+        this.session.editor.selectionUpdate();
     }
 
     onKeyDown(key: Keys, event: KeyboardEvent): void {
@@ -98,6 +97,6 @@ export class SelectPlugin extends AbstractEditorPlugin {
             layers.forEach((l) => (l.selected = true));
             this.session.virtualScreen.redraw(false);
         }
-        this.session.editor.state.selectedLayers = layers.filter((l) => l.selected);
+        this.session.editor.selectionUpdate();
     }
 }
