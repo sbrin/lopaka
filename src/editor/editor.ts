@@ -26,7 +26,7 @@ import {TextTool} from './tools/text.tool';
 type TEditorState = {
     activeLayer: AbstractLayer;
     activeTool: AbstractTool;
-    selectedLayers: AbstractLayer[];
+    selectionUpdates: number;
 };
 
 export class Editor {
@@ -42,7 +42,7 @@ export class Editor {
     state: UnwrapRef<TEditorState> = reactive({
         activeLayer: null,
         activeTool: null,
-        selectedLayers: []
+        selectionUpdates: 1
     });
 
     constructor(public session: Session) {}
@@ -81,6 +81,10 @@ export class Editor {
                 new ImageDropPlugin(this.session, this.container)
             ]
         );
+    }
+
+    selectionUpdate(): void {
+        this.state.selectionUpdates++;
     }
 
     clear(): void {

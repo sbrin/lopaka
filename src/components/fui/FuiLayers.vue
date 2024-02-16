@@ -29,7 +29,7 @@ function classNames(layer) {
 function setActive(layer: UnwrapRef<AbstractLayer>) {
     layers.value.forEach((l) => (l.selected = false));
     layer.selected = true;
-    session.editor.state.selectedLayers = [layer];
+    session.editor.selectionUpdate();
     session.virtualScreen.redraw();
 }
 
