@@ -19,7 +19,7 @@ each layer in layers
             - var func = layer.fill ? 'DrawDisc' : 'DrawCircle'
             | @!{layer.id};u8g2_!{func}(&u8g2, !{layer.x}, !{layer.y}, !{layer.r});
         when 'ellipse'
-            - var func = layer.fill ? 'DrawEllipse' : 'DrawCircle'
+            - var func = layer.fill ? 'FillEllipse' : 'DrawEllipse'
             | @!{layer.id};u8g2_!{func}(&u8g2, !{layer.x}, !{layer.y}, !{layer.rx}, !{layer.ry});
         when 'string'
             | u8g2_setFont(&u8g2, u8g2_font_!{layer.font});
