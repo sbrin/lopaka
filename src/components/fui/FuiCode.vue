@@ -57,7 +57,6 @@ onMounted(() => {
     onUpdate();
     const editor = aceRef.value._editor;
     editor.renderer.setShowGutter(false);
-    console.log(editor.renderer);
 });
 let layersMap = {};
 
