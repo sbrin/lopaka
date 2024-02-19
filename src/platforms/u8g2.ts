@@ -37,19 +37,24 @@ export class U8g2Platform extends Platform {
 
     generateSourceCode(templateName: string, layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
         const declarations: string[] = [];
-
+        const xbmps = [];
+        const xbmpsNames = [];
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = layer.properties;
                 if (layer instanceof AbstractImageLayer) {
-                    const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y);
-                    const varName = `image_${toCppVariableName(layer.name)}_bits`;
-                    const varDeclaration = `static const unsigned char ${varName}[] U8X8_PROGMEM = {${XBMP}};`;
-                    if (!declarations.includes(varDeclaration)) {
+                    const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y).join(',');
+                    if (xbmps.includes(XBMP)) {
+                        props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
+                    } else {
+                        const varName = `image_${xbmps.length + 1}_bits`;
+                        const varDeclaration = `static const unsigned char ${varName}[] U8X8_PROGMEM = {${XBMP}};`;
                         declarations.push(varDeclaration);
+                        xbmps.push(XBMP);
+                        xbmpsNames.push(varName);
+                        props.imageName = varName;
                     }
-                    props.imageName = varName;
                 } else if (layer instanceof TextLayer) {
                     const fontName = `u8g2_font_${oldFontNames[layer.font.name] ?? layer.font.name}`;
                     props.fontName = `${fontName}_tr`;
