@@ -13,8 +13,14 @@ canvas_set_font(canvas, helvB08_tr);
 @ema2hee85mln6jweht;canvas_draw_dot(canvas, 67, 8);
 @j1ol1lo5nkln6jwfmg;canvas_draw_dot(canvas, 72, 12);
 @6uf3k6wj82ln6jwi73;canvas_draw_circle(canvas, 20, 41, 12);
+
+// Unknown layer type ellipse
+
 @aibkefmz3cln6jwlit;canvas_draw_disc(canvas, 17, 43, 3);
 @g7pk1wfbqqkln6jwxby;canvas_draw_frame(canvas, 44, 29, 44, 28);
+
+// Unknown layer type ellipse
+
 @rrsjcz4oz2ln6jx4y4;canvas_draw_xbm(canvas, 0, 0, 128, 64, image_1_bits);
 "
 `;
