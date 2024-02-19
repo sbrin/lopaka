@@ -32,7 +32,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             color: this.color,
             image: this.data,
             type: this.type,
-            id: this.uid
+            id: this.uid,
+            imageName: this.imageName
         };
     }
 

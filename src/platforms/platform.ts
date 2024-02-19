@@ -33,6 +33,7 @@ export abstract class Platform {
         layers: AbstractLayer[],
         ctx?: OffscreenCanvasRenderingContext2D
     ): string;
+
     public getTemplates(): any {
         return this.templates;
     }
