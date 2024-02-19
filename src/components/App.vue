@@ -66,7 +66,7 @@ function resetScreen() {
 }
 
 function copyCode() {
-    navigator.clipboard.writeText(session.generateCode());
+    navigator.clipboard.writeText(session.generateCode('Default').code);
     logEvent('button_copy');
 }
 
@@ -165,7 +165,9 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
     <div class="fui-editor">
         <div class="fui-editor__left">
             <FuiLayers v-show="!isEmpty">
-                <FuiButton v-if="!session.state.isPublic" @click="resetScreen" small danger v-show="!isEmpty">clear</FuiButton>
+                <FuiButton v-if="!session.state.isPublic" @click="resetScreen" small danger v-show="!isEmpty">
+                    clear
+                </FuiButton>
             </FuiLayers>
         </div>
         <div class="fui-editor__center">
@@ -184,7 +186,9 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                     v-if="!session.state.isPublic && isChanged"
                     @click="saveChanges"
                     title="Save changes for selected library"
-                >Save</FuiButton>
+                >
+                    Save
+                </FuiButton>
             </div>
             <FuiTools v-if="!session.state.isPublic"></FuiTools>
             <FuiCanvas ref="fuiCanvas" />
@@ -203,7 +207,12 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 ></FuiIcons>
                 <FuiCode v-show="activeTab === 'code'"></FuiCode>
                 <div class="buttons-bottom">
-                    <FuiFile v-if="!session.state.isPublic" type="file" title="import image" @set-active-tab="setactiveTab"></FuiFile>
+                    <FuiFile
+                        v-if="!session.state.isPublic"
+                        type="file"
+                        title="import image"
+                        @set-active-tab="setactiveTab"
+                    ></FuiFile>
                     <FuiButton @click="copyCode" v-show="showCopyCode">copy code</FuiButton>
                 </div>
             </div>
