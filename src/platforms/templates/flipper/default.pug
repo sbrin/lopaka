@@ -1,8 +1,7 @@
-| canvas_set_bitmap_mode(canvas, true);
-|
 each decl in declarations 
     | !{decl}
     |
+| canvas_set_bitmap_mode(canvas, true);
 |
 if settings.wrap
     | void draw(Canvas* canvas) {
@@ -28,7 +27,7 @@ each layer in layers
         when 'paint'
             | @!{layer.id};canvas_draw_xbm(canvas, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
         when 'icon'
-            | @!{layer.id};canvas_draw_icon(canvas, !{layer.x}, !{layer.y}, !{layer.imageName});
+            | @!{layer.id};canvas_draw_icon(canvas, !{layer.x}, !{layer.y},  &I_!{layer.imageName});
         default 
             |
             | // Unknown layer type !{layer.type}

@@ -43,18 +43,24 @@ export class FlipperPlatform extends Platform {
 
     generateSourceCode(templateName: string, layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
         const declarations: string[] = [];
+        const xbmps = [];
+        const xbmpsNames = [];
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = layer.properties;
-                if (layer instanceof AbstractImageLayer) {
-                    const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y);
-                    const varName = `image_${toCppVariableName(layer.name)}_bits`;
-                    const varDeclaration = `const uint8_t ${varName}[] = {${XBMP}};`;
-                    if (!declarations.includes(varDeclaration)) {
-                        declarations.push(varDeclaration);
+                if (layer instanceof AbstractImageLayer && !layer.imageName) {
+                    const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y).join(',');
+                    if (xbmps.includes(XBMP)) {
+                        props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
+                    } else {
+                        const varName = `image_${xbmps.length + 1}_bits`;
+                        const varDeclaration = `const uint8_t ${varName}[] = {${XBMP}};`;
+                        if (!declarations.includes(varDeclaration)) {
+                            declarations.push(varDeclaration);
+                        }
+                        props.imageName = varName;
                     }
-                    props.imageName = varName;
                 }
                 return props;
             });
