@@ -15,8 +15,14 @@ display.setCursor(3, 10);
 @ema2hee85mln6jweht;display.drawPixel(67, 8, 1);
 @j1ol1lo5nkln6jwfmg;display.drawPixel(72, 12, 1);
 @6uf3k6wj82ln6jwi73;display.drawCircle(20, 41, 12, 1);
+
+// Unknown layer type ellipse
+
 @aibkefmz3cln6jwlit;display.fillCircle(17, 43, 3, 1);
 @g7pk1wfbqqkln6jwxby;display.drawRect(44, 29, 44, 28, 1);
+
+// Unknown layer type ellipse
+
 @rrsjcz4oz2ln6jx4y4;display.drawBitmap(0, 0, image_1_bits, 128, 64, 1);
 "
 `;

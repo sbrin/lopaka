@@ -14,8 +14,10 @@ u8g2.setFont(u8g2_font_helvB08_tr);
 @ema2hee85mln6jweht;u8g2.drawPixel(@x:67, @y:8);
 @j1ol1lo5nkln6jwfmg;u8g2.drawPixel(@x:72, @y:12);
 @6uf3k6wj82ln6jwi73;u8g2.drawCircle(@x:20, @y:41, @r:12);
+@87y8hf8sh8dhf8d98sd;u8g2.fillEllipse(@x:21, @y:37, @rx:13, @ry:8);
 @aibkefmz3cln6jwlit;u8g2.drawDisc(@x:17, @y:43, @r:3);
 @g7pk1wfbqqkln6jwxby;u8g2.drawFrame(@x:44, @y:29, @w:44, @h:28);
+@u9uidj9d90fu9sj9jj9;u8g2.drawEllipse(@x:15, @y:36, @rx:7, @ry:7);
 @rrsjcz4oz2ln6jx4y4;u8g2.drawXBM(@x:0, @y:0, @w:128, @h:64, @image:image_1_bits);
 "
 `;
