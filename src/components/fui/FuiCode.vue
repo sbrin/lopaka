@@ -111,7 +111,4 @@ const debouncedChange = debounce(() => onChange(), 500);
 .ace_cursor {
     opacity: 0 !important;
 }
-.ace_selection {
-    background: transparent !important;
-}
 </style>
