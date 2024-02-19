@@ -53,6 +53,8 @@ function onUpdate() {
 }
 onMounted(() => {
     onUpdate();
+    const editor = aceRef.value._editor;
+    editor.renderer.setShowGutter(false);
 });
 let layersMap = {};
 const layerNameRegex = /^@([\d\w]+);/g;
