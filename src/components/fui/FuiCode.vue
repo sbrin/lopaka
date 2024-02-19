@@ -55,6 +55,7 @@ onMounted(() => {
     onUpdate();
     const editor = aceRef.value._editor;
     editor.renderer.setShowGutter(false);
+    console.log(editor.renderer);
 });
 let layersMap = {};
 const layerNameRegex = /^@([\d\w]+);/g;
@@ -106,4 +107,11 @@ const debouncedChange = debounce(() => onChange(), 500);
     </div>
     <!-- <textarea class="fui-code" v-model="content" readonly></textarea> -->
 </template>
-<style lang="css"></style>
+<style lang="css">
+.ace_cursor {
+    opacity: 0 !important;
+}
+.ace_selection {
+    background: transparent !important;
+}
+</style>
