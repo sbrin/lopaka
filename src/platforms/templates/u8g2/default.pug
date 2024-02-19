@@ -21,7 +21,7 @@ each layer in layers
             - var func = layer.fill ? 'drawDisc' : 'drawCircle'
             | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.r});
         when 'ellipse'
-            - var func = layer.fill ? 'drawEllipse' : 'fillEllipse'
+            - var func = layer.fill ? 'fillEllipse' : 'drawEllipse'
             | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
         when 'string'
             if layer.font != font
