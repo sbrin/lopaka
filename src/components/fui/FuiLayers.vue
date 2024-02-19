@@ -11,7 +11,6 @@ const drag = ref(false);
 const layers = computed({
     get: () => session.state.layers, //.sort((a, b) => b.index - a.index),
     set: (l) => {
-        console.log(l.map((layer) => layer.index + ' ' + layer.getType()));
         l.forEach((layer, index) => {
             layer.index = index + 1;
         });
