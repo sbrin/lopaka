@@ -9,24 +9,24 @@ if settings.wrap
 each layer in layers 
     case layer.type
         when 'dot'
-            | u8g2_DrawPixel(&u8g2, !{layer.x}, !{layer.y});
+            | @!{layer.id};u8g2_DrawPixel(&u8g2, !{layer.x}, !{layer.y});
         when 'line'
-            | u8g2_DrawLine(&u8g2, !{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2});
+            | @!{layer.id};u8g2_DrawLine(&u8g2, !{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2});
         when 'rect'
             - var func = layer.fill ? 'DrawBox' : 'DrawFrame'
-            | u8g2_!{func}(&u8g2, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h});
+            | @!{layer.id};u8g2_!{func}(&u8g2, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h});
         when 'circle'
             - var func = layer.fill ? 'DrawDisc' : 'DrawCircle'
-            | u8g2_!{func}(&u8g2, !{layer.x}, !{layer.y}, !{layer.r});
+            | @!{layer.id};u8g2_!{func}(&u8g2, !{layer.x}, !{layer.y}, !{layer.r});
         when 'ellipse'
             - var func = layer.fill ? 'DrawEllipse' : 'DrawCircle'
-            | u8g2_!{func}(&u8g2, !{layer.x}, !{layer.y}, !{layer.rx}, !{layer.ry});
+            | @!{layer.id};u8g2_!{func}(&u8g2, !{layer.x}, !{layer.y}, !{layer.rx}, !{layer.ry});
         when 'string'
             | u8g2_setFont(&u8g2, u8g2_font_!{layer.font});
-            | u8g2_DrawStr(&u8g2, !{layer.x}, !{layer.y}, "!{layer.text}");
+            | @!{layer.id};u8g2_DrawStr(&u8g2, !{layer.x}, !{layer.y}, "!{layer.text}");
         when 'paint'
         when 'icon'
-            | u8g2_DrawXBM(&u8g2, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
+            | @!{layer.id};u8g2_DrawXBM(&u8g2, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
         default 
             |
             | // Unknown layer type !{layer.type}
