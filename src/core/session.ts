@@ -142,17 +142,35 @@ export class Session {
             }
         );
     };
+
     setIsPublic = (enabled: boolean) => {
         this.state.isPublic = enabled;
     };
+
     generateCode = (templateName: string) => {
         const {platform, layers} = this.state;
-        return this.platforms[platform].generateSourceCode(
+        const layerNameRegex = /^@([\d\w]+);/g;
+        const paramsRegex = /@(\w+):/g;
+        const code = this.platforms[platform].generateSourceCode(
             templateName,
             layers.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
             this.virtualScreen.ctx
         );
+        let layersMap = {};
+        const lines = code.split('\n');
+        const result = [];
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const match = layerNameRegex.exec(line);
+            if (match?.length > 1) {
+                const id = match[1];
+                layersMap[id] = i;
+            }
+            result.push(line.replaceAll(paramsRegex, '').replace(layerNameRegex, ''));
+        }
+        return {code: result.join('\n'), map: layersMap};
     };
+
     getPlatformFeatures(): TPlatformFeatures {
         return this.platforms[this.state.platform].features;
     }

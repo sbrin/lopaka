@@ -46,7 +46,9 @@ function selectRow() {
     }
 }
 function onUpdate() {
-    content.value = parseCode(session.generateCode('Default'));
+    const sourceCode = session.generateCode('Default');
+    content.value = sourceCode.code;
+    layersMap = sourceCode.map;
     nextTick(() => {
         selectRow();
     });
@@ -58,25 +60,8 @@ onMounted(() => {
     console.log(editor.renderer);
 });
 let layersMap = {};
-const layerNameRegex = /^@([\d\w]+);/g;
-const paramsRegex = /@(\w+):/g;
-function parseCode(code: string) {
-    layersMap = {};
-    const lines = code.split('\n');
-    const result = [];
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const match = layerNameRegex.exec(line);
-        if (match?.length > 1) {
-            const id = match[1];
-            layersMap[id] = i;
-        }
-        result.push(line.replaceAll(paramsRegex, '').replace(layerNameRegex, ''));
-    }
-    return result.join('\n');
-}
+
 function onChange() {
-    console.log('on change');
     const {row, column} = aceRef.value._editor.getCursorPosition();
     const uid = Object.keys(layersMap).find((key) => layersMap[key] === row);
     if (uid) {
