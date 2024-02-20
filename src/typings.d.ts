@@ -63,8 +63,8 @@ declare type TLayerImageData = {
 };
 
 declare type TSourceCode = {
-    declarations: string[];
-    code: string[];
+    map: Record<string, {line: number; params: Record<string, any>}>;
+    code: string;
 };
 
 interface Window {

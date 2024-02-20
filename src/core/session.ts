@@ -147,7 +147,7 @@ export class Session {
         this.state.isPublic = enabled;
     };
 
-    generateCode = (templateName: string) => {
+    generateCode = (templateName: string): TSourceCode => {
         const {platform, layers} = this.state;
         const layerNameRegex = /^@([\d\w]+);/g;
         const paramsRegex = /@(\w+):/g;
@@ -160,13 +160,23 @@ export class Session {
         const lines = code.split('\n');
         const result = [];
         for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
+            let line = lines[i];
             const match = layerNameRegex.exec(line);
             if (match?.length > 1) {
                 const id = match[1];
-                layersMap[id] = i;
+                const map = {line: i, params: {}};
+                line = line.replace(layerNameRegex, '');
+                const paramsMatch = line.match(paramsRegex);
+                if (paramsMatch?.length > 0) {
+                    paramsMatch.forEach((p) => {
+                        const param = line.indexOf(p);
+                        line = line.replace(p, '');
+                        map.params[p.replace('@', '').replace(':', '')] = param;
+                    });
+                }
+                layersMap[id] = map;
             }
-            result.push(line.replaceAll(paramsRegex, '').replace(layerNameRegex, ''));
+            result.push(line);
         }
         return {code: result.join('\n'), map: layersMap};
     };
