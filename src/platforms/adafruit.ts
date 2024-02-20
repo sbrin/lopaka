@@ -36,7 +36,7 @@ export class AdafruitPlatform extends Platform {
                     if (xbmps.includes(XBMP)) {
                         props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
                     } else {
-                        const varName = `image_${xbmps.length + 1}_bits`;
+                        const varName = `image_${layer.imageName ? toCppVariableName(layer.imageName) : xbmps.length + 1}_bits`;
                         const varDeclaration = `static const unsigned char PROGMEM ${varName}[] = {${XBMP}};`;
                         declarations.push(varDeclaration);
                         xbmps.push(XBMP);
