@@ -24,9 +24,11 @@ export class U8g2Platform extends Platform {
     protected description = 'U8g2';
     protected fonts: TPlatformFont[] = [...bdfFonts];
 
+    protected currentTemplate: string = 'Arduino AVR (Cpp PROGMEM)';
+
     protected templates = {
-        Default: defaultTemplate,
-        CStyle: cEspIdfTemplate
+        'Arduino AVR (Cpp PROGMEM)': defaultTemplate,
+        'Esp-Idf (C)': cEspIdfTemplate
     };
 
     constructor() {
@@ -35,7 +37,7 @@ export class U8g2Platform extends Platform {
         this.features.defaultColor = '#FFFFFF';
     }
 
-    generateSourceCode(templateName: string, layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
+    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
         const declarations: string[] = [];
         const xbmps = [];
         const xbmpsNames = [];
@@ -61,7 +63,7 @@ export class U8g2Platform extends Platform {
                 }
                 return props;
             });
-        const source = this.templates[templateName]({
+        const source = this.templates[this.currentTemplate]({
             declarations,
             layers: layerData,
             settings: this.settings

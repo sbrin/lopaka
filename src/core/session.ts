@@ -147,12 +147,11 @@ export class Session {
         this.state.isPublic = enabled;
     };
 
-    generateCode = (templateName: string): TSourceCode => {
+    generateCode = (): TSourceCode => {
         const {platform, layers} = this.state;
         const layerNameRegex = /^@([\d\w]+);/g;
         const paramsRegex = /@(\w+):/g;
         const code = this.platforms[platform].generateSourceCode(
-            templateName,
             layers.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
             this.virtualScreen.ctx
         );

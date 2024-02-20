@@ -14,11 +14,7 @@ export class Uint32RawPlatform extends Platform {
         this.features.defaultColor = '#FFFFFF';
     }
 
-    public generateSourceCode(
-        templateName: string,
-        layers: AbstractLayer[],
-        ctx: OffscreenCanvasRenderingContext2D
-    ): string {
+    public generateSourceCode(layers: AbstractLayer[], ctx: OffscreenCanvasRenderingContext2D): string {
         const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
         const UINT32 = imgDataToUint32Array(imageData);
         const iconName = `image_frame`;

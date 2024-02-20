@@ -23,19 +23,23 @@ export abstract class Platform {
     };
 
     protected templates: any;
-    protected currentTemplate: string;
+    protected currentTemplate: string = 'Default';
     protected settings = {
         wrap: false
     };
 
-    abstract generateSourceCode(
-        templateName: string,
-        layers: AbstractLayer[],
-        ctx?: OffscreenCanvasRenderingContext2D
-    ): string;
+    abstract generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string;
+
+    public getTemplate(): string {
+        return this.currentTemplate;
+    }
 
     public getTemplates(): any {
         return this.templates;
+    }
+
+    public setTemplate(templateName: string): void {
+        this.currentTemplate = templateName;
     }
 
     public getFonts(): TPlatformFont[] {

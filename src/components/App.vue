@@ -18,6 +18,7 @@ import FuiSelectPlatform from './fui/FuiSelectPlatform.vue';
 import FuiSelectScale from './fui/FuiSelectScale.vue';
 import FuiTabs from './fui/FuiTabs.vue';
 import FuiTools from './fui/FuiTools.vue';
+import FuiEditorSettings from './fui/FuiCodeSettings.vue';
 
 let fuiImages = {},
     imageDataCache = {};
@@ -66,7 +67,7 @@ function resetScreen() {
 }
 
 function copyCode() {
-    navigator.clipboard.writeText(session.generateCode('Default').code);
+    navigator.clipboard.writeText(session.generateCode().code);
     logEvent('button_copy');
 }
 
@@ -219,6 +220,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
         </div>
         <div class="fui-editor__right">
             <FuiInspector />
+            <FuiEditorSettings />
         </div>
     </div>
 </template>
