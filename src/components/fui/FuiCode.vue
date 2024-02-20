@@ -38,7 +38,7 @@ function selectRow() {
     const selectedLayers = layers.value.filter((l) => l.selected);
     if (selectedLayers.length == 1) {
         const layer = selectedLayers[0];
-        const row = layersMap[layer.uid];
+        const row = layersMap[layer.uid].line;
         if (row) {
             const {column} = aceRef.value._editor.getCursorPosition();
             aceRef.value._editor.gotoLine(row + 1, column, true);
@@ -62,7 +62,7 @@ let layersMap = {};
 
 function onChange() {
     const {row, column} = aceRef.value._editor.getCursorPosition();
-    const uid = Object.keys(layersMap).find((key) => layersMap[key] === row);
+    const uid = Object.keys(layersMap).find((key) => layersMap[key].line === row);
     if (uid) {
         const layer = session.state.layers.find((l) => l.uid === uid);
         session.state.layers.forEach((l) => (l.selected = false));
