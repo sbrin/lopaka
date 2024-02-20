@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {nextTick, onMounted, shallowRef, toRefs, watch} from 'vue';
+import {computed, nextTick, onMounted, ref, shallowRef, toRefs, watch} from 'vue';
 import {VAceEditor} from 'vue3-ace-editor';
 import {useSession} from '../../core/session';
 import {debounce} from '../../utils';
@@ -46,7 +46,7 @@ function selectRow() {
     }
 }
 function onUpdate() {
-    const sourceCode = session.generateCode('Default');
+    const sourceCode = session.generateCode();
     content.value = sourceCode.code;
     layersMap = sourceCode.map;
     nextTick(() => {
@@ -75,7 +75,7 @@ function onChange() {
 const debouncedChange = debounce(() => onChange(), 500);
 </script>
 <template>
-    <div class="fui-code">
+    <div class="fui-code" style="position: relative">
         <VAceEditor
             ref="aceRef"
             v-model:value="content"

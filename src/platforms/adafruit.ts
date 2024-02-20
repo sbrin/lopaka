@@ -23,7 +23,7 @@ export class AdafruitPlatform extends Platform {
         Default: defaultTemplate
     };
 
-    generateSourceCode(templateName: string, layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
+    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
         const declarations: string[] = [];
         const xbmps = [];
         const xbmpsNames = [];
@@ -46,7 +46,7 @@ export class AdafruitPlatform extends Platform {
                 }
                 return props;
             });
-        const source = this.templates[templateName]({
+        const source = this.templates[this.currentTemplate]({
             declarations,
             layers: layerData,
             settings: this.settings,
