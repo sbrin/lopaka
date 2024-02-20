@@ -38,7 +38,7 @@ function selectRow() {
     const selectedLayers = layers.value.filter((l) => l.selected);
     if (selectedLayers.length == 1) {
         const layer = selectedLayers[0];
-        const row = layersMap[layer.uid].line;
+        const row = layersMap[layer.uid]?.line;
         if (row) {
             const {column} = aceRef.value._editor.getCursorPosition();
             aceRef.value._editor.gotoLine(row + 1, column, true);
