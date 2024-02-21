@@ -1,5 +1,5 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {inverImageDataWithAlpha} from '../../utils';
+import {hexToRgb, inverImageDataWithAlpha} from '../../utils';
 import {Point} from '../point';
 import {AbstractImageLayer} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
@@ -55,9 +55,20 @@ export class IconLayer extends AbstractImageLayer {
                 this.size = new Point(w, h);
                 this.updateBounds();
                 this.saveState();
+                this.applyColor();
                 this.draw();
             },
             type: TModifierType.image
+        },
+        color: {
+            getValue: () => this.color,
+            setValue: (v: string) => {
+                this.color = v;
+                this.applyColor();
+                this.draw();
+                this.saveState();
+            },
+            type: TModifierType.color
         },
         overlay: {
             getValue: () => this.overlay,
@@ -81,6 +92,9 @@ export class IconLayer extends AbstractImageLayer {
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
+        if (!this.features.hasRGBSupport) {
+            delete this.modifiers.color;
+        }
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
         }

@@ -1,5 +1,5 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {packImage, unpackImage} from '../../utils';
+import {hexToRgb, packImage, unpackImage} from '../../utils';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerState} from './abstract.layer';
@@ -45,6 +45,18 @@ export abstract class AbstractImageLayer extends AbstractLayer {
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
+    }
+
+    applyColor() {
+        const color = hexToRgb(this.color);
+        this.data.data.forEach((v, i) => {
+            if (i % 4 === 3 && v !== 0) {
+                this.data.data[i - 3] = color.r;
+                this.data.data[i - 2] = color.g;
+                this.data.data[i - 1] = color.b;
+                return v;
+            }
+        });
     }
 
     draw() {
