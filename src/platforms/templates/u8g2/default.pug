@@ -1,6 +1,6 @@
 each decl in declarations 
     if decl.type == 'bitmap'
-        | static const unsigned char !{decl.data.name}[] U8X8_PROGMEM = {!{decl.data.value}};
+        | static const unsigned char !{decl.data.name}[]!{settings.progmem? ' U8X8_PROGMEM': ''} = {!{decl.data.value}};
         |
     else 
         | !{decl}
