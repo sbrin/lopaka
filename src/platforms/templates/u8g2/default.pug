@@ -1,6 +1,10 @@
 each decl in declarations 
-    | !{decl}
-    |
+    if decl.type == 'bitmap'
+        | static const unsigned char !{decl.data.name}[] U8X8_PROGMEM = {!{decl.data.value}};
+        |
+    else 
+        | !{decl}
+        |
 | u8g2.setFontMode(1);
 | u8g2.setBitmapMode(1);
 |
