@@ -5,6 +5,7 @@ export type TPlatformFeatures = {
     hasInvertedColors: boolean;
     hasRGBSupport: boolean;
     defaultColor: string;
+    screenBgColor?: string;
 };
 
 /**
@@ -19,7 +20,8 @@ export abstract class Platform {
         hasCustomFontSize: false,
         hasInvertedColors: false,
         hasRGBSupport: false,
-        defaultColor: '#000000'
+        defaultColor: '#FFFFFF',
+        screenBgColor: '#000000'
     };
 
     protected templates: any;

@@ -37,6 +37,13 @@ export class FlipperPlatform extends Platform {
         }
     ];
 
+    constructor() {
+        super();
+        this.features.hasInvertedColors = false;
+        this.features.defaultColor = '#000000';
+        this.features.screenBgColor = '#ff8200';
+    }
+
     protected templates = {
         Default: {
             template: defaultTemplate,

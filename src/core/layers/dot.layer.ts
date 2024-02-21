@@ -25,11 +25,11 @@ export class DotLayer extends RectangleLayer {
         super(features);
         delete this.modifiers.w;
         delete this.modifiers.h;
-        if (!this.features.hasCustomFontSize) {
-            delete this.modifiers.fontSize;
-        }
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
+        }
+        if (!this.features.hasInvertedColors) {
+            delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
     }

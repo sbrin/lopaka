@@ -47,7 +47,8 @@ export class IconLayer extends AbstractImageLayer {
                 buf.width = w;
                 buf.height = h;
                 ctx.drawImage(v, 0, 0);
-                if (this.features.hasInvertedColors) {
+                if (this.features.screenBgColor === '#000000') {
+                    // TODO make alpha channel color configurable
                     this.data = inverImageDataWithAlpha(ctx.getImageData(0, 0, w, h));
                 } else {
                     this.data = ctx.getImageData(0, 0, w, h);
@@ -78,6 +79,15 @@ export class IconLayer extends AbstractImageLayer {
                 this.draw();
             },
             type: TModifierType.boolean
+        },
+        inverted: {
+            getValue: () => this.inverted,
+            setValue: (v: boolean) => {
+                this.inverted = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
         }
     };
 
@@ -95,8 +105,8 @@ export class IconLayer extends AbstractImageLayer {
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
         }
-        if (!this.features.hasRGBSupport) {
-            delete this.modifiers.color;
+        if (!this.features.hasInvertedColors) {
+            delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
     }

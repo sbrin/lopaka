@@ -2,6 +2,7 @@
 import {computed, onBeforeUnmount, onMounted, ref, toRefs} from 'vue';
 import {useSession} from '../../core/session';
 import {Platform} from '../../platforms/platform';
+import platforms from '../../core/platforms';
 
 const emit = defineEmits(['updateFuiImages']);
 const screen = ref(null);
@@ -43,7 +44,7 @@ const canvasClassNames = computed(() => {
 });
 </script>
 <template>
-    <div class="canvas-wrapper" :class="{inverted: session.getPlatformFeatures().hasInvertedColors, locked: lock}">
+    <div class="canvas-wrapper" :class="{locked: lock}">
         <div class="fui-grid" :style="{backgroundSize: `${scale.x}px ${scale.y}px`}">
             <div
                 ref="container"
@@ -63,7 +64,11 @@ const canvasClassNames = computed(() => {
                     class="screen"
                     :width="display.x"
                     :height="display.y"
-                    :style="{width: display.x * scale.x + 'px', height: display.y * scale.y + 'px'}"
+                    :style="{
+                        width: display.x * scale.x + 'px',
+                        height: display.y * scale.y + 'px',
+                        backgroundColor: session.getPlatformFeatures().screenBgColor
+                    }"
                 />
             </div>
         </div>
@@ -106,9 +111,6 @@ const canvasClassNames = computed(() => {
     font-smooth: never;
     -webkit-font-smoothing: none;
     opacity: 0.9;
-}
-.inverted .screen {
-    background: #000;
 }
 .fui-grid {
     position: relative;

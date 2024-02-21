@@ -10,7 +10,19 @@ each decl in declarations
 |
 if settings.wrap
     | void draw(void) {
+- var font = ''
+- var drawColorMode = 1;
 each layer in layers 
+    if layer.inverted 
+        if drawColorMode != 2
+            | u8g2_SetDrawColor(&u8g2, 2);
+            |
+            - drawColorMode = 2;
+    else
+        if drawColorMode != 1
+            | u8g2_SetDrawColor(&u8g2, 1);
+            |
+            - drawColorMode = 1;
     case layer.type
         when 'dot'
             | @!{layer.id};u8g2_DrawPixel(&u8g2, !{layer.x}, !{layer.y});
@@ -26,7 +38,10 @@ each layer in layers
             - var func = layer.fill ? 'FillEllipse' : 'DrawEllipse'
             | @!{layer.id};u8g2_!{func}(&u8g2, !{layer.x}, !{layer.y}, !{layer.rx}, !{layer.ry});
         when 'string'
-            | u8g2_setFont(&u8g2, u8g2_font_!{layer.font});
+            if layer.font != font
+                - font = layer.font
+                | u8g2_setFont(&u8g2, u8g2_font_!{layer.font});
+                |
             | @!{layer.id};u8g2_DrawStr(&u8g2, !{layer.x}, !{layer.y}, "!{layer.text}");
         when 'paint'
         when 'icon'
