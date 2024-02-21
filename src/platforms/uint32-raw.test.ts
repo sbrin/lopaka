@@ -6,7 +6,7 @@ describe('Flipper zero platform', () => {
     it('generating source code', () => {
         const platform = new Uint32RawPlatform();
         expect(
-            platform.generateSourceCode('Default', layersMock, new OffscreenCanvas(128, 64).getContext('2d'))
+            platform.generateSourceCode(layersMock, new OffscreenCanvas(128, 64).getContext('2d'))
         ).toMatchSnapshot();
     });
 });

@@ -5,6 +5,6 @@ import {AdafruitPlatform} from './adafruit';
 describe('Adafruit platform', () => {
     it('generating source code', () => {
         const platform = new AdafruitPlatform();
-        expect(platform.generateSourceCode('Default', layersMock)).toMatchSnapshot();
+        expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
     });
 });
