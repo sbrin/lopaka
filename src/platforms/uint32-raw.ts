@@ -20,4 +20,12 @@ export class Uint32RawPlatform extends Platform {
         const iconName = `image_frame`;
         return `const uint32_t ${iconName}[] = {${UINT32}};`;
     }
+
+    public getTemplates() {
+        return {};
+    }
+
+    public getTemplate() {
+        return '';
+    }
 }

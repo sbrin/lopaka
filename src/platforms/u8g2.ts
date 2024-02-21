@@ -27,8 +27,22 @@ export class U8g2Platform extends Platform {
     protected currentTemplate: string = 'Arduino AVR (Cpp PROGMEM)';
 
     protected templates = {
-        'Arduino AVR (Cpp PROGMEM)': defaultTemplate,
-        'Esp-Idf (C)': cEspIdfTemplate
+        'Arduino AVR (Cpp PROGMEM)': {
+            template: defaultTemplate,
+            settings: {
+                progmem: true
+            }
+        },
+        'Arduino/Esp32 (Cpp)': {
+            template: defaultTemplate,
+            settings: {
+                progmem: false
+            }
+        },
+        'Esp-Idf (C)': {
+            template: cEspIdfTemplate,
+            settings: {}
+        }
     };
 
     constructor() {
@@ -68,10 +82,10 @@ export class U8g2Platform extends Platform {
                 }
                 return props;
             });
-        const source = this.templates[this.currentTemplate]({
+        const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
-            settings: this.settings
+            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings)
         });
         return source;
     }

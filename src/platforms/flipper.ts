@@ -38,7 +38,10 @@ export class FlipperPlatform extends Platform {
     ];
 
     protected templates = {
-        Default: defaultTemplate
+        Default: {
+            template: defaultTemplate,
+            settings: {}
+        }
     };
 
     generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
@@ -69,10 +72,10 @@ export class FlipperPlatform extends Platform {
                 }
                 return props;
             });
-        const source = this.templates[this.currentTemplate]({
+        const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
-            settings: this.settings
+            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings)
         });
         return source;
     }
