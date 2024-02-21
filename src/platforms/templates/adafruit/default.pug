@@ -1,8 +1,10 @@
-
 each decl in declarations 
-    | !{decl}
-    |
-|
+    if decl.type == 'bitmap'
+        | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+        |
+    else 
+        | !{decl}
+        |
 if settings.wrap
     | void draw(void) {
 - var textColor = ''

@@ -24,7 +24,7 @@ export class AdafruitPlatform extends Platform {
     };
 
     generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
-        const declarations: string[] = [];
+        const declarations: {type: string; data: any}[] = [];
         const xbmps = [];
         const xbmpsNames = [];
         const layerData = layers
@@ -37,8 +37,13 @@ export class AdafruitPlatform extends Platform {
                         props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
                     } else {
                         const varName = `image_${layer.imageName ? toCppVariableName(layer.imageName) : xbmps.length + 1}_bits`;
-                        const varDeclaration = `static const unsigned char PROGMEM ${varName}[] = {${XBMP}};`;
-                        declarations.push(varDeclaration);
+                        declarations.push({
+                            type: 'bitmap',
+                            data: {
+                                name: varName,
+                                value: XBMP
+                            }
+                        });
                         xbmps.push(XBMP);
                         xbmpsNames.push(varName);
                         props.imageName = varName;

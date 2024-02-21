@@ -1,6 +1,10 @@
 each decl in declarations 
-    | !{decl}
-    |
+    if decl.type == 'bitmap'
+        | static const uint8_t !{decl.data.name}[] = {!{decl.data.value}};
+        |
+    else 
+        | !{decl}
+        |
 | canvas_set_bitmap_mode(canvas, true);
 |
 if settings.wrap

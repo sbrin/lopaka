@@ -38,7 +38,7 @@ export class U8g2Platform extends Platform {
     }
 
     generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
-        const declarations: string[] = [];
+        const declarations: {type: string; data: any}[] = [];
         const xbmps = [];
         const xbmpsNames = [];
         const layerData = layers
@@ -51,8 +51,13 @@ export class U8g2Platform extends Platform {
                         props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
                     } else {
                         const varName = `image_${layer.imageName ? toCppVariableName(layer.imageName) : xbmps.length + 1}_bits`;
-                        const varDeclaration = `static const unsigned char ${varName}[] U8X8_PROGMEM = {${XBMP}};`;
-                        declarations.push(varDeclaration);
+                        declarations.push({
+                            type: 'bitmap',
+                            data: {
+                                name: varName,
+                                value: XBMP
+                            }
+                        });
                         xbmps.push(XBMP);
                         xbmpsNames.push(varName);
                         props.imageName = varName;
