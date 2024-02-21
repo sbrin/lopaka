@@ -5,6 +5,6 @@ import {layersMock} from './layers.mock';
 describe('Adafruit monochrome platform', () => {
     it('generating source code', () => {
         const platform = new AdafruitMonochromePlatform();
-        expect(platform.generateSourceCode('Default', layersMock)).toMatchSnapshot();
+        expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
     });
 });

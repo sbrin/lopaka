@@ -5,6 +5,6 @@ import {FlipperPlatform} from './flipper';
 describe('Flipper zero platform', () => {
     it('generating source code', () => {
         const platform = new FlipperPlatform();
-        expect(platform.generateSourceCode('Default', layersMock)).toMatchSnapshot();
+        expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
     });
 });
