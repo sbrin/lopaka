@@ -95,74 +95,63 @@ function onChange(event: Event, param: TLayerModifier) {
         </datalist>
         <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
-            <div v-for="(param, name) in params" class="inspector-panel__param">
-                <span class="fui-form-label" v-if="param.type !== TModifierType.image">{{ name }}</span>
-                <div v-if="param.type == TModifierType.number">
-                    <input
-                        :disabled="session.state.isPublic"
-                        class="inspector__input fui-form-input"
-                        type="number"
-                        :value="param.getValue()"
-                        @change="onChange($event, param)"
-                        :readonly="!param.setValue"
-                    />
+            <template v-for="(param, name) in params">
+                <div class="inspector-panel__param" v-if="param.type !== TModifierType.image">
+                    <span class="fui-form-label">{{ name }}</span>
+                    <div v-if="param.type == TModifierType.number">
+                        <input
+                            :disabled="session.state.isPublic"
+                            class="inspector__input fui-form-input"
+                            type="number"
+                            :value="param.getValue()"
+                            @change="onChange($event, param)"
+                            :readonly="!param.setValue"
+                        />
+                    </div>
+                    <div v-else-if="param.type == TModifierType.string">
+                        <input
+                            :disabled="session.state.isPublic"
+                            class="inspector__input fui-form-input"
+                            type="text"
+                            :value="param.getValue()"
+                            @keyup="onChange($event, param)"
+                            :readonly="!param.setValue"
+                        />
+                    </div>
+                    <div v-else-if="param.type == TModifierType.boolean">
+                        <input
+                            :disabled="session.state.isPublic"
+                            class="inspector__input fui-form-input"
+                            type="checkbox"
+                            :checked="param.getValue()"
+                            @change="onChange($event, param)"
+                            :readonly="!param.setValue"
+                        />
+                    </div>
+                    <div v-else-if="param.type == TModifierType.color">
+                        <input
+                            :disabled="session.state.isPublic"
+                            class="inspector__input fui-form-input"
+                            type="color"
+                            :value="param.getValue()"
+                            @input="onChange($event, param)"
+                            :readonly="!param.setValue"
+                            list="presetColors"
+                        />
+                    </div>
+                    <div v-else-if="param.type == TModifierType.font">
+                        <select
+                            :disabled="session.state.isPublic"
+                            class="inspector__input fui-form-input"
+                            :value="param.getValue()"
+                            :readonly="!param.setValue"
+                            @change="onChange($event, param)"
+                        >
+                            <option v-for="font in fonts" :value="font.name">{{ font.title }}</option>
+                        </select>
+                    </div>
                 </div>
-                <div v-else-if="param.type == TModifierType.string">
-                    <input
-                        :disabled="session.state.isPublic"
-                        class="inspector__input fui-form-input"
-                        type="text"
-                        :value="param.getValue()"
-                        @keyup="onChange($event, param)"
-                        :readonly="!param.setValue"
-                    />
-                </div>
-                <div v-else-if="param.type == TModifierType.boolean">
-                    <input
-                        :disabled="session.state.isPublic"
-                        class="inspector__input fui-form-input"
-                        type="checkbox"
-                        :checked="param.getValue()"
-                        @change="onChange($event, param)"
-                        :readonly="!param.setValue"
-                    />
-                </div>
-                <div v-else-if="param.type == TModifierType.color">
-                    <input
-                        :disabled="session.state.isPublic"
-                        class="inspector__input fui-form-input"
-                        type="color"
-                        :value="param.getValue()"
-                        @input="onChange($event, param)"
-                        :readonly="!param.setValue"
-                        list="presetColors"
-                    />
-                </div>
-                <div v-else-if="param.type == TModifierType.font">
-                    <select
-                        :disabled="session.state.isPublic"
-                        class="inspector__input fui-form-input"
-                        :value="param.getValue()"
-                        :readonly="!param.setValue"
-                        @change="onChange($event, param)"
-                    >
-                        <option v-for="font in fonts" :value="font.name">{{ font.title }}</option>
-                    </select>
-                </div>
-                <!-- <div v-else-if="param.type == TModifierType.image" class="fui-icons">
-                    <img
-                        @click="onChange($event, param)"
-                        :class="{selected: (activeLayer as IconLayer).imageName === icon.name}"
-                        v-for="icon in icons"
-                        :src="icon.image.src"
-                        :title="icon.name"
-                        :alt="icon.name"
-                        :data-name="icon.name"
-                        :width="icon.width * scale.x"
-                        :height="icon.height * scale.y"
-                    />
-                </div> -->
-            </div>
+            </template>
         </div>
     </div>
 </template>

@@ -41,7 +41,8 @@ export class PaintLayer extends AbstractImageLayer {
             getValue: () => this.color,
             setValue: (v: string) => {
                 this.color = v;
-                this.recalculate();
+                this.applyColor();
+                this.draw();
                 this.saveState();
             },
             type: TModifierType.color
