@@ -31,7 +31,8 @@ export class CircleLayer extends AbstractLayer {
             fill: this.fill,
             color: this.color,
             type: this.type,
-            id: this.uid
+            id: this.uid,
+            inverted: this.inverted
         };
     }
 
@@ -84,16 +85,25 @@ export class CircleLayer extends AbstractLayer {
                 this.draw();
             },
             type: TModifierType.color
+        },
+        inverted: {
+            getValue: () => this.inverted,
+            setValue: (v: boolean) => {
+                this.inverted = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
         }
     };
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
-        if (!this.features.hasCustomFontSize) {
-            delete this.modifiers.fontSize;
-        }
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
+        }
+        if (!this.features.hasInvertedColors) {
+            delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
     }
@@ -222,7 +232,8 @@ export class CircleLayer extends AbstractLayer {
             t: this.type,
             u: this.uid,
             c: this.color,
-            f: this.fill
+            f: this.fill,
+            in: this.inverted
         };
         this.state = state;
     }
@@ -236,6 +247,7 @@ export class CircleLayer extends AbstractLayer {
         this.uid = state.u;
         this.color = state.c;
         this.fill = state.f;
+        this.inverted = state.in;
         this.updateBounds();
         this.mode = EditMode.NONE;
     }

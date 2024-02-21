@@ -55,16 +55,25 @@ export class PaintLayer extends AbstractImageLayer {
                 this.draw();
             },
             type: TModifierType.boolean
+        },
+        inverted: {
+            getValue: () => this.inverted,
+            setValue: (v: boolean) => {
+                this.inverted = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
         }
     };
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
-        if (!this.features.hasCustomFontSize) {
-            delete this.modifiers.fontSize;
-        }
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
+        }
+        if (!this.features.hasInvertedColors) {
+            delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
     }

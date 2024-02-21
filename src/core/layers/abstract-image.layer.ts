@@ -33,7 +33,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             image: this.data,
             type: this.type,
             id: this.uid,
-            imageName: this.imageName
+            imageName: this.imageName,
+            inverted: this.inverted
         };
     }
 
@@ -83,7 +84,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             t: this.type,
             o: this.overlay,
             u: this.uid,
-            c: this.color
+            c: this.color,
+            in: this.inverted
         };
         this.state = state;
     }
@@ -99,6 +101,7 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         this.imageName = state.nm;
         this.overlay = state.o;
         this.uid = state.u;
+        this.inverted = state.in;
         this.updateBounds();
         this.mode = EditMode.NONE;
     }

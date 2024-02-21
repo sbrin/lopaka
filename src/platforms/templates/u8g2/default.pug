@@ -13,7 +13,18 @@ if settings.wrap
     | void draw(void) {
     |
 - var font = ''
+- var drawColorMode = 1;
 each layer in layers 
+    if layer.inverted 
+        if drawColorMode != 2
+            | u8g2.setDrawColor(2);
+            |
+            - drawColorMode = 2;
+    else
+        if drawColorMode != 1
+            | u8g2.setDrawColor(1);
+            |
+            - drawColorMode = 1;
     case layer.type
         when 'dot'
             | @!{layer.id};!{pad}u8g2.drawPixel(@x:!{layer.x}, @y:!{layer.y});
@@ -26,8 +37,8 @@ each layer in layers
             - var func = layer.fill ? 'drawDisc' : 'drawCircle'
             | @!{layer.id};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.r});
         when 'ellipse'
-            - var func = layer.fill ? 'fillEllipse' : 'drawEllipse'
-            | @!{layer.id};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
+            - var func = layer.fill ? 'drawFilledEllipse' : 'drawEllipse'
+            | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
         when 'string'
             if layer.font != font
                 - font = layer.font

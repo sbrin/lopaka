@@ -156,7 +156,11 @@ export class VirtualScreen {
                     overlays.push(layer);
                     return;
                 }
+                if (layer.inverted) {
+                    this.ctx.globalCompositeOperation = 'difference';
+                }
                 this.ctx.drawImage(layer.getBuffer(), 0, 0);
+                this.ctx.globalCompositeOperation = 'source-over';
             });
         if (update) {
             this.state.updates++;
