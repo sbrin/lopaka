@@ -8,33 +8,35 @@ each decl in declarations
 | u8g2.setFontMode(1);
 | u8g2.setBitmapMode(1);
 |
+- var pad = settings.wrap ? '    ' : ''
 if settings.wrap
     | void draw(void) {
+    |
 - var font = ''
 each layer in layers 
     case layer.type
         when 'dot'
-            | @!{layer.id};u8g2.drawPixel(@x:!{layer.x}, @y:!{layer.y});
+            | @!{layer.id};!{pad}u8g2.drawPixel(@x:!{layer.x}, @y:!{layer.y});
         when 'line'
-            | @!{layer.id};u8g2.drawLine(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2});
+            | @!{layer.id};!{pad}u8g2.drawLine(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2});
         when 'rect'
             - var func = layer.fill ? 'drawBox' : 'drawFrame'
-            | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h});
+            | @!{layer.id};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h});
         when 'circle'
             - var func = layer.fill ? 'drawDisc' : 'drawCircle'
-            | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.r});
+            | @!{layer.id};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.r});
         when 'ellipse'
             - var func = layer.fill ? 'fillEllipse' : 'drawEllipse'
-            | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
+            | @!{layer.id};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
         when 'string'
             if layer.font != font
                 - font = layer.font
-                | u8g2.setFont(u8g2_font_!{layer.font});
+                | !{pad}u8g2.setFont(u8g2_font_!{layer.font});
                 |
-            | @!{layer.id};u8g2.drawStr(@x:!{layer.x}, @y:!{layer.y}, @text:"!{layer.text}");
+            | @!{layer.id};!{pad}u8g2.drawStr(@x:!{layer.x}, @y:!{layer.y}, @text:"!{layer.text}");
         when 'paint'
         when 'icon'
-            | @!{layer.id};u8g2.drawXBM(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}, @image:!{layer.imageName});
+            | @!{layer.id};!{pad}u8g2.drawXBM(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}, @image:!{layer.imageName});
         default 
             |
             | // Unknown layer type !{layer.type}

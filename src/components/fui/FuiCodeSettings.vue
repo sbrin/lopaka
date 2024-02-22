@@ -4,7 +4,7 @@ import {useSession} from '../../core/session';
 const session = useSession();
 const {platform} = toRefs(session.state);
 const templates = computed(() => platform.value && session.platforms[platform.value].getTemplates());
-const settings = computed(() => platform.value && Object.keys(session.platforms[platform.value].getTemplates()));
+const settings = computed(() => platform.value && session.platforms[platform.value].getTemplateSettings());
 const template = ref(session.platforms[platform.value].getTemplate());
 watch(template, (val) => {
     if (val) {
@@ -17,6 +17,11 @@ watch(platform, (val) => {
         template.value = session.platforms[platform.value].getTemplate();
     }
 });
+function setSetting(event: Event, name: any) {
+    const target = event.target as HTMLInputElement;
+    session.platforms[platform.value].getTemplateSettings()[name] = target.checked;
+    session.virtualScreen.redraw();
+}
 </script>
 <template>
     <div class="code-settings">
@@ -24,19 +29,20 @@ watch(platform, (val) => {
         <div class="fui-select">
             <label for="template" class="fui-select__label">Code style:</label>
             <select id="template" class="fui-select__select fui-form-input" v-model="template">
-                <option v-for="(item, idx) in Object.keys(templates)" :key="idx" :value="item">{{ templates[item].name }}</option>
+                <option v-for="(item, idx) in Object.keys(templates)" :key="idx" :value="item">
+                    {{ templates[item].name }}
+                </option>
             </select>
         </div>
-        <div class="fui-select">
-            <label for="template" class="fui-select__label">PROGMEM</label>
-            <!-- <input
-                :disabled="session.state.isPublic"
-                class="fui-form-input"
+        <div class="" v-for="(value, name) in settings">
+            <label :for="'settings_' + name" class="fui-form-label">{{ name }}</label>
+            <input
                 type="checkbox"
-                :checked="param.getValue()"
-                @change="onChange($event, param)"
-                :readonly="!param.setValue"
-            /> -->
+                :id="'settings_' + name"
+                class="fui-form-input"
+                :checked="value"
+                @change="setSetting($event, name)"
+            />
         </div>
     </div>
 </template>
