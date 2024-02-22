@@ -1,17 +1,19 @@
 <script lang="ts" setup>
 import {ComputedRef, UnwrapRef, computed, toRefs} from 'vue';
+import {AbstractImageLayer} from '../../core/layers/abstract-image.layer';
 import {
     AbstractLayer,
+    TLayerAction,
     TLayerModifier,
     TLayerModifiers,
-    TModifierType,
-    TLayerAction
+    TModifierType
 } from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
 import {loadFont} from '../../draw/fonts';
 const session = useSession();
 const {platform} = toRefs(session.state);
 const {updates} = toRefs(session.virtualScreen.state);
+const {selectionUpdates} = toRefs(session.editor.state);
 
 const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
     const selection = session.state.layers.filter((l) => l.selected);
@@ -23,6 +25,12 @@ const params: ComputedRef<UnwrapRef<TLayerModifiers>> = computed(() =>
 );
 
 const actions = computed(() => (updates.value && activeLayer.value ? activeLayer.value.actions : []));
+
+const layerToMerge = computed(
+    () =>
+        selectionUpdates.value &&
+        session.state.layers.filter((l) => l.selected && l instanceof AbstractLayer).length > 1
+);
 
 const fonts = computed(() => {
     return session.platforms[platform.value].getFonts();
@@ -64,8 +72,19 @@ function onAction(action: TLayerAction) {
     action.action();
     session.virtualScreen.redraw();
 }
+
+function mergeLayers() {
+    session.mergeLayers(
+        (session.state.layers as AbstractLayer[]).filter(
+            (l) => l.selected && (!(l instanceof AbstractImageLayer) || !l.overlay)
+        )
+    );
+}
 </script>
 <template>
+    <div v-if="layerToMerge">
+        <button class="fui-button" @click="mergeLayers">Merge selected</button>
+    </div>
     <div class="inspector" v-if="activeLayer">
         <datalist id="presetColors">
             <!-- 16 colors -->
