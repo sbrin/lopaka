@@ -3,19 +3,20 @@ import {layersMock} from './layers.mock';
 import {U8g2Platform} from './u8g2';
 
 describe('U8g2 platform', () => {
-    it('generating source code: Arduino AVR (Cpp PROGMEM)', () => {
+    it('generating source code: arduino', () => {
         const platform = new U8g2Platform();
-        platform.setTemplate('Arduino AVR (Cpp PROGMEM)');
+        platform.setTemplate('arduino');
         expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
     });
     it('generating source code: Arduino/Esp32 (Cpp)', () => {
         const platform = new U8g2Platform();
-        platform.setTemplate('Arduino/Esp32 (Cpp)');
+        platform.setTemplate('arduino');
+        platform.getTemplates().arduino.settings.progmem = false;
         expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
     });
     it('generating source code: Esp-Idf (C)', () => {
         const platform = new U8g2Platform();
-        platform.setTemplate('Esp-Idf (C)');
+        platform.setTemplate('esp-idf');
         expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
     });
 });
