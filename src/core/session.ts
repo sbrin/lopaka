@@ -69,6 +69,26 @@ export class Session {
         });
         this.virtualScreen.redraw();
     };
+    mergeLayers = (layers: AbstractLayer[]) => {
+        const layer = new PaintLayer(this.getPlatformFeatures());
+        this.addLayer(layer);
+        const ctx = layer.getBuffer().getContext('2d');
+        layers.forEach((l) => {
+            l.selected = false;
+            if (l.inverted) {
+                ctx.globalCompositeOperation = 'difference';
+            }
+            ctx.drawImage(l.getBuffer(), 0, 0);
+            ctx.globalCompositeOperation = 'source-over';
+            this.removeLayer(l);
+        });
+        layer.saveState();
+        layer.recalculate();
+        layer.stopEdit();
+        layer.selected = true;
+        layer.draw();
+        this.virtualScreen.redraw();
+    };
     addLayer = (layer: AbstractLayer) => {
         const {display, scale, layers} = this.state;
         layer.resize(display, scale);
