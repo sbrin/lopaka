@@ -24,22 +24,18 @@ export class U8g2Platform extends Platform {
     protected description = 'U8g2';
     protected fonts: TPlatformFont[] = [...bdfFonts];
 
-    protected currentTemplate: string = 'Arduino AVR (Cpp PROGMEM)';
+    protected currentTemplate: string = 'arduino';
 
     protected templates = {
-        'Arduino AVR (Cpp PROGMEM)': {
+        arduino: {
+            name: 'Arduino (Cpp)',
             template: defaultTemplate,
             settings: {
                 progmem: true
             }
         },
-        'Arduino/Esp32 (Cpp)': {
-            template: defaultTemplate,
-            settings: {
-                progmem: false
-            }
-        },
-        'Esp-Idf (C)': {
+        'esp-idf': {
+            name: 'ESP-IDF (C)',
             template: cEspIdfTemplate,
             settings: {}
         }
