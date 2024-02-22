@@ -18,7 +18,7 @@ u8g2.setFont(u8g2_font_helvB08_tr);
 @aibkefmz3cln6jwlit;u8g2.drawDisc(@x:17, @y:43, @r:3);
 @g7pk1wfbqqkln6jwxby;u8g2.drawFrame(@x:44, @y:29, @w:44, @h:28);
 @u9uidj9d90fu9sj9jj9;u8g2.drawEllipse(@x:15, @y:36, @rx:7, @ry:7);
-@rrsjcz4oz2ln6jx4y4;u8g2.drawXBM(@x:0, @y:0, @w:128, @h:64, @image:image_1_bits);
+@rrsjcz4oz2ln6jx4y4;u8g2.drawXBM(@x:0, @y:0, @w:128, @h:64, @image:image_paint_0_bits);
 "
 `;
 
