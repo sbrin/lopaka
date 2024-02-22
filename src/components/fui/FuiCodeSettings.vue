@@ -4,7 +4,7 @@ import {useSession} from '../../core/session';
 const session = useSession();
 const {platform} = toRefs(session.state);
 const templates = computed(() => platform.value && session.platforms[platform.value].getTemplates());
-const settings = computed(() => platform.value && session.platforms[platform.value].getTemplateSettings());
+const settings = computed(() => template.value && session.platforms[platform.value].getTemplateSettings());
 const template = ref(session.platforms[platform.value].getTemplate());
 watch(template, (val) => {
     if (val) {
