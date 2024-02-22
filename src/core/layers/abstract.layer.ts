@@ -49,7 +49,13 @@ export type TLayerModifier = {
     type: TModifierType;
 };
 
+export type TLayerAction = {
+    name: string;
+    action: () => void;
+};
+
 export type TLayerModifiers = Partial<{[key in TModifierName]: TLayerModifier}>;
+export type TLayerActions = TLayerAction[];
 
 export type TLayerEditPoint = {
     cursor: 'nwse-resize' | 'nesw-resize' | 'move';
@@ -105,6 +111,8 @@ export abstract class AbstractLayer {
     public resizable: boolean = true;
     // modifiers
     public modifiers: TLayerModifiers = {};
+    // actions
+    public actions: TLayerActions = [];
     // color
     public color: string = '#000000';
     // ibnverted

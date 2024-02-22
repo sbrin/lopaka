@@ -1,5 +1,5 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {hexToRgb, inverImageDataWithAlpha} from '../../utils';
+import {inverImageDataWithAlpha} from '../../utils';
 import {Point} from '../point';
 import {AbstractImageLayer} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
