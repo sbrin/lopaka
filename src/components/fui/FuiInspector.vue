@@ -156,6 +156,9 @@ function onChange(event: Event, param: TLayerModifier) {
     </div>
 </template>
 <style lang="css" scoped>
+.inspector {
+    padding-left: 16px;
+}
 .inspector-panel {
     display: flex;
     flex-direction: row;

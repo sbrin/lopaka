@@ -171,7 +171,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 </FuiButton>
             </FuiLayers>
         </div>
-        <div class="fui-editor__center">
+        <div class="fui-editor__top">
             <div class="fui-editor-header">
                 <FuiSelectPlatform></FuiSelectPlatform>
                 <FuiSelectDisplay></FuiSelectDisplay>
@@ -192,8 +192,17 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 </FuiButton>
             </div>
             <FuiTools v-if="!session.state.isPublic"></FuiTools>
-            <FuiCanvas ref="fuiCanvas" />
-            <div class="fui-editor__tools">
+        </div>
+        <div class="fui-editor__main">
+            <div class="fui-editor__canvas">
+                <FuiCanvas ref="fuiCanvas" />
+            </div>
+        </div> 
+        <div class="fui-editor__main-right">
+            <FuiInspector />
+        </div>
+        <div class="fui-editor__bottom">
+            <div class="fui-editor__tabs">
                 <div v-if="!session.state.isPublic" class="fui-editor-header">
                     <FuiTabs :active-tab="activeTab" @set-active-tab="setactiveTab"></FuiTabs>
                 </div>
@@ -218,13 +227,55 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 </div>
             </div>
         </div>
-        <div class="fui-editor__right">
-            <FuiInspector />
+        <div class="fui-editor__bottom-right">
             <FuiEditorSettings />
         </div>
     </div>
 </template>
 <style lang="css">
+.fui-editor {
+    background: var(--bg-color);
+    margin: 0 auto;
+    padding: 0 calc((100vw - 1280px) / 4);
+    position: relative;
+    box-sizing: border-box;
+
+    display: grid;
+    grid-template-columns: 180px 4fr 240px;
+    grid-template-rows: auto 2fr auto; 
+    grid-column-gap: 16px;
+    grid-row-gap: 16px;
+}
+
+.fui-editor__left           { grid-area: 1 / 1 / 6 / 2; }
+.fui-editor__top            { grid-area: 1 / 2 / 2 / 4; }
+.fui-editor__main           { 
+    width: 800px;
+    grid-area: 2 / 2 / 3 / 3;
+}
+.fui-editor__main-right     { grid-area: 2 / 3 / 3 / 4; }
+.fui-editor__bottom         { 
+    grid-area: 3 / 2 / 4 / 3;
+    max-width: 800px;
+}
+.fui-editor__bottom-right   { grid-area: 3 / 3 / 4 / 4; }
+
+.fui-editor__canvas {
+    max-height: 50vh;
+    flex-shrink: 0;
+    overflow: auto;
+    display: flex;
+    padding: 0px 20px 20px 0px;
+    margin: 0 auto;
+}
+
+.fui-editor__tabs {
+
+}
+
+.fui-editor__main {
+}
+
 body {
     visibility: visible !important;
 }
