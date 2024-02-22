@@ -24,14 +24,16 @@ export abstract class Platform {
 
     protected templates: any;
     protected currentTemplate: string = 'Default';
-    protected settings = {
-        wrap: false
-    };
+    protected settings = {};
 
     abstract generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string;
 
     public getTemplate(): string {
         return this.currentTemplate;
+    }
+
+    public getTemplateSettings(): any {
+        return this.templates[this.currentTemplate].settings;
     }
 
     public getTemplates(): any {

@@ -31,7 +31,8 @@ export class U8g2Platform extends Platform {
             name: 'Arduino (Cpp)',
             template: defaultTemplate,
             settings: {
-                progmem: true
+                progmem: true,
+                wrap: false
             }
         },
         'esp-idf': {
