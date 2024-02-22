@@ -84,6 +84,7 @@ export class Session {
         });
         layer.saveState();
         layer.recalculate();
+        layer.applyColor();
         layer.stopEdit();
         layer.selected = true;
         layer.draw();
