@@ -1,31 +1,17 @@
 <script lang="ts" setup>
 import {ComputedRef, UnwrapRef, computed, toRefs} from 'vue';
-import {AbstractLayer, TLayerModifier, TLayerModifiers, TModifierType} from '../../core/layers/abstract.layer';
+import {
+    AbstractLayer,
+    TLayerModifier,
+    TLayerModifiers,
+    TModifierType,
+    TLayerAction
+} from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
 import {loadFont} from '../../draw/fonts';
 const session = useSession();
 const {platform} = toRefs(session.state);
 const {updates} = toRefs(session.virtualScreen.state);
-
-// const icons = computed(() => {
-//     return Object.entries(iconsUrls)
-//         .map((item) => {
-//             const [name, file] = item;
-//             const matchedSizeArr = name.match(/_([0-9]+)x([0-9]+)/i) ? name.match(/_([0-9]+)x([0-9]+)/i) : [0, 10, 10];
-//             const [, width, height] = matchedSizeArr.map((num) => parseInt(num, 10));
-//             const image = new Image(width, height);
-//             image.crossOrigin = 'Anonymous';
-//             image.dataset.name = name;
-//             image.src = file;
-//             return {
-//                 name,
-//                 width,
-//                 height,
-//                 image
-//             };
-//         })
-//         .sort((a, b) => a.width * a.height - b.width * b.height);
-// });
 
 const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
     const selection = session.state.layers.filter((l) => l.selected);
@@ -35,6 +21,8 @@ const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
 const params: ComputedRef<UnwrapRef<TLayerModifiers>> = computed(() =>
     updates.value && activeLayer.value ? activeLayer.value.modifiers : {}
 );
+
+const actions = computed(() => (updates.value && activeLayer.value ? activeLayer.value.actions : []));
 
 const fonts = computed(() => {
     return session.platforms[platform.value].getFonts();
@@ -69,6 +57,11 @@ function onChange(event: Event, param: TLayerModifier) {
         //     param.setValue(icons.value.find((image) => target.dataset.name === image.name).image);
         //     break;
     }
+    session.virtualScreen.redraw();
+}
+
+function onAction(action: TLayerAction) {
+    action.action();
     session.virtualScreen.redraw();
 }
 </script>
@@ -152,6 +145,11 @@ function onChange(event: Event, param: TLayerModifier) {
                     </div>
                 </div>
             </template>
+            <div v-for="action in actions">
+                <button :disabled="session.state.isPublic" class="fui-button" @click="onAction(action)">
+                    {{ action.name }}
+                </button>
+            </div>
         </div>
     </div>
 </template>

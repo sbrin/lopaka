@@ -242,3 +242,68 @@ export function unpackImage(base64: string, width: number, height: number): Imag
     inflate.push(arr, true);
     return new ImageData(new Uint8ClampedArray(inflate.result), width, height);
 }
+
+export function flipImageDataByY(data: ImageData): ImageData {
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let y = 0; y < data.height; y++) {
+        for (let x = 0; x < data.width; x++) {
+            const index = (y * data.width + x) * 4;
+            const newIndex = ((data.height - y - 1) * data.width + x) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, data.width, data.height);
+}
+
+export function flipImageDataByX(data: ImageData): ImageData {
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let y = 0; y < data.height; y++) {
+        for (let x = 0; x < data.width; x++) {
+            const index = (y * data.width + x) * 4;
+            const newIndex = (y * data.width + data.width - x - 1) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, data.width, data.height);
+}
+
+export function rotateImageData(data: ImageData): ImageData {
+    // rotate image 90 degrees
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let y = 0; y < data.height; y++) {
+        for (let x = 0; x < data.width; x++) {
+            const index = (y * data.width + x) * 4;
+            const newIndex = (x * data.height + data.height - y - 1) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, data.height, data.width);
+}
+
+export function invertImageData(data: ImageData, hexColor: string): ImageData {
+    const color = hexToRgb(hexColor);
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let i = 0; i < data.data.length; i += 4) {
+        if (data.data[i + 3] == 0) {
+            newData[i] = color.r;
+            newData[i + 1] = color.g;
+            newData[i + 2] = color.b;
+            newData[i + 3] = 255;
+        } else {
+            newData[i] = 0;
+            newData[i + 1] = 0;
+            newData[i + 2] = 0;
+            newData[i + 3] = 0;
+        }
+    }
+    return new ImageData(newData, data.width, data.height);
+}

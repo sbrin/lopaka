@@ -1,8 +1,16 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {hexToRgb, packImage, unpackImage} from '../../utils';
+import {
+    flipImageDataByX,
+    flipImageDataByY,
+    hexToRgb,
+    invertImageData,
+    packImage,
+    rotateImageData,
+    unpackImage
+} from '../../utils';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerEditPoint, TLayerState} from './abstract.layer';
+import {AbstractLayer, EditMode, TLayerActions, TLayerEditPoint, TLayerState} from './abstract.layer';
 
 export type TImageState = TLayerState & {
     p: number[]; // position
@@ -47,6 +55,43 @@ export abstract class AbstractImageLayer extends AbstractLayer {
     constructor(protected features: TPlatformFeatures) {
         super(features);
     }
+
+    actions: TLayerActions = [
+        {
+            name: 'Flip X',
+            action: () => {
+                this.data = flipImageDataByX(this.data);
+                this.saveState();
+                this.draw();
+            }
+        },
+        {
+            name: 'Flip Y',
+            action: () => {
+                this.data = flipImageDataByY(this.data);
+                this.saveState();
+                this.draw();
+            }
+        },
+        {
+            name: 'Rotate',
+            action: () => {
+                this.data = rotateImageData(this.data);
+                this.size = new Point(this.data.width, this.data.height);
+                this.updateBounds();
+                this.saveState();
+                this.draw();
+            }
+        },
+        {
+            name: 'Invert',
+            action: () => {
+                this.data = invertImageData(this.data, this.color);
+                this.saveState();
+                this.draw();
+            }
+        }
+    ];
 
     applyColor() {
         const color = hexToRgb(this.color);

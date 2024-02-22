@@ -61,7 +61,10 @@ export class U8g2Platform extends Platform {
                     if (xbmps.includes(XBMP)) {
                         props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
                     } else {
-                        const varName = `image_${layer.imageName ? toCppVariableName(layer.imageName) : xbmps.length + 1}_bits`;
+                        const name = layer.imageName ? toCppVariableName(layer.imageName) : 'paint';
+                        const nameRegexp = new RegExp(`${name}_?\d*`);
+                        const countWithSameName = xbmpsNames.filter((n) => nameRegexp.test(n)).length;
+                        const varName = `image_${name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')}_bits`;
                         declarations.push({
                             type: 'bitmap',
                             data: {
