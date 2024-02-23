@@ -38,7 +38,9 @@ export class U8g2Platform extends Platform {
         'esp-idf': {
             name: 'ESP-IDF (C)',
             template: cEspIdfTemplate,
-            settings: {}
+            settings: {
+                wrap: false
+            }
         }
     };
 

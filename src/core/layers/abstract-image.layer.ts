@@ -58,7 +58,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
 
     actions: TLayerActions = [
         {
-            name: 'Flip X',
+            label: '⬌',
+            title: 'Flip horizontally',
             action: () => {
                 this.data = flipImageDataByX(this.data);
                 this.saveState();
@@ -66,7 +67,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             }
         },
         {
-            name: 'Flip Y',
+            label: '⬍',
+            title: 'Flip vertically',
             action: () => {
                 this.data = flipImageDataByY(this.data);
                 this.saveState();
@@ -74,7 +76,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             }
         },
         {
-            name: 'Rotate',
+            label: '↻',
+            title: 'Rotate clockwise',
             action: () => {
                 this.data = rotateImageData(this.data);
                 this.size = new Point(this.data.width, this.data.height);
@@ -84,7 +87,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             }
         },
         {
-            name: 'Invert',
+            label: '◧',
+            title: 'Invert colors',
             action: () => {
                 this.data = invertImageData(this.data, this.color);
                 this.saveState();

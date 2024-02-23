@@ -217,6 +217,7 @@ a {
 }
 .fui-form-label {
     font-size: 24px;
+    padding: 0 8px 8px 0;
 }
 .fui-form-header {
     font-size: 32px;
@@ -228,4 +229,8 @@ a {
     padding: 8px;
     color: var(--primary-color);
     box-sizing: border-box;
+}
+.fui-form-checkbox {
+    order: -1;
+    padding: 0 8px 0 0;
 }

@@ -10,6 +10,7 @@ import {
 } from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
 import {loadFont} from '../../draw/fonts';
+import FuiButton from "./FuiButton.vue";
 const session = useSession();
 const {platform} = toRefs(session.state);
 const {updates} = toRefs(session.virtualScreen.state);
@@ -83,7 +84,7 @@ function mergeLayers() {
 </script>
 <template>
     <div v-if="layerToMerge">
-        <button class="fui-button" @click="mergeLayers">Merge selected</button>
+        <FuiButton @click="mergeLayers" title="Merge selected layers into a single bitmap">Make bitmap</FuiButton>
     </div>
     <div class="inspector" v-if="activeLayer">
         <datalist id="presetColors">
@@ -108,8 +109,14 @@ function mergeLayers() {
         <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
             <template v-for="(param, name) in params">
-                <div class="inspector-panel__param" v-if="param.type !== TModifierType.image">
-                    <span class="fui-form-label">{{ name }}</span>
+                <div
+                    class="inspector-panel__param"
+                    v-if="param.type !== TModifierType.image"
+                    :class="{
+                        'inspector-panel__param_row': [TModifierType.boolean, TModifierType.color].includes(param.type),
+                    }"
+                >
+                    <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">{{ name }}</label>
                     <div v-if="param.type == TModifierType.number">
                         <input
                             :disabled="session.state.isPublic"
@@ -130,7 +137,7 @@ function mergeLayers() {
                             :readonly="!param.setValue"
                         />
                     </div>
-                    <div v-else-if="param.type == TModifierType.boolean">
+                    <div v-else-if="param.type == TModifierType.boolean" class="fui-form-checkbox">
                         <input
                             :disabled="session.state.isPublic"
                             class="inspector__input fui-form-input"
@@ -138,6 +145,7 @@ function mergeLayers() {
                             :checked="param.getValue()"
                             @change="onChange($event, param)"
                             :readonly="!param.setValue"
+                            :id="`inspector_${param.type}_${name}`"
                         />
                     </div>
                     <div v-else-if="param.type == TModifierType.color">
@@ -149,6 +157,7 @@ function mergeLayers() {
                             @input="onChange($event, param)"
                             :readonly="!param.setValue"
                             list="presetColors"
+                            :id="`inspector_${param.type}_${name}`"
                         />
                     </div>
                     <div v-else-if="param.type == TModifierType.font">
@@ -164,23 +173,35 @@ function mergeLayers() {
                     </div>
                 </div>
             </template>
-            <div v-for="action in actions">
-                <button :disabled="session.state.isPublic" class="fui-button" @click="onAction(action)">
-                    {{ action.name }}
-                </button>
+        </div>
+        <div class="inspector-actions">
+            <div class="inspector-action-button" v-for="action in actions">
+                <FuiButton
+                    :disabled="session.state.isPublic"
+                    @click="onAction(action)"
+                    :title="action.title"
+                    :isIcon="true"
+                >
+                    {{ action.label }}
+                </FuiButton>
             </div>
         </div>
     </div>
 </template>
 <style lang="css" scoped>
 .inspector {
-    padding-left: 16px;
 }
 .inspector-panel {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between;
+    column-gap: 8px;
+}
+.inspector-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 8px;
 }
 .inspector-panel__param {
     flex: 0 0 calc(50% - 4px);
@@ -189,6 +210,10 @@ function mergeLayers() {
     align-items: flex-start;
     margin-bottom: 8px;
     font-size: var(--input-font-size);
+}
+.inspector-panel__param_row {
+    flex-direction: row;
+    margin-top: 16px;
 }
 .inspector__title {
     overflow: hidden;

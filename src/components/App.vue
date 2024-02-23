@@ -242,7 +242,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 
     display: grid;
     grid-template-columns: 180px 4fr 240px;
-    grid-template-rows: auto 2fr auto; 
+    grid-template-rows: auto auto auto; 
     grid-column-gap: 16px;
     grid-row-gap: 16px;
 }

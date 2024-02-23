@@ -50,7 +50,8 @@ export type TLayerModifier = {
 };
 
 export type TLayerAction = {
-    name: string;
+    label: string;
+    title: string;
     action: () => void;
 };
 
