@@ -196,6 +196,8 @@ body {
 
 .fui-select {
     margin: 0 12px 0 0;
+    display: flex;
+    align-items: center;
 }
 
 .fui-select__label {
@@ -217,6 +219,7 @@ a {
 }
 .fui-form-label {
     font-size: 24px;
+    /* padding: 0 8px 4px 0; */
 }
 .fui-form-header {
     font-size: 32px;
@@ -228,4 +231,9 @@ a {
     padding: 8px;
     color: var(--primary-color);
     box-sizing: border-box;
+}
+.fui-form-checkbox {
+    order: -1;
+    padding: 0 10px 0 0;
+    width: 12px;
 }

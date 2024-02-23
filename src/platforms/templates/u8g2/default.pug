@@ -17,12 +17,12 @@ if settings.wrap
 each layer in layers 
     if layer.inverted 
         if drawColorMode != 2
-            | u8g2.setDrawColor(2);
+            | !{pad}u8g2.setDrawColor(2);
             |
             - drawColorMode = 2;
     else
         if drawColorMode != 1
-            | u8g2.setDrawColor(1);
+            | !{pad}u8g2.setDrawColor(1);
             |
             - drawColorMode = 1;
     case layer.type
@@ -38,7 +38,7 @@ each layer in layers
             | @!{layer.id};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.r});
         when 'ellipse'
             - var func = layer.fill ? 'drawFilledEllipse' : 'drawEllipse'
-            | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
+            | @!{layer.id};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
         when 'string'
             if layer.font != font
                 - font = layer.font
