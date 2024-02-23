@@ -93,6 +93,15 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             }
         },
         {
+            name: 'Fit layer',
+            action: () => {
+                this.recalculate();
+                this.updateBounds();
+                this.saveState();
+                this.draw();
+            }
+        },
+        {
             name: 'Download image',
             action: () => {
                 downloadImage(this.data, this.imageName);
@@ -110,6 +119,26 @@ export abstract class AbstractImageLayer extends AbstractLayer {
                 return v;
             }
         });
+    }
+
+    recalculate() {
+        const {dc} = this;
+        const {width, height} = dc.ctx.canvas;
+        const data = dc.ctx.getImageData(0, 0, width, height);
+        let min: Point = new Point(width, height);
+        let max: Point = new Point(0, 0);
+        dc.ctx.beginPath();
+        for (let i = 0; i < data.data.length; i += 4) {
+            const x = (i / 4) % width;
+            const y = Math.floor(i / 4 / width);
+            if (data.data[i + 3] !== 0) {
+                min = min.min(new Point(x, y));
+                max = max.max(new Point(x, y));
+            }
+        }
+        this.position = min.clone();
+        this.size = max.clone().subtract(min).add(1);
+        this.data = dc.ctx.getImageData(min.x, min.y, this.size.x, this.size.y);
     }
 
     draw() {
