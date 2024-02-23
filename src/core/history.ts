@@ -1,7 +1,7 @@
 import {AbstractLayer} from './layers/abstract.layer';
 
 export type TChange = {
-    type: 'add' | 'remove' | 'change' | 'clear';
+    type: 'add' | 'remove' | 'change' | 'clear' | 'merge';
     layer: AbstractLayer;
     state: any;
 };
@@ -14,47 +14,37 @@ export type THistoryListener = (event: THistoryEvent, change: TChange) => void;
 
 export class ChangeHistory {
     history: TChange[] = [];
-    head: number = 0;
     listeners: Function[] = [];
 
     constructor() {}
 
     public clear() {
         this.history.splice(0, this.history.length);
-        this.head = 0;
         this.emit({type: 'clear'}, null);
     }
 
     public push(change: TChange) {
-        change.state = JSON.parse(JSON.stringify(change.state));
+        change.state = change.state;
         this.history.push(change);
-        this.head = this.history.length - 1;
         this.emit({type: 'push'}, change);
     }
 
-    public lastChange() {
-        return this.history.length ? this.history[this.head] : null;
-    }
-
     public undo() {
-        const lastChange = this.lastChange();
-        if (lastChange) {
-            this.emit({type: 'undo'}, this.history[this.head]);
-            if (this.head > 0) {
-                this.head--;
-            }
+        if (this.history.length) {
+            const change = this.history.pop();
+            this.emit({type: 'undo'}, change);
         }
     }
 
-    public redo() {
-        if (this.head < this.history.length) {
-            this.head++;
-            const lastChange = this.lastChange();
-            if (lastChange) {
-                this.emit({type: 'redo'}, this.history[this.head]);
-            }
-        }
-    }
+    // public redo() {
+    //     if (this.head < this.history.length) {
+    //         this.head++;
+    //         const lastChange = this.lastChange();
+    //         if (lastChange) {
+    //             this.emit({type: 'redo'}, this.history[this.head]);
+    //         }
+    //     }
+    // }
 
     private emit(event: THistoryEvent, change: TChange) {
         this.listeners.forEach((l) => l(event, change));

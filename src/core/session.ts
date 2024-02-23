@@ -73,7 +73,7 @@ export class Session {
     };
     mergeLayers = (layers: AbstractLayer[]) => {
         const layer = new PaintLayer(this.getPlatformFeatures());
-        this.addLayer(layer);
+        this.addLayer(layer, false);
         const ctx = layer.getBuffer().getContext('2d');
         layers.forEach((l) => {
             l.selected = false;
@@ -82,7 +82,12 @@ export class Session {
             }
             ctx.drawImage(l.getBuffer(), 0, 0);
             ctx.globalCompositeOperation = 'source-over';
-            this.removeLayer(l);
+            this.removeLayer(l, false);
+        });
+        this.history.push({
+            type: 'merge',
+            layer,
+            state: layers
         });
         layer.recalculate();
         layer.applyColor();
@@ -228,6 +233,12 @@ export class Session {
                             change.layer.loadState(change.state);
                             change.layer.draw();
                             break;
+                        case 'merge':
+                            this.removeLayer(change.layer, false);
+                            change.state.forEach((l) => {
+                                this.addLayer(l, false);
+                            });
+                            break;
                         case 'clear':
                             change.state.forEach((l) => {
                                 const type: ELayerType = l.t;
@@ -242,24 +253,30 @@ export class Session {
                     }
                     this.virtualScreen.redraw();
                     break;
-                case 'redo':
-                    switch (change.type) {
-                        case 'add':
-                            this.addLayer(change.layer, false);
-                            break;
-                        case 'remove':
-                            this.removeLayer(change.layer, false);
-                            break;
-                        case 'change':
-                            change.layer.loadState(change.state);
-                            change.layer.draw();
-                            break;
-                        case 'clear':
-                            this.clearLayers();
-                            break;
-                    }
-                    this.virtualScreen.redraw();
-                    break;
+                // case 'redo':
+                //     switch (change.type) {
+                //         case 'add':
+                //             this.addLayer(change.layer, false);
+                //             break;
+                //         case 'remove':
+                //             this.removeLayer(change.layer, false);
+                //             break;
+                //         case 'change':
+                //             change.layer.loadState(change.state);
+                //             change.layer.draw();
+                //             break;
+                //         case 'merge':
+                //             this.addLayer(change.layer, false);
+                //             change.state.forEach((l) => {
+                //                 this.removeLayer(l, false);
+                //             });
+                //             break;
+                //         case 'clear':
+                //             this.clearLayers();
+                //             break;
+                //     }
+                //     this.virtualScreen.redraw();
+                //     break;
             }
         });
     }
