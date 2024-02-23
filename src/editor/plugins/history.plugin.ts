@@ -3,8 +3,8 @@ import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
 export class HistoryPlugin extends AbstractEditorPlugin {
     onKeyDown(key: Keys, event: KeyboardEvent): void {
-        const {history, virtualScreen} = this.session;
-        if (event.ctrlKey || (event.metaKey && key === Keys.KeyZ)) {
+        const {history} = this.session;
+        if ((event.ctrlKey || event.metaKey) && key === Keys.KeyZ && !event.shiftKey) {
             history.undo();
         }
     }
