@@ -1,5 +1,6 @@
 import {TPlatformFeatures} from '../../platforms/platform';
 import {
+    downloadImage,
     flipImageDataByX,
     flipImageDataByY,
     hexToRgb,
@@ -89,6 +90,12 @@ export abstract class AbstractImageLayer extends AbstractLayer {
                 this.data = invertImageData(this.data, this.color);
                 this.saveState();
                 this.draw();
+            }
+        },
+        {
+            name: 'Download image',
+            action: () => {
+                downloadImage(this.data, this.imageName);
             }
         }
     ];

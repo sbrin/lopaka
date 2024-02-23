@@ -307,3 +307,15 @@ export function invertImageData(data: ImageData, hexColor: string): ImageData {
     }
     return new ImageData(newData, data.width, data.height);
 }
+
+export function downloadImage(data: ImageData, name: string) {
+    const a = document.createElement('a');
+    const canvas = document.createElement('canvas');
+    canvas.width = data.width;
+    canvas.height = data.height;
+    const ctx = canvas.getContext('2d');
+    ctx.putImageData(data, 0, 0);
+    a.href = canvas.toDataURL('image/png');
+    a.download = name;
+    a.click();
+}
