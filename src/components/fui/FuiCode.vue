@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, nextTick, onMounted, ref, shallowRef, toRefs, watch} from 'vue';
+import {nextTick, onMounted, ref, shallowRef, toRefs, watch} from 'vue';
 import {VAceEditor} from 'vue3-ace-editor';
 import {useSession} from '../../core/session';
 import {debounce} from '../../utils';
@@ -21,6 +21,7 @@ const {layers} = toRefs(session.state);
 const {selectionUpdates} = toRefs(session.editor.state);
 const content = shallowRef('');
 const aceRef = shallowRef(null);
+const hovered = ref(false);
 
 watch(
     [updates, layers],
@@ -46,6 +47,9 @@ function selectRow() {
     }
 }
 function onUpdate() {
+    if (hovered.value) {
+        return;
+    }
     const sourceCode = session.generateCode();
     content.value = sourceCode.code;
     layersMap = sourceCode.map;
@@ -75,7 +79,12 @@ function onChange() {
 const debouncedChange = debounce(() => onChange(), 500);
 </script>
 <template>
-    <div class="fui-code" style="position: relative">
+    <div
+        class="fui-code"
+        style="position: relative"
+        @mouseenter.self="hovered = true"
+        @mouseleave.self="hovered = false"
+    >
         <VAceEditor
             ref="aceRef"
             v-model:value="content"
