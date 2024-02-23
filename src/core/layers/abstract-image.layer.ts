@@ -117,7 +117,7 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         dc.ctx.restore();
     }
 
-    saveState() {
+    saveState(updateHistory: boolean = false) {
         const state: TImageState = {
             p: this.position.xy,
             s: this.size.xy,
@@ -133,6 +133,13 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             in: this.inverted
         };
         this.state = state;
+        if (updateHistory) {
+            this.history.push({
+                type: 'change',
+                layer: this,
+                state
+            });
+        }
     }
 
     loadState(state: TImageState) {

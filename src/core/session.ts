@@ -6,7 +6,7 @@ import {Editor} from '../editor/editor';
 import {U8g2Platform} from '../platforms/u8g2';
 import {generateUID, logEvent, postParentMessage} from '../utils';
 import displays from './displays';
-import {ChangeHistory, useHistory} from './history';
+import {ChangeHistory, TChange, THistoryEvent, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
 import {CircleLayer} from './layers/circle.layer';
 import {DotLayer} from './layers/dot.layer';
@@ -210,7 +210,54 @@ export class Session {
     unlock = () => {
         this.state.lock = false;
     };
-    constructor() {}
+    constructor() {
+        this.history.subscribe((event: THistoryEvent, change: TChange) => {
+            switch (event.type) {
+                case 'undo':
+                    switch (change.type) {
+                        case 'add':
+                            this.removeLayer(change.layer);
+                            break;
+                        case 'remove':
+                            this.addLayer(change.layer);
+                            break;
+                        case 'change':
+                            change.layer.loadState(change.state);
+                            change.layer.draw();
+                            break;
+                        case 'clear':
+                            change.state.forEach((l) => {
+                                const type: ELayerType = l.t;
+                                if (type in LayerClassMap) {
+                                    const layer = new LayerClassMap[type](this.getPlatformFeatures());
+                                    layer.loadState(l);
+                                    this.addLayer(layer);
+                                    layer.saveState();
+                                }
+                            });
+                            break;
+                    }
+                    break;
+                case 'redo':
+                    switch (change.type) {
+                        case 'add':
+                            this.addLayer(change.layer);
+                            break;
+                        case 'remove':
+                            this.removeLayer(change.layer);
+                            break;
+                        case 'change':
+                            change.layer.loadState(change.state);
+                            change.layer.draw();
+                            break;
+                        case 'clear':
+                            this.clearLayers();
+                            break;
+                    }
+                    break;
+            }
+        });
+    }
 }
 export const LayerClassMap: {[key in ELayerType]: any} = {
     box: RectangleLayer,

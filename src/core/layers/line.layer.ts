@@ -159,7 +159,6 @@ export class LineLayer extends AbstractLayer {
         this.mode = EditMode.NONE;
         this.editState = null;
         this.saveState();
-        this.history.push(this.state);
     }
 
     draw() {
@@ -170,7 +169,7 @@ export class LineLayer extends AbstractLayer {
         dc.pixelateLine(p1, p2, 1);
     }
 
-    saveState() {
+    saveState(updateHistory: boolean = false) {
         const state: TLineState = {
             p1: this.p1.xy,
             p2: this.p2.xy,
@@ -183,6 +182,13 @@ export class LineLayer extends AbstractLayer {
             in: this.inverted
         };
         this.state = state;
+        if (updateHistory) {
+            this.history.push({
+                type: 'change',
+                layer: this,
+                state
+            });
+        }
     }
 
     loadState(state: TLineState) {

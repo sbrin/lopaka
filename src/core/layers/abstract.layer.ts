@@ -1,6 +1,7 @@
 import {DrawContext} from '../../draw/draw-context';
 import {TPlatformFeatures} from '../../platforms/platform';
 import {generateUID} from '../../utils';
+import {ChangeHistory, useHistory} from '../history';
 import {Point} from '../point';
 import {Rect} from '../rect';
 // TODO move type delarations outside of the class
@@ -91,7 +92,7 @@ export abstract class AbstractLayer {
     // current edit mode
     protected mode: EditMode = EditMode.EMPTY;
     // history of changing
-    protected history: any[] = [];
+    protected history: ChangeHistory = useHistory();
     // UID
     public uid = generateUID();
 

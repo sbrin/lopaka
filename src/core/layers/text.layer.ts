@@ -166,7 +166,6 @@ export class TextLayer extends AbstractLayer {
         this.mode = EditMode.NONE;
         this.editState = null;
         this.saveState();
-        this.history.push(this.state);
     }
 
     draw() {
@@ -183,7 +182,7 @@ export class TextLayer extends AbstractLayer {
         dc.ctx.restore();
     }
 
-    saveState() {
+    saveState(updateHistory: boolean = false) {
         const state: TTextState = {
             p: this.position.xy,
             d: this.text,
@@ -198,6 +197,13 @@ export class TextLayer extends AbstractLayer {
             in: this.inverted
         };
         this.state = state;
+        if (updateHistory) {
+            this.history.push({
+                type: 'change',
+                layer: this,
+                state
+            });
+        }
     }
 
     loadState(state: TTextState) {

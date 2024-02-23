@@ -210,7 +210,6 @@ export class CircleLayer extends AbstractLayer {
         this.mode = EditMode.NONE;
         this.editState = null;
         this.saveState();
-        this.history.push(this.state);
     }
 
     draw() {
@@ -222,7 +221,7 @@ export class CircleLayer extends AbstractLayer {
         dc.pixelateCircle(center, radius, this.fill);
     }
 
-    saveState() {
+    saveState(updateHistory: boolean = false) {
         const state: TCircleState = {
             p: this.position.xy,
             r: this.radius,
@@ -236,6 +235,13 @@ export class CircleLayer extends AbstractLayer {
             in: this.inverted
         };
         this.state = state;
+        if (updateHistory) {
+            this.history.push({
+                type: 'change',
+                layer: this,
+                state
+            });
+        }
     }
 
     loadState(state: TCircleState) {
