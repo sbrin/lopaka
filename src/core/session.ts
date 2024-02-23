@@ -60,13 +60,15 @@ export class Session {
         highlight: true,
         pointer: false
     });
-    removeLayer = (layer: AbstractLayer) => {
-        this.state.layers = this.state.layers.filter((l) => l !== layer);
-        this.history.push({
-            type: 'remove',
-            layer,
-            state: layer.getState()
-        });
+    removeLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
+        this.state.layers = this.state.layers.filter((l) => l.uid !== layer.uid);
+        if (saveHistory) {
+            this.history.push({
+                type: 'remove',
+                layer,
+                state: layer.getState()
+            });
+        }
         this.virtualScreen.redraw();
     };
     mergeLayers = (layers: AbstractLayer[]) => {
@@ -82,7 +84,6 @@ export class Session {
             ctx.globalCompositeOperation = 'source-over';
             this.removeLayer(l);
         });
-        layer.saveState();
         layer.recalculate();
         layer.applyColor();
         layer.stopEdit();
@@ -90,17 +91,19 @@ export class Session {
         layer.draw();
         this.virtualScreen.redraw();
     };
-    addLayer = (layer: AbstractLayer) => {
+    addLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
         const {display, scale, layers} = this.state;
         layer.resize(display, scale);
         layer.index = layer.index ?? layers.length + 1;
         layer.name = layer.name ?? 'Layer ' + (layers.length + 1);
         layers.unshift(layer);
-        this.history.push({
-            type: 'add',
-            layer,
-            state: layer.getState()
-        });
+        if (saveHistory) {
+            this.history.push({
+                type: 'add',
+                layer,
+                state: layer.getState()
+            });
+        }
         layer.draw();
     };
     clearLayers = () => {
@@ -216,10 +219,10 @@ export class Session {
                 case 'undo':
                     switch (change.type) {
                         case 'add':
-                            this.removeLayer(change.layer);
+                            this.removeLayer(change.layer, false);
                             break;
                         case 'remove':
-                            this.addLayer(change.layer);
+                            this.addLayer(change.layer, false);
                             break;
                         case 'change':
                             change.layer.loadState(change.state);
@@ -231,20 +234,21 @@ export class Session {
                                 if (type in LayerClassMap) {
                                     const layer = new LayerClassMap[type](this.getPlatformFeatures());
                                     layer.loadState(l);
-                                    this.addLayer(layer);
+                                    this.addLayer(layer, false);
                                     layer.saveState();
                                 }
                             });
                             break;
                     }
+                    this.virtualScreen.redraw();
                     break;
                 case 'redo':
                     switch (change.type) {
                         case 'add':
-                            this.addLayer(change.layer);
+                            this.addLayer(change.layer, false);
                             break;
                         case 'remove':
-                            this.removeLayer(change.layer);
+                            this.removeLayer(change.layer, false);
                             break;
                         case 'change':
                             change.layer.loadState(change.state);
@@ -254,6 +258,7 @@ export class Session {
                             this.clearLayers();
                             break;
                     }
+                    this.virtualScreen.redraw();
                     break;
             }
         });
@@ -281,8 +286,7 @@ export function loadLayers(layers: any[]) {
         if (type in LayerClassMap) {
             const layer = new LayerClassMap[type](session.getPlatformFeatures());
             layer.loadState(l);
-            session.addLayer(layer);
-            layer.saveState();
+            session.addLayer(layer, false);
         }
     });
     session.virtualScreen.redraw(false);

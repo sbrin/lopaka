@@ -255,7 +255,7 @@ export class EllipseLayer extends AbstractLayer {
         dc.pixelateEllipse(center, radiusX, radiusY, this.fill);
     }
 
-    saveState(updateHistory: boolean = false) {
+    saveState() {
         const state: TEllipseState = {
             p: this.position.xy,
             rx: this.radiusX,
@@ -270,16 +270,10 @@ export class EllipseLayer extends AbstractLayer {
             in: this.inverted
         };
         this.state = state;
-        if (updateHistory) {
-            this.history.push({
-                type: 'change',
-                layer: this,
-                state
-            });
-        }
     }
 
     loadState(state: TEllipseState) {
+        this.state = state;
         this.position = new Point(state.p);
         this.radiusX = state.rx;
         this.radiusY = state.ry;

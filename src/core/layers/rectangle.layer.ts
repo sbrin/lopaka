@@ -223,7 +223,7 @@ export class RectangleLayer extends AbstractLayer {
         dc.rect(position, size, this.fill);
     }
 
-    saveState(updateHistory: boolean = false) {
+    saveState() {
         const state: TRectangleState = {
             p: this.position.xy,
             s: this.size.xy,
@@ -237,16 +237,10 @@ export class RectangleLayer extends AbstractLayer {
             in: this.inverted
         };
         this.state = state;
-        if (updateHistory) {
-            this.history.push({
-                type: 'change',
-                layer: this,
-                state
-            });
-        }
     }
 
     loadState(state: TRectangleState) {
+        this.state = state;
         this.position = new Point(state.p);
         this.size = new Point(state.s);
         this.name = state.n;

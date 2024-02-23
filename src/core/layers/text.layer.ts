@@ -182,7 +182,7 @@ export class TextLayer extends AbstractLayer {
         dc.ctx.restore();
     }
 
-    saveState(updateHistory: boolean = false) {
+    saveState() {
         const state: TTextState = {
             p: this.position.xy,
             d: this.text,
@@ -197,16 +197,10 @@ export class TextLayer extends AbstractLayer {
             in: this.inverted
         };
         this.state = state;
-        if (updateHistory) {
-            this.history.push({
-                type: 'change',
-                layer: this,
-                state
-            });
-        }
     }
 
     loadState(state: TTextState) {
+        this.state = state;
         this.position = new Point(state.p);
         this.text = state.d;
         this.font = getFont(state.f);

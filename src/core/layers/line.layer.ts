@@ -169,7 +169,7 @@ export class LineLayer extends AbstractLayer {
         dc.pixelateLine(p1, p2, 1);
     }
 
-    saveState(updateHistory: boolean = false) {
+    saveState() {
         const state: TLineState = {
             p1: this.p1.xy,
             p2: this.p2.xy,
@@ -182,16 +182,10 @@ export class LineLayer extends AbstractLayer {
             in: this.inverted
         };
         this.state = state;
-        if (updateHistory) {
-            this.history.push({
-                type: 'change',
-                layer: this,
-                state
-            });
-        }
     }
 
     loadState(state: TLineState) {
+        this.state = state;
         this.p1 = new Point(state.p1);
         this.p2 = new Point(state.p2);
         this.name = state.n;

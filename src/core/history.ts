@@ -26,6 +26,7 @@ export class ChangeHistory {
     }
 
     public push(change: TChange) {
+        change.state = JSON.parse(JSON.stringify(change.state));
         this.history.push(change);
         this.head = this.history.length - 1;
         this.emit({type: 'push'}, change);

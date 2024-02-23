@@ -37,6 +37,7 @@ const fonts = computed(() => {
 });
 
 function onChange(event: Event, param: TLayerModifier) {
+    activeLayer.value.pushHistory();
     const target = event.target as HTMLInputElement;
     switch (param.type) {
         case TModifierType.number:

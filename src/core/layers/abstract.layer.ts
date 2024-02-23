@@ -199,6 +199,14 @@ export abstract class AbstractLayer {
         return this.mode !== EditMode.NONE;
     }
 
+    public pushHistory() {
+        this.history.push({
+            type: 'change',
+            layer: this,
+            state: this.state
+        });
+    }
+
     public getState(): any {
         return this.state;
     }

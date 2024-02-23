@@ -134,6 +134,5 @@ export class IconLayer extends AbstractImageLayer {
         this.mode = EditMode.NONE;
         this.editState = null;
         this.saveState();
-        this.history.push(this.state);
     }
 }
