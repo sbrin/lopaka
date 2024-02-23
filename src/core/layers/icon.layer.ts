@@ -1,5 +1,5 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {inverImageDataWithAlpha} from '../../utils';
+import {addAlphaChannelToImageData, inverImageDataWithAlpha} from '../../utils';
 import {Point} from '../point';
 import {AbstractImageLayer} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
@@ -47,12 +47,7 @@ export class IconLayer extends AbstractImageLayer {
                 buf.width = w;
                 buf.height = h;
                 ctx.drawImage(v, 0, 0);
-                if (this.features.screenBgColor === '#000000') {
-                    // TODO make alpha channel color configurable
-                    this.data = inverImageDataWithAlpha(ctx.getImageData(0, 0, w, h));
-                } else {
-                    this.data = ctx.getImageData(0, 0, w, h);
-                }
+                this.data = addAlphaChannelToImageData(ctx.getImageData(0, 0, w, h), this.color);
                 this.size = new Point(w, h);
                 this.updateBounds();
                 this.saveState();
