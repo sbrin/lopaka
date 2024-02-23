@@ -47,6 +47,10 @@ export function hexToRgb(hexColor: string) {
     return {r, g, b};
 }
 
+export function rgbToHex(rgbColor: number[]) {
+    return `#${rgbColor.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+}
+
 export function packedHexColor(color: string) {
     const c = packColor565(color);
     return `0x${c.toString(16).toUpperCase()}`;
@@ -55,6 +59,59 @@ export function packedHexColor(color: string) {
 export function packColor565(hexColor: string) {
     const rgb = hexToRgb(hexColor);
     return ((rgb.r >> 3) << 11) | ((rgb.g >> 2) << 5) | (rgb.b >> 3);
+}
+
+export function addAlphaChannelToImageData(data: ImageData, color: string) {
+    const newData = new Uint8ClampedArray(data.width * data.height * 4);
+    const rgb = hexToRgb(color);
+    const colors = new Map<string, number>();
+    let hasAlphaChannel = false;
+    for (let i = 0; i < data.data.length; i += 4) {
+        if (data.data[i + 3] == 0) {
+            hasAlphaChannel = true;
+        } else {
+            const hexColor = rgbToHex(Array.from(data.data.slice(i, i + 3)));
+            if (colors.has(hexColor)) {
+                colors.set(hexColor, colors.get(hexColor) + 1);
+            } else {
+                colors.set(hexColor, 1);
+            }
+        }
+    }
+    if (hasAlphaChannel) {
+        for (let i = 0; i < data.data.length; i += 4) {
+            if (data.data[i + 3] != 0) {
+                newData[i] = rgb.r;
+                newData[i + 1] = rgb.g;
+                newData[i + 2] = rgb.b;
+                newData[i + 3] = 255;
+            } else {
+                newData[i] = 0;
+                newData[i + 1] = 0;
+                newData[i + 2] = 0;
+                newData[i + 3] = 0;
+            }
+        }
+    } else {
+        // get main color and set alpha for all other colors
+        const sortedColors = Array.from(colors).sort((a, b) => b[1] - a[1]);
+        const alphaColor = sortedColors[0][0];
+        for (let i = 0; i < data.data.length; i += 4) {
+            const hexColor = rgbToHex(Array.from(data.data.slice(i, i + 3)));
+            if (hexColor != alphaColor && data.data[i + 3] > 175) {
+                newData[i] = rgb.r;
+                newData[i + 1] = rgb.g;
+                newData[i + 2] = rgb.b;
+                newData[i + 3] = 255;
+            } else {
+                newData[i] = 0;
+                newData[i + 1] = 0;
+                newData[i + 2] = 0;
+                newData[i + 3] = 0;
+            }
+        }
+    }
+    return new ImageData(newData, data.width, data.height);
 }
 
 export function inverImageDataWithAlpha(imgData: ImageData) {
