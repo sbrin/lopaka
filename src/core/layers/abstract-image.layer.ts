@@ -104,7 +104,7 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         {
             name: 'Download image',
             action: () => {
-                downloadImage(this.data, this.imageName);
+                downloadImage(this.data, this.imageName ?? 'image_' + this.index);
             }
         }
     ];
