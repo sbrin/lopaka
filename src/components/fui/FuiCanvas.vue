@@ -117,6 +117,7 @@ const canvasClassNames = computed(() => {
     background-size: 4px 4px;
     background-image: linear-gradient(to right, var(--bg-color) 0.5px, transparent 1px),
         linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 1px);
+    border: 1px solid var(--border-dark-color)
 }
 
 .fui-canvas_select {

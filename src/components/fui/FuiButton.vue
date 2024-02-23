@@ -69,5 +69,7 @@ a.button {
 .button_icon {
     padding: 3px 8px 4px 8px;
     line-height: 24px;
+    font-family: 'haxrcorp4089_tr', monospace;
+    font-size: 32px;
 }
 </style>

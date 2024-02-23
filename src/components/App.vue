@@ -252,6 +252,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 .fui-editor__main           { 
     width: 800px;
     grid-area: 2 / 2 / 3 / 3;
+    min-height: 400px;
 }
 .fui-editor__main-right     { grid-area: 2 / 3 / 3 / 4; }
 .fui-editor__bottom         { 
