@@ -97,7 +97,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             }
         },
         {
-            name: 'Fit layer',
+            label: '⚀',
+            title: 'Remove blank padding',
             action: () => {
                 this.recalculate();
                 this.updateBounds();
@@ -106,7 +107,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             }
         },
         {
-            name: 'Download image',
+            label: 'Download',
+            title: 'Download image',
             action: () => {
                 downloadImage(this.data, this.imageName);
             }

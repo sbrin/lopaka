@@ -24,6 +24,11 @@ function setSetting(event: Event, name: any) {
     session.platforms[platform.value].getTemplateSettings()[name] = target.checked;
     session.virtualScreen.redraw();
 }
+
+const LABELS = {
+    wrap: 'Wrapper function',
+    progmem: 'Declare as PROGMEM',
+}
 </script>
 <template>
     <div class="code-settings" v-if="platform === U8g2Platform.id">
@@ -36,17 +41,17 @@ function setSetting(event: Event, name: any) {
                 </option>
             </select>
         </div>
-        <div v-for="(value, name) in settings" class="code-settings-row">
+        <div v-for="(value, key) in settings" class="code-settings-row">
             <div class="fui-form-checkbox">
                 <input
                     type="checkbox"
-                    :id="'settings_' + name"
+                    :id="'settings_' + key"
                     class="fui-form-input"
                     :checked="value"
-                    @change="setSetting($event, name)"
+                    @change="setSetting($event, key)"
                 />
             </div>
-            <label :for="'settings_' + name" class="fui-form-label">{{ name }}</label>
+            <label :for="'settings_' + key" class="fui-form-label">{{ LABELS[key] ?? key }}</label>
         </div>
     </div>
 </template>

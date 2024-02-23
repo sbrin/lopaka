@@ -81,10 +81,20 @@ function mergeLayers() {
         )
     );
 }
+
+const LABELS = {
+    font: "Font Face",
+    text: "Text",
+    inverted: "XOR Draw",
+    fill: "Filled",
+    color: "Color",
+    overlay: "Overlay",
+    radius: "Radius",
+}
 </script>
 <template>
     <div v-if="layerToMerge">
-        <FuiButton @click="mergeLayers" title="Merge selected layers into a single bitmap">Make bitmap</FuiButton>
+        <FuiButton @click="mergeLayers" title="Merge selected layers into a single bitmap">Merge to image</FuiButton>
     </div>
     <div class="inspector" v-if="activeLayer">
         <datalist id="presetColors">
@@ -116,7 +126,7 @@ function mergeLayers() {
                         'inspector-panel__param_row': [TModifierType.boolean, TModifierType.color].includes(param.type),
                     }"
                 >
-                    <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">{{ name }}</label>
+                    <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">{{ LABELS[name] ?? name }}</label>
                     <div v-if="param.type == TModifierType.number">
                         <input
                             :disabled="session.state.isPublic"
@@ -174,6 +184,7 @@ function mergeLayers() {
                 </div>
             </template>
         </div>
+        <div class="title inspector__title" v-if="actions.length">Image operations</div>
         <div class="inspector-actions">
             <div class="inspector-action-button" v-for="action in actions">
                 <FuiButton
@@ -202,6 +213,7 @@ function mergeLayers() {
     flex-direction: row;
     flex-wrap: wrap;
     column-gap: 8px;
+    row-gap: 8px;
 }
 .inspector-panel__param {
     flex: 0 0 calc(50% - 4px);
@@ -213,10 +225,12 @@ function mergeLayers() {
 }
 .inspector-panel__param_row {
     flex-direction: row;
-    margin-top: 16px;
+    margin-top: 8px;
+    align-items: center;
 }
 .inspector__title {
     overflow: hidden;
+    margin-top: 8px;
     width: 150px;
 }
 

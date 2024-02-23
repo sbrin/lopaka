@@ -63,7 +63,7 @@ a.button {
 .button_small {
     font-size: 20px;
     height: 24px;
-    line-height: 24px;
+    line-height: 14px;
 }
 
 .button_icon {

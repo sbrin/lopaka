@@ -25,6 +25,7 @@ export class DotLayer extends RectangleLayer {
         super(features);
         delete this.modifiers.w;
         delete this.modifiers.h;
+        delete this.modifiers.fill;
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
         }
