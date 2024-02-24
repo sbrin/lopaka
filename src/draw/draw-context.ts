@@ -134,6 +134,82 @@ export class DrawContext {
         return this;
     }
 
+    pixelateCircleSection(
+        center: Point,
+        radius: number,
+        startAngle: number,
+        endAngle: number,
+        fill: boolean
+    ): DrawContext {
+        // arc pixelated
+        const xStart = center.x + radius * Math.cos(startAngle);
+        const yStart = center.y + radius * Math.sin(startAngle);
+        const xEnd = center.x + radius * Math.cos(endAngle);
+        const yEnd = center.y + radius * Math.sin(endAngle);
+        const xCenter = center.x;
+        const yCenter = center.y;
+        // this.pixelateLine(center, new Point(xStart, yStart), 1);
+        // this.pixelateLine(center, new Point(xEnd, yEnd), 1);
+        this.ctx.beginPath();
+        this.ctx.arc(xCenter, yCenter, radius, startAngle, endAngle);
+        if (fill) {
+            this.ctx.fill();
+        }
+        this.ctx.stroke();
+        this.ctx.closePath();
+        return this;
+    }
+
+    pixelateRoundedRect(position: Point, size: Point, radius: number, fill: boolean): DrawContext {
+        // using pixelateCircleSection
+        const topLeft = position.clone();
+        const topRight = position.clone().add(new Point(size.x, 0));
+        const bottomRight = position.clone().add(size);
+        const bottomLeft = position.clone().add(new Point(0, size.y));
+        this.pixelateCircleSection(
+            topLeft.clone().add(new Point(radius, radius)),
+            radius,
+            Math.PI,
+            Math.PI * 1.5,
+            fill
+        );
+        this.pixelateCircleSection(
+            topRight.clone().add(new Point(-radius, radius)),
+            radius,
+            Math.PI * 1.5,
+            Math.PI * 2,
+            fill
+        );
+        this.pixelateCircleSection(
+            bottomRight.clone().add(new Point(-radius, -radius)),
+            radius,
+            0,
+            Math.PI * 0.5,
+            fill
+        );
+        this.pixelateCircleSection(
+            bottomLeft.clone().add(new Point(radius, -radius)),
+            radius,
+            Math.PI * 0.5,
+            Math.PI,
+            fill
+        );
+        this.pixelateLine(topLeft.clone().add(new Point(radius, 0)), topRight.clone().add(new Point(-radius, 0)), 1);
+        this.pixelateLine(
+            topRight.clone().add(new Point(-1, radius)),
+            bottomRight.clone().add(new Point(-1, -radius)),
+            1
+        );
+        this.pixelateLine(
+            bottomRight.clone().add(new Point(-radius, -1)),
+            bottomLeft.clone().add(new Point(radius, -1)),
+            1
+        );
+        this.pixelateLine(bottomLeft.clone().add(new Point(0, -radius)), topLeft.clone().add(new Point(0, radius)), 1);
+
+        return this;
+    }
+
     pixelateEllipse(center: Point, radiusX: number, radiusY: number, fill: boolean): DrawContext {
         this.ctx.beginPath();
         for (let n = 0; n < radiusX; n++) {

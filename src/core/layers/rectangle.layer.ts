@@ -7,6 +7,7 @@ type TRectangleState = TLayerState & {
     p: number[]; // position [x, y]
     s: number[]; // size [w, h]
     f: boolean; // fill
+    r: number; // radius
 };
 
 export class RectangleLayer extends AbstractLayer {
@@ -36,6 +37,7 @@ export class RectangleLayer extends AbstractLayer {
     public position: Point = new Point();
     public size: Point = new Point();
     public fill: boolean = false;
+    public radius: number = 0;
 
     modifiers: TLayerModifiers = {
         x: {
@@ -73,6 +75,16 @@ export class RectangleLayer extends AbstractLayer {
             getValue: () => this.size.y,
             setValue: (v: number) => {
                 this.size.y = v;
+                this.updateBounds();
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.number
+        },
+        radius: {
+            getValue: () => this.radius,
+            setValue: (v: number) => {
+                this.radius = v;
                 this.updateBounds();
                 this.saveState();
                 this.draw();
@@ -221,13 +233,14 @@ export class RectangleLayer extends AbstractLayer {
         dc.clear();
         dc.ctx.fillStyle = this.color;
         dc.ctx.strokeStyle = this.color;
-        dc.rect(position, size, this.fill);
+        dc.pixelateRoundedRect(position, size, this.radius, this.fill);
     }
 
     saveState() {
         const state: TRectangleState = {
             p: this.position.xy,
             s: this.size.xy,
+            r: this.radius,
             n: this.name,
             i: this.index,
             g: this.group,
@@ -243,6 +256,7 @@ export class RectangleLayer extends AbstractLayer {
     loadState(state: TRectangleState) {
         this.position = new Point(state.p);
         this.size = new Point(state.s);
+        this.radius = state.r ?? 0;
         this.name = state.n;
         this.index = state.i;
         this.group = state.g;
