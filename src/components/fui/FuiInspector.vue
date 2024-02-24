@@ -10,7 +10,7 @@ import {
 } from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
 import {loadFont} from '../../draw/fonts';
-import FuiButton from "./FuiButton.vue";
+import FuiButton from './FuiButton.vue';
 const session = useSession();
 const {platform} = toRefs(session.state);
 const {updates} = toRefs(session.virtualScreen.state);
@@ -83,14 +83,14 @@ function mergeLayers() {
 }
 
 const LABELS = {
-    font: "Font Face",
-    text: "Text",
-    inverted: "XOR Draw",
-    fill: "Filled",
-    color: "Color",
-    overlay: "Overlay",
-    radius: "Radius",
-}
+    font: 'Font Face',
+    text: 'Text',
+    inverted: 'XOR Draw',
+    fill: 'Filled',
+    color: 'Color',
+    overlay: 'Overlay',
+    radius: 'Radius'
+};
 </script>
 <template>
     <div v-if="layerToMerge">
@@ -118,15 +118,17 @@ const LABELS = {
         </datalist>
         <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
-            <template v-for="(param, name) in params">
+            <template v-for="(param, name) in params" :key="updates + ' ' + name">
                 <div
                     class="inspector-panel__param"
                     v-if="param.type !== TModifierType.image"
                     :class="{
-                        'inspector-panel__param_row': [TModifierType.boolean, TModifierType.color].includes(param.type),
+                        'inspector-panel__param_row': [TModifierType.boolean, TModifierType.color].includes(param.type)
                     }"
                 >
-                    <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">{{ LABELS[name] ?? name }}</label>
+                    <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">
+                        {{ LABELS[name] ?? name }}
+                    </label>
                     <div v-if="param.type == TModifierType.number">
                         <input
                             :disabled="session.state.isPublic"
