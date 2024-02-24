@@ -197,7 +197,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
             <div class="fui-editor__canvas">
                 <FuiCanvas ref="fuiCanvas" />
             </div>
-        </div> 
+        </div>
         <div class="fui-editor__main-right">
             <FuiInspector />
         </div>
@@ -219,8 +219,14 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 <div class="buttons-bottom">
                     <FuiFile
                         v-if="!session.state.isPublic"
-                        type="file"
+                        type="image"
                         title="import image"
+                        @set-active-tab="setactiveTab"
+                    ></FuiFile>
+                    <FuiFile
+                        v-if="!session.state.isPublic"
+                        type="code"
+                        title="import code"
                         @set-active-tab="setactiveTab"
                     ></FuiFile>
                     <FuiButton @click="copyCode" v-show="showCopyCode">copy code</FuiButton>
@@ -242,24 +248,32 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 
     display: grid;
     grid-template-columns: 180px 4fr 240px;
-    grid-template-rows: auto auto auto; 
+    grid-template-rows: auto auto auto;
     grid-column-gap: 16px;
     grid-row-gap: 16px;
 }
 
-.fui-editor__left           { grid-area: 1 / 1 / 6 / 2; }
-.fui-editor__top            { grid-area: 1 / 2 / 2 / 4; }
-.fui-editor__main           { 
+.fui-editor__left {
+    grid-area: 1 / 1 / 6 / 2;
+}
+.fui-editor__top {
+    grid-area: 1 / 2 / 2 / 4;
+}
+.fui-editor__main {
     width: 800px;
     grid-area: 2 / 2 / 3 / 3;
     min-height: 400px;
 }
-.fui-editor__main-right     { grid-area: 2 / 3 / 3 / 4; }
-.fui-editor__bottom         { 
+.fui-editor__main-right {
+    grid-area: 2 / 3 / 3 / 4;
+}
+.fui-editor__bottom {
     grid-area: 3 / 2 / 4 / 3;
     max-width: 800px;
 }
-.fui-editor__bottom-right   { grid-area: 3 / 3 / 4 / 4; }
+.fui-editor__bottom-right {
+    grid-area: 3 / 3 / 4 / 4;
+}
 
 .fui-editor__canvas {
     max-height: 50vh;
@@ -271,7 +285,6 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 }
 
 .fui-editor__tabs {
-
 }
 
 .fui-editor__main {

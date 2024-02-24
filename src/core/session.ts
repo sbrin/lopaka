@@ -144,24 +144,25 @@ export class Session {
         const fonts = this.platforms[name].getFonts();
         this.lock();
         this.editor.clear();
-        // preload used fonts
         const layersToload = JSON.parse(localStorage.getItem(`${name}_lopaka_layers`));
-        const usedFonts: string[] = layersToload ? layersToload.map((l) => l.f) : [fonts[0].name];
+        return this.loadFontsForLayers(layersToload ? layersToload.map((l) => l.f) : [fonts[0].name]).then(() => {
+            this.editor.font = getFont(fonts[0].name);
+            this.unlock();
+            if (window.top === window.self) {
+                loadLayers(layersToload ?? []);
+                localStorage.setItem('lopaka_library', name);
+            }
+            this.virtualScreen.redraw(false);
+            isLogged && logEvent('select_library', name);
+        });
+    };
+
+    loadFontsForLayers = (usedFonts: string[]) => {
+        const fonts = this.platforms[this.state.platform].getFonts();
         if (!usedFonts.includes(fonts[0].name)) {
             usedFonts.push(fonts[0].name);
         }
-        return Promise.all(fonts.filter((font) => usedFonts.includes(font.name)).map((font) => loadFont(font))).then(
-            () => {
-                this.editor.font = getFont(fonts[0].name);
-                this.unlock();
-                if (window.top === window.self) {
-                    loadLayers(layersToload ?? []);
-                    localStorage.setItem('lopaka_library', name);
-                }
-                this.virtualScreen.redraw(false);
-                isLogged && logEvent('select_library', name);
-            }
-        );
+        return Promise.all(fonts.filter((font) => usedFonts.includes(font.name)).map((font) => loadFont(font)));
     };
 
     setIsPublic = (enabled: boolean) => {
@@ -199,6 +200,26 @@ export class Session {
             result.push(line);
         }
         return {code: result.join('\n'), map: layersMap};
+    };
+
+    importCode = (code: string) => {
+        this.clearLayers();
+        const {platform} = this.state;
+        const layers = this.platforms[platform].importSourceCode(code);
+        // load fonts
+        this.loadFontsForLayers(layers.filter((l) => l instanceof TextLayer).map((l: TextLayer) => l.fontToLoad)).then(
+            () => {
+                layers.forEach((l) => {
+                    if (l instanceof TextLayer) {
+                        l.font = getFont(l.fontToLoad);
+                    }
+                    l.updateBounds();
+                    l.stopEdit();
+                    this.addLayer(l);
+                });
+                this.virtualScreen.redraw();
+            }
+        );
     };
 
     getPlatformFeatures(): TPlatformFeatures {
@@ -252,8 +273,6 @@ export function saveLayers() {
     }
     console.log('Saved session size', packedSession.length, 'bytes');
 }
-// for testing
-window['saveLayers'] = saveLayers;
 
 export function useSession(id?: string) {
     if (currentSessionId) {

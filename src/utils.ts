@@ -7,7 +7,19 @@ function bitswap(b) {
     return b;
 }
 
-export function readFileAsync(file) {
+export async function readTextFileAsync(file): Promise<string> {
+    return new Promise((resolve, reject) => {
+        let reader = new FileReader();
+
+        reader.onload = () => {
+            resolve(reader.result.toString());
+        };
+        reader.onerror = reject;
+        reader.readAsText(file);
+    });
+}
+
+export async function readFileAsync(file): Promise<string | ArrayBuffer> {
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
 
@@ -192,6 +204,26 @@ export function imgDataToUint32Array(imgData) {
     }
 
     return xbmp.map((x) => '0x' + x.toString(16));
+}
+
+export function xbmpToImgData(xbmp: string, width: number, height: number): ImageData {
+    const imgData = new ImageData(width, height);
+    const bytesPerRow = Math.ceil(width / 8);
+    const xbmpArray = xbmp.split(',').map((x) => parseInt(x));
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const xbmpIndex = y * bytesPerRow + Math.floor(x / 8);
+            const bitPosition = x % 8;
+            const pixelNumber = y * width + x;
+            const imgDataIndex = pixelNumber * 4;
+            const alphaValue = (xbmpArray[xbmpIndex] >> bitPosition) & 1 ? 255 : 0;
+            imgData.data[imgDataIndex] = 255;
+            imgData.data[imgDataIndex + 1] = 255;
+            imgData.data[imgDataIndex + 2] = 255;
+            imgData.data[imgDataIndex + 3] = alphaValue;
+        }
+    }
+    return imgData;
 }
 
 export function toCppVariableName(str) {

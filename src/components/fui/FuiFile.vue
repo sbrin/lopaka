@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import {useSession} from '../../core/session';
-import {loadImageAsync, readFileAsync} from '../../utils';
+import {loadImageAsync, readFileAsync, readTextFileAsync} from '../../utils';
 import {defineProps, ref, toRefs} from 'vue';
 
 const props = defineProps<{
     title: string;
     active?: boolean;
+    type?: 'image' | 'code';
 }>();
 
 const emit = defineEmits(['updateFuiImages', 'setActiveTab']);
@@ -20,18 +21,24 @@ async function onFileChange(e) {
     if (!file.name) {
         return;
     }
-    const name = file.name.substr(0, file.name.lastIndexOf('.')) || file.name; // remove file extension
-    const fileResult = await readFileAsync(file);
-    const image = await loadImageAsync(fileResult);
+    if (props.type === 'image') {
+        const name = file.name.substr(0, file.name.lastIndexOf('.')) || file.name; // remove file extension
+        const fileResult = await readFileAsync(file);
+        const image = await loadImageAsync(fileResult);
 
-    customImages.value.push({
-        name: name,
-        width: image.width,
-        height: image.height,
-        image: image,
-        isCustom: true
-    });
-    emit('setActiveTab', 'images');
+        customImages.value.push({
+            name: name,
+            width: image.width,
+            height: image.height,
+            image: image,
+            isCustom: true
+        });
+        emit('setActiveTab', 'images');
+    } else {
+        const fileResult = await readTextFileAsync(file);
+        session.importCode(fileResult);
+        emit('setActiveTab', 'code');
+    }
 }
 
 function resetFileInput() {

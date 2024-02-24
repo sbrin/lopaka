@@ -40,6 +40,7 @@ export class TextLayer extends AbstractLayer {
     public position: Point = new Point();
     public text: string = 'Text';
     public scaleFactor: number = 1;
+    public fontToLoad: string;
 
     modifiers: TLayerModifiers = {
         x: {
