@@ -65,7 +65,7 @@ export class Session {
         this.history.push({
             type: 'remove',
             layer,
-            state: layer.getState()
+            state: layer.state
         });
         this.virtualScreen.redraw();
     };
@@ -98,7 +98,7 @@ export class Session {
         this.history.push({
             type: 'add',
             layer,
-            state: layer.getState()
+            state: layer.state
         });
         layer.draw();
     };
@@ -243,7 +243,7 @@ export function loadLayers(layers: any[]) {
 
 export function saveLayers() {
     const session = useSession();
-    const packedSession = JSON.stringify(session.state.layers.map((l) => l.getState()));
+    const packedSession = JSON.stringify(session.state.layers.map((l) => l.state));
     if (window.top !== window.self) {
         postParentMessage('updateLayers', packedSession);
         postParentMessage('updateThumbnail', session.virtualScreen.canvas.toDataURL());

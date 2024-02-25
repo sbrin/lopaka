@@ -197,10 +197,6 @@ export abstract class AbstractLayer {
         return this.mode !== EditMode.NONE;
     }
 
-    public getState(): any {
-        return this.state;
-    }
-
     public getType() {
         return this.type;
     }
