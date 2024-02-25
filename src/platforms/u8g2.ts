@@ -14,6 +14,7 @@ import {getFont, loadFont} from '../draw/fonts';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {DotLayer} from '../core/layers/dot.layer';
 import {EllipseLayer} from '../core/layers/ellipse.layer';
+import {getLayerProperties} from '../core/decorators/mapping';
 
 // for backwards compatibility
 // TODO: remove after 15.04.2024
@@ -65,7 +66,7 @@ export class U8g2Platform extends Platform {
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
-                const props = layer.properties;
+                const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
                     const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y).join(',');
                     if (xbmps.includes(XBMP)) {
@@ -198,7 +199,7 @@ export class U8g2Platform extends Platform {
                         const layer = new TextLayer(this.features, getFont(currentFont));
                         layer.position = new Point(parseInt(x), parseInt(y));
                         layer.text = text.replace(/"/g, '');
-                        layer.fontToLoad = currentFont;
+                        // layer.fontToLoad = currentFont;
                         layers.push(layer);
                     }
                     break;
@@ -216,8 +217,8 @@ export class U8g2Platform extends Platform {
                     const [x, y, rx, ry] = this.getArgs(call.args, defines, variables);
                     const layer = new EllipseLayer(this.features);
                     layer.position = new Point(parseInt(x) - parseInt(rx), parseInt(y) - parseInt(ry));
-                    layer.radiusX = parseInt(rx);
-                    layer.radiusY = parseInt(ry);
+                    layer.rx = parseInt(rx);
+                    layer.ry = parseInt(ry);
                     layer.fill = call.functionName === 'drawFilledEllipse';
                     layers.push(layer);
                 }

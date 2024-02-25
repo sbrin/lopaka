@@ -1,4 +1,3 @@
-import {AbstractLayer} from '../core/layers/abstract.layer';
 import {AdafruitPlatform} from './adafruit';
 
 export class AdafruitMonochromePlatform extends AdafruitPlatform {

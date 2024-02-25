@@ -1,16 +1,11 @@
 import {TPlatformFeatures} from '../../platforms/platform';
+import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
-
-type TLineState = TLayerState & {
-    p1: number[]; // point 1
-    p2: number[]; // point 2
-};
+import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
 
 export class LineLayer extends AbstractLayer {
     protected type: ELayerType = 'line';
-    protected state: TLineState;
     protected editState: {
         firstPoint: Point;
         p1: Point;
@@ -18,21 +13,8 @@ export class LineLayer extends AbstractLayer {
         editPoint: TLayerEditPoint;
     } = null;
 
-    public p1: Point = new Point();
-    public p2: Point = new Point();
-
-    public get properties(): any {
-        return {
-            x1: this.p1.x,
-            y1: this.p1.y,
-            x2: this.p2.x,
-            y2: this.p2.y,
-            color: this.color,
-            type: this.type,
-            id: this.uid,
-            inverted: this.inverted
-        };
-    }
+    @mapping('p1', 'point') public p1: Point = new Point();
+    @mapping('p2', 'point') public p2: Point = new Point();
 
     modifiers: TLayerModifiers = {
         x1: {
@@ -40,7 +22,6 @@ export class LineLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.p1.x = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -50,7 +31,6 @@ export class LineLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.p1.y = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -60,7 +40,6 @@ export class LineLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.p2.x = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -70,7 +49,6 @@ export class LineLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.p2.y = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -80,7 +58,6 @@ export class LineLayer extends AbstractLayer {
             setValue: (v: string) => {
                 this.color = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.color
@@ -89,7 +66,6 @@ export class LineLayer extends AbstractLayer {
             getValue: () => this.inverted,
             setValue: (v: boolean) => {
                 this.inverted = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -158,7 +134,6 @@ export class LineLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.saveState();
         this.history.push(this.state);
     }
 
@@ -170,30 +145,7 @@ export class LineLayer extends AbstractLayer {
         dc.pixelateLine(p1, p2, 1);
     }
 
-    saveState() {
-        const state: TLineState = {
-            p1: this.p1.xy,
-            p2: this.p2.xy,
-            n: this.name,
-            i: this.index,
-            g: this.group,
-            t: this.type,
-            u: this.uid,
-            c: this.color,
-            in: this.inverted
-        };
-        this.state = state;
-    }
-
-    loadState(state: TLineState) {
-        this.p1 = new Point(state.p1);
-        this.p2 = new Point(state.p2);
-        this.name = state.n;
-        this.index = state.i;
-        this.group = state.g;
-        this.uid = state.u;
-        this.color = state.c;
-        this.inverted = state.in;
+    onLoadState() {
         this.updateBounds();
         this.mode = EditMode.NONE;
     }
