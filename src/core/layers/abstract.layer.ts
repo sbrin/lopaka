@@ -39,6 +39,7 @@ export type TModifierName =
     | 'color'
     | 'image'
     | 'overlay'
+    | 'inverted'
     | 'color'
     | 'fontSize';
 
@@ -48,7 +49,14 @@ export type TLayerModifier = {
     type: TModifierType;
 };
 
+export type TLayerAction = {
+    label: string;
+    title: string;
+    action: () => void;
+};
+
 export type TLayerModifiers = Partial<{[key in TModifierName]: TLayerModifier}>;
+export type TLayerActions = TLayerAction[];
 
 export type TLayerEditPoint = {
     cursor: 'nwse-resize' | 'nesw-resize' | 'move';
@@ -63,6 +71,7 @@ export type TLayerState = {
     g: number; // group
     u: string; // uid
     c?: string; // color
+    in: boolean; // inverted
 };
 
 /**
@@ -103,8 +112,12 @@ export abstract class AbstractLayer {
     public resizable: boolean = true;
     // modifiers
     public modifiers: TLayerModifiers = {};
+    // actions
+    public actions: TLayerActions = [];
     // color
     public color: string = '#000000';
+    // ibnverted
+    public inverted: boolean = false;
 
     public editPoints: TLayerEditPoint[] = [];
 
@@ -124,6 +137,8 @@ export abstract class AbstractLayer {
     abstract loadState(state: any);
     // update layer bounds
     abstract updateBounds(): void;
+
+    abstract get properties(): any;
 
     /**
      * Check that point inside layer

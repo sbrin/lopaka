@@ -1,13 +1,21 @@
 <script lang="ts" setup>
-import {UnwrapRef, computed} from 'vue';
+import {UnwrapRef, computed, ref} from 'vue';
 import {AbstractLayer} from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
 import {TextLayer} from '../../core/layers/text.layer';
 import {IconLayer} from '../../core/layers/icon.layer';
+import VueDraggable from 'vuedraggable';
 const session = useSession();
+const drag = ref(false);
 
-const layers = computed(() => {
-    return session.state.layers.sort((a, b) => b.index - a.index);
+const layers = computed({
+    get: () => session.state.layers, //.sort((a, b) => b.index - a.index),
+    set: (l) => {
+        l.forEach((layer, index) => {
+            layer.index = index + 1;
+        });
+        session.virtualScreen.redraw();
+    }
 });
 
 function classNames(layer) {
@@ -20,6 +28,8 @@ function classNames(layer) {
 function setActive(layer: UnwrapRef<AbstractLayer>) {
     layers.value.forEach((l) => (l.selected = false));
     layer.selected = true;
+    session.editor.selectionUpdate();
+    session.virtualScreen.redraw();
 }
 
 function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
@@ -33,20 +43,27 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
 </script>
 <template>
     <div class="layers">
-        <h2 class="title">Layers <slot></slot></h2>
+        <h2 class="title">
+            Layers
+            <slot></slot>
+        </h2>
         <ul class="layers__list">
-            <li
-                v-for="(item, idx) in layers"
-                :key="idx"
-                class="layer"
-                :class="classNames(item)"
-                @click.self="setActive(item)"
-            >
-                <div class="layer__name" @click="setActive(item)">
-                    {{ getLayerListItem(item) }}
-                </div>
-                <div v-if="!session.state.isPublic" class="layer__remove" @click="session.removeLayer(item as any)">×</div>
-            </li>
+            <VueDraggable v-model="layers" item-key="id" @start="drag = true" @end="drag = false">
+                <template #item="{element}">
+                    <li class="layer" :class="classNames(element)" @click="setActive(element)">
+                        <div class="layer__name">
+                            {{ getLayerListItem(element) }}
+                        </div>
+                        <div
+                            v-if="!session.state.isPublic"
+                            class="layer__remove"
+                            @click.stop="session.removeLayer(element as any)"
+                        >
+                            ×
+                        </div>
+                    </li>
+                </template>
+            </VueDraggable>
         </ul>
     </div>
 </template>

@@ -1,5 +1,5 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {inverImageDataWithAlpha} from '../../utils';
+import {addAlphaChannelToImageData, inverImageDataWithAlpha} from '../../utils';
 import {Point} from '../point';
 import {AbstractImageLayer} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
@@ -47,22 +47,38 @@ export class IconLayer extends AbstractImageLayer {
                 buf.width = w;
                 buf.height = h;
                 ctx.drawImage(v, 0, 0);
-                if (this.features.hasInvertedColors) {
-                    this.data = inverImageDataWithAlpha(ctx.getImageData(0, 0, w, h));
-                } else {
-                    this.data = ctx.getImageData(0, 0, w, h);
-                }
+                this.data = addAlphaChannelToImageData(ctx.getImageData(0, 0, w, h), this.color);
                 this.size = new Point(w, h);
                 this.updateBounds();
                 this.saveState();
+                this.applyColor();
                 this.draw();
             },
             type: TModifierType.image
+        },
+        color: {
+            getValue: () => this.color,
+            setValue: (v: string) => {
+                this.color = v;
+                this.applyColor();
+                this.draw();
+                this.saveState();
+            },
+            type: TModifierType.color
         },
         overlay: {
             getValue: () => this.overlay,
             setValue: (v: boolean) => {
                 this.overlay = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
+        },
+        inverted: {
+            getValue: () => this.inverted,
+            setValue: (v: boolean) => {
+                this.inverted = v;
                 this.saveState();
                 this.draw();
             },
@@ -83,6 +99,9 @@ export class IconLayer extends AbstractImageLayer {
         super(features);
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
+        }
+        if (!this.features.hasInvertedColors) {
+            delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
     }

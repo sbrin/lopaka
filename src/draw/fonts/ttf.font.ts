@@ -4,15 +4,22 @@ import {Font, FontFormat} from './font';
 
 export class TTFFont extends Font {
     constructor(
-        protected url: string,
+        protected source: TFontSource,
         public name: string,
         protected options: TFontSizes
     ) {
-        super(url, name, options, FontFormat.FORMAT_TTF);
+        super(source, name, FontFormat.FORMAT_TTF, options);
     }
     // TODO: variable font size
     async loadFont(): Promise<any> {
-        const font = new FontFace(this.name, `url(${this.url})`);
+        if (this.source instanceof File) {
+            return this.source.arrayBuffer().then((data) => {
+                const font = new FontFace(this.name, new Uint8Array(data));
+                font.load();
+                return font.loaded;
+            });
+        }
+        const font = new FontFace(this.name, `url(${this.source})`);
         font.load();
         await font.loaded;
         (document.fonts as any).add(font);
@@ -35,6 +42,6 @@ export class TTFFont extends Font {
         ctx.font = `${this.options.size}px '${this.name}', monospace`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'alphabetic';
-        ctx.fillText(text, position.x, position.y + this.options.textCharHeight);
+        ctx.fillText(text, position.x, position.y);
     }
 }

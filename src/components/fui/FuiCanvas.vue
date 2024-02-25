@@ -2,6 +2,7 @@
 import {computed, onBeforeUnmount, onMounted, ref, toRefs} from 'vue';
 import {useSession} from '../../core/session';
 import {Platform} from '../../platforms/platform';
+import platforms from '../../core/platforms';
 
 const emit = defineEmits(['updateFuiImages']);
 const screen = ref(null);
@@ -43,7 +44,7 @@ const canvasClassNames = computed(() => {
 });
 </script>
 <template>
-    <div class="canvas-wrapper" :class="{inverted: session.getPlatformFeatures().hasInvertedColors, locked: lock}">
+    <div class="canvas-wrapper" :class="{locked: lock}">
         <div class="fui-grid" :style="{backgroundSize: `${scale.x}px ${scale.y}px`}">
             <div
                 ref="container"
@@ -63,7 +64,11 @@ const canvasClassNames = computed(() => {
                     class="screen"
                     :width="display.x"
                     :height="display.y"
-                    :style="{width: display.x * scale.x + 'px', height: display.y * scale.y + 'px'}"
+                    :style="{
+                        width: display.x * scale.x + 'px',
+                        height: display.y * scale.y + 'px',
+                        backgroundColor: session.getPlatformFeatures().screenBgColor
+                    }"
                 />
             </div>
         </div>
@@ -71,12 +76,13 @@ const canvasClassNames = computed(() => {
 </template>
 <style lang="css">
 .canvas-wrapper {
-    border: 1px solid var(--secondary-color);
-    margin: 16px 0;
+    border: 10px solid var(--bg-color);
+    margin: 0 auto;
     display: inline-block;
     font-size: 0;
     position: relative;
     background-color: white;
+    height: fit-content;
 }
 .fui-canvas__event-target {
     position: relative;
@@ -106,14 +112,12 @@ const canvasClassNames = computed(() => {
     -webkit-font-smoothing: none;
     opacity: 0.9;
 }
-.inverted .screen {
-    background: #000;
-}
 .fui-grid {
     position: relative;
     background-size: 4px 4px;
     background-image: linear-gradient(to right, var(--bg-color) 0.5px, transparent 1px),
         linear-gradient(to bottom, var(--bg-color) 0.5px, transparent 1px);
+    border: 1px solid var(--border-dark-color)
 }
 
 .fui-canvas_select {

@@ -26,6 +26,7 @@ import {TextTool} from './tools/text.tool';
 type TEditorState = {
     activeLayer: AbstractLayer;
     activeTool: AbstractTool;
+    selectionUpdates: number;
 };
 
 export class Editor {
@@ -40,7 +41,8 @@ export class Editor {
 
     state: UnwrapRef<TEditorState> = reactive({
         activeLayer: null,
-        activeTool: null
+        activeTool: null,
+        selectionUpdates: 1
     });
 
     constructor(public session: Session) {}
@@ -52,7 +54,7 @@ export class Editor {
         circle: new CircleTool(this),
         ellipse: new EllipseTool(this),
         line: new LineTool(this),
-        dot: new DotTool(this),
+        dot: new DotTool(this)
     };
 
     getSupportedTools(platform: string): {[key: string]: AbstractTool} {
@@ -79,6 +81,10 @@ export class Editor {
                 new ImageDropPlugin(this.session, this.container)
             ]
         );
+    }
+
+    selectionUpdate(): void {
+        this.state.selectionUpdates++;
     }
 
     clear(): void {
@@ -143,7 +149,9 @@ export class Editor {
                     this.onMouseDoubleClick(point, event);
                     break;
             }
-            virtualScreen.updateMousePosition(screenPoint, event);
+            if (!alienEvent) {
+                virtualScreen.updateMousePosition(screenPoint, event);
+            }
         }
     };
 

@@ -1,0 +1,12 @@
+import ace from 'ace-builds';
+import mode from 'ace-builds/src-noconflict/mode-c_cpp?url';
+import theme from 'ace-builds/src-noconflict/theme-gruvbox?url';
+import beautify from 'ace-builds/src-noconflict/ext-beautify?url';
+import 'ace-builds/src-noconflict/ext-language_tools';
+export const aceTheme = 'theme-gruvbox'.replace('theme-', '');
+export const aceMode = 'c_cpp';
+ace.config.setModuleUrl(`ace/theme/${aceTheme}`, theme);
+ace.config.setModuleUrl(`ace/mode/${aceMode}`, mode);
+ace.config.setModuleUrl('ace/ext/beautify', beautify);
+ace.require('ace/ext/language_tools');
+ace.require('ace/ext/beautify');

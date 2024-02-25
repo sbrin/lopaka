@@ -39,14 +39,19 @@
         "@vue/test-utils": "^2.4.1",
         "jsdom": "^22.1.0",
         "prettier": "^3.0.3",
+        "probe-image-size": "^7.2.3",
         "vite": "^4.4.9",
         "vitest": "^0.34.5"
     },
     "dependencies": {
         "@types/dom-serial": "^1.0.4",
+        "ace-builds": "^1.32.6",
         "base64-arraybuffer": "^1.0.2",
         "pako": "^2.1.0",
+        "pug": "^3.0.2",
         "typescript": "^5.2.2",
-        "vue": "^3.3.4"
+        "vue": "^3.3.4",
+        "vue3-ace-editor": "^2.2.4",
+        "vuedraggable": "^4.1.0"
     }
 }

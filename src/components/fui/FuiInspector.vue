@@ -1,31 +1,20 @@
 <script lang="ts" setup>
 import {ComputedRef, UnwrapRef, computed, toRefs} from 'vue';
-import {AbstractLayer, TLayerModifier, TLayerModifiers, TModifierType} from '../../core/layers/abstract.layer';
+import {AbstractImageLayer} from '../../core/layers/abstract-image.layer';
+import {
+    AbstractLayer,
+    TLayerAction,
+    TLayerModifier,
+    TLayerModifiers,
+    TModifierType
+} from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
 import {loadFont} from '../../draw/fonts';
+import FuiButton from './FuiButton.vue';
 const session = useSession();
 const {platform} = toRefs(session.state);
 const {updates} = toRefs(session.virtualScreen.state);
-
-// const icons = computed(() => {
-//     return Object.entries(iconsUrls)
-//         .map((item) => {
-//             const [name, file] = item;
-//             const matchedSizeArr = name.match(/_([0-9]+)x([0-9]+)/i) ? name.match(/_([0-9]+)x([0-9]+)/i) : [0, 10, 10];
-//             const [, width, height] = matchedSizeArr.map((num) => parseInt(num, 10));
-//             const image = new Image(width, height);
-//             image.crossOrigin = 'Anonymous';
-//             image.dataset.name = name;
-//             image.src = file;
-//             return {
-//                 name,
-//                 width,
-//                 height,
-//                 image
-//             };
-//         })
-//         .sort((a, b) => a.width * a.height - b.width * b.height);
-// });
+const {selectionUpdates} = toRefs(session.editor.state);
 
 const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
     const selection = session.state.layers.filter((l) => l.selected);
@@ -34,6 +23,14 @@ const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
 
 const params: ComputedRef<UnwrapRef<TLayerModifiers>> = computed(() =>
     updates.value && activeLayer.value ? activeLayer.value.modifiers : {}
+);
+
+const actions = computed(() => (updates.value && activeLayer.value ? activeLayer.value.actions : []));
+
+const layerToMerge = computed(
+    () =>
+        selectionUpdates.value &&
+        session.state.layers.filter((l) => l.selected && l instanceof AbstractLayer).length > 1
 );
 
 const fonts = computed(() => {
@@ -71,8 +68,34 @@ function onChange(event: Event, param: TLayerModifier) {
     }
     session.virtualScreen.redraw();
 }
+
+function onAction(action: TLayerAction) {
+    action.action();
+    session.virtualScreen.redraw();
+}
+
+function mergeLayers() {
+    session.mergeLayers(
+        (session.state.layers as AbstractLayer[]).filter(
+            (l) => l.selected && (!(l instanceof AbstractImageLayer) || !l.overlay)
+        )
+    );
+}
+
+const LABELS = {
+    font: 'Font Face',
+    text: 'Text',
+    inverted: 'XOR Draw',
+    fill: 'Filled',
+    color: 'Color',
+    overlay: 'Overlay',
+    radius: 'Radius'
+};
 </script>
 <template>
+    <div v-if="layerToMerge">
+        <FuiButton @click="mergeLayers" title="Merge selected layers into a single bitmap">Merge to image</FuiButton>
+    </div>
     <div class="inspector" v-if="activeLayer">
         <datalist id="presetColors">
             <!-- 16 colors -->
@@ -95,83 +118,104 @@ function onChange(event: Event, param: TLayerModifier) {
         </datalist>
         <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
-            <div v-for="(param, name) in params" class="inspector-panel__param">
-                <span class="fui-form-label" v-if="param.type !== TModifierType.image">{{ name }}</span>
-                <div v-if="param.type == TModifierType.number">
-                    <input
-                        :disabled="session.state.isPublic"
-                        class="inspector__input fui-form-input"
-                        type="number"
-                        :value="param.getValue()"
-                        @change="onChange($event, param)"
-                        :readonly="!param.setValue"
-                    />
+            <template v-for="(param, name) in params" :key="updates + ' ' + name">
+                <div
+                    class="inspector-panel__param"
+                    v-if="param.type !== TModifierType.image"
+                    :class="{
+                        'inspector-panel__param_row': [TModifierType.boolean, TModifierType.color].includes(param.type)
+                    }"
+                >
+                    <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">
+                        {{ LABELS[name] ?? name }}
+                    </label>
+                    <div v-if="param.type == TModifierType.number">
+                        <input
+                            :disabled="session.state.isPublic"
+                            class="inspector__input fui-form-input"
+                            type="number"
+                            :value="param.getValue()"
+                            @change="onChange($event, param)"
+                            :readonly="!param.setValue"
+                        />
+                    </div>
+                    <div v-else-if="param.type == TModifierType.string">
+                        <input
+                            :disabled="session.state.isPublic"
+                            class="inspector__input fui-form-input"
+                            type="text"
+                            :value="param.getValue()"
+                            @keyup="onChange($event, param)"
+                            :readonly="!param.setValue"
+                        />
+                    </div>
+                    <div v-else-if="param.type == TModifierType.boolean" class="fui-form-checkbox">
+                        <input
+                            :disabled="session.state.isPublic"
+                            class="inspector__input fui-form-input"
+                            type="checkbox"
+                            :checked="param.getValue()"
+                            @change="onChange($event, param)"
+                            :readonly="!param.setValue"
+                            :id="`inspector_${param.type}_${name}`"
+                        />
+                    </div>
+                    <div v-else-if="param.type == TModifierType.color">
+                        <input
+                            :disabled="session.state.isPublic"
+                            class="inspector__input fui-form-input"
+                            type="color"
+                            :value="param.getValue()"
+                            @input="onChange($event, param)"
+                            :readonly="!param.setValue"
+                            list="presetColors"
+                            :id="`inspector_${param.type}_${name}`"
+                        />
+                    </div>
+                    <div v-else-if="param.type == TModifierType.font">
+                        <select
+                            :disabled="session.state.isPublic"
+                            class="inspector__input fui-form-input"
+                            :value="param.getValue()"
+                            :readonly="!param.setValue"
+                            @change="onChange($event, param)"
+                        >
+                            <option v-for="font in fonts" :value="font.name">{{ font.title }}</option>
+                        </select>
+                    </div>
                 </div>
-                <div v-else-if="param.type == TModifierType.string">
-                    <input
-                        :disabled="session.state.isPublic"
-                        class="inspector__input fui-form-input"
-                        type="text"
-                        :value="param.getValue()"
-                        @keyup="onChange($event, param)"
-                        :readonly="!param.setValue"
-                    />
-                </div>
-                <div v-else-if="param.type == TModifierType.boolean">
-                    <input
-                        :disabled="session.state.isPublic"
-                        class="inspector__input fui-form-input"
-                        type="checkbox"
-                        :checked="param.getValue()"
-                        @change="onChange($event, param)"
-                        :readonly="!param.setValue"
-                    />
-                </div>
-                <div v-else-if="param.type == TModifierType.color">
-                    <input
-                        :disabled="session.state.isPublic"
-                        class="inspector__input fui-form-input"
-                        type="color"
-                        :value="param.getValue()"
-                        @input="onChange($event, param)"
-                        :readonly="!param.setValue"
-                        list="presetColors"
-                    />
-                </div>
-                <div v-else-if="param.type == TModifierType.font">
-                    <select
-                        :disabled="session.state.isPublic"
-                        class="inspector__input fui-form-input"
-                        :value="param.getValue()"
-                        :readonly="!param.setValue"
-                        @change="onChange($event, param)"
-                    >
-                        <option v-for="font in fonts" :value="font.name">{{ font.title }}</option>
-                    </select>
-                </div>
-                <!-- <div v-else-if="param.type == TModifierType.image" class="fui-icons">
-                    <img
-                        @click="onChange($event, param)"
-                        :class="{selected: (activeLayer as IconLayer).imageName === icon.name}"
-                        v-for="icon in icons"
-                        :src="icon.image.src"
-                        :title="icon.name"
-                        :alt="icon.name"
-                        :data-name="icon.name"
-                        :width="icon.width * scale.x"
-                        :height="icon.height * scale.y"
-                    />
-                </div> -->
+            </template>
+        </div>
+        <div class="title inspector__title" v-if="actions.length">Image operations</div>
+        <div class="inspector-actions">
+            <div class="inspector-action-button" v-for="action in actions">
+                <FuiButton
+                    :disabled="session.state.isPublic"
+                    @click="onAction(action)"
+                    :title="action.title"
+                    :isIcon="true"
+                >
+                    {{ action.label }}
+                </FuiButton>
             </div>
         </div>
     </div>
 </template>
 <style lang="css" scoped>
+.inspector {
+}
 .inspector-panel {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between;
+    column-gap: 8px;
+}
+.inspector-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 8px;
+    row-gap: 8px;
 }
 .inspector-panel__param {
     flex: 0 0 calc(50% - 4px);
@@ -181,8 +225,14 @@ function onChange(event: Event, param: TLayerModifier) {
     margin-bottom: 8px;
     font-size: var(--input-font-size);
 }
+.inspector-panel__param_row {
+    flex-direction: row;
+    margin-top: 8px;
+    align-items: center;
+}
 .inspector__title {
     overflow: hidden;
+    margin-top: 8px;
     width: 150px;
 }
 

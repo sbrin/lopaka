@@ -28,9 +28,7 @@ export class PaintHighlightPlugin extends DrawPlugin {
                     ctx.lineTo(display.x * scale.x, point.y);
                     ctx.moveTo(point.x, 0);
                     ctx.lineTo(point.x, display.y * scale.y);
-                    ctx.strokeStyle = this.session.getPlatformFeatures().hasInvertedColors
-                        ? 'rgba(255, 255, 255, 0.3)'
-                        : 'rgba(0, 0, 0, 0.3)';
+                    ctx.strokeStyle = this.session.getPlatformFeatures().defaultColor + '80';
                     ctx.setLineDash([5, 5]);
                     ctx.lineWidth = 1;
                     ctx.stroke();
@@ -41,9 +39,7 @@ export class PaintHighlightPlugin extends DrawPlugin {
                         .add(scale.x / 2);
                     ctx.moveTo(lastPoint.x, lastPoint.y);
                     ctx.lineTo(point.x, point.y);
-                    ctx.strokeStyle = this.session.getPlatformFeatures().hasInvertedColors
-                        ? 'rgba(255, 255, 255, 0.7)'
-                        : 'rgba(0, 0, 0, 0.7)';
+                    ctx.strokeStyle = this.session.getPlatformFeatures().defaultColor + '80';
                     ctx.stroke();
                     ctx.restore();
                 }

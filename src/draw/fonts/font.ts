@@ -12,10 +12,10 @@ export abstract class Font {
     protected fontLoaded: boolean = false;
 
     constructor(
-        protected url: string,
+        protected source: TFontSource,
         public name: string,
-        protected options: TFontSizes,
-        public format: FontFormat
+        public format: FontFormat,
+        protected options?: TFontSizes
     ) {
         this.fontReady = new Promise((resolve) => {
             this.loadFont().then(() => {

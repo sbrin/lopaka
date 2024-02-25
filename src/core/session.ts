@@ -1,14 +1,11 @@
-import {Platform, TPlatformFeatures} from 'src/platforms/platform';
+import {TPlatformFeatures} from 'src/platforms/platform';
 import {UnwrapRef, reactive} from 'vue';
 import {getFont, loadFont} from '../draw/fonts';
 import {VirtualScreen} from '../draw/virtual-screen';
 import {Editor} from '../editor/editor';
-import {AdafruitPlatform} from '../platforms/adafruit';
-import {AdafruitMonochromePlatform} from '../platforms/adafruit_mono';
-import {FlipperPlatform} from '../platforms/flipper';
 import {U8g2Platform} from '../platforms/u8g2';
-import {Uint32RawPlatform} from '../platforms/uint32-raw';
 import {generateUID, logEvent, postParentMessage} from '../utils';
+import displays from './displays';
 import {ChangeHistory, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
 import {CircleLayer} from './layers/circle.layer';
@@ -19,6 +16,7 @@ import {LineLayer} from './layers/line.layer';
 import {PaintLayer} from './layers/paint.layer';
 import {RectangleLayer} from './layers/rectangle.layer';
 import {TextLayer} from './layers/text.layer';
+import platforms from './platforms';
 import {Point} from './point';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
@@ -37,69 +35,8 @@ type TSessionState = {
 
 export class Session {
     id: string = generateUID();
-    platforms: {[key: string]: Platform} = {
-        [U8g2Platform.id]: new U8g2Platform(),
-        [AdafruitPlatform.id]: new AdafruitPlatform(),
-        [AdafruitMonochromePlatform.id]: new AdafruitMonochromePlatform(),
-        [Uint32RawPlatform.id]: new Uint32RawPlatform(),
-        [FlipperPlatform.id]: new FlipperPlatform()
-    };
-    displays: Point[] = [
-        new Point(8, 8),
-        new Point(12, 8),
-        new Point(32, 8),
-        new Point(48, 64),
-        new Point(64, 8),
-        new Point(60, 32),
-        new Point(64, 32),
-        new Point(64, 48),
-        new Point(64, 128),
-        new Point(72, 40),
-        new Point(84, 48),
-        new Point(96, 16),
-        new Point(96, 32),
-        new Point(96, 39),
-        new Point(96, 40),
-        new Point(96, 65),
-        new Point(96, 68),
-        new Point(96, 96),
-        new Point(100, 64),
-        new Point(102, 64),
-        new Point(122, 32),
-        new Point(128, 32),
-        new Point(128, 36),
-        new Point(128, 64),
-        new Point(128, 80),
-        new Point(128, 96),
-        new Point(128, 128),
-        new Point(128, 160),
-        new Point(144, 168),
-        new Point(150, 32),
-        new Point(160, 16),
-        new Point(160, 32),
-        new Point(160, 80),
-        new Point(160, 132),
-        new Point(160, 160),
-        new Point(172, 72),
-        new Point(192, 32),
-        new Point(192, 64),
-        new Point(192, 96),
-        new Point(200, 200),
-        new Point(206, 36),
-        new Point(240, 64),
-        new Point(240, 128),
-        new Point(240, 160),
-        new Point(240, 240),
-        new Point(250, 122),
-        new Point(256, 128),
-        new Point(256, 32),
-        new Point(256, 64),
-        new Point(280, 240),
-        new Point(296, 128),
-        new Point(320, 200),
-        new Point(320, 240),
-        new Point(400, 240)
-    ];
+    displays = displays;
+    platforms = platforms;
 
     state: TSessionState = reactive({
         lock: false,
@@ -110,7 +47,7 @@ export class Session {
         layers: [],
         scale: new Point(4, 4),
         customImages: [],
-        isPublic: false,
+        isPublic: false
     });
 
     history: ChangeHistory = useHistory();
@@ -130,6 +67,27 @@ export class Session {
             layer,
             state: layer.getState()
         });
+        this.virtualScreen.redraw();
+    };
+    mergeLayers = (layers: AbstractLayer[]) => {
+        const layer = new PaintLayer(this.getPlatformFeatures());
+        this.addLayer(layer);
+        const ctx = layer.getBuffer().getContext('2d');
+        layers.forEach((l) => {
+            l.selected = false;
+            if (l.inverted) {
+                ctx.globalCompositeOperation = 'difference';
+            }
+            ctx.drawImage(l.getBuffer(), 0, 0);
+            ctx.globalCompositeOperation = 'source-over';
+            this.removeLayer(l);
+        });
+        layer.saveState();
+        layer.recalculate();
+        layer.applyColor();
+        layer.stopEdit();
+        layer.selected = true;
+        layer.draw();
         this.virtualScreen.redraw();
     };
     addLayer = (layer: AbstractLayer) => {
@@ -186,30 +144,63 @@ export class Session {
         const fonts = this.platforms[name].getFonts();
         this.lock();
         this.editor.clear();
-        // preload default font
-        return Promise.all(fonts.map((font) => loadFont(font))).then(() => {
-            this.editor.font = getFont(fonts[0].name);
-            this.unlock();
-            if (window.top === window.self) {
-                loadLayers(
-                    localStorage.getItem(`${name}_lopaka_layers`)
-                        ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`))
-                        : []
-                );
-                localStorage.setItem('lopaka_library', name);
+        // preload used fonts
+        const layersToload = JSON.parse(localStorage.getItem(`${name}_lopaka_layers`));
+        const usedFonts: string[] = layersToload ? layersToload.map((l) => l.f) : [fonts[0].name];
+        if (!usedFonts.includes(fonts[0].name)) {
+            usedFonts.push(fonts[0].name);
+        }
+        return Promise.all(fonts.filter((font) => usedFonts.includes(font.name)).map((font) => loadFont(font))).then(
+            () => {
+                this.editor.font = getFont(fonts[0].name);
+                this.unlock();
+                if (window.top === window.self) {
+                    loadLayers(layersToload ?? []);
+                    localStorage.setItem('lopaka_library', name);
+                }
+                this.virtualScreen.redraw(false);
+                isLogged && logEvent('select_library', name);
             }
-            this.virtualScreen.redraw(false);
-            isLogged && logEvent('select_library', name);
-        });
+        );
     };
-    generateCode = () => {
+
+    setIsPublic = (enabled: boolean) => {
+        this.state.isPublic = enabled;
+    };
+
+    generateCode = (): TSourceCode => {
         const {platform, layers} = this.state;
-        const sourceCode = this.platforms[platform].generateSourceCode(
+        const layerNameRegex = /^@([\d\w]+);/g;
+        const paramsRegex = /@(\w+):/g;
+        const code = this.platforms[platform].generateSourceCode(
             layers.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
             this.virtualScreen.ctx
         );
-        return sourceCode.declarations.reverse().join('\n') + '\n' + sourceCode.code.reverse().join('\n');
+        let layersMap = {};
+        const lines = code.split('\n');
+        const result = [];
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            const match = layerNameRegex.exec(line);
+            if (match?.length > 1) {
+                const id = match[1];
+                const map = {line: i, params: {}};
+                line = line.replace(layerNameRegex, '');
+                const paramsMatch = line.match(paramsRegex);
+                if (paramsMatch?.length > 0) {
+                    paramsMatch.forEach((p) => {
+                        const param = line.indexOf(p);
+                        line = line.replace(p, '');
+                        map.params[p.replace('@', '').replace(':', '')] = param;
+                    });
+                }
+                layersMap[id] = map;
+            }
+            result.push(line);
+        }
+        return {code: result.join('\n'), map: layersMap};
     };
+
     getPlatformFeatures(): TPlatformFeatures {
         return this.platforms[this.state.platform].features;
     }

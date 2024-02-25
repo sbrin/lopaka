@@ -2,4 +2,5 @@ name: Flipper icons pack
 author: Flipper devices inc.
 link: 
 license: 
+sort: dimensions
 source: ../../img/flipper

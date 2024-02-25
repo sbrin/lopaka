@@ -19,6 +19,20 @@ export class RectangleLayer extends AbstractLayer {
         editPoint: TLayerEditPoint;
     } = null;
 
+    public get properties(): any {
+        return {
+            x: this.position.x,
+            y: this.position.y,
+            w: this.size.x,
+            h: this.size.y,
+            fill: this.fill,
+            color: this.color,
+            type: this.type,
+            id: this.uid,
+            inverted: this.inverted
+        };
+    }
+
     public position: Point = new Point();
     public size: Point = new Point();
     public fill: boolean = false;
@@ -83,6 +97,15 @@ export class RectangleLayer extends AbstractLayer {
                 this.draw();
             },
             type: TModifierType.color
+        },
+        inverted: {
+            getValue: () => this.inverted,
+            setValue: (v: boolean) => {
+                this.inverted = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
         }
     };
 
@@ -139,11 +162,11 @@ export class RectangleLayer extends AbstractLayer {
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
-        if (!this.features.hasCustomFontSize) {
-            delete this.modifiers.fontSize;
-        }
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
+        }
+        if (!this.features.hasInvertedColors) {
+            delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
     }
@@ -211,7 +234,8 @@ export class RectangleLayer extends AbstractLayer {
             t: this.type,
             u: this.uid,
             c: this.color,
-            f: this.fill
+            f: this.fill,
+            in: this.inverted
         };
         this.state = state;
     }
@@ -225,6 +249,7 @@ export class RectangleLayer extends AbstractLayer {
         this.uid = state.u;
         this.color = state.c;
         this.fill = state.f;
+        this.inverted = state.in;
         this.updateBounds();
         this.mode = EditMode.NONE;
     }

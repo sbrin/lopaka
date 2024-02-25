@@ -1,13 +1,13 @@
 import {Plugin} from 'vite';
 import path from 'path';
 import fs from 'fs';
-const ext = /\.pack$/;
+import probe from 'probe-image-size';
 const packExt = /\.icons\.pack$/;
 const iconReg = /(.*?)_(\d+)x(\d+).png/;
 
 const iconsPackPlugin: Plugin = {
     name: 'icons.pack',
-    transform(code, id) {
+    async transform(code, id) {
         if (packExt.test(id)) {
             const dir = path.dirname(id);
             const meta: any = code.split('\n').reduce((acc, cur) => {
@@ -16,22 +16,33 @@ const iconsPackPlugin: Plugin = {
                 }
                 return acc;
             }, {});
-
-            // read list of files from meta.source
             const sourceDir = path.resolve(dir, meta.source);
-            const icons = fs.readdirSync(sourceDir).reduce((acc: any[], cur) => {
-                const icon = fs.readFileSync(path.resolve(sourceDir, cur));
-                const iconData: any = iconReg.exec(cur);
+            const files = fs.readdirSync(sourceDir);
+            let icons = [];
+            for (let i = 0; i < files.length; i++) {
+                const fileName = path.resolve(sourceDir, files[i]);
+                const stream = fs.createReadStream(fileName);
+                const icon = fs.readFileSync(fileName);
+                const iconData: any = iconReg.exec(files[i]);
                 if (iconData) {
-                    acc.push({
-                        name: iconData[1],
-                        width: Number(iconData[2]),
-                        height: Number(iconData[3]),
-                        image: `data:image/png;base64,${icon.toString('base64')}`
-                    });
+                    const info = await probe(stream);
+                    icons.push([
+                        iconData[1],
+                        info.width,
+                        info.height,
+                        `data:${info.mime};base64,${icon.toString('base64')}`
+                    ]);
                 }
-                return acc;
-            }, []);
+            }
+            if (meta.sort && meta.sort == 'dimensions') {
+                icons = icons.sort((a, b) => {
+                    return a[1] * a[2] - b[1] * b[2];
+                });
+            } else if (meta.sort && meta.sort == 'name') {
+                icons = icons.sort((a, b) => {
+                    return a[0].localeCompare(b[0]);
+                });
+            }
             return {
                 code: `
 /*
@@ -39,7 +50,7 @@ const iconsPackPlugin: Plugin = {
     @link: ${meta.link}
     @license: ${meta.license}   
 */
-export default ${JSON.stringify(icons)}`,
+export default ${JSON.stringify(icons)}.map(([name, width, height, image]) => ({name,width,height,image}));`,
                 map: null
             };
         }

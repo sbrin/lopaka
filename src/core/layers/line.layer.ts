@@ -21,6 +21,19 @@ export class LineLayer extends AbstractLayer {
     public p1: Point = new Point();
     public p2: Point = new Point();
 
+    public get properties(): any {
+        return {
+            x1: this.p1.x,
+            y1: this.p1.y,
+            x2: this.p2.x,
+            y2: this.p2.y,
+            color: this.color,
+            type: this.type,
+            id: this.uid,
+            inverted: this.inverted
+        };
+    }
+
     modifiers: TLayerModifiers = {
         x1: {
             getValue: () => this.p1.x,
@@ -71,16 +84,25 @@ export class LineLayer extends AbstractLayer {
                 this.draw();
             },
             type: TModifierType.color
+        },
+        inverted: {
+            getValue: () => this.inverted,
+            setValue: (v: boolean) => {
+                this.inverted = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
         }
     };
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
-        if (!this.features.hasCustomFontSize) {
-            delete this.modifiers.fontSize;
-        }
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
+        }
+        if (!this.features.hasInvertedColors) {
+            delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
     }
@@ -157,7 +179,8 @@ export class LineLayer extends AbstractLayer {
             g: this.group,
             t: this.type,
             u: this.uid,
-            c: this.color
+            c: this.color,
+            in: this.inverted
         };
         this.state = state;
     }
@@ -170,6 +193,7 @@ export class LineLayer extends AbstractLayer {
         this.group = state.g;
         this.uid = state.u;
         this.color = state.c;
+        this.inverted = state.in;
         this.updateBounds();
         this.mode = EditMode.NONE;
     }

@@ -47,6 +47,10 @@ export function hexToRgb(hexColor: string) {
     return {r, g, b};
 }
 
+export function rgbToHex(rgbColor: number[]) {
+    return `#${rgbColor.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+}
+
 export function packedHexColor(color: string) {
     const c = packColor565(color);
     return `0x${c.toString(16).toUpperCase()}`;
@@ -55,6 +59,59 @@ export function packedHexColor(color: string) {
 export function packColor565(hexColor: string) {
     const rgb = hexToRgb(hexColor);
     return ((rgb.r >> 3) << 11) | ((rgb.g >> 2) << 5) | (rgb.b >> 3);
+}
+
+export function addAlphaChannelToImageData(data: ImageData, color: string) {
+    const newData = new Uint8ClampedArray(data.width * data.height * 4);
+    const rgb = hexToRgb(color);
+    const colors = new Map<string, number>();
+    let hasAlphaChannel = false;
+    for (let i = 0; i < data.data.length; i += 4) {
+        if (data.data[i + 3] == 0) {
+            hasAlphaChannel = true;
+        } else {
+            const hexColor = rgbToHex(Array.from(data.data.slice(i, i + 3)));
+            if (colors.has(hexColor)) {
+                colors.set(hexColor, colors.get(hexColor) + 1);
+            } else {
+                colors.set(hexColor, 1);
+            }
+        }
+    }
+    if (hasAlphaChannel) {
+        for (let i = 0; i < data.data.length; i += 4) {
+            if (data.data[i + 3] != 0) {
+                newData[i] = rgb.r;
+                newData[i + 1] = rgb.g;
+                newData[i + 2] = rgb.b;
+                newData[i + 3] = 255;
+            } else {
+                newData[i] = 0;
+                newData[i + 1] = 0;
+                newData[i + 2] = 0;
+                newData[i + 3] = 0;
+            }
+        }
+    } else {
+        // get main color and set alpha for all other colors
+        const sortedColors = Array.from(colors).sort((a, b) => b[1] - a[1]);
+        const alphaColor = sortedColors[0][0];
+        for (let i = 0; i < data.data.length; i += 4) {
+            const hexColor = rgbToHex(Array.from(data.data.slice(i, i + 3)));
+            if (hexColor != alphaColor && data.data[i + 3] > 175) {
+                newData[i] = rgb.r;
+                newData[i + 1] = rgb.g;
+                newData[i + 2] = rgb.b;
+                newData[i + 3] = 255;
+            } else {
+                newData[i] = 0;
+                newData[i + 1] = 0;
+                newData[i + 2] = 0;
+                newData[i + 3] = 0;
+            }
+        }
+    }
+    return new ImageData(newData, data.width, data.height);
 }
 
 export function inverImageDataWithAlpha(imgData: ImageData) {
@@ -241,4 +298,81 @@ export function unpackImage(base64: string, width: number, height: number): Imag
     const arr = new Uint8Array(decode(base64));
     inflate.push(arr, true);
     return new ImageData(new Uint8ClampedArray(inflate.result), width, height);
+}
+
+export function flipImageDataByY(data: ImageData): ImageData {
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let y = 0; y < data.height; y++) {
+        for (let x = 0; x < data.width; x++) {
+            const index = (y * data.width + x) * 4;
+            const newIndex = ((data.height - y - 1) * data.width + x) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, data.width, data.height);
+}
+
+export function flipImageDataByX(data: ImageData): ImageData {
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let y = 0; y < data.height; y++) {
+        for (let x = 0; x < data.width; x++) {
+            const index = (y * data.width + x) * 4;
+            const newIndex = (y * data.width + data.width - x - 1) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, data.width, data.height);
+}
+
+export function rotateImageData(data: ImageData): ImageData {
+    // rotate image 90 degrees
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let y = 0; y < data.height; y++) {
+        for (let x = 0; x < data.width; x++) {
+            const index = (y * data.width + x) * 4;
+            const newIndex = (x * data.height + data.height - y - 1) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, data.height, data.width);
+}
+
+export function invertImageData(data: ImageData, hexColor: string): ImageData {
+    const color = hexToRgb(hexColor);
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let i = 0; i < data.data.length; i += 4) {
+        if (data.data[i + 3] == 0) {
+            newData[i] = color.r;
+            newData[i + 1] = color.g;
+            newData[i + 2] = color.b;
+            newData[i + 3] = 255;
+        } else {
+            newData[i] = 0;
+            newData[i + 1] = 0;
+            newData[i + 2] = 0;
+            newData[i + 3] = 0;
+        }
+    }
+    return new ImageData(newData, data.width, data.height);
+}
+
+export function downloadImage(data: ImageData, name: string) {
+    const a = document.createElement('a');
+    const canvas = document.createElement('canvas');
+    canvas.width = data.width;
+    canvas.height = data.height;
+    const ctx = canvas.getContext('2d');
+    ctx.putImageData(data, 0, 0);
+    a.href = canvas.toDataURL('image/png');
+    a.download = name;
+    a.click();
 }

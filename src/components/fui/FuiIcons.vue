@@ -8,9 +8,7 @@ const {customImages} = toRefs(session.state);
 const emit = defineEmits(['cleanCustomIcons', 'prepareImages', 'iconClicked']);
 const iconsActive = ref('gaai');
 
-const icons = computed(() => {
-    return iconsList[iconsActive.value].icons.sort((a, b) => a.width * a.height - b.width * b.height);
-});
+const icons = computed(() => iconsList[iconsActive.value].icons);
 
 function toggleIcons(val) {
     if (iconsActive.value === val) {

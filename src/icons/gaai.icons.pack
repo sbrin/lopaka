@@ -2,4 +2,5 @@ name: Gaai icons pack
 author: Gaai
 link: 
 license: 
+sort: name
 source: ../../img/gaai

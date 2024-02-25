@@ -5,23 +5,26 @@ const props = defineProps<{
     active?: boolean;
     small?: boolean;
     danger?: boolean;
+    isIcon?: boolean;
 }>();
 
 const classNames = computed(() => ({
     button_active: props.active,
     button_small: props.small,
     button_danger: props.danger,
+    button_icon: props.isIcon,
 }));
 
 </script>
 <template>
-    <span class="button" :class="classNames">
+    <div class="button" :class="classNames">
         <slot></slot>
-    </span>
+    </div>
 </template>
 <style lang="css">
 
 .button {
+  display: inline-block;
   background: var(--secondary-color);
   border: 2px solid var(--primary-color);
   border-radius: 6px;
@@ -54,11 +57,19 @@ const classNames = computed(() => ({
 
 a.button {
   text-decoration: none;
+  text-wrap: nowrap;
 }
 
 .button_small {
     font-size: 20px;
     height: 24px;
+    line-height: 14px;
+}
+
+.button_icon {
+    padding: 3px 8px 4px 8px;
     line-height: 24px;
+    font-family: 'haxrcorp4089_tr', monospace;
+    font-size: 32px;
 }
 </style>

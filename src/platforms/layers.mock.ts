@@ -117,6 +117,28 @@ export const layersMock: AbstractLayer[] = [
         u: 'rrsjcz4oz2ln6jx4y4',
         s: [128, 64],
         d: 'eNpjYECA/1gAAxZ5dDFcctjMZcADCMkPZTUAc/dPsQ=='
+    },
+    {
+        n: 'ellipse_87y8hf8sh8dhf8d98sd',
+        t: 'ellipse',
+        c: '#0000FF',
+        i: 12,
+        p: [8, 29],
+        u: '87y8hf8sh8dhf8d98sd',
+        rx: 13,
+        ry: 8,
+        f: true
+    },
+    {
+        n: 'ellipse_u9uidj9d90fu9sj9jj9',
+        t: 'ellipse',
+        c: '#0000FF',
+        i: 14,
+        p: [8, 29],
+        u: 'u9uidj9d90fu9sj9jj9',
+        rx: 7,
+        ry: 7,
+        f: false
     }
 ].map((l) => {
     const type: ELayerType = l.t as any;

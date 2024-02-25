@@ -21,6 +21,22 @@ export class TextLayer extends AbstractLayer {
         text: string;
     } = null;
 
+    public get properties(): any {
+        return {
+            x: this.position.x,
+            y: this.position.y,
+            h: this.bounds.h,
+            scaleFactor: this.scaleFactor,
+            fontSize: this.scaleFactor,
+            font: this.font.name,
+            text: this.text,
+            color: this.color,
+            type: this.type,
+            id: this.uid,
+            inverted: this.inverted
+        };
+    }
+
     public position: Point = new Point();
     public text: string = 'Text';
     public scaleFactor: number = 1;
@@ -85,6 +101,15 @@ export class TextLayer extends AbstractLayer {
                 this.draw();
             },
             type: TModifierType.color
+        },
+        inverted: {
+            getValue: () => this.inverted,
+            setValue: (v: boolean) => {
+                this.inverted = v;
+                this.saveState();
+                this.draw();
+            },
+            type: TModifierType.boolean
         }
     };
 
@@ -98,6 +123,9 @@ export class TextLayer extends AbstractLayer {
         }
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
+        }
+        if (!this.features.hasInvertedColors) {
+            delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
     }
@@ -146,7 +174,7 @@ export class TextLayer extends AbstractLayer {
         dc.clear();
         dc.ctx.fillStyle = this.color;
         dc.ctx.strokeStyle = this.color;
-        font.drawText(dc, text, position.clone().subtract(0, bounds.size.y), this.scaleFactor);
+        font.drawText(dc, text, position.clone(), this.scaleFactor);
         dc.ctx.save();
         dc.ctx.fillStyle = 'rgba(0,0,0,0)';
         dc.ctx.beginPath();
@@ -166,7 +194,8 @@ export class TextLayer extends AbstractLayer {
             t: this.type,
             u: this.uid,
             z: this.scaleFactor,
-            c: this.color
+            c: this.color,
+            in: this.inverted
         };
         this.state = state;
     }
@@ -181,6 +210,7 @@ export class TextLayer extends AbstractLayer {
         this.uid = state.u;
         this.scaleFactor = state.z;
         this.color = state.c;
+        this.inverted = state.in;
         this.updateBounds();
         this.mode = EditMode.NONE;
     }
