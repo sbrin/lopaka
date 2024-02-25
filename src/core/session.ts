@@ -18,6 +18,7 @@ import {RectangleLayer} from './layers/rectangle.layer';
 import {TextLayer} from './layers/text.layer';
 import platforms from './platforms';
 import {Point} from './point';
+import {paramsToState} from './decorators/mapping';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -34,6 +35,20 @@ type TSessionState = {
 };
 
 export class Session {
+    LayerClassMap: {[key in ELayerType]: any} = {
+        box: RectangleLayer,
+        frame: RectangleLayer,
+        rect: RectangleLayer,
+        circle: CircleLayer,
+        disc: CircleLayer,
+        dot: DotLayer,
+        icon: IconLayer,
+        line: LineLayer,
+        string: TextLayer,
+        paint: PaintLayer,
+        ellipse: EllipseLayer
+    };
+
     id: string = generateUID();
     displays = displays;
     platforms = platforms;
@@ -206,21 +221,10 @@ export class Session {
     importCode = (code: string) => {
         this.clearLayers();
         const {platform} = this.state;
-        const layers = this.platforms[platform].importSourceCode(code);
-        // load fonts
-        this.loadFontsForLayers(layers.filter((l) => l instanceof TextLayer).map((l: TextLayer) => l.fontToLoad)).then(
-            () => {
-                layers.forEach((l) => {
-                    if (l instanceof TextLayer) {
-                        l.font = getFont(l.fontToLoad);
-                    }
-                    l.updateBounds();
-                    l.stopEdit();
-                    this.addLayer(l);
-                });
-                this.virtualScreen.redraw();
-            }
-        );
+        const states = this.platforms[platform]
+            .importSourceCode(code)
+            .map((state) => paramsToState(state, this.LayerClassMap));
+        loadLayers(states);
     };
 
     getPlatformFeatures(): TPlatformFeatures {
@@ -234,32 +238,19 @@ export class Session {
     };
     constructor() {}
 }
-export const LayerClassMap: {[key in ELayerType]: any} = {
-    box: RectangleLayer,
-    frame: RectangleLayer,
-    rect: RectangleLayer,
-    circle: CircleLayer,
-    disc: CircleLayer,
-    dot: DotLayer,
-    icon: IconLayer,
-    line: LineLayer,
-    string: TextLayer,
-    paint: PaintLayer,
-    ellipse: EllipseLayer
-};
-// for testing
-export function loadLayers(layers: any[]) {
+
+export async function loadLayers(states: any[]) {
     const session = useSession();
     session.state.layers = [];
-    layers.forEach((l) => {
-        const type: ELayerType = l.t;
-        if (type in LayerClassMap) {
-            const layer = new LayerClassMap[type](session.getPlatformFeatures());
-            layer.state = l;
+    return session.loadFontsForLayers(states.filter((s) => s.t == 'string').map((s) => s.f)).then(() => {
+        states.forEach((state) => {
+            const layerClass = session.LayerClassMap[state.t];
+            const layer = new layerClass(session.getPlatformFeatures());
+            layer.state = state;
             session.addLayer(layer);
-        }
+        });
+        session.virtualScreen.redraw(false);
     });
-    session.virtualScreen.redraw(false);
 }
 
 export function saveLayers() {

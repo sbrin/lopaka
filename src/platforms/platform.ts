@@ -30,7 +30,7 @@ export abstract class Platform {
 
     abstract generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string;
 
-    abstract importSourceCode(sourceCode: string): AbstractLayer[];
+    abstract importSourceCode(sourceCode: string): any[];
 
     public getTemplate(): string {
         return this.currentTemplate;
