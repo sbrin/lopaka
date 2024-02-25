@@ -1,17 +1,11 @@
 import {TPlatformFeatures} from '../../platforms/platform';
+import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
-
-type TRectangleState = TLayerState & {
-    p: number[]; // position [x, y]
-    s: number[]; // size [w, h]
-    f: boolean; // fill
-};
+import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
 
 export class RectangleLayer extends AbstractLayer {
     protected type: ELayerType = 'rect';
-    protected state: TRectangleState;
     protected editState: {
         firstPoint: Point;
         position: Point;
@@ -33,9 +27,11 @@ export class RectangleLayer extends AbstractLayer {
         };
     }
 
-    public position: Point = new Point();
-    public size: Point = new Point();
-    public fill: boolean = false;
+    @mapping('p', 'point') public position: Point = new Point();
+
+    @mapping('s', 'point') public size: Point = new Point();
+
+    @mapping('f') public fill: boolean = false;
 
     modifiers: TLayerModifiers = {
         x: {
@@ -44,7 +40,6 @@ export class RectangleLayer extends AbstractLayer {
                 this.position.x = v;
 
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -54,7 +49,6 @@ export class RectangleLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.position.y = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -64,7 +58,6 @@ export class RectangleLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.size.x = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -74,7 +67,6 @@ export class RectangleLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.size.y = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -83,7 +75,6 @@ export class RectangleLayer extends AbstractLayer {
             getValue: () => this.fill,
             setValue: (v: boolean) => {
                 this.fill = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -93,7 +84,6 @@ export class RectangleLayer extends AbstractLayer {
             setValue: (v: string) => {
                 this.color = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.color
@@ -102,7 +92,6 @@ export class RectangleLayer extends AbstractLayer {
             getValue: () => this.inverted,
             setValue: (v: boolean) => {
                 this.inverted = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -212,8 +201,6 @@ export class RectangleLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.saveState();
-        this.history.push(this.state);
     }
 
     draw() {
@@ -224,32 +211,7 @@ export class RectangleLayer extends AbstractLayer {
         dc.rect(position, size, this.fill);
     }
 
-    saveState() {
-        const state: TRectangleState = {
-            p: this.position.xy,
-            s: this.size.xy,
-            n: this.name,
-            i: this.index,
-            g: this.group,
-            t: this.type,
-            u: this.uid,
-            c: this.color,
-            f: this.fill,
-            in: this.inverted
-        };
-        this.state = state;
-    }
-
-    loadState(state: TRectangleState) {
-        this.position = new Point(state.p);
-        this.size = new Point(state.s);
-        this.name = state.n;
-        this.index = state.i;
-        this.group = state.g;
-        this.uid = state.u;
-        this.color = state.c;
-        this.fill = state.f;
-        this.inverted = state.in;
+    onLoadState() {
         this.updateBounds();
         this.mode = EditMode.NONE;
     }

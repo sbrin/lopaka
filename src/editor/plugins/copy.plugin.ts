@@ -22,7 +22,7 @@ export class CopyPlugin extends AbstractEditorPlugin {
                 this.buffer.forEach((record) => {
                     const l: AbstractLayer = new record.constructor(this.session.getPlatformFeatures());
                     const uid = l.uid;
-                    l.loadState(record.state);
+                    l.state = record.state;
                     l.uid = uid;
                     if (l.modifiers.x && l.modifiers.y) {
                         l.modifiers.x.setValue(l.modifiers.x.getValue() + 2);

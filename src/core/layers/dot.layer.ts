@@ -7,9 +7,7 @@ import {RectangleLayer} from './rectangle.layer';
 export class DotLayer extends RectangleLayer {
     protected type: ELayerType = 'dot';
     protected brushSize: Point = new Point(1);
-    public size: Point = this.brushSize.clone();
     public resizable: boolean = false;
-    public fill: boolean = true;
 
     public get properties(): any {
         return {
@@ -33,6 +31,7 @@ export class DotLayer extends RectangleLayer {
             delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
+        this.size = this.brushSize.clone();
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
@@ -42,7 +41,10 @@ export class DotLayer extends RectangleLayer {
                 this.position = point.clone();
                 break;
         }
-        this.bounds = new Rect(this.position, this.size);
         this.draw();
+    }
+
+    updateBounds(): void {
+        this.bounds = new Rect(this.position, this.size.clone());
     }
 }

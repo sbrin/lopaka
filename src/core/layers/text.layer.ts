@@ -1,20 +1,13 @@
 import {getFont} from '../../draw/fonts';
 import {Font} from '../../draw/fonts/font';
 import {TPlatformFeatures} from '../../platforms/platform';
+import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
-
-type TTextState = TLayerState & {
-    p: number[]; // position [x, y]
-    f: string; // font
-    d: string; // data
-    z: number; // scale factor
-};
+import {AbstractLayer, EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
 
 export class TextLayer extends AbstractLayer {
     protected type: ELayerType = 'string';
-    protected state: TTextState;
     protected editState: {
         firstPoint: Point;
         position: Point;
@@ -37,9 +30,10 @@ export class TextLayer extends AbstractLayer {
         };
     }
 
-    public position: Point = new Point();
-    public text: string = 'Text';
-    public scaleFactor: number = 1;
+    @mapping('p', 'point') public position: Point = new Point();
+    @mapping('d') public text: string = 'Text';
+    @mapping('z') public scaleFactor: number = 1;
+    @mapping('f', 'font') public font: Font;
 
     modifiers: TLayerModifiers = {
         x: {
@@ -47,7 +41,6 @@ export class TextLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.position.x = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -57,7 +50,6 @@ export class TextLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.position.y = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -67,7 +59,6 @@ export class TextLayer extends AbstractLayer {
             setValue: (v: string) => {
                 this.scaleFactor = Math.max(parseInt(v), 1);
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -77,7 +68,6 @@ export class TextLayer extends AbstractLayer {
             setValue: (v: string) => {
                 this.font = getFont(v);
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.font
@@ -87,7 +77,6 @@ export class TextLayer extends AbstractLayer {
             setValue: (v: string) => {
                 this.text = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.string
@@ -97,7 +86,6 @@ export class TextLayer extends AbstractLayer {
             setValue: (v: string) => {
                 this.color = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.color
@@ -106,7 +94,6 @@ export class TextLayer extends AbstractLayer {
             getValue: () => this.inverted,
             setValue: (v: boolean) => {
                 this.inverted = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -115,7 +102,7 @@ export class TextLayer extends AbstractLayer {
 
     constructor(
         protected features: TPlatformFeatures,
-        public font: Font
+        font: Font
     ) {
         super(features);
         if (!this.features.hasCustomFontSize) {
@@ -127,6 +114,7 @@ export class TextLayer extends AbstractLayer {
         if (!this.features.hasInvertedColors) {
             delete this.modifiers.inverted;
         }
+        this.font = font;
         this.color = this.features.defaultColor;
     }
 
@@ -165,7 +153,6 @@ export class TextLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.saveState();
         this.history.push(this.state);
     }
 
@@ -183,34 +170,7 @@ export class TextLayer extends AbstractLayer {
         dc.ctx.restore();
     }
 
-    saveState() {
-        const state: TTextState = {
-            p: this.position.xy,
-            d: this.text,
-            f: this.font.name,
-            n: this.name,
-            i: this.index,
-            g: this.group,
-            t: this.type,
-            u: this.uid,
-            z: this.scaleFactor,
-            c: this.color,
-            in: this.inverted
-        };
-        this.state = state;
-    }
-
-    loadState(state: TTextState) {
-        this.position = new Point(state.p);
-        this.text = state.d;
-        this.font = getFont(state.f);
-        this.name = state.n;
-        this.index = state.i;
-        this.group = state.g;
-        this.uid = state.u;
-        this.scaleFactor = state.z;
-        this.color = state.c;
-        this.inverted = state.in;
+    onLoadState() {
         this.updateBounds();
         this.mode = EditMode.NONE;
     }

@@ -1,4 +1,4 @@
-import {AbstractLayer, TLayerState} from '../core/layers/abstract.layer';
+import {AbstractLayer} from '../core/layers/abstract.layer';
 import {LayerClassMap} from '../core/session';
 
 export const layersMock: AbstractLayer[] = [
@@ -148,6 +148,6 @@ export const layersMock: AbstractLayer[] = [
         hasRGBSupport: false,
         defaultColor: '#000000'
     });
-    layer.loadState(l);
+    layer.state = l;
     return layer;
 });
