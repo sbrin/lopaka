@@ -5,21 +5,22 @@ import {Point} from '../point';
 
 const fieldsMap = new WeakMap<Function, Map<string, TLayerFieldOptions<any, any>>>();
 
-export type TLayerMappingType = 'point' | 'image' | 'font' | 'any';
+export type TLayerMappingType = 'point' | 'image' | 'font' | 'rect' | 'any';
 
 export type TLayerFieldOptions<C, T> = {
     name: string;
     alias: string;
     type: TLayerMappingType;
+    skip: boolean;
 };
 
-export function mapping(alias: string, type: TLayerMappingType = 'any') {
+export function mapping(alias: string, type: TLayerMappingType = 'any', skip: boolean = false) {
     return function actualDecorator(target: any, name: string) {
         const c = target.constructor;
         if (!fieldsMap.has(c)) {
             fieldsMap.set(c, new Map());
         }
-        fieldsMap.get(c).set(name, {name, alias, type});
+        fieldsMap.get(c).set(name, {name, alias, type, skip});
     };
 }
 
@@ -44,10 +45,13 @@ export function getState(target: any): any {
     const fields = getFields(target);
     const state = {};
     for (const [fieldName, options] of fields) {
+        if (options.skip) {
+            continue;
+        }
         const name = options.alias ?? options.name;
         switch (options.type) {
             case 'point':
-                state[name] = target[fieldName].xy;
+                state[name] = [target[fieldName].x, target[fieldName].y];
                 break;
             case 'image':
                 state[name] = packImage(target[fieldName]);
@@ -65,6 +69,9 @@ export function getState(target: any): any {
 export function setState(target: any, state: any) {
     const fields = getFields(target);
     for (const [fieldName, options] of fields) {
+        if (options.name === 'type') {
+            continue;
+        }
         const name = options.alias ?? options.name;
         if (state[name] === undefined) {
             continue;
@@ -83,4 +90,32 @@ export function setState(target: any, state: any) {
                 target[fieldName] = state[name];
         }
     }
+}
+
+export function getLayerProperties(target: any): any {
+    const fields = getFields(target);
+    const properties = {};
+    for (const [fieldName, options] of fields) {
+        switch (options.type) {
+            case 'point':
+                properties[fieldName] = target[fieldName].xy;
+                break;
+            case 'rect':
+                properties[fieldName] = [...target[fieldName].xy, ...target[fieldName].wh];
+                break;
+            case 'image':
+                // properties[fieldName] = target[fieldName];
+                break;
+            case 'font':
+                properties[fieldName] = target[fieldName].name;
+                break;
+            default:
+                // check if type is number
+                if (typeof target[fieldName] === 'number') {
+                    properties[fieldName] = Number(target[fieldName]);
+                }
+                properties[fieldName] = target[fieldName];
+        }
+    }
+    return properties;
 }

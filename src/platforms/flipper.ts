@@ -1,8 +1,9 @@
+import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {FontFormat} from '../draw/fonts/font';
 import {bdfFonts} from '../draw/fonts/fontTypes';
-import {imgDataToXBMP, toCppVariableName} from '../utils';
+import {imgDataToXBMP} from '../utils';
 import {Platform} from './platform';
 import defaultTemplate from './templates/flipper/default.pug';
 
@@ -58,7 +59,7 @@ export class FlipperPlatform extends Platform {
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
-                const props = layer.properties;
+                const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer && !layer.imageName) {
                     const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y).join(',');
                     if (xbmps.includes(XBMP)) {

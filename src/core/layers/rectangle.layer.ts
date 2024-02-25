@@ -13,20 +13,6 @@ export class RectangleLayer extends AbstractLayer {
         editPoint: TLayerEditPoint;
     } = null;
 
-    public get properties(): any {
-        return {
-            x: this.position.x,
-            y: this.position.y,
-            w: this.size.x,
-            h: this.size.y,
-            fill: this.fill,
-            color: this.color,
-            type: this.type,
-            id: this.uid,
-            inverted: this.inverted
-        };
-    }
-
     @mapping('p', 'point') public position: Point = new Point();
 
     @mapping('s', 'point') public size: Point = new Point();

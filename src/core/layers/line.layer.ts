@@ -16,19 +16,6 @@ export class LineLayer extends AbstractLayer {
     @mapping('p1', 'point') public p1: Point = new Point();
     @mapping('p2', 'point') public p2: Point = new Point();
 
-    public get properties(): any {
-        return {
-            x1: this.p1.x,
-            y1: this.p1.y,
-            x2: this.p2.x,
-            y2: this.p2.y,
-            color: this.color,
-            type: this.type,
-            id: this.uid,
-            inverted: this.inverted
-        };
-    }
-
     modifiers: TLayerModifiers = {
         x1: {
             getValue: () => this.p1.x,

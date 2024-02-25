@@ -19,20 +19,6 @@ export class EllipseLayer extends AbstractLayer {
         editPoint: TLayerEditPoint;
     } = null;
 
-    public get properties(): any {
-        return {
-            x: this.position.x + this.rx,
-            y: this.position.y + this.ry,
-            rx: this.rx,
-            ry: this.ry,
-            fill: this.fill,
-            color: this.color,
-            type: this.type,
-            id: this.uid,
-            inverted: this.inverted
-        };
-    }
-
     modifiers: TLayerModifiers = {
         x: {
             getValue: () => this.position.x,

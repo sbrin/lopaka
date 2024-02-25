@@ -6,7 +6,7 @@ import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType
 
 export class CircleLayer extends AbstractLayer {
     protected type: ELayerType = 'circle';
-    @mapping('r', 'point')
+    @mapping('r')
     public radius: number = 1;
     @mapping('p', 'point')
     public position: Point = new Point();
@@ -19,19 +19,6 @@ export class CircleLayer extends AbstractLayer {
         radius: number;
         editPoint: TLayerEditPoint;
     } = null;
-
-    public get properties(): any {
-        return {
-            x: this.position.x + this.radius,
-            y: this.position.y + this.radius,
-            r: this.radius,
-            fill: this.fill,
-            color: this.color,
-            type: this.type,
-            id: this.uid,
-            inverted: this.inverted
-        };
-    }
 
     modifiers: TLayerModifiers = {
         x: {

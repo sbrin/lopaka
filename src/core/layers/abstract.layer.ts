@@ -74,8 +74,6 @@ export abstract class AbstractLayer {
     protected buffer: OffscreenCanvas = new OffscreenCanvas(0, 0);
     // DrawContext
     protected dc: DrawContext = new DrawContext(this.buffer);
-    // Unique id
-    protected id: string = '';
     // Is layer visible
     protected isOverlay: boolean = false;
     // current layer state
@@ -91,11 +89,12 @@ export abstract class AbstractLayer {
     // history of changing
     protected history: any[] = [];
     // UID
-    public uid = generateUID();
+    @mapping('u') public uid = generateUID();
 
     // is layer selected
     public selected: boolean = false;
     // Bounds of the layer
+    @mapping('b', 'rect', true)
     public bounds: Rect = new Rect();
     // Layer name
     @mapping('n') public name: string;
@@ -130,8 +129,6 @@ export abstract class AbstractLayer {
     abstract draw();
     // update layer bounds
     abstract updateBounds(): void;
-
-    abstract get properties(): any;
 
     /**
      * Check that point inside layer
