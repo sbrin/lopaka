@@ -1,3 +1,4 @@
+import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {fontTypes} from '../draw/fonts/fontTypes';
@@ -15,7 +16,7 @@ export class AdafruitPlatform extends Platform {
         super();
         this.features.hasCustomFontSize = true;
         this.features.hasRGBSupport = true;
-        this.features.hasInvertedColors = true;
+        // this.features.hasInvertedColors = true;
         this.features.defaultColor = '#FFFFFF';
     }
 
@@ -33,7 +34,7 @@ export class AdafruitPlatform extends Platform {
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
-                const props = layer.properties;
+                const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
                     const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y, true).join(',');
                     if (xbmps.includes(XBMP)) {

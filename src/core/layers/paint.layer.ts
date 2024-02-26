@@ -1,6 +1,6 @@
 import {TPlatformFeatures} from '../../platforms/platform';
 import {Point} from '../point';
-import {AbstractImageLayer, TImageState} from './abstract-image.layer';
+import {AbstractImageLayer} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
 
 export class PaintLayer extends AbstractImageLayer {
@@ -14,7 +14,6 @@ export class PaintLayer extends AbstractImageLayer {
                 this.position.x = v;
 
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -24,7 +23,6 @@ export class PaintLayer extends AbstractImageLayer {
             setValue: (v: number) => {
                 this.position.y = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -43,7 +41,6 @@ export class PaintLayer extends AbstractImageLayer {
                 this.color = v;
                 this.applyColor();
                 this.draw();
-                this.saveState();
             },
             type: TModifierType.color
         },
@@ -51,7 +48,6 @@ export class PaintLayer extends AbstractImageLayer {
             getValue: () => this.overlay,
             setValue: (v: boolean) => {
                 this.overlay = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -60,7 +56,6 @@ export class PaintLayer extends AbstractImageLayer {
             getValue: () => this.inverted,
             setValue: (v: boolean) => {
                 this.inverted = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -130,22 +125,11 @@ export class PaintLayer extends AbstractImageLayer {
         this.mode = EditMode.NONE;
         this.updateBounds();
         this.editState = null;
-        this.saveState();
     }
 
     draw() {
         if (this.data) {
             super.draw();
         }
-    }
-
-    saveState() {
-        if (this.data) {
-            super.saveState();
-        }
-    }
-
-    loadState(state: TImageState) {
-        super.loadState(state);
     }
 }

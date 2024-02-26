@@ -1,22 +1,15 @@
 import {TPlatformFeatures} from '../../platforms/platform';
+import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
-
-type TEllipseState = TLayerState & {
-    p: number[]; // position
-    rx: number; // radius X
-    ry: number; // radius Y
-    f: boolean; // fill
-};
+import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
 
 export class EllipseLayer extends AbstractLayer {
     protected type: ELayerType = 'ellipse';
-    protected state: TEllipseState;
-    public radiusX: number = 1;
-    public radiusY: number = 1;
-    public position: Point = new Point();
-    public fill: boolean = false;
+    @mapping('rx') public rx: number = 1;
+    @mapping('ry') public ry: number = 1;
+    @mapping('p', 'point') public position: Point = new Point();
+    @mapping('f') public fill: boolean = false;
 
     protected editState: {
         firstPoint: Point;
@@ -26,27 +19,12 @@ export class EllipseLayer extends AbstractLayer {
         editPoint: TLayerEditPoint;
     } = null;
 
-    public get properties(): any {
-        return {
-            x: this.position.x + this.radiusX,
-            y: this.position.y + this.radiusY,
-            rx: this.radiusX,
-            ry: this.radiusY,
-            fill: this.fill,
-            color: this.color,
-            type: this.type,
-            id: this.uid,
-            inverted: this.inverted
-        };
-    }
-
     modifiers: TLayerModifiers = {
         x: {
             getValue: () => this.position.x,
             setValue: (v: number) => {
                 this.position.x = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -56,27 +34,24 @@ export class EllipseLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.position.y = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
         },
         radiusX: {
-            getValue: () => this.radiusX,
+            getValue: () => this.rx,
             setValue: (v: number) => {
-                this.radiusX = v;
+                this.rx = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
         },
         radiusY: {
-            getValue: () => this.radiusY,
+            getValue: () => this.ry,
             setValue: (v: number) => {
-                this.radiusY = v;
+                this.ry = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -85,7 +60,6 @@ export class EllipseLayer extends AbstractLayer {
             getValue: () => this.fill,
             setValue: (v: boolean) => {
                 this.fill = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -95,7 +69,6 @@ export class EllipseLayer extends AbstractLayer {
             setValue: (v: string) => {
                 this.color = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.color
@@ -104,7 +77,6 @@ export class EllipseLayer extends AbstractLayer {
             getValue: () => this.inverted,
             setValue: (v: boolean) => {
                 this.inverted = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -138,8 +110,8 @@ export class EllipseLayer extends AbstractLayer {
                 if (Math.floor(this.editState.radiusY + dy) >= 1) {
                     this.position.y = this.editState.position.y - dy * 2;
                 }
-                this.radiusX = Math.max(1, Math.floor(this.editState.radiusX - dx));
-                this.radiusY = Math.max(1, Math.floor(this.editState.radiusY + dy));
+                this.rx = Math.max(1, Math.floor(this.editState.radiusX - dx));
+                this.ry = Math.max(1, Math.floor(this.editState.radiusY + dy));
             }
         },
         {
@@ -152,8 +124,8 @@ export class EllipseLayer extends AbstractLayer {
             move: (offset: Point): void => {
                 const dx = Math.round(offset.x / 2);
                 const dy = Math.round(offset.y / 2);
-                this.radiusX = Math.max(1, Math.round(this.editState.radiusX - dx));
-                this.radiusY = Math.max(1, Math.round(this.editState.radiusY - dy));
+                this.rx = Math.max(1, Math.round(this.editState.radiusX - dx));
+                this.ry = Math.max(1, Math.round(this.editState.radiusY - dy));
             }
         },
         {
@@ -171,8 +143,8 @@ export class EllipseLayer extends AbstractLayer {
                 if (Math.ceil(this.editState.radiusX + dx) >= 1) {
                     this.position.x = this.editState.position.x - dx * 2;
                 }
-                this.radiusX = Math.max(1, Math.ceil(this.editState.radiusX + dx));
-                this.radiusY = Math.max(1, Math.ceil(this.editState.radiusY - dy));
+                this.rx = Math.max(1, Math.ceil(this.editState.radiusX + dx));
+                this.ry = Math.max(1, Math.ceil(this.editState.radiusY - dy));
             }
         },
         {
@@ -189,8 +161,8 @@ export class EllipseLayer extends AbstractLayer {
                 if (Math.ceil(this.editState.radiusY + dy) >= 1) {
                     this.position.y = this.editState.position.y - dy * 2;
                 }
-                this.radiusX = Math.max(1, Math.ceil(this.editState.radiusX + dx));
-                this.radiusY = Math.max(1, Math.ceil(this.editState.radiusY + dy));
+                this.rx = Math.max(1, Math.ceil(this.editState.radiusX + dx));
+                this.ry = Math.max(1, Math.ceil(this.editState.radiusY + dy));
             }
         }
     ];
@@ -199,16 +171,16 @@ export class EllipseLayer extends AbstractLayer {
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
-            this.radiusX = 1;
-            this.radiusY = 1;
+            this.rx = 1;
+            this.ry = 1;
             this.updateBounds();
             this.draw();
         }
         this.editState = {
             firstPoint: point,
             position: this.position.clone(),
-            radiusX: this.radiusX,
-            radiusY: this.radiusY,
+            radiusX: this.rx,
+            radiusY: this.ry,
             editPoint
         };
     }
@@ -225,8 +197,8 @@ export class EllipseLayer extends AbstractLayer {
                 break;
             case EditMode.CREATING:
                 const radius = point.clone().subtract(firstPoint).abs().divide(2).round().subtract(2);
-                this.radiusX = Math.max(radius.x, 0);
-                this.radiusY = Math.max(radius.y, 0);
+                this.rx = Math.max(radius.x, 0);
+                this.ry = Math.max(radius.y, 0);
                 const signs = point.clone().subtract(firstPoint).xy.map(Math.sign);
                 this.position = firstPoint.min(
                     firstPoint
@@ -243,11 +215,10 @@ export class EllipseLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.saveState();
     }
 
     draw() {
-        const {dc, radiusX, radiusY, position} = this;
+        const {dc, rx: radiusX, ry: radiusY, position} = this;
         const center = position.clone().add(radiusX, radiusY);
         dc.clear();
         dc.ctx.fillStyle = this.color;
@@ -255,40 +226,12 @@ export class EllipseLayer extends AbstractLayer {
         dc.pixelateEllipse(center, radiusX, radiusY, this.fill);
     }
 
-    saveState() {
-        const state: TEllipseState = {
-            p: this.position.xy,
-            rx: this.radiusX,
-            ry: this.radiusY,
-            f: this.fill,
-            n: this.name,
-            i: this.index,
-            g: this.group,
-            t: this.type,
-            u: this.uid,
-            c: this.color,
-            in: this.inverted
-        };
-        this.state = state;
-    }
-
-    loadState(state: TEllipseState) {
-        this.state = state;
-        this.position = new Point(state.p);
-        this.radiusX = state.rx;
-        this.radiusY = state.ry;
-        this.name = state.n;
-        this.index = state.i;
-        this.group = state.g;
-        this.uid = state.u;
-        this.color = state.c;
-        this.fill = state.f;
-        this.inverted = state.in;
+    onLoadState() {
         this.updateBounds();
         this.mode = EditMode.NONE;
     }
 
     updateBounds() {
-        this.bounds = new Rect(this.position, new Point(this.radiusX, this.radiusY).multiply(2)).add(0, 0, 1, 1);
+        this.bounds = new Rect(this.position, new Point(this.rx, this.ry).multiply(2)).add(0, 0, 1, 1);
     }
 }

@@ -1,6 +1,7 @@
 import {DrawContext} from '../../draw/draw-context';
 import {TPlatformFeatures} from '../../platforms/platform';
 import {generateUID} from '../../utils';
+import {getState, mapping, setState} from '../decorators/mapping';
 import {ChangeHistory, useHistory} from '../history';
 import {Point} from '../point';
 import {Rect} from '../rect';
@@ -51,7 +52,8 @@ export type TLayerModifier = {
 };
 
 export type TLayerAction = {
-    name: string;
+    label: string;
+    title: string;
     action: () => void;
 };
 
@@ -64,48 +66,47 @@ export type TLayerEditPoint = {
     move(point: Point): void;
 };
 
-export type TLayerState = {
-    t: ELayerType; // type
-    n: string; // name
-    i: number; // index
-    g: number; // group
-    u: string; // uid
-    c?: string; // color
-    in: boolean; // inverted
-};
-
 /**
  * Abstract layer class
  */
 export abstract class AbstractLayer {
-    protected abstract type: ELayerType;
+    @mapping('t') protected type: ELayerType;
     // OffscreenCanvas where layer is drawn
     protected buffer: OffscreenCanvas = new OffscreenCanvas(0, 0);
     // DrawContext
     protected dc: DrawContext = new DrawContext(this.buffer);
-    // Unique id
-    protected id: string = '';
     // Is layer visible
     protected isOverlay: boolean = false;
     // current layer state
-    protected state: any = {};
+    public get state() {
+        return getState(this);
+    }
+    public set state(state: any) {
+        setState(this, state);
+        this.onLoadState();
+    }
     // current edit mode
     protected mode: EditMode = EditMode.EMPTY;
     // history of changing
     protected history: ChangeHistory = useHistory();
     // UID
-    public uid = generateUID();
+    @mapping('u') public uid = generateUID();
 
     // is layer selected
     public selected: boolean = false;
     // Bounds of the layer
+    @mapping('b', 'rect', true)
     public bounds: Rect = new Rect();
     // Layer name
-    public name: string;
+    @mapping('n') public name: string;
     // Layer index
-    public index: number;
+    @mapping('i') public index: number;
     // public group
-    public group: number;
+    @mapping('g') public group: number;
+    // color
+    @mapping('c') public color: string = '#000000';
+    // ibnverted
+    @mapping('in') public inverted: boolean = false;
     // is layer already added to the session
     public added: boolean = false;
     // is layer resizable
@@ -114,10 +115,6 @@ export abstract class AbstractLayer {
     public modifiers: TLayerModifiers = {};
     // actions
     public actions: TLayerActions = [];
-    // color
-    public color: string = '#000000';
-    // ibnverted
-    public inverted: boolean = false;
 
     public editPoints: TLayerEditPoint[] = [];
 
@@ -131,14 +128,8 @@ export abstract class AbstractLayer {
     abstract stopEdit();
     // draw layer
     abstract draw();
-    // save layer state
-    abstract saveState();
-    // load layer state
-    abstract loadState(state: any);
     // update layer bounds
     abstract updateBounds(): void;
-
-    abstract get properties(): any;
 
     /**
      * Check that point inside layer
@@ -174,12 +165,17 @@ export abstract class AbstractLayer {
     }
 
     /**
+     * On load state
+     */
+    protected onLoadState() {}
+
+    /**
      * Clone this layer as new one
      * @returns copy of the layer
      */
     public clone(): typeof this {
         const cloned = new (this.constructor as any)();
-        cloned.loadState(this.state);
+        cloned.state = this.state;
         return cloned;
     }
 
@@ -205,10 +201,6 @@ export abstract class AbstractLayer {
             layer: this,
             state: this.state
         });
-    }
-
-    public getState(): any {
-        return this.state;
     }
 
     public getType() {

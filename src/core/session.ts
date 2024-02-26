@@ -66,7 +66,7 @@ export class Session {
             this.history.push({
                 type: 'remove',
                 layer,
-                state: layer.getState()
+                state: layer.state
             });
         }
         this.virtualScreen.redraw();
@@ -106,7 +106,7 @@ export class Session {
             this.history.push({
                 type: 'add',
                 layer,
-                state: layer.getState()
+                state: layer.state
             });
         }
         layer.draw();
@@ -154,7 +154,9 @@ export class Session {
         this.editor.clear();
         // preload used fonts
         const layersToload = JSON.parse(localStorage.getItem(`${name}_lopaka_layers`));
-        const usedFonts: string[] = layersToload ? layersToload.map((l) => l.f) : [fonts[0].name];
+        const usedFonts: string[] = layersToload
+            ? layersToload.filter((l) => l.t == 'string').map((l) => l.f)
+            : [fonts[0].name];
         if (!usedFonts.includes(fonts[0].name)) {
             usedFonts.push(fonts[0].name);
         }
@@ -230,7 +232,7 @@ export class Session {
                             this.addLayer(change.layer, false);
                             break;
                         case 'change':
-                            change.layer.loadState(change.state);
+                            change.layer.state = change.state;
                             change.layer.draw();
                             break;
                         case 'merge':
@@ -302,7 +304,7 @@ export function loadLayers(layers: any[]) {
         const type: ELayerType = l.t;
         if (type in LayerClassMap) {
             const layer = new LayerClassMap[type](session.getPlatformFeatures());
-            layer.loadState(l);
+            layer.state = l;
             session.addLayer(layer, false);
         }
     });
@@ -311,7 +313,7 @@ export function loadLayers(layers: any[]) {
 
 export function saveLayers() {
     const session = useSession();
-    const packedSession = JSON.stringify(session.state.layers.map((l) => l.getState()));
+    const packedSession = JSON.stringify(session.state.layers.map((l) => l.state));
     if (window.top !== window.self) {
         postParentMessage('updateLayers', packedSession);
         postParentMessage('updateThumbnail', session.virtualScreen.canvas.toDataURL());
@@ -319,6 +321,7 @@ export function saveLayers() {
         localStorage.setItem(`${session.state.platform}_lopaka_layers`, packedSession);
     }
     console.log('Saved session size', packedSession.length, 'bytes');
+    console.log('Saved session', packedSession);
 }
 // for testing
 window['saveLayers'] = saveLayers;

@@ -12,9 +12,7 @@ export class IconLayer extends AbstractImageLayer {
             getValue: () => this.position.x,
             setValue: (v: number) => {
                 this.position.x = v;
-
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -24,7 +22,6 @@ export class IconLayer extends AbstractImageLayer {
             setValue: (v: number) => {
                 this.position.y = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -50,7 +47,6 @@ export class IconLayer extends AbstractImageLayer {
                 this.data = addAlphaChannelToImageData(ctx.getImageData(0, 0, w, h), this.color);
                 this.size = new Point(w, h);
                 this.updateBounds();
-                this.saveState();
                 this.applyColor();
                 this.draw();
             },
@@ -62,7 +58,6 @@ export class IconLayer extends AbstractImageLayer {
                 this.color = v;
                 this.applyColor();
                 this.draw();
-                this.saveState();
             },
             type: TModifierType.color
         },
@@ -70,7 +65,6 @@ export class IconLayer extends AbstractImageLayer {
             getValue: () => this.overlay,
             setValue: (v: boolean) => {
                 this.overlay = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -79,7 +73,6 @@ export class IconLayer extends AbstractImageLayer {
             getValue: () => this.inverted,
             setValue: (v: boolean) => {
                 this.inverted = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -128,6 +121,5 @@ export class IconLayer extends AbstractImageLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.saveState();
     }
 }

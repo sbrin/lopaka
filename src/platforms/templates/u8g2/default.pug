@@ -17,37 +17,37 @@ if settings.wrap
 each layer in layers 
     if layer.inverted 
         if drawColorMode != 2
-            | u8g2.setDrawColor(2);
+            | !{pad}u8g2.setDrawColor(2);
             |
             - drawColorMode = 2;
     else
         if drawColorMode != 1
-            | u8g2.setDrawColor(1);
+            | !{pad}u8g2.setDrawColor(1);
             |
             - drawColorMode = 1;
     case layer.type
         when 'dot'
-            | @!{layer.id};!{pad}u8g2.drawPixel(@x:!{layer.x}, @y:!{layer.y});
+            | @!{layer.uid};!{pad}u8g2.drawPixel(@x:!{layer.position[0]}, @y:!{layer.position[1]});
         when 'line'
-            | @!{layer.id};!{pad}u8g2.drawLine(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2});
+            | @!{layer.uid};!{pad}u8g2.drawLine(@x1:!{layer.p1[0]}, @y1:!{layer.p1[1]}, @x2:!{layer.p2[0]}, @y2:!{layer.p2[1]});
         when 'rect'
             - var func = layer.fill ? 'drawBox' : 'drawFrame'
-            | @!{layer.id};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h});
+            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]});
         when 'circle'
             - var func = layer.fill ? 'drawDisc' : 'drawCircle'
-            | @!{layer.id};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.r});
+            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0] + layer.radius}, @y:!{layer.position[1] + layer.radius}, @r:!{layer.radius});
         when 'ellipse'
             - var func = layer.fill ? 'drawFilledEllipse' : 'drawEllipse'
-            | @!{layer.id};u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
+            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0] + layer.rx}, @y:!{layer.position[1] + layer.ry}, @rx:!{layer.rx}, @ry:!{layer.ry});
         when 'string'
             if layer.font != font
                 - font = layer.font
                 | !{pad}u8g2.setFont(u8g2_font_!{layer.font});
                 |
-            | @!{layer.id};!{pad}u8g2.drawStr(@x:!{layer.x}, @y:!{layer.y}, @text:"!{layer.text}");
+            | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @text:"!{layer.text}");
         when 'paint'
         when 'icon'
-            | @!{layer.id};!{pad}u8g2.drawXBM(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}, @image:!{layer.imageName});
+            | @!{layer.uid};!{pad}u8g2.drawXBM(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]}, @image:!{layer.imageName});
         default 
             |
             | // Unknown layer type !{layer.type}

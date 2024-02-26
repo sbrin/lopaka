@@ -6,6 +6,7 @@ import {imgDataToXBMP, toCppVariableName} from '../utils';
 import {Platform} from './platform';
 import defaultTemplate from './templates/u8g2/default.pug';
 import cEspIdfTemplate from './templates/u8g2/c_esp_idf.pug';
+import {getLayerProperties} from '../core/decorators/mapping';
 
 // for backwards compatibility
 // TODO: remove after 15.04.2024
@@ -38,7 +39,9 @@ export class U8g2Platform extends Platform {
         'esp-idf': {
             name: 'ESP-IDF (C)',
             template: cEspIdfTemplate,
-            settings: {}
+            settings: {
+                wrap: false
+            }
         }
     };
 
@@ -55,7 +58,7 @@ export class U8g2Platform extends Platform {
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
-                const props = layer.properties;
+                const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
                     const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y).join(',');
                     if (xbmps.includes(XBMP)) {
