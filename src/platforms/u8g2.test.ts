@@ -17,6 +17,7 @@ describe('U8g2 platform', () => {
     it('generating source code: Esp-Idf (C)', () => {
         const platform = new U8g2Platform();
         platform.setTemplate('esp-idf');
+        platform.getTemplates().arduino.settings = {};
         expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
     });
 });
