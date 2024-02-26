@@ -17,12 +17,12 @@ if settings.wrap
 each layer in layers 
     if layer.inverted 
         if drawColorMode != 2
-            | u8g2_SetDrawColor(&u8g2, 2);
+            | !{pad}u8g2_SetDrawColor(&u8g2, 2);
             |
             - drawColorMode = 2;
     else
         if drawColorMode != 1
-            | u8g2_SetDrawColor(&u8g2, 1);
+            | !{pad}u8g2_SetDrawColor(&u8g2, 1);
             |
             - drawColorMode = 1;
     case layer.type
