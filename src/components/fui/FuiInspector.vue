@@ -118,7 +118,7 @@ const LABELS = {
         </datalist>
         <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
-            <template v-for="(param, name) in params" :key="updates + ' ' + name">
+            <template v-for="(param, name) in params">
                 <div
                     class="inspector-panel__param"
                     v-if="param.type !== TModifierType.image"
@@ -158,6 +158,7 @@ const LABELS = {
                             @change="onChange($event, param)"
                             :readonly="!param.setValue"
                             :id="`inspector_${param.type}_${name}`"
+                            :key="updates + '_' + name"
                         />
                     </div>
                     <div v-else-if="param.type == TModifierType.color">
