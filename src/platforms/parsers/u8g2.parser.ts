@@ -81,16 +81,18 @@ export class U8g2Parser extends AbstractParser {
                     });
                 }
                 case 'drawEllipse':
-                case 'drawFilledEllipse': {
-                    const [x, y, rx, ry] = this.getArgs(call.args, defines, variables);
-                    states.push({
-                        type: 'ellipse',
-                        position: new Point(parseInt(x) - parseInt(rx), parseInt(y) - parseInt(ry)),
-                        rx: parseInt(rx),
-                        ry: parseInt(ry),
-                        fill: call.functionName === 'drawFilledEllipse'
-                    });
-                }
+                case 'drawFilledEllipse':
+                    {
+                        const [x, y, rx, ry] = this.getArgs(call.args, defines, variables);
+                        states.push({
+                            type: 'ellipse',
+                            position: new Point(parseInt(x) - parseInt(rx), parseInt(y) - parseInt(ry)),
+                            rx: parseInt(rx),
+                            ry: parseInt(ry),
+                            fill: call.functionName === 'drawFilledEllipse'
+                        });
+                    }
+                    break;
             }
         });
         return states;

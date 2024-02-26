@@ -150,6 +150,7 @@ export abstract class AbstractImageLayer extends AbstractLayer {
     onLoadState() {
         this.updateBounds();
         this.mode = EditMode.NONE;
+        this.applyColor();
     }
 
     updateBounds(): void {

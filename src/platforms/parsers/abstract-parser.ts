@@ -1,7 +1,7 @@
 export abstract class AbstractParser {
     protected variablesRegex = /(\w+)\s+(\w+)(\[\d+\])?(\s*=\s*([^;]+))?;/gm;
     protected definesRegex = /#define\s+([a-zA-Z0-9_]+)\s+([a-zA-Z0-9_]+)/gm;
-    protected xbmpRegex = /char\s+(PROGMEM)\s*([a-zA-Z0-9_]+)\[\]\s*([\w\d_]*PROGMEM)?\s*=\s+\{([^}]+)\};/gm;
+    protected xbmpRegex = /char\s+(PROGMEM)?\s*([a-zA-Z0-9_]+)\[\]\s*([\w\d_]*PROGMEM)?\s*=\s+\{([^}]+)\};/gm;
     protected cppMethodsRegexp = /(\w+)\s*\(([^)]*)\)/gm;
 
     parseSoorceCode(sourceCode: string) {
@@ -24,11 +24,7 @@ export abstract class AbstractParser {
             defines.set(name, value);
         }
         while ((match = this.xbmpRegex.exec(sourceCode)) !== null) {
-            const name = match[2];
-            const xbmp = match[4]
-                .split(',')
-                .map((x) => x.trim())
-                .join(',');
+            const {name, xbmp} = this.getXbmpFromMatch(match);
             images.set(name, xbmp);
         }
         while ((match = this.cppMethodsRegexp.exec(sourceCode)) !== null) {
@@ -37,6 +33,15 @@ export abstract class AbstractParser {
             methods.push({functionName, args});
         }
         return {methods, defines, variables, images};
+    }
+
+    protected getXbmpFromMatch(match: RegExpExecArray): {name; xbmp} {
+        const name = match[2];
+        const xbmp = match[4]
+            .split(',')
+            .map((x) => x.trim())
+            .join(',');
+        return {name, xbmp};
     }
 
     protected getArgs(args: any[], defines: Map<string, string>, variables: Map<string, string>): any[] {
