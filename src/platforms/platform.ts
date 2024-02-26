@@ -1,4 +1,5 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
+import {AbstractParser} from './parsers/abstract-parser';
 
 export type TPlatformFeatures = {
     hasCustomFontSize: boolean;
@@ -27,10 +28,13 @@ export abstract class Platform {
     protected templates: any;
     protected currentTemplate: string = 'Default';
     protected settings = {};
+    protected parser: AbstractParser;
 
     abstract generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string;
 
-    abstract importSourceCode(sourceCode: string): any[];
+    importSourceCode(sourceCode: string): any[] {
+        return this.parser.importSourceCode(sourceCode);
+    }
 
     public getTemplate(): string {
         return this.currentTemplate;

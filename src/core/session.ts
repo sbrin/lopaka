@@ -224,6 +224,7 @@ export class Session {
         const states = this.platforms[platform]
             .importSourceCode(code)
             .map((state) => paramsToState(state, this.LayerClassMap));
+        console.log('Imported states', states);
         loadLayers(states);
     };
 
