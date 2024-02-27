@@ -43,9 +43,7 @@ export async function loadImageAsync(src): Promise<HTMLImageElement> {
 
 export async function loadImageDataAsync(src): Promise<ImageData> {
     const img = await loadImageAsync(src);
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
+    const canvas = new OffscreenCanvas(img.width, img.height);
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
     return ctx.getImageData(0, 0, img.width, img.height);
@@ -154,6 +152,13 @@ export function inverImageDataWithAlpha(imgData: ImageData) {
         data[i + 3] = a;
     }
     return imgData;
+}
+
+export function imageToImageData(img: HTMLImageElement): ImageData {
+    const canvas = new OffscreenCanvas(img.width, img.height);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return ctx.getImageData(0, 0, img.width, img.height);
 }
 
 export function imgDataToXBMP(

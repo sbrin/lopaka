@@ -42,24 +42,21 @@ export class FlipperParser extends AbstractParser {
                 case 'canvas_draw_icon': // TODO
                     {
                         const [canvas, x, y, name] = this.getArgs(call.args, defines, variables);
-                        if (call.functionName === 'canvas_draw_icon') {
-                            const iconName = name.replace('&I_', '');
-                            Object.keys(iconsList).forEach((packName) => {
-                                if (iconsList[packName].icons.includes(iconName)) {
-                                    console.log(
-                                        'icon',
-                                        iconsList[packName].icons.find((icon) => icon === iconName)
-                                    );
-                                }
-                            });
-                        }
-                        // states.push({
-                        //     type: 'paint',
-                        //     data: xbmpToImgData(images.get(name), width, height),
-                        //     position: new Point(parseInt(x), parseInt(y)),
-                        //     size: new Point(parseInt(width), parseInt(height)),
-                        //     imageName: name
-                        // });
+                        let iconSrc;
+                        const iconName = name.replace('&I_', '');
+                        Object.keys(iconsList).forEach((packName) => {
+                            const icon = iconsList[packName].icons.find((icon) => icon.name === iconName);
+                            if (icon) {
+                                iconSrc = icon.image;
+                                return;
+                            }
+                        });
+                        states.push({
+                            type: 'icon',
+                            iconSrc,
+                            position: new Point(parseInt(x), parseInt(y)),
+                            imageName: name
+                        });
                     }
                     break;
                 case 'canvas_draw_line':

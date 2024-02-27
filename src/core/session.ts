@@ -4,7 +4,7 @@ import {getFont, loadFont} from '../draw/fonts';
 import {VirtualScreen} from '../draw/virtual-screen';
 import {Editor} from '../editor/editor';
 import {U8g2Platform} from '../platforms/u8g2';
-import {generateUID, logEvent, postParentMessage} from '../utils';
+import {generateUID, loadImageDataAsync, logEvent, postParentMessage} from '../utils';
 import displays from './displays';
 import {ChangeHistory, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
@@ -187,45 +187,27 @@ export class Session {
 
     generateCode = (): TSourceCode => {
         const {platform, layers} = this.state;
-        const layerNameRegex = /^@([\d\w]+);/g;
-        const paramsRegex = /@(\w+):/g;
         const code = this.platforms[platform].generateSourceCode(
             layers.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
             this.virtualScreen.ctx
         );
-        let layersMap = {};
-        const lines = code.split('\n');
-        const result = [];
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i];
-            const match = layerNameRegex.exec(line);
-            if (match?.length > 1) {
-                const id = match[1];
-                const map = {line: i, params: {}};
-                line = line.replace(layerNameRegex, '');
-                const paramsMatch = line.match(paramsRegex);
-                if (paramsMatch?.length > 0) {
-                    paramsMatch.forEach((p) => {
-                        const param = line.indexOf(p);
-                        line = line.replace(p, '');
-                        map.params[p.replace('@', '').replace(':', '')] = param;
-                    });
-                }
-                layersMap[id] = map;
-            }
-            result.push(line);
-        }
-        return {code: result.join('\n'), map: layersMap};
+        return this.platforms[platform].sourceMapParser.parse(code);
     };
 
-    importCode = (code: string) => {
+    importCode = async (code: string) => {
         this.clearLayers();
         const {platform} = this.state;
-        const states = this.platforms[platform]
-            .importSourceCode(code)
-            .map((state) => paramsToState(state, this.LayerClassMap));
-        console.log('Imported states', states);
-        loadLayers(states);
+        const states = this.platforms[platform].importSourceCode(code);
+        for (const state of states) {
+            if (state.type == 'icon' && state.iconSrc) {
+                await loadImageDataAsync(state.iconSrc).then((imgData) => {
+                    state.data = imgData;
+                    state.size = new Point(imgData.width, imgData.height);
+                });
+                delete state.iconSrc;
+            }
+        }
+        await loadLayers(states.map((state) => paramsToState(state, this.LayerClassMap)));
     };
 
     getPlatformFeatures(): TPlatformFeatures {

@@ -1,5 +1,6 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {AbstractParser} from './parsers/abstract-parser';
+import {SourceMapParser} from './parsers/source-map-parser';
 
 export type TPlatformFeatures = {
     hasCustomFontSize: boolean;
@@ -29,6 +30,7 @@ export abstract class Platform {
     protected currentTemplate: string = 'Default';
     protected settings = {};
     protected parser: AbstractParser;
+    public sourceMapParser: SourceMapParser = new SourceMapParser();
 
     abstract generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string;
 
