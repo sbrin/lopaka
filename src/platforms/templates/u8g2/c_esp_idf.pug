@@ -5,6 +5,7 @@ each decl in declarations
     else 
         | !{decl}
         |
+| u8g2_ClearBuffer(&u8g2); 
 | u8g2_SetBitmapMode(&u8g2, 1);
 | u8g2_SetFontMode(&u8g2, 1);
 |
@@ -51,7 +52,10 @@ each layer in layers
         default 
             |
             | // Unknown layer type !{layer.type}
+            |
     |
     |
 if settings.wrap
     | }
+    |
+| u8g2_SendBuffer(&u8g2); 
