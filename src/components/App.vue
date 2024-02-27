@@ -219,16 +219,16 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 <div class="buttons-bottom">
                     <div>
                         <FuiFile
-                            v-if="!session.state.isPublic"
-                            type="image"
-                            title="import image"
-                            @set-active-tab="setactiveTab"
-                        ></FuiFile>
-                        <FuiFile
-                            style="margin-left: 8px"
+                            style="margin-right: 8px"
                             v-if="!session.state.isPublic"
                             type="code"
                             title="import code"
+                            @set-active-tab="setactiveTab"
+                        ></FuiFile>
+                        <FuiFile
+                            v-if="!session.state.isPublic"
+                            type="image"
+                            title="import image"
                             @set-active-tab="setactiveTab"
                         ></FuiFile>
                     </div>

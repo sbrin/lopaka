@@ -15,6 +15,7 @@ const fileInput = ref(null);
 
 const session = useSession();
 const {customImages} = toRefs(session.state);
+const fileLoadedCounter = ref(0);
 
 async function onFileChange(e) {
     const file = e.target.files[0];
@@ -39,10 +40,12 @@ async function onFileChange(e) {
         session.importCode(fileResult);
         emit('setActiveTab', 'code');
     }
+    resetFileInput();
 }
 
 function resetFileInput() {
     fileInput.value = null;
+    fileLoadedCounter.value++;
 }
 </script>
 <template>
@@ -50,9 +53,10 @@ function resetFileInput() {
         <input
             type="file"
             style="position: fixed; top: -100%"
+            :accept="props.type === 'image' ? 'image/*' : '.c,.cpp,.ino,.txt'"
             @change="onFileChange"
-            @click="resetFileInput"
             ref="fileInput"
+            :key="fileLoadedCounter"
         />
         {{ title }}
     </label>
