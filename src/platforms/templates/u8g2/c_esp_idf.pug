@@ -42,7 +42,7 @@ each layer in layers
         when 'string'
             if layer.font != font
                 - font = layer.font
-                | !{pad}u8g2_setFont(&u8g2, u8g2_font_!{layer.font});
+                | !{pad}u8g2_SetFont(&u8g2, u8g2_font_!{layer.font}_tr);
                 |
             | @!{layer.uid};!{pad}u8g2_DrawStr(&u8g2, !{layer.position[0]}, !{layer.position[1]}, "!{layer.text}");
         when 'paint'
