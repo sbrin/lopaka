@@ -199,6 +199,11 @@ export class Session {
         const {platform} = this.state;
         const states = this.platforms[platform].importSourceCode(code);
         for (const state of states) {
+            if (state.type == 'string') {
+                if (!this.platforms[platform].getFonts().find((f) => f.name == state.font)) {
+                    state.font = this.platforms[platform].getFonts()[0].name;
+                }
+            }
             if (state.type == 'icon' && state.iconSrc) {
                 await loadImageDataAsync(state.iconSrc).then((imgData) => {
                     state.data = imgData;
