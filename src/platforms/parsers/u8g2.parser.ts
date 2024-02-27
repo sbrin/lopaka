@@ -8,13 +8,19 @@ export class U8g2Parser extends AbstractParser {
         const states = [];
         let currentFont = '4x6';
         methods.forEach((call) => {
+            if (call.functionName.includes('u8g2_')) {
+                call.args.shift();
+            }
             switch (call.functionName) {
+                case 'u8g2_SetFont':
                 case 'setFont':
                     {
                         const [font] = this.getArgs(call.args, defines, variables);
                         currentFont = font.replace('_tr', '').replace('u8g2_font_', '').replace('u8g_font_', '');
                     }
                     break;
+                case 'u8g2_DrawXBMP':
+                case 'u8g2_DrawXBM':
                 case 'drawXBMP':
                 case 'drawXBM':
                     {
@@ -28,6 +34,7 @@ export class U8g2Parser extends AbstractParser {
                         });
                     }
                     break;
+                case 'u8g2_DrawLine':
                 case 'drawLine':
                     {
                         const [x1, y1, x2, y2] = this.getArgs(call.args, defines, variables);
@@ -38,6 +45,8 @@ export class U8g2Parser extends AbstractParser {
                         });
                     }
                     break;
+                case 'u8g2_DrawBox':
+                case 'u8g2_DrawFrame':
                 case 'drawBox':
                 case 'drawFrame':
                     {
@@ -50,6 +59,7 @@ export class U8g2Parser extends AbstractParser {
                         });
                     }
                     break;
+                case 'u8g2_DrawPixel':
                 case 'drawPixel':
                     {
                         const [x, y] = this.getArgs(call.args, defines, variables);
@@ -59,6 +69,7 @@ export class U8g2Parser extends AbstractParser {
                         });
                     }
                     break;
+                case 'u8g2_DrawStr':
                 case 'drawStr':
                     {
                         const [x, y, text] = this.getArgs(call.args, defines, variables);
@@ -70,6 +81,8 @@ export class U8g2Parser extends AbstractParser {
                         });
                     }
                     break;
+                case 'u8g2_DrawCircle':
+                case 'u8g2_DrawDisc':
                 case 'drawCircle':
                 case 'drawDisc': {
                     const [x, y, radius] = this.getArgs(call.args, defines, variables);
@@ -80,6 +93,8 @@ export class U8g2Parser extends AbstractParser {
                         fill: call.functionName === 'drawDisc'
                     });
                 }
+                case 'u8g2_DrawEllipse':
+                case 'u8g2_DrawFilledEllipse':
                 case 'drawEllipse':
                 case 'drawFilledEllipse':
                     {

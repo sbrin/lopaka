@@ -201,6 +201,7 @@ export class Session {
         for (const state of states) {
             if (state.type == 'string') {
                 if (!this.platforms[platform].getFonts().find((f) => f.name == state.font)) {
+                    debugger;
                     state.font = this.platforms[platform].getFonts()[0].name;
                 }
             }
