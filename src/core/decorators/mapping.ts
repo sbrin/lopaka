@@ -54,7 +54,7 @@ export function getState(target: any): any {
                 state[name] = [target[fieldName].x, target[fieldName].y];
                 break;
             case 'image':
-                state[name] = packImage(target[fieldName]);
+                state[name] = target[fieldName] ? packImage(target[fieldName]) : null;
                 break;
             case 'font':
                 state[name] = target[fieldName].name;
