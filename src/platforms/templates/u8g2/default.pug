@@ -5,6 +5,7 @@ each decl in declarations
     else 
         | !{decl}
         |
+| u8g2.clearBuffer();
 | u8g2.setFontMode(1);
 | u8g2.setBitmapMode(1);
 |
@@ -42,7 +43,7 @@ each layer in layers
         when 'string'
             if layer.font != font
                 - font = layer.font
-                | !{pad}u8g2.setFont(u8g2_font_!{layer.font});
+                | !{pad}u8g2.setFont(u8g2_font_!{layer.font}_tr);
                 |
             | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @text:"!{layer.text}");
         when 'paint'
@@ -56,3 +57,5 @@ each layer in layers
     |
 if settings.wrap
     | }
+    |
+| u8g2.sendBuffer();
