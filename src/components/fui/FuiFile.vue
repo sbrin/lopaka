@@ -2,6 +2,7 @@
 import {defineProps, ref, toRefs} from 'vue';
 import {useSession} from '../../core/session';
 import {loadImageAsync, logEvent, readFileAsync, readTextFileAsync} from '../../utils';
+import FuiImportWizard from './FuiImportWizard.vue';
 
 const props = defineProps<{
     title: string;
@@ -16,6 +17,8 @@ const fileInput = ref(null);
 const session = useSession();
 const {customImages} = toRefs(session.state);
 const fileLoadedCounter = ref(0);
+const openWizard = ref(false);
+const wizardRef = ref(null);
 
 async function onFileChange(e) {
     const file = e.target.files[0];
@@ -26,21 +29,27 @@ async function onFileChange(e) {
         const name = file.name.substr(0, file.name.lastIndexOf('.')) || file.name; // remove file extension
         const fileResult = await readFileAsync(file);
         const image = await loadImageAsync(fileResult);
-
-        customImages.value.push({
-            name: name,
-            width: image.width,
-            height: image.height,
-            image: image,
-            isCustom: true
-        });
-        emit('setActiveTab', 'images');
+        openWizard.value = true;
+        wizardRef.value.setImage(image, name);
     } else {
         const fileResult = await readTextFileAsync(file);
         session.importCode(fileResult);
         emit('setActiveTab', 'code');
     }
     resetFileInput();
+}
+
+function saveImage(image: HTMLImageElement, name: string) {
+    customImages.value.push({
+        name: name,
+        width: image.width,
+        height: image.height,
+        image: image,
+        isCustom: true
+    });
+    emit('updateFuiImages', customImages.value);
+    emit('setActiveTab', 'images');
+    openWizard.value = false;
 }
 
 function resetFileInput() {
@@ -51,6 +60,13 @@ function resetFileInput() {
 </script>
 <template>
     <label class="button" :class="{button_active: active}">
+        <FuiImportWizard
+            v-if="type == 'image'"
+            ref="wizardRef"
+            :visible="openWizard"
+            @onClose="() => (openWizard = false)"
+            @onSave="saveImage"
+        />
         <input
             type="file"
             style="position: fixed; top: -100%"
