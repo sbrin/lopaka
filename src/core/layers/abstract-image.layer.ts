@@ -4,7 +4,6 @@ import {
     downloadImage,
     flipImageDataByX,
     flipImageDataByY,
-    hexToRgb,
     invertImageData,
     rotateImageData
 } from '../../utils';
