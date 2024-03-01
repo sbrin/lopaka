@@ -1,5 +1,13 @@
 import {decode, encode} from 'base64-arraybuffer';
 import pako from 'pako';
+
+type RGBColor = {
+    r: number;
+    g: number;
+    b: number;
+    a?: number;
+};
+
 function bitswap(b) {
     b = ((b & 0xf0) >> 4) | ((b & 0x0f) << 4);
     b = ((b & 0xcc) >> 2) | ((b & 0x33) << 2);
@@ -49,7 +57,7 @@ export async function loadImageDataAsync(src): Promise<ImageData> {
     return ctx.getImageData(0, 0, img.width, img.height);
 }
 
-export function hexToRgb(hexColor: string) {
+export function hexToRgb(hexColor: string): RGBColor {
     const hex = hexColor.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
@@ -82,18 +90,12 @@ export function packColor565(hexColor: string) {
 export function addAlphaChannelToImageData(data: ImageData, color: string) {
     const newData = new Uint8ClampedArray(data.width * data.height * 4);
     const rgb = hexToRgb(color);
-    const colors = new Map<string, number>();
+    // const colors = new Map<string, number>();
     let hasAlphaChannel = false;
     for (let i = 0; i < data.data.length; i += 4) {
         if (data.data[i + 3] == 0) {
             hasAlphaChannel = true;
-        } else {
-            const hexColor = rgbToHex(Array.from(data.data.slice(i, i + 3)));
-            if (colors.has(hexColor)) {
-                colors.set(hexColor, colors.get(hexColor) + 1);
-            } else {
-                colors.set(hexColor, 1);
-            }
+            break;
         }
     }
     if (hasAlphaChannel) {
@@ -111,12 +113,14 @@ export function addAlphaChannelToImageData(data: ImageData, color: string) {
             }
         }
     } else {
-        // get main color and set alpha for all other colors
-        const sortedColors = Array.from(colors).sort((a, b) => b[1] - a[1]);
-        const alphaColor = sortedColors[0][0];
+        // alpha channnel color is white by default, else just invert
+        const alphaColor = {r: 255, g: 255, b: 255};
         for (let i = 0; i < data.data.length; i += 4) {
-            const hexColor = rgbToHex(Array.from(data.data.slice(i, i + 3)));
-            if (hexColor != alphaColor && data.data[i + 3] > 175) {
+            // if color is closest to alphaColor or alpha is more than 50%
+            if (
+                data.data[i + 3] > 175 &&
+                !isAlphaColor(alphaColor, [data.data[i], data.data[i + 1], data.data[i + 2]])
+            ) {
                 newData[i] = rgb.r;
                 newData[i + 1] = rgb.g;
                 newData[i + 2] = rgb.b;
@@ -132,26 +136,8 @@ export function addAlphaChannelToImageData(data: ImageData, color: string) {
     return new ImageData(newData, data.width, data.height);
 }
 
-export function inverImageDataWithAlpha(imgData: ImageData) {
-    const data = imgData.data;
-    for (let i = 0; i < data.length; i += 4) {
-        let [r, g, b, a] = [data[i], data[i + 1], data[i + 2], data[i + 3]];
-        // if alpha more than 50%
-        if (r + g + b > 255 / 2 || a < 255 / 2) {
-            // transparent
-            a = 0;
-            r = g = b = 0;
-        } else {
-            // white pixels
-            r = g = b = 255;
-            a = 255;
-        }
-        data[i] = r;
-        data[i + 1] = g;
-        data[i + 2] = b;
-        data[i + 3] = a;
-    }
-    return imgData;
+function isAlphaColor(alpha: RGBColor, color: number[]) {
+    return Math.abs(alpha.r - color[0]) < 15 && Math.abs(alpha.g - color[1]) < 15 && Math.abs(alpha.b - color[2]) < 15;
 }
 
 export function imageToImageData(img: HTMLImageElement): ImageData {
@@ -455,7 +441,35 @@ export function downloadImage(data: ImageData, name: string) {
 }
 
 export function processImage(data: ImageData, options: any, color: string = '#FFFFFF') {
-    data = scaleImageData(data, options.width, options.height);
+    switch (options.resampling) {
+        case 'nearest':
+            data = resampleNearest(data, options.width, options.height);
+            break;
+        case 'bilinear':
+            data = resampleBilinear(data, options.width, options.height);
+            break;
+        case 'lanczos':
+            data = resampleWithFilter(data, options.width, options.height, lanczosFilter);
+            break;
+        case 'gaussian':
+            data = resampleWithFilter(data, options.width, options.height, gaussianFilter);
+            break;
+        case 'mitchell':
+            data = resampleWithFilter(data, options.width, options.height, mitchellFilter);
+            break;
+        case 'mitchell-netravali':
+            data = resampleWithFilter(data, options.width, options.height, mitchellNetravaliFilter);
+            break;
+        case 'catmull-rom':
+            data = resampleWithFilter(data, options.width, options.height, catmullRomFilter);
+            break;
+        case 'bspline':
+            data = resampleWithFilter(data, options.width, options.height, bsplineFilter);
+            break;
+        default:
+            data = scaleImage(data, options.width, options.height);
+            break;
+    }
     if (options.dither) {
         data = floydSteinbergDithering(data, options.palette);
     }
@@ -468,7 +482,62 @@ export function processImage(data: ImageData, options: any, color: string = '#FF
     return data;
 }
 
-export function scaleImageData(data: ImageData, width: number, height: number) {
+export function grayscale(data: ImageData) {
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let i = 0; i < data.data.length; i += 4) {
+        const avg = (data.data[i] + data.data[i + 1] + data.data[i + 2]) / 3;
+        newData[i] = avg;
+        newData[i + 1] = avg;
+        newData[i + 2] = avg;
+        newData[i + 3] = data.data[i + 3];
+    }
+    return new ImageData(newData, data.width, data.height);
+}
+
+export function scaleImage(data: ImageData, width: number, height: number) {
+    const canvas = new OffscreenCanvas(data.width, data.height);
+    const ctx = canvas.getContext('2d');
+    ctx.putImageData(data, 0, 0);
+    const canvas2 = new OffscreenCanvas(width, height);
+    const ctx2 = canvas2.getContext('2d');
+    ctx2.imageSmoothingEnabled = false;
+    ctx2.drawImage(canvas, 0, 0, width, height);
+    return ctx2.getImageData(0, 0, width, height);
+}
+
+export function resampleBilinear(data: ImageData, width: number, height: number) {
+    // scaling with bilinear interpolation
+    const newData = new Uint8ClampedArray(width * height * 4);
+    const xRatio = data.width / width;
+    const yRatio = data.height / height;
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const px = x * xRatio;
+            const py = y * yRatio;
+            const x1 = Math.floor(px);
+            const x2 = Math.ceil(px);
+            const y1 = Math.floor(py);
+            const y2 = Math.ceil(py);
+            const dx = px - x1;
+            const dy = py - y1;
+            const index1 = (y1 * data.width + x1) * 4;
+            const index2 = (y1 * data.width + x2) * 4;
+            const index3 = (y2 * data.width + x1) * 4;
+            const index4 = (y2 * data.width + x2) * 4;
+            const newIndex = (y * width + x) * 4;
+            for (let j = 0; j < 4; j++) {
+                newData[newIndex + j] =
+                    data.data[index1 + j] * (1 - dx) * (1 - dy) +
+                    data.data[index2 + j] * dx * (1 - dy) +
+                    data.data[index3 + j] * (1 - dx) * dy +
+                    data.data[index4 + j] * dx * dy;
+            }
+        }
+    }
+    return new ImageData(newData, width, height);
+}
+
+export function resampleNearest(data: ImageData, width: number, height: number) {
     // scaling with nearest neighbor algorithm
     const newData = new Uint8ClampedArray(width * height * 4);
     const xRatio = data.width / width;
@@ -484,6 +553,63 @@ export function scaleImageData(data: ImageData, width: number, height: number) {
         }
     }
     return new ImageData(newData, width, height);
+}
+
+export function resampleWithFilter(data: ImageData, width: number, height: number, filter: Function) {
+    const newData = new Uint8ClampedArray(width * height * 4);
+    const xRatio = data.width / width;
+    const yRatio = data.height / height;
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            let r = 0,
+                g = 0,
+                b = 0,
+                a = 0;
+            for (let j = Math.floor(y * yRatio); j < Math.ceil(y * yRatio + 1); j++) {
+                for (let i = Math.floor(x * xRatio); i < Math.ceil(x * xRatio + 1); i++) {
+                    if (i >= 0 && i < data.width && j >= 0 && j < data.height) {
+                        const index = (j * data.width + i) * 4;
+                        const dx = Math.abs(x * xRatio - i);
+                        const dy = Math.abs(y * yRatio - j);
+                        const weight = filter(dx) * filter(dy);
+                        r += data.data[index] * weight;
+                        g += data.data[index + 1] * weight;
+                        b += data.data[index + 2] * weight;
+                        a += data.data[index + 3] * weight;
+                    }
+                }
+            }
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = r;
+            newData[newIndex + 1] = g;
+            newData[newIndex + 2] = b;
+            newData[newIndex + 3] = a;
+        }
+    }
+    return new ImageData(newData, width, height);
+}
+
+function mitchellFilter(x) {
+    return x < 1 ? (16 + x * x * (21 * x - 36)) / 18 : x < 2 ? (32 + x * (-60 + x * (36 - 7 * x))) / 18 : 0;
+}
+
+function catmullRomFilter(x) {
+    return x < 1 ? 0.5 * (2 + x * x * (-5 + 3 * x)) : x < 2 ? 0.5 * (4 + x * (-8 + x * (5 - x))) : 0;
+}
+function gaussianFilter(x) {
+    return Math.exp(-2 * x * x);
+}
+
+function mitchellNetravaliFilter(x) {
+    return x < 1 ? (21 + x * x * (30 * x - 36)) / 18 : x < 2 ? (39 + x * (-54 + x * (27 - 5 * x))) / 18 : 0;
+}
+
+function bsplineFilter(x) {
+    return x < 1 ? (4 + x * x * (-6 + 3 * x)) / 6 : x < 2 ? (8 + x * (-12 + x * (6 - x))) / 6 : 0;
+}
+
+function lanczosFilter(x) {
+    return x == 0 ? 1 : (Math.sin(Math.PI * x) * Math.sin((Math.PI * x) / 3)) / ((Math.PI * x * (Math.PI * x)) / 3);
 }
 
 export function floydSteinbergDithering(data: ImageData, palette: string[]) {
