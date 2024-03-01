@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {Teleport, reactive, ref, toRefs, watch} from 'vue';
+import {Teleport, nextTick, reactive, ref, toRefs, watch} from 'vue';
 import {processImage, imageDataToImage, imageToImageData, applyColor} from '../../utils';
 const props = defineProps<{
     visible: boolean;
@@ -17,21 +17,37 @@ const options = reactive({
     alpha: true,
     palette: ['#000000', '#FFFFFF']
 });
-const {dither, invert, width, height, proportion} = toRefs(options);
+const {proportion} = toRefs(options);
+
+const width = ref(0);
+const height = ref(0);
+
 const scale = ref(1);
 const scales = [1, 2, 3, 4, 5];
 let image, imageData;
 
 watch(width, (val, oldVal) => {
-    if (oldVal && val && proportion.value && val !== oldVal) {
-        height.value = Math.round(val / proportion.value);
+    if (oldVal && val && proportion.value && val !== oldVal && val < 1000) {
+        options.width = val;
+        nextTick(() => {
+            height.value = Math.round(val / proportion.value);
+            options.height = height.value;
+        });
     }
 });
 
 watch(height, (val, oldVal) => {
-    if (oldVal && val && proportion.value && val !== oldVal) {
-        width.value = Math.round(val * proportion.value);
+    if (oldVal && val && proportion.value && val !== oldVal && val < 1000) {
+        options.height = val;
+        nextTick(() => {
+            width.value = Math.round(val * proportion.value);
+            options.width = width.value;
+        });
     }
+});
+
+watch([options, scale], () => {
+    preview();
 });
 
 function setImage(sourvceImage: HTMLImageElement, name: string) {
@@ -40,6 +56,8 @@ function setImage(sourvceImage: HTMLImageElement, name: string) {
     image = sourvceImage;
     options.width = image.width;
     options.height = image.height;
+    width.value = image.width;
+    height.value = image.height;
     options.proportion = image.width / image.height;
     preview();
 }
@@ -92,12 +110,7 @@ defineExpose({
             <div class="fui-form-row">
                 <label class="fui-form-label fui-form-column" for="image-width">
                     Width:
-                    <input
-                        class="fui-form-input fui-form-input__size"
-                        type="number"
-                        v-model="options.width"
-                        id="image-width"
-                    />
+                    <input class="fui-form-input fui-form-input__size" type="number" v-model="width" id="image-width" />
                 </label>
 
                 <label class="fui-form-label fui-form-column" for="image-height">
@@ -106,7 +119,7 @@ defineExpose({
                         class="fui-form-input fui-form-input__size"
                         type="number"
                         min="1"
-                        v-model="options.height"
+                        v-model="height"
                         id="image-height"
                     />
                 </label>
