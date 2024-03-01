@@ -13,6 +13,7 @@ const imageName = ref('');
 const options = reactive({
     dither: true,
     invert: false,
+    resampling: 'nearest',
     width: 0,
     height: 0,
     proportion: 1,
@@ -26,6 +27,17 @@ const height = ref(0);
 
 const scale = ref(1);
 const scales = [1, 2, 3, 4, 5];
+const resamplingTypes = [
+    'none',
+    'nearest',
+    'bilinear',
+    'spline',
+    'lanczos',
+    'gaussian',
+    'mitchell',
+    'mitchell-netravali',
+    'catmull-rom'
+];
 let image, imageData;
 
 watch(width, (val, oldVal) => {
@@ -132,6 +144,15 @@ defineExpose({
                         id="image-height"
                     />
                 </label>
+            </div>
+            <div class="fui-form-row">
+                <!-- resampling type select -->
+                <label class="fui-form-label fui-form-column" for="image-resampling">Resampling algorithm:</label>
+                <select id="image-resampling" class="fui-select__select fui-form-input" v-model="options.resampling">
+                    <option v-for="(p, idx) in resamplingTypes" :key="idx" :value="p">{{ p }}</option>
+                </select>
+            </div>
+            <div class="fui-form-row">
                 <!-- reset -->
                 <button
                     class="button"
@@ -141,9 +162,9 @@ defineExpose({
                         height = image.height;
                     "
                 >
-                    Reset
+                    Reset size
                 </button>
-                <button class="button" style="margin-left: 8px" @click="fitToScreen">Fit to screen size</button>
+                <button class="button" style="margin-left: 8px" @click="fitToScreen">Fit to screen</button>
             </div>
             <div class="fui-form-row">
                 <!-- dither -->
@@ -202,5 +223,11 @@ defineExpose({
 }
 .fui-import-wizard-dialog.visible {
     display: flex;
+}
+.fui-import-wizard-canvas-crop {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
 }
 </style>
