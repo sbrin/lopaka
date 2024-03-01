@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import {useSession} from '../../core/session';
 import {computed, ref, toRefs} from 'vue';
+import {useSession} from '../../core/session';
 import {iconsList} from '../../icons/icons';
 
 const session = useSession();

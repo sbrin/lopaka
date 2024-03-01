@@ -1,13 +1,14 @@
+import {isProxy, toRaw} from 'vue';
 import {getFont} from '../../draw/fonts';
 import {packImage, unpackImage} from '../../utils';
-import {AbstractLayer} from '../layers/abstract.layer';
 import {Point} from '../point';
+import {Font} from '../../draw/fonts/font';
 
-const fieldsMap = new WeakMap<Function, Map<string, TLayerFieldOptions<any, any>>>();
+export const fieldsMap = new Map<string, Map<string, TLayerFieldOptions>>();
 
 export type TLayerMappingType = 'point' | 'image' | 'font' | 'rect' | 'any';
 
-export type TLayerFieldOptions<C, T> = {
+export type TLayerFieldOptions = {
     name: string;
     alias: string;
     type: TLayerMappingType;
@@ -16,7 +17,7 @@ export type TLayerFieldOptions<C, T> = {
 
 export function mapping(alias: string, type: TLayerMappingType = 'any', skip: boolean = false) {
     return function actualDecorator(target: any, name: string) {
-        const c = target.constructor;
+        const c = target.constructor.name;
         if (!fieldsMap.has(c)) {
             fieldsMap.set(c, new Map());
         }
@@ -24,11 +25,14 @@ export function mapping(alias: string, type: TLayerMappingType = 'any', skip: bo
     };
 }
 
-function getFields<T extends AbstractLayer>(target: T) {
-    const fields = new Map<string, TLayerFieldOptions<any, any>>();
+function getFields(target: any) {
+    const fields = new Map<string, TLayerFieldOptions>();
     let proto = target;
+    if (isProxy(proto)) {
+        proto = toRaw(proto);
+    }
     while (proto) {
-        const protoFields = fieldsMap.get(proto.constructor);
+        const protoFields = fieldsMap.get(proto.name);
         if (protoFields) {
             for (const [name, options] of protoFields) {
                 if (!fields.has(name)) {
@@ -42,7 +46,7 @@ function getFields<T extends AbstractLayer>(target: T) {
 }
 
 export function getState(target: any): any {
-    const fields = getFields(target);
+    const fields = getFields(target.constructor);
     const state = {};
     for (const [fieldName, options] of fields) {
         if (options.skip) {
@@ -67,7 +71,7 @@ export function getState(target: any): any {
 }
 
 export function setState(target: any, state: any) {
-    const fields = getFields(target);
+    const fields = getFields(target.constructor);
     for (const [fieldName, options] of fields) {
         if (options.name === 'type') {
             continue;
@@ -78,13 +82,16 @@ export function setState(target: any, state: any) {
         }
         switch (options.type) {
             case 'point':
-                target[fieldName] = new Point(state[name]);
+                target[fieldName] = state[name] instanceof Point ? state[name].clone() : new Point(state[name]);
                 break;
             case 'image':
-                target[fieldName] = unpackImage(state[name], state?.s?.[0] ?? 5, state?.s?.[1] ?? 5);
+                target[fieldName] =
+                    state[name] instanceof ImageData
+                        ? state[name]
+                        : unpackImage(state[name], state?.s?.[0] ?? 5, state?.s?.[1] ?? 5);
                 break;
             case 'font':
-                target[fieldName] = getFont(state[name]);
+                target[fieldName] = state[name] instanceof Font ? state[name] : getFont(state[name]);
                 break;
             default:
                 target[fieldName] = state[name];
@@ -92,8 +99,31 @@ export function setState(target: any, state: any) {
     }
 }
 
+export function paramsToState(params: any, layerClassMap: any) {
+    const layerClass = layerClassMap[params.type];
+    const fields = getFields(layerClass);
+    const state = {};
+    for (const [fieldName, options] of fields) {
+        const name = options.alias ?? options.name;
+        // switch (options.type) {
+        //     case 'point':
+        //         state[name] = [params[fieldName].x, params[fieldName].y];
+        //         break;
+        //     case 'image':
+        //         state[name] = packImage(params[fieldName]);
+        //         break;
+        //     case 'font':
+        //         state[name] = params[fieldName].name;
+        //         break;
+        //     default:
+        state[name] = params[fieldName];
+        // }
+    }
+    return state;
+}
+
 export function getLayerProperties(target: any): any {
-    const fields = getFields(target);
+    const fields = getFields(target.constructor);
     const properties = {};
     for (const [fieldName, options] of fields) {
         switch (options.type) {

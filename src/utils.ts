@@ -7,7 +7,19 @@ function bitswap(b) {
     return b;
 }
 
-export function readFileAsync(file) {
+export async function readTextFileAsync(file): Promise<string> {
+    return new Promise((resolve, reject) => {
+        let reader = new FileReader();
+
+        reader.onload = () => {
+            resolve(reader.result.toString());
+        };
+        reader.onerror = reject;
+        reader.readAsText(file);
+    });
+}
+
+export async function readFileAsync(file): Promise<string | ArrayBuffer> {
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
 
@@ -31,9 +43,7 @@ export async function loadImageAsync(src): Promise<HTMLImageElement> {
 
 export async function loadImageDataAsync(src): Promise<ImageData> {
     const img = await loadImageAsync(src);
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
+    const canvas = new OffscreenCanvas(img.width, img.height);
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
     return ctx.getImageData(0, 0, img.width, img.height);
@@ -51,9 +61,17 @@ export function rgbToHex(rgbColor: number[]) {
     return `#${rgbColor.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
 }
 
-export function packedHexColor(color: string) {
+export function packedHexColor565(color: string) {
     const c = packColor565(color);
     return `0x${c.toString(16).toUpperCase()}`;
+}
+
+export function unpackedHexColor565(color: string) {
+    const c = parseInt(color, 16);
+    const r = ((c >> 11) & 0x1f) << 3;
+    const g = ((c >> 5) & 0x3f) << 2;
+    const b = (c & 0x1f) << 3;
+    return rgbToHex([r, g, b]);
 }
 
 export function packColor565(hexColor: string) {
@@ -136,6 +154,13 @@ export function inverImageDataWithAlpha(imgData: ImageData) {
     return imgData;
 }
 
+export function imageToImageData(img: HTMLImageElement): ImageData {
+    const canvas = new OffscreenCanvas(img.width, img.height);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return ctx.getImageData(0, 0, img.width, img.height);
+}
+
 export function imgDataToXBMP(
     imgData: ImageData,
     xStart: number,
@@ -194,6 +219,29 @@ export function imgDataToUint32Array(imgData) {
     return xbmp.map((x) => '0x' + x.toString(16));
 }
 
+export function xbmpToImgData(xbmp: string, width: number, height: number, swap: boolean = false): ImageData {
+    const imgData = new ImageData(width, height);
+    const bytesPerRow = Math.ceil(width / 8);
+    let xbmpArray = xbmp.split(',').map((x) => parseInt(x));
+    if (swap) {
+        xbmpArray = xbmpArray.map((x) => bitswap(x));
+    }
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const xbmpIndex = y * bytesPerRow + Math.floor(x / 8);
+            const bitPosition = x % 8;
+            const pixelNumber = y * width + x;
+            const imgDataIndex = pixelNumber * 4;
+            const alphaValue = (xbmpArray[xbmpIndex] >> bitPosition) & 1 ? 255 : 0;
+            imgData.data[imgDataIndex] = 255;
+            imgData.data[imgDataIndex + 1] = 255;
+            imgData.data[imgDataIndex + 2] = 255;
+            imgData.data[imgDataIndex + 3] = alphaValue;
+        }
+    }
+    return imgData;
+}
+
 export function toCppVariableName(str) {
     const cppKeywords = [
         'auto',
@@ -247,7 +295,7 @@ export function toCppVariableName(str) {
 }
 
 export function generateUID() {
-    return Date.now().toString(32);
+    return Math.random().toString(36).substring(2, 9);
 }
 
 export function postParentMessage(type, data) {

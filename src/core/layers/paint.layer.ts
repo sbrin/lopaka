@@ -12,7 +12,6 @@ export class PaintLayer extends AbstractImageLayer {
             getValue: () => this.position.x,
             setValue: (v: number) => {
                 this.position.x = v;
-
                 this.updateBounds();
                 this.draw();
             },
