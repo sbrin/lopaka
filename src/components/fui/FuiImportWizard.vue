@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import {Teleport, nextTick, reactive, ref, toRefs, watch} from 'vue';
 import {processImage, imageDataToImage, imageToImageData, applyColor} from '../../utils';
+import {useSession} from '../../core/session';
 const props = defineProps<{
     visible: boolean;
 }>();
 
 const emit = defineEmits(['onClose', 'onSave']);
+const {display} = toRefs(useSession().state);
 const canvasRef = ref(null);
 const imageName = ref('');
 const options = reactive({
@@ -69,9 +71,16 @@ function preview() {
     canvas.height = options.height;
     canvas.style.width = options.width * scale.value + 'px';
     canvas.style.height = options.height * scale.value + 'px';
-    // const imageData = processImage(image, options);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.putImageData(processImage(imageData, options), 0, 0);
+}
+
+function fitToScreen() {
+    if (display.value.x > display.value.y) {
+        height.value = Math.min(display.value.y, image.height);
+    } else {
+        width.value = Math.min(display.value.x, image.width);
+    }
 }
 
 function cancel() {
@@ -123,6 +132,18 @@ defineExpose({
                         id="image-height"
                     />
                 </label>
+                <!-- reset -->
+                <button
+                    class="button"
+                    style="margin-left: 8px"
+                    @click="
+                        width = image.width;
+                        height = image.height;
+                    "
+                >
+                    Reset
+                </button>
+                <button class="button" style="margin-left: 8px" @click="fitToScreen">Fit to screen size</button>
             </div>
             <div class="fui-form-row">
                 <!-- dither -->
