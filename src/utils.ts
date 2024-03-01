@@ -427,6 +427,21 @@ export function invertImageData(data: ImageData, hexColor: string): ImageData {
     return new ImageData(newData, data.width, data.height);
 }
 
+export function applyColor(image: ImageData, hex: string) {
+    const color = hexToRgb(hex);
+    const newData = new Uint8ClampedArray(image.data.length);
+    image.data.forEach((v, i) => {
+        if (i % 4 === 3 && v !== 0) {
+            newData[i - 3] = color.r;
+            newData[i - 2] = color.g;
+            newData[i - 1] = color.b;
+            newData[i] = v;
+            return v;
+        }
+    });
+    return new ImageData(newData, image.width, image.height);
+}
+
 export function downloadImage(data: ImageData, name: string) {
     const a = document.createElement('a');
     const canvas = document.createElement('canvas');
