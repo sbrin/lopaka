@@ -32,8 +32,6 @@ body {
     visibility: hidden;
 }
 
-
-
 .fui-editor__left {
     /* width: 178px; */
 }
@@ -47,7 +45,6 @@ body {
     flex-direction: column;
     align-items: center;
 }
-
 
 .title {
     margin: 0 0 8px 0;
@@ -174,6 +171,7 @@ body {
     height: 32px;
     display: flex;
     justify-content: space-between;
+    gap: 8px;
 }
 
 .fui-settings {

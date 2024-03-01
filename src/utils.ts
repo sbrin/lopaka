@@ -161,6 +161,20 @@ export function imageToImageData(img: HTMLImageElement): ImageData {
     return ctx.getImageData(0, 0, img.width, img.height);
 }
 
+export async function imageDataToImage(imgData: ImageData): Promise<HTMLImageElement> {
+    const canvas = document.createElement('canvas');
+    canvas.width = imgData.width;
+    canvas.height = imgData.height;
+    const ctx = canvas.getContext('2d');
+    ctx.putImageData(imgData, 0, 0);
+    const img = new Image();
+    img.src = canvas.toDataURL('image/png');
+    await new Promise((resolve) => {
+        img.onload = resolve;
+    });
+    return img;
+}
+
 export function imgDataToXBMP(
     imgData: ImageData,
     xStart: number,
@@ -423,4 +437,80 @@ export function downloadImage(data: ImageData, name: string) {
     a.href = canvas.toDataURL('image/png');
     a.download = name;
     a.click();
+}
+
+export function processImage(data: ImageData, options: any, color: string = '#FFFFFF') {
+    data = scaleImageData(data, options.width, options.height);
+    if (options.dither) {
+        data = floydSteinbergDithering(data, options.palette);
+    }
+    if (options.alpha) {
+        data = addAlphaChannelToImageData(data, color);
+    }
+    if (options.invert) {
+        data = invertImageData(data, color);
+    }
+    return data;
+}
+
+export function scaleImageData(data: ImageData, width: number, height: number) {
+    // scaling with nearest neighbor algorithm
+    const newData = new Uint8ClampedArray(width * height * 4);
+    const xRatio = data.width / width;
+    const yRatio = data.height / height;
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const index = (Math.floor(y * yRatio) * data.width + Math.floor(x * xRatio)) * 4;
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, width, height);
+}
+
+export function floydSteinbergDithering(data: ImageData, palette: string[]) {
+    const newData = new Uint8ClampedArray(data.data.length);
+    const colors = palette.map((c) => hexToRgb(c));
+    for (let y = 0; y < data.height; y++) {
+        for (let x = 0; x < data.width; x++) {
+            const index = (y * data.width + x) * 4;
+            const [r, g, b] = Array.from(data.data.slice(index, index + 3));
+            let min = 255 * 3;
+            let index2 = 0;
+            for (let j = 0; j < colors.length; j++) {
+                const [r2, g2, b2] = Object.values(colors[j]);
+                const d = Math.pow(r - r2, 2) + Math.pow(g - g2, 2) + Math.pow(b - b2, 2);
+                if (d < min) {
+                    min = d;
+                    index2 = j;
+                }
+            }
+            const [r2, g2, b2] = Object.values(colors[index2]);
+            newData[index] = r2;
+            newData[index + 1] = g2;
+            newData[index + 2] = b2;
+            newData[index + 3] = data.data[index + 3];
+            const er = r - r2;
+            const eg = g - g2;
+            const eb = b - b2;
+            const d1 = (y * data.width + x + 1) * 4;
+            const d2 = ((y + 1) * data.width + x - 1) * 4;
+            const d3 = (y * data.width + x) * 4;
+            const d4 = ((y + 1) * data.width + x) * 4;
+            if (x < data.width - 1) {
+                data.data[d1] += (er * 7) / 16;
+                data.data[d1 + 1] += (eg * 7) / 16;
+                data.data[d1 + 2] += (eb * 7) / 16;
+            }
+            if (y < data.height - 1 && x > 0) {
+                data.data[d2] += (er * 3) / 16;
+                data.data[d2 + 1] += (eg * 3) / 16;
+                data.data[d2 + 2] += (eb * 3) / 16;
+            }
+        }
+    }
+    return new ImageData(newData, data.width, data.height);
 }
