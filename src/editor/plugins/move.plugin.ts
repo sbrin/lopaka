@@ -37,7 +37,6 @@ export class MovePlugin extends AbstractEditorPlugin {
             layers
                 .filter((l) => l.isEditing())
                 .forEach((layer) => {
-                    layer.pushHistory();
                     layer.stopEdit();
                 });
         }

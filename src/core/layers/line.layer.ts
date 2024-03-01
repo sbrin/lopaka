@@ -101,6 +101,7 @@ export class LineLayer extends AbstractLayer {
     ];
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
+        this.pushHistory();
         this.mode = mode;
         this.editState = {
             firstPoint: point,

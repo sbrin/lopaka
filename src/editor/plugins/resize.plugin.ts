@@ -55,7 +55,6 @@ export class ResizePlugin extends AbstractEditorPlugin {
         if (this.captured) {
             this.captured = false;
             this.resizeLayer.stopEdit();
-            this.resizeLayer.pushHistory();
         }
     }
 }

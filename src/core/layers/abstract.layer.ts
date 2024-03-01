@@ -196,6 +196,9 @@ export abstract class AbstractLayer {
     }
 
     public pushHistory() {
+        if (this.mode === EditMode.EMPTY) {
+            return;
+        }
         this.history.push({
             type: 'change',
             layer: this,
