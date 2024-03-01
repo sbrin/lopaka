@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {Teleport, reactive, ref, toRefs, watch} from 'vue';
-import {processImage, imageDataToImage, imageToImageData} from '../../utils';
+import {processImage, imageDataToImage, imageToImageData, applyColor} from '../../utils';
 const props = defineProps<{
     visible: boolean;
 }>();
@@ -61,7 +61,7 @@ function cancel() {
 }
 
 function save() {
-    imageDataToImage(processImage(imageData, options)).then((img) => {
+    imageDataToImage(applyColor(processImage(imageData, options), '#000000')).then((img) => {
         emit('onSave', img, imageName.value);
     });
 }
