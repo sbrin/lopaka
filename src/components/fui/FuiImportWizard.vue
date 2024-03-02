@@ -17,6 +17,7 @@ const options = reactive({
     width: 0,
     height: 0,
     brightness: 0,
+    contrast: 0,
     proportion: 1,
     alpha: true,
     palette: ['#000000', '#FFFFFF']
@@ -178,6 +179,18 @@ defineExpose({
                         max="100"
                         v-model="options.brightness"
                         id="image-brightness"
+                    />
+                </label>
+                <!-- contrast -->
+                <label class="fui-form-label fui-form-column" for="image-contrast">
+                    Contrast:
+                    <input
+                        class="fui-form-input fui-form-input__size"
+                        type="number"
+                        min="-100"
+                        max="100"
+                        v-model="options.contrast"
+                        id="image-contrast"
                     />
                 </label>
                 <!-- dither -->
