@@ -67,6 +67,14 @@ watch([options, scale], () => {
 });
 
 function setImage(sourvceImage: HTMLImageElement, name: string) {
+    // reset options
+    options.brightness = 0;
+    options.contrast = 0;
+    options.dither = true;
+    options.invert = false;
+    options.resampling = 'nearest';
+    scale.value = 1;
+
     imageName.value = name;
     imageData = imageToImageData(sourvceImage);
     image = sourvceImage;
