@@ -441,6 +441,9 @@ export function downloadImage(data: ImageData, name: string) {
 }
 
 export function processImage(data: ImageData, options: any, color: string = '#FFFFFF') {
+    if (options.brightness) {
+        data = imageBrightness(data, options.brightness);
+    }
     switch (options.resampling) {
         case 'nearest':
             data = resampleNearest(data, options.width, options.height);
@@ -480,6 +483,17 @@ export function processImage(data: ImageData, options: any, color: string = '#FF
         data = invertImageData(data, color);
     }
     return data;
+}
+
+export function imageBrightness(data: ImageData, brightness: number) {
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let i = 0; i < data.data.length; i += 4) {
+        newData[i] = Math.min(255, data.data[i] + brightness);
+        newData[i + 1] = Math.min(255, data.data[i + 1] + brightness);
+        newData[i + 2] = Math.min(255, data.data[i + 2] + brightness);
+        newData[i + 3] = data.data[i + 3];
+    }
+    return new ImageData(newData, data.width, data.height);
 }
 
 export function grayscale(data: ImageData) {
