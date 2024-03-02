@@ -16,6 +16,7 @@ const options = reactive({
     resampling: 'nearest',
     width: 0,
     height: 0,
+    brightness: 0,
     proportion: 1,
     alpha: true,
     palette: ['#000000', '#FFFFFF']
@@ -167,6 +168,18 @@ defineExpose({
                 <button class="button" style="margin-left: 8px" @click="fitToScreen">Fit to screen</button>
             </div>
             <div class="fui-form-row">
+                <!-- brightness -->
+                <label class="fui-form-label fui-form-column" for="image-brightness">
+                    Brightness:
+                    <input
+                        class="fui-form-input fui-form-input__size"
+                        type="number"
+                        min="-100"
+                        max="100"
+                        v-model="options.brightness"
+                        id="image-brightness"
+                    />
+                </label>
                 <!-- dither -->
                 <label class="fui-form-label fui-form-column" for="image-dithering">
                     Dithering:
