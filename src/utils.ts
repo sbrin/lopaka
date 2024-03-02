@@ -441,6 +441,7 @@ export function downloadImage(data: ImageData, name: string) {
 }
 
 export function processImage(data: ImageData, options: any, color: string = '#FFFFFF') {
+    data = grayscale(data);
     if (options.brightness || options.contrast) {
         data = imageBrightnessAndContrast(data, options.brightness, options.contrast);
     }
@@ -474,7 +475,10 @@ export function processImage(data: ImageData, options: any, color: string = '#FF
             break;
     }
     if (options.dither) {
-        data = floydSteinbergDithering(data, options.palette);
+        data = floydSteinbergDithering(
+            data,
+            options.invertPalette ? options.palette.slice(0).reverse() : options.palette
+        );
     }
     if (options.alpha) {
         data = addAlphaChannelToImageData(data, color);

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {Teleport, nextTick, reactive, ref, toRefs, watch} from 'vue';
-import {processImage, imageDataToImage, imageToImageData, applyColor} from '../../utils';
+import {processImage, imageDataToImage, imageToImageData, applyColor, debounce} from '../../utils';
 import {useSession} from '../../core/session';
 const props = defineProps<{
     visible: boolean;
@@ -13,6 +13,7 @@ const imageName = ref('');
 const options = reactive({
     dither: true,
     invert: false,
+    invertPalette: false,
     resampling: 'nearest',
     width: 0,
     height: 0,
@@ -62,8 +63,9 @@ watch(height, (val, oldVal) => {
     }
 });
 
+const debouncedPreview = debounce(preview, 250);
 watch([options, scale], () => {
-    preview();
+    debouncedPreview();
 });
 
 function setImage(sourvceImage: HTMLImageElement, name: string) {
@@ -74,15 +76,22 @@ function setImage(sourvceImage: HTMLImageElement, name: string) {
     options.invert = false;
     options.resampling = 'nearest';
     scale.value = 1;
-
+    //
     imageName.value = name;
     imageData = imageToImageData(sourvceImage);
     image = sourvceImage;
-    options.width = image.width;
-    options.height = image.height;
-    width.value = image.width;
-    height.value = image.height;
+
     options.proportion = image.width / image.height;
+    if (display.value.x > display.value.y) {
+        options.height = Math.min(display.value.y, image.height);
+        options.width = Math.round(options.height * options.proportion);
+    } else {
+        options.height = Math.round(options.width / options.proportion);
+        options.width = Math.min(display.value.x, image.width);
+    }
+    width.value = options.width;
+    height.value = options.height;
+    scale.value = 2;
     preview();
 }
 
@@ -124,7 +133,7 @@ defineExpose({
         <div class="fui-import-wizard-dialog" :class="{visible}">
             <div class="fui-form-row fui-form-header">Image preview</div>
             <div class="fui-form-row fui-import-wizard-canvas-wrapper" style="width: 400px; height: 300px">
-                <canvas ref="canvasRef" style="width: 100%; height: 100%"></canvas>
+                <canvas ref="canvasRef" class="grid"></canvas>
             </div>
             <div class="fui-form-row">
                 <!-- image name -->
@@ -201,12 +210,23 @@ defineExpose({
                         id="image-contrast"
                     />
                 </label>
+            </div>
+            <div class="fui-form-row">
                 <!-- dither -->
                 <label class="fui-form-label fui-form-column" for="image-dithering">
                     Dithering:
                     <input class="fui-form-checkbox" type="checkbox" v-model="options.dither" id="image-dithering" />
                 </label>
-
+                <!-- invert palette -->
+                <label class="fui-form-label fui-form-column" for="image-invert-palette">
+                    Invert palette:
+                    <input
+                        class="fui-form-checkbox"
+                        type="checkbox"
+                        v-model="options.invertPalette"
+                        id="image-invert-palette"
+                    />
+                </label>
                 <!-- invert -->
                 <label class="fui-form-label fui-form-column" for="image-invert">
                     Inverting:
@@ -216,13 +236,25 @@ defineExpose({
 
             <div class="buttons-bottom">
                 <button class="button button_danger fui-display-custom-dialog__cancel" @click="cancel">Cancel</button>
-                <button class="button fui-display-custom-dialog__save" @click="preview">Preview</button>
                 <button class="button fui-display-custom-dialog__save" @click="save">Import</button>
             </div>
         </div>
     </Teleport>
 </template>
 <style lang="css" scoped>
+.grid {
+    position: relative;
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(to right, #000000 0.1px, transparent 0.5px),
+            linear-gradient(to bottom, #000000 0.1px, transparent 0.5px);
+        background-size: v-bind(scale) + 'px ' + v-bind(scale) + 'px';
+        opacity: 0.6;
+        z-index: 1;
+    }
+}
 .fui-import-wizard-dialog {
     display: none;
     position: fixed;
