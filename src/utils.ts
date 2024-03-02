@@ -441,8 +441,8 @@ export function downloadImage(data: ImageData, name: string) {
 }
 
 export function processImage(data: ImageData, options: any, color: string = '#FFFFFF') {
-    if (options.brightness) {
-        data = imageBrightness(data, options.brightness);
+    if (options.brightness || options.contrast) {
+        data = imageBrightnessAndContrast(data, options.brightness, options.contrast);
     }
     switch (options.resampling) {
         case 'nearest':
@@ -485,12 +485,13 @@ export function processImage(data: ImageData, options: any, color: string = '#FF
     return data;
 }
 
-export function imageBrightness(data: ImageData, brightness: number) {
+export function imageBrightnessAndContrast(data: ImageData, brightness: number, contrast: number) {
+    const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
     const newData = new Uint8ClampedArray(data.data.length);
     for (let i = 0; i < data.data.length; i += 4) {
-        newData[i] = Math.min(255, data.data[i] + brightness);
-        newData[i + 1] = Math.min(255, data.data[i + 1] + brightness);
-        newData[i + 2] = Math.min(255, data.data[i + 2] + brightness);
+        newData[i] = factor * (data.data[i] - 128) + 128 + brightness;
+        newData[i + 1] = factor * (data.data[i + 1] - 128) + 128 + brightness;
+        newData[i + 2] = factor * (data.data[i + 2] - 128) + 128 + brightness;
         newData[i + 3] = data.data[i + 3];
     }
     return new ImageData(newData, data.width, data.height);
