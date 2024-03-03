@@ -1,0 +1,268 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Create layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    0,
+    0,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Create layer 2`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+  Symbol(size): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+}
+`;
+
+exports[`Edit layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Hello",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    10,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Edit layer 2`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Hello",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    30,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Edit layer 3`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 30,
+    Symbol(y): 15,
+  },
+  Symbol(size): Point {
+    Symbol(x): 20,
+    Symbol(y): 5,
+  },
+}
+`;
+
+exports[`Modifiers 1`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    0,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Modifiers 2`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Modifiers 3`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 2,
+}
+`;
+
+exports[`Modifiers 4`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "5x8",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 2,
+}
+`;
+
+exports[`Modifiers 5`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Hello",
+  "f": "5x8",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 2,
+}
+`;
+
+exports[`Modifiers 6`] = `
+{
+  "c": "#FF0000",
+  "d": "Hello",
+  "f": "5x8",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 2,
+}
+`;
+
+exports[`Modifiers 7`] = `
+{
+  "c": "#FF0000",
+  "d": "Hello",
+  "f": "5x8",
+  "g": undefined,
+  "i": undefined,
+  "in": true,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 2,
+}
+`;
+
+exports[`Move layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    20,
+    10,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Move layer 2`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    30,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Move layer 3`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 30,
+    Symbol(y): 15,
+  },
+  Symbol(size): Point {
+    Symbol(x): 16,
+    Symbol(y): 5,
+  },
+}
+`;
