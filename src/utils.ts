@@ -1,5 +1,7 @@
 import {decode, encode} from 'base64-arraybuffer';
 import pako from 'pako';
+import {Rect} from './core/rect';
+import {UnwrapRef} from 'vue';
 
 type RGBColor = {
     r: number;
@@ -483,7 +485,7 @@ export function processImage(data: ImageData, options: any, color: string = '#FF
     if (options.alpha) {
         data = addAlphaChannelToImageData(data, color);
     }
-    if (options.invert) {
+    if (!options.invert) {
         data = invertImageData(data, color);
     }
     return data;
@@ -511,6 +513,21 @@ export function grayscale(data: ImageData) {
         newData[i + 3] = data.data[i + 3];
     }
     return new ImageData(newData, data.width, data.height);
+}
+
+export function cropImage(data: ImageData, rect: UnwrapRef<Rect>) {
+    const newData = new Uint8ClampedArray(rect.w * rect.h * 4);
+    for (let y = rect.y; y < rect.y + rect.h; y++) {
+        for (let x = rect.x; x < rect.x + rect.w; x++) {
+            const index = (y * data.width + x) * 4;
+            const newIndex = ((y - rect.y) * rect.w + (x - rect.x)) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, rect.w, rect.h);
 }
 
 export function scaleImage(data: ImageData, width: number, height: number) {
