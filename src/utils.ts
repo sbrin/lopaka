@@ -443,7 +443,9 @@ export function downloadImage(data: ImageData, name: string) {
 }
 
 export function processImage(data: ImageData, options: any, color: string = '#FFFFFF') {
-    data = grayscale(data);
+    if (options.grayscale) {
+        data = grayscale(data);
+    }
     if (options.brightness || options.contrast) {
         data = imageBrightnessAndContrast(data, options.brightness, options.contrast);
     }
