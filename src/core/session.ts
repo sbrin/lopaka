@@ -19,6 +19,7 @@ import {TextLayer} from './layers/text.layer';
 import platforms from './platforms';
 import {Point} from './point';
 import {paramsToState} from './decorators/mapping';
+import { iconsList } from '../icons/icons';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -31,6 +32,7 @@ type TSessionState = {
     scale: Point;
     lock: boolean;
     customImages: TLayerImageData[];
+    icons: 
     isPublic: boolean;
 };
 
@@ -62,6 +64,7 @@ export class Session {
         layers: [],
         scale: new Point(4, 4),
         customImages: [],
+        icons: iconsList,
         isPublic: false
     });
 
