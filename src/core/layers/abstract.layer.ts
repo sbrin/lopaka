@@ -2,6 +2,7 @@ import {DrawContext} from '../../draw/draw-context';
 import {TPlatformFeatures} from '../../platforms/platform';
 import {generateUID} from '../../utils';
 import {getState, mapping, setState} from '../decorators/mapping';
+import {ChangeHistory, useHistory} from '../history';
 import {Point} from '../point';
 import {Rect} from '../rect';
 // TODO move type delarations outside of the class
@@ -87,7 +88,7 @@ export abstract class AbstractLayer {
     // current edit mode
     protected mode: EditMode = EditMode.EMPTY;
     // history of changing
-    protected history: any[] = [];
+    protected history: ChangeHistory = useHistory();
     // UID
     @mapping('u') public uid = generateUID();
 
@@ -192,6 +193,17 @@ export abstract class AbstractLayer {
      */
     public isEditing() {
         return this.mode !== EditMode.NONE;
+    }
+
+    public pushHistory() {
+        if (this.mode === EditMode.EMPTY) {
+            return;
+        }
+        this.history.push({
+            type: 'change',
+            layer: this,
+            state: this.state
+        });
     }
 
     public getType() {

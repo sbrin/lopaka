@@ -11,10 +11,12 @@ import {
 import {useSession} from '../../core/session';
 import {loadFont} from '../../draw/fonts';
 import FuiButton from './FuiButton.vue';
+import { logEvent } from "../../utils";
 const session = useSession();
 const {platform} = toRefs(session.state);
 const {updates} = toRefs(session.virtualScreen.state);
 const {selectionUpdates} = toRefs(session.editor.state);
+let lastUpdate = 0;
 
 const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
     const selection = session.state.layers.filter((l) => l.selected);
@@ -38,6 +40,10 @@ const fonts = computed(() => {
 });
 
 function onChange(event: Event, param: TLayerModifier) {
+    if (Date.now() - lastUpdate > 500) {
+        activeLayer.value.pushHistory();
+    }
+    lastUpdate = Date.now();
     const target = event.target as HTMLInputElement;
     switch (param.type) {
         case TModifierType.number:
@@ -72,6 +78,7 @@ function onChange(event: Event, param: TLayerModifier) {
 function onAction(action: TLayerAction) {
     action.action();
     session.virtualScreen.redraw();
+    logEvent('button_inspector_operations', action.title);
 }
 
 function mergeLayers() {
@@ -80,6 +87,7 @@ function mergeLayers() {
             (l) => l.selected && (!(l instanceof AbstractImageLayer) || !l.overlay)
         )
     );
+    logEvent('button_merge');
 }
 
 const LABELS = {

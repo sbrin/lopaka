@@ -136,6 +136,7 @@ function sendFlipperImage() {
 function saveChanges() {
     saveLayers();
     isChanged.value = false;
+    logEvent('button_save');
 }
 
 onMounted(() => {

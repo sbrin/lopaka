@@ -141,6 +141,7 @@ export class CircleLayer extends AbstractLayer {
     ];
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
+        this.pushHistory();
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();

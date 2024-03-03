@@ -14,6 +14,7 @@ RUN yarn install
 COPY . .
 
 # Build the project
+ENV NODE_OPTIONS='--max-old-space-size=16384'
 RUN yarn build
 
 # Second stage: Start from the official Nginx image

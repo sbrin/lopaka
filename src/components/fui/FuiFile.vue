@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import {useSession} from '../../core/session';
-import {loadImageAsync, readFileAsync, readTextFileAsync} from '../../utils';
 import {defineProps, ref, toRefs} from 'vue';
+import {useSession} from '../../core/session';
+import {loadImageAsync, logEvent, readFileAsync, readTextFileAsync} from '../../utils';
 
 const props = defineProps<{
     title: string;
@@ -46,6 +46,7 @@ async function onFileChange(e) {
 function resetFileInput() {
     fileInput.value = null;
     fileLoadedCounter.value++;
+    logEvent('button_import_image');
 }
 </script>
 <template>
