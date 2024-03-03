@@ -26,7 +26,7 @@ export default defineConfig({
     },
     build: {
         assetsInlineLimit: 0,
-        sourcemap: false,
+        sourcemap: true,
         rollupOptions: {
             treeshake: true,
             input: {
