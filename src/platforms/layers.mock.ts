@@ -42,7 +42,7 @@ export const layersMock: AbstractLayer[] = [
         u: 's3m4u762qpln6jvm90',
         d: 'Text',
         s: [50, 8],
-        f: 'helvB08_tr'
+        f: 'profont22'
     },
     {
         n: 'line_b11j6xs5t46ln6jw96h',
