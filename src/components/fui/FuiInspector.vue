@@ -11,6 +11,7 @@ import {
 import {useSession} from '../../core/session';
 import {loadFont} from '../../draw/fonts';
 import FuiButton from './FuiButton.vue';
+import { logEvent } from "../../utils";
 const session = useSession();
 const {platform} = toRefs(session.state);
 const {updates} = toRefs(session.virtualScreen.state);
@@ -72,6 +73,7 @@ function onChange(event: Event, param: TLayerModifier) {
 function onAction(action: TLayerAction) {
     action.action();
     session.virtualScreen.redraw();
+    logEvent('button_inspector_operations', action.title);
 }
 
 function mergeLayers() {
@@ -80,6 +82,7 @@ function mergeLayers() {
             (l) => l.selected && (!(l instanceof AbstractImageLayer) || !l.overlay)
         )
     );
+    logEvent('button_merge');
 }
 
 const LABELS = {

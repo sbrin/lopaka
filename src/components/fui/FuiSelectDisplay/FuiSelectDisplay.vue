@@ -38,7 +38,7 @@ function resetDisplay() {
     // after page refresh, if it was custom then reset to 128×64
     const displayToSet = lastDisplay.value === "custom" ? displays[23] : displays[lastDisplay.value];
     selectedDisplay.value = 23;
-    setDisplay(displayToSet, true);
+    setDisplay(displayToSet);
     saveDisplayCustom(false);
 }
 
