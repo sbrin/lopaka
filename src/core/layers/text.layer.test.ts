@@ -120,3 +120,22 @@ test('Modifiers', () => {
     textLayer.modifiers.inverted.setValue(true);
     expect(textLayer.state).toMatchSnapshot();
 });
+
+test('Draw text layer', () => {
+    let textLayer = new TextLayer(
+        {
+            defaultColor: '#FFFFFF',
+            hasCustomFontSize: true,
+            hasInvertedColors: false,
+            hasRGBSupport: false,
+            screenBgColor: '#000000'
+        },
+        getFont('4x6')
+    );
+    textLayer.resize(display, scale);
+    textLayer.text = 'Hello';
+    textLayer.color = '#FF0000';
+    textLayer.position = new Point(10, 10);
+    textLayer.draw();
+    expect((textLayer.getBuffer().getContext('2d') as any).getState()).toMatchSnapshot();
+});
