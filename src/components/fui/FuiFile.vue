@@ -39,14 +39,16 @@ async function onFileChange(e) {
     resetFileInput();
 }
 
-function saveImage(image: HTMLImageElement, name: string) {
-    customImages.value.push({
-        name: name,
-        width: image.width,
-        height: image.height,
-        image: image,
-        isCustom: true
-    });
+function saveImage(image: HTMLImageElement, name: string, width: number, height: number) {
+    const nameRegex = new RegExp(`^${name}(_\\d+)?$`);
+    const founded = customImages.value.filter((item) => nameRegex.test(item.name));
+    if (founded.length > 0) {
+        const last = founded[founded.length - 1];
+        const lastNumber = last.name.match(/_(\d+)$/);
+        const number = lastNumber ? parseInt(lastNumber[1]) + 1 : 1;
+        name = `${name}_${number}`;
+    }
+    customImages.value.push({name, width, height, image, isCustom: true});
     emit('updateFuiImages', customImages.value);
     emit('setActiveTab', 'images');
     openWizard.value = false;
