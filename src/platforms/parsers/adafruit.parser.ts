@@ -51,13 +51,14 @@ export class AdafruitParser extends AbstractParser {
                 case 'drawBitmap':
                     {
                         const [x, y, name, width, height, color] = this.getArgs(call.args, defines, variables);
+                        let imageName = this.parseImageName(name);
                         states.push({
                             type: 'paint',
-                            data: xbmpToImgData(images.get(name), width, height, true),
+                            data: xbmpToImgData(images.get(imageName), width, height, true),
                             position: new Point(parseInt(x), parseInt(y)),
                             size: new Point(parseInt(width), parseInt(height)),
                             color: unpackedHexColor565(color),
-                            imageName: name
+                            imageName
                         });
                     }
                     break;

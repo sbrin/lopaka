@@ -24,8 +24,8 @@ export abstract class AbstractParser {
             defines.set(name, value);
         }
         while ((match = this.xbmpRegex.exec(sourceCode)) !== null) {
-            const {name, xbmp} = this.getXbmpFromMatch(match);
-            images.set(name, xbmp);
+            let {name, xbmp} = this.getXbmpFromMatch(match);
+            images.set(this.parseImageName(name), xbmp);
         }
         while ((match = this.cppMethodsRegexp.exec(sourceCode)) !== null) {
             const functionName = match[1];
@@ -53,6 +53,10 @@ export abstract class AbstractParser {
             }
             return arg;
         });
+    }
+
+    protected parseImageName(name: string): string {
+        return name.replace(/image_(.*)_bits/g, '$1');
     }
 
     abstract importSourceCode(sourceCode: string): any[];

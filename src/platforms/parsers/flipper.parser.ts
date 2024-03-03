@@ -30,12 +30,13 @@ export class FlipperParser extends AbstractParser {
                 case 'canvas_draw_xbm':
                     {
                         const [canvas, x, y, width, height, name] = this.getArgs(call.args, defines, variables);
+                        let imageName = this.parseImageName(name);
                         states.push({
                             type: 'paint',
-                            data: xbmpToImgData(images.get(name), width, height),
+                            data: xbmpToImgData(images.get(imageName), width, height),
                             position: new Point(parseInt(x), parseInt(y)),
                             size: new Point(parseInt(width), parseInt(height)),
-                            imageName: name
+                            imageName
                         });
                     }
                     break;
