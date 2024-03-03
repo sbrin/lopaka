@@ -8,7 +8,7 @@ exports[`Adafruit monochrome platform > generating source code 1`] = `
 display.setTextColor(1);
 display.setTextSize(1);
 display.setTextWrap(false);
-display.setCursor(3, 10);
+display.setCursor(3, -3);
 @s3m4u762qpln6jvm90;display.print(\\"Text\\");
 @b11j6xs5t46ln6jw96h;display.drawLine(2, 16, 68, 16, 1);
 @6n8rac0nxpcln6jwdwr;display.drawPixel(62, 4, 1);

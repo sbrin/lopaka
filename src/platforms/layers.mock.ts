@@ -1,7 +1,17 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {LayerClassMap} from '../core/session';
+import {loadFont} from '../draw/fonts';
+import profont22 from '../draw/fonts/bdf/profont22.bdf';
+import {FontFormat} from '../draw/fonts/font';
 
-export const layersMock: AbstractLayer[] = [
+loadFont({
+    name: 'profont22',
+    title: 'profont22',
+    file: profont22,
+    format: FontFormat.FORMAT_BDF
+});
+
+const layersMock: any[] = [
     {
         n: 'box_veqtjp8jf9ln6isyfz',
         t: 'box',
@@ -140,14 +150,18 @@ export const layersMock: AbstractLayer[] = [
         ry: 7,
         f: false
     }
-].map((l) => {
-    const type: ELayerType = l.t as any;
-    const layer = new LayerClassMap[type]({
-        hasCustomFontSize: false,
-        hasInvertedColors: false,
-        hasRGBSupport: false,
-        defaultColor: '#000000'
+];
+
+export function getLayersMock(): AbstractLayer[] {
+    return layersMock.map((l: any) => {
+        const type: ELayerType = l.t as any;
+        const layer = new LayerClassMap[type]({
+            hasCustomFontSize: false,
+            hasInvertedColors: false,
+            hasRGBSupport: false,
+            defaultColor: '#000000'
+        });
+        layer.state = l;
+        return layer;
     });
-    layer.state = l;
-    return layer;
-});
+}
