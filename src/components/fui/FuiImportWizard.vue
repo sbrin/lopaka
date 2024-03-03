@@ -15,6 +15,7 @@ const imageName = ref('');
 const options = reactive({
     dither: true,
     invert: false,
+    grayscale: false,
     invertPalette: false,
     resampling: 'nearest',
     width: 0,
@@ -342,6 +343,11 @@ defineExpose({
                 </label>
             </div>
             <div class="fui-form-row">
+                <!-- grayscalte first -->
+                <label class="fui-form-label fui-form-column" for="image-grayscale">
+                    Grayscale before:
+                    <input class="fui-form-checkbox" type="checkbox" v-model="options.grayscale" id="image-grayscale" />
+                </label>
                 <!-- dither -->
                 <label class="fui-form-label fui-form-column" for="image-dithering">
                     Dithering:
