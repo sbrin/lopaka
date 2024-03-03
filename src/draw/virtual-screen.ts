@@ -197,6 +197,11 @@ export class VirtualScreen {
         }
     }
 
+    public grab(position: Point, size: Point): ImageData {
+        const data = this.canvasContext.getImageData(position.x, position.y, size.x, size.y);
+        return data;
+    }
+
     public clear() {
         if (!this.canvas) return;
         this.ctx.clearRect(0, 0, this.screen.width, this.screen.height);
