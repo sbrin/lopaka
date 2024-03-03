@@ -80,6 +80,7 @@ export class IconLayer extends AbstractImageLayer {
     };
 
     startEdit(mode: EditMode, point: Point) {
+        this.pushHistory();
         this.mode = mode;
         this.editState = {
             firstPoint: point,

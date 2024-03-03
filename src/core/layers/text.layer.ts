@@ -103,6 +103,7 @@ export class TextLayer extends AbstractLayer {
     }
 
     startEdit(mode: EditMode, point: Point) {
+        this.pushHistory();
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
@@ -137,7 +138,6 @@ export class TextLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.history.push(this.state);
     }
 
     draw() {

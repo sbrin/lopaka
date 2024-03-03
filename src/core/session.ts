@@ -6,7 +6,7 @@ import {Editor} from '../editor/editor';
 import {U8g2Platform} from '../platforms/u8g2';
 import {generateUID, logEvent, postParentMessage} from '../utils';
 import displays from './displays';
-import {ChangeHistory, useHistory} from './history';
+import {ChangeHistory, TChange, THistoryEvent, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
 import {CircleLayer} from './layers/circle.layer';
 import {DotLayer} from './layers/dot.layer';
@@ -60,18 +60,20 @@ export class Session {
         highlight: true,
         pointer: false
     });
-    removeLayer = (layer: AbstractLayer) => {
-        this.state.layers = this.state.layers.filter((l) => l !== layer);
-        this.history.push({
-            type: 'remove',
-            layer,
-            state: layer.state
-        });
+    removeLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
+        this.state.layers = this.state.layers.filter((l) => l.uid !== layer.uid);
+        if (saveHistory) {
+            this.history.push({
+                type: 'remove',
+                layer,
+                state: layer.state
+            });
+        }
         this.virtualScreen.redraw();
     };
     mergeLayers = (layers: AbstractLayer[]) => {
         const layer = new PaintLayer(this.getPlatformFeatures());
-        this.addLayer(layer);
+        this.addLayer(layer, false);
         const ctx = layer.getBuffer().getContext('2d');
         layers.forEach((l) => {
             l.selected = false;
@@ -80,7 +82,12 @@ export class Session {
             }
             ctx.drawImage(l.getBuffer(), 0, 0);
             ctx.globalCompositeOperation = 'source-over';
-            this.removeLayer(l);
+            this.removeLayer(l, false);
+        });
+        this.history.push({
+            type: 'merge',
+            layer,
+            state: layers
         });
         layer.recalculate();
         layer.applyColor();
@@ -89,17 +96,19 @@ export class Session {
         layer.draw();
         this.virtualScreen.redraw();
     };
-    addLayer = (layer: AbstractLayer) => {
+    addLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
         const {display, scale, layers} = this.state;
         layer.resize(display, scale);
         layer.index = layer.index ?? layers.length + 1;
         layer.name = layer.name ?? 'Layer ' + (layers.length + 1);
         layers.unshift(layer);
-        this.history.push({
-            type: 'add',
-            layer,
-            state: layer.state
-        });
+        if (saveHistory) {
+            this.history.push({
+                type: 'add',
+                layer,
+                state: layer.state
+            });
+        }
         layer.draw();
     };
     clearLayers = () => {
@@ -211,7 +220,68 @@ export class Session {
     unlock = () => {
         this.state.lock = false;
     };
-    constructor() {}
+    constructor() {
+        this.history.subscribe((event: THistoryEvent, change: TChange) => {
+            switch (event.type) {
+                case 'undo':
+                    switch (change.type) {
+                        case 'add':
+                            this.removeLayer(change.layer, false);
+                            break;
+                        case 'remove':
+                            this.addLayer(change.layer, false);
+                            break;
+                        case 'change':
+                            change.layer.state = change.state;
+                            change.layer.draw();
+                            break;
+                        case 'merge':
+                            this.removeLayer(change.layer, false);
+                            change.state.forEach((l) => {
+                                this.addLayer(l, false);
+                            });
+                            break;
+                        case 'clear':
+                            change.state.forEach((l) => {
+                                const type: ELayerType = l.t;
+                                if (type in LayerClassMap) {
+                                    const layer = new LayerClassMap[type](this.getPlatformFeatures());
+                                    layer.loadState(l);
+                                    this.addLayer(layer, false);
+                                    layer.saveState();
+                                }
+                            });
+                            break;
+                    }
+                    this.virtualScreen.redraw();
+                    break;
+                // case 'redo':
+                //     switch (change.type) {
+                //         case 'add':
+                //             this.addLayer(change.layer, false);
+                //             break;
+                //         case 'remove':
+                //             this.removeLayer(change.layer, false);
+                //             break;
+                //         case 'change':
+                //             change.layer.loadState(change.state);
+                //             change.layer.draw();
+                //             break;
+                //         case 'merge':
+                //             this.addLayer(change.layer, false);
+                //             change.state.forEach((l) => {
+                //                 this.removeLayer(l, false);
+                //             });
+                //             break;
+                //         case 'clear':
+                //             this.clearLayers();
+                //             break;
+                //     }
+                //     this.virtualScreen.redraw();
+                //     break;
+            }
+        });
+    }
 }
 export const LayerClassMap: {[key in ELayerType]: any} = {
     box: RectangleLayer,
@@ -235,7 +305,7 @@ export function loadLayers(layers: any[]) {
         if (type in LayerClassMap) {
             const layer = new LayerClassMap[type](session.getPlatformFeatures());
             layer.state = l;
-            session.addLayer(layer);
+            session.addLayer(layer, false);
         }
     });
     session.virtualScreen.redraw(false);

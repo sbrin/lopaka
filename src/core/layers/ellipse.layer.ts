@@ -168,6 +168,7 @@ export class EllipseLayer extends AbstractLayer {
     ];
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
+        this.pushHistory();
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
@@ -215,7 +216,6 @@ export class EllipseLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.history.push(this.state);
     }
 
     draw() {
