@@ -63,6 +63,7 @@ export class PaintPlugin extends AbstractEditorPlugin {
             this.captured = false;
             this.session.virtualScreen.redraw();
             this.session.editor.state.activeTool = null;
+            this.session.editor.state.activeLayer = null;
         }
     }
 
