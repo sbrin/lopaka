@@ -31,6 +31,7 @@ export class DotLayer extends RectangleLayer {
                 this.position = point.clone();
                 break;
         }
+        this.updateBounds();
         this.draw();
     }
 
