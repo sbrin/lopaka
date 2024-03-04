@@ -137,7 +137,7 @@ export class RectangleLayer extends AbstractLayer {
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
-        if (!this.features.hasRGBSupport) {
+        if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
             delete this.modifiers.color;
         }
         if (!this.features.hasInvertedColors) {
