@@ -1,8 +1,8 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
-import {LayerClassMap} from '../core/session';
 import {loadFont} from '../draw/fonts';
 import profont22 from '../draw/fonts/bdf/profont22.bdf';
 import {FontFormat} from '../draw/fonts/font';
+import {useSession} from '../core/session';
 
 loadFont({
     name: 'profont22',
@@ -153,6 +153,7 @@ const layersMock: any[] = [
 ];
 
 export function getLayersMock(): AbstractLayer[] {
+    const LayerClassMap = useSession().LayerClassMap;
     return layersMock.map((l: any) => {
         const type: ELayerType = l.t as any;
         const layer = new LayerClassMap[type]({

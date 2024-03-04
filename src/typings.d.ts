@@ -62,8 +62,10 @@ declare type TLayerImageData = {
     isCustom?: boolean;
 };
 
+declare type TSourceCodeMap = Record<string, {line: number; params: Record<string, any>}>;
+
 declare type TSourceCode = {
-    map: Record<string, {line: number; params: Record<string, any>}>;
+    map: TSourceCodeMap;
     code: string;
 };
 
