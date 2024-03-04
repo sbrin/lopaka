@@ -33,7 +33,7 @@ export class BinaryFont extends Font {
     }
 
     drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
-        const charPos = position.clone().subtract(0, this.options.size - 1);
+        const charPos = position.clone().subtract(0, (this.options.size - 1) * scaleFactor);
         dc.ctx.beginPath();
         for (let i = 0; i < text.length; i++) {
             const charCode = text.charCodeAt(i);
