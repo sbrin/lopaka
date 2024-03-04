@@ -7,7 +7,10 @@ export default defineConfig(
             globals: false,
             environment: 'jsdom',
             setupFiles: ['./test-polyfills.ts'],
-            isolate: true
+            isolate: true,
+            coverage: {
+                reporter: ['text', 'json-summary', 'json'],
+            }
         }
     })
 );
