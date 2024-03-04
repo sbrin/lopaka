@@ -28,7 +28,7 @@ const display = new Point(128, 64);
 const scale = new Point(1, 1);
 
 test('Create layer', () => {
-    let textLayer = new TextLayer(
+    let layer = new TextLayer(
         {
             defaultColor: '#FFFFFF',
             hasCustomFontSize: true,
@@ -38,13 +38,13 @@ test('Create layer', () => {
         },
         getFont('4x6')
     );
-    textLayer.resize(display, scale);
-    expect(textLayer.state).toMatchSnapshot();
-    expect(textLayer.bounds).toMatchSnapshot();
+    layer.resize(display, scale);
+    expect(layer.state).toMatchSnapshot();
+    expect(layer.bounds).toMatchSnapshot();
 });
 
 test('Edit layer', () => {
-    let textLayer = new TextLayer(
+    let layer = new TextLayer(
         {
             defaultColor: '#FFFFFF',
             hasCustomFontSize: true,
@@ -54,18 +54,18 @@ test('Edit layer', () => {
         },
         getFont('4x6')
     );
-    textLayer.resize(display, scale);
-    textLayer.startEdit(EditMode.CREATING, new Point(10, 10));
-    textLayer.text = 'Hello';
-    expect(textLayer.state).toMatchSnapshot();
-    textLayer.edit(new Point(30, 20), new MouseEvent('mousemove'));
-    textLayer.stopEdit();
-    expect(textLayer.state).toMatchSnapshot();
-    expect(textLayer.bounds).toMatchSnapshot();
+    layer.resize(display, scale);
+    layer.startEdit(EditMode.CREATING, new Point(10, 10));
+    layer.text = 'Hello';
+    expect(layer.state).toMatchSnapshot();
+    layer.edit(new Point(30, 20), new MouseEvent('mousemove'));
+    layer.stopEdit();
+    expect(layer.state).toMatchSnapshot();
+    expect(layer.bounds).toMatchSnapshot();
 });
 
 test('Move layer', () => {
-    let textLayer = new TextLayer(
+    let layer = new TextLayer(
         {
             defaultColor: '#FFFFFF',
             hasCustomFontSize: true,
@@ -75,20 +75,20 @@ test('Move layer', () => {
         },
         getFont('4x6')
     );
-    textLayer.resize(display, scale);
-    textLayer.startEdit(EditMode.MOVING, new Point(10, 10));
-    textLayer.edit(new Point(30, 20), new MouseEvent('mousemove'));
-    expect(textLayer.position.xy).toEqual([20, 10]);
-    expect(textLayer.state).toMatchSnapshot();
-    textLayer.edit(new Point(40, 30), new MouseEvent('mousemove'));
-    expect(textLayer.position.xy).toEqual([30, 20]);
-    textLayer.stopEdit();
-    expect(textLayer.state).toMatchSnapshot();
-    expect(textLayer.bounds).toMatchSnapshot();
+    layer.resize(display, scale);
+    layer.startEdit(EditMode.MOVING, new Point(10, 10));
+    layer.edit(new Point(30, 20), new MouseEvent('mousemove'));
+    expect(layer.position.xy).toEqual([20, 10]);
+    expect(layer.state).toMatchSnapshot();
+    layer.edit(new Point(40, 30), new MouseEvent('mousemove'));
+    expect(layer.position.xy).toEqual([30, 20]);
+    layer.stopEdit();
+    expect(layer.state).toMatchSnapshot();
+    expect(layer.bounds).toMatchSnapshot();
 });
 
 test('Modifiers', () => {
-    let textLayer = new TextLayer(
+    let layer = new TextLayer(
         {
             defaultColor: '#FFFFFF',
             hasCustomFontSize: true,
@@ -98,31 +98,31 @@ test('Modifiers', () => {
         },
         getFont('4x6')
     );
-    textLayer.resize(display, scale);
-    expect(textLayer.position.xy).toEqual([0, 0]);
-    textLayer.modifiers.x.setValue(10);
-    expect(textLayer.position.xy).toEqual([10, 0]);
-    expect(textLayer.state).toMatchSnapshot();
-    textLayer.modifiers.y.setValue(20);
-    expect(textLayer.position.xy).toEqual([10, 20]);
-    expect(textLayer.state).toMatchSnapshot();
-    textLayer.modifiers.fontSize.setValue(2);
-    expect(textLayer.state).toMatchSnapshot();
-    textLayer.modifiers.font.setValue('5x8');
-    expect(textLayer.font).toEqual(getFont('5x8'));
-    expect(textLayer.state).toMatchSnapshot();
-    textLayer.modifiers.text.setValue('Hello');
-    expect(textLayer.text).toEqual('Hello');
-    expect(textLayer.state).toMatchSnapshot();
-    textLayer.modifiers.color.setValue('#FF0000');
-    expect(textLayer.color).toEqual('#FF0000');
-    expect(textLayer.state).toMatchSnapshot();
-    textLayer.modifiers.inverted.setValue(true);
-    expect(textLayer.state).toMatchSnapshot();
+    layer.resize(display, scale);
+    expect(layer.position.xy).toEqual([0, 0]);
+    layer.modifiers.x.setValue(10);
+    expect(layer.position.xy).toEqual([10, 0]);
+    expect(layer.state).toMatchSnapshot();
+    layer.modifiers.y.setValue(20);
+    expect(layer.position.xy).toEqual([10, 20]);
+    expect(layer.state).toMatchSnapshot();
+    layer.modifiers.fontSize.setValue(2);
+    expect(layer.state).toMatchSnapshot();
+    layer.modifiers.font.setValue('5x8');
+    expect(layer.font).toEqual(getFont('5x8'));
+    expect(layer.state).toMatchSnapshot();
+    layer.modifiers.text.setValue('Hello');
+    expect(layer.text).toEqual('Hello');
+    expect(layer.state).toMatchSnapshot();
+    layer.modifiers.color.setValue('#FF0000');
+    expect(layer.color).toEqual('#FF0000');
+    expect(layer.state).toMatchSnapshot();
+    layer.modifiers.inverted.setValue(true);
+    expect(layer.state).toMatchSnapshot();
 });
 
-test('Draw text layer', () => {
-    let textLayer = new TextLayer(
+test('Draw layer', () => {
+    let layer = new TextLayer(
         {
             defaultColor: '#FFFFFF',
             hasCustomFontSize: true,
@@ -132,10 +132,10 @@ test('Draw text layer', () => {
         },
         getFont('4x6')
     );
-    textLayer.resize(display, scale);
-    textLayer.text = 'Hello';
-    textLayer.color = '#FF0000';
-    textLayer.position = new Point(10, 10);
-    textLayer.draw();
-    expect((textLayer.getBuffer().getContext('2d') as any).getState()).toMatchSnapshot();
+    layer.resize(display, scale);
+    layer.text = 'Hello';
+    layer.color = '#FF0000';
+    layer.position = new Point(10, 10);
+    layer.draw();
+    expect((layer.getBuffer().getContext('2d') as any).getState()).toMatchSnapshot();
 });

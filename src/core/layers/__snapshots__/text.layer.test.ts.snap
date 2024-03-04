@@ -32,7 +32,7 @@ Rect {
 }
 `;
 
-exports[`Draw text layer 1`] = `
+exports[`Draw layer 1`] = `
 [
   {
     "property": "fillStyle",
