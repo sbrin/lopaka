@@ -3,8 +3,6 @@
 name: Test Coverage
 
 on:
-  push:
-    branches: [ ]
   pull_request:
     branches: [ "develop" ]
 
@@ -25,5 +23,5 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'yarn'
-    - run: yarn install --frozen-lockfile
+    - run: yarn --frozen-lockfile
     - run: yarn test
