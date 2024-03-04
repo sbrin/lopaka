@@ -4,6 +4,7 @@ import {AbstractLayer} from '../core/layers/abstract.layer';
 import {FontFormat} from '../draw/fonts/font';
 import {bdfFonts} from '../draw/fonts/fontTypes';
 import {imgDataToXBMP} from '../utils';
+import {FlipperParser} from './parsers/flipper.parser';
 import {Platform} from './platform';
 import defaultTemplate from './templates/flipper/default.pug';
 
@@ -11,6 +12,8 @@ export class FlipperPlatform extends Platform {
     public static id = 'flipper';
     protected name = 'Flipper Zero';
     protected description = 'Flipper Zero';
+    protected parser: FlipperParser = new FlipperParser();
+
     protected fonts: TPlatformFont[] = [
         {
             title: 'FontPrimary',

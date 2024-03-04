@@ -218,12 +218,21 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 ></FuiIcons>
                 <FuiCode v-show="activeTab === 'code'"></FuiCode>
                 <div class="buttons-bottom">
-                    <FuiFile
-                        v-if="!session.state.isPublic"
-                        type="file"
-                        title="import image"
-                        @set-active-tab="setactiveTab"
-                    ></FuiFile>
+                    <div>
+                        <FuiFile
+                            style="margin-right: 8px"
+                            v-if="!session.state.isPublic"
+                            type="code"
+                            title="import code"
+                            @set-active-tab="setactiveTab"
+                        ></FuiFile>
+                        <FuiFile
+                            v-if="!session.state.isPublic"
+                            type="image"
+                            title="import image"
+                            @set-active-tab="setactiveTab"
+                        ></FuiFile>
+                    </div>
                     <FuiButton @click="copyCode" v-show="showCopyCode">copy code</FuiButton>
                 </div>
             </div>
