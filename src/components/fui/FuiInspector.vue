@@ -181,6 +181,7 @@ const LABELS = {
                                 @click="onChange($event, param, color)"
                                 v-for="color in palette"
                                 :style="{backgroundColor: color}"
+                                :class="{selected: color === param.getValue()}"
                             ></div>
                         </div>
                         <input
@@ -280,14 +281,14 @@ select.inspector__input {
 }
 
 .selected {
-    border: 1px dashed #01f9d8 !important;
+    border-color: #ffffff !important;
 }
 
 .color-palette {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    column-gap: 6px;
+    column-gap: 5px;
     row-gap: 5px;
     background-color: var(--secondary-color);
     padding: 5px;
@@ -296,6 +297,7 @@ select.inspector__input {
 .color-palette-box {
     width: 20px;
     height: 20px;
+    border: 0.5px solid #000000;
     cursor: pointer;
 }
 </style>
