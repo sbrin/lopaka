@@ -15,10 +15,7 @@ const layers = computed({
         l.forEach((layer, index) => {
             layer.index = len - index;
         });
-        session.state.layers = l
-            .slice()
-            .reverse()
-            .sort((a, b) => a.index - b.index);
+        session.state.layers = l.slice().sort((a, b) => a.index - b.index);
         session.virtualScreen.redraw();
     }
 });
