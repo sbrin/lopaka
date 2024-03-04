@@ -1,27 +1,57 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Test Coverage
+# name: Test Coverage
 
-on:
+# on:
+#   pull_request:
+#     branches: [ "develop" ]
+
+# jobs:
+#   build:
+
+#     runs-on: ubuntu-latest
+
+#     strategy:
+#       matrix:
+#         node-version: [18.x]
+#         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+#     steps:
+#     - uses: actions/checkout@v3
+#     - name: Use Node.js ${{ matrix.node-version }}
+#       uses: actions/setup-node@v3
+#       with:
+#         node-version: ${{ matrix.node-version }}
+#         cache: 'yarn'
+#     - run: yarn --frozen-lockfile
+#     - run: yarn test
+
+name: 'Test'
+on: 
   pull_request:
-    branches: [ "develop" ]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    
+    permissions:
+      # Required to checkout the code
+      contents: read
+      # Required to put a comment into the pull-request
+      pull-requests: write
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+    - uses: actions/checkout@v4
+    - name: 'Install Node'
+      uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'yarn'
-    - run: yarn --frozen-lockfile
-    - run: yarn test
+        node-version: '20.x'
+    - name: 'Install Deps'
+      run: yarn --frozen-lockfile
+    - name: 'Test'
+      run: yarn test
+    - name: 'Report Coverage'
+      # Set if: always() to also generate the report if tests are failing
+      # Only works if you set `reportOnFailure: true` in your vite config as specified above
+      if: always() 
+      uses:  davelosert/vitest-coverage-report-action@v2
