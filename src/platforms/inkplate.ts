@@ -7,21 +7,20 @@ export class InkplatePlatform extends AdafruitPlatform {
 
     constructor() {
         super();
-        this.features.hasRGBSupport = false;
-        this.features.defaultColor = '#000000';
-        this.features.screenBgColor = '#d4dde3';
-        this.features.hasIndexedColors = true;
-        // 8 colors: black, white and 6 shades of gray
-        this.features.palette = [
-            '#000000',
-            '#111111',
-            '#333333',
-            '#555555',
-            '#777777',
-            '#999999',
-            '#bbbbbb',
-            '#ffffff'
-        ];
+        Object.assign(this.features, {
+            hasIndexedColors: true,
+            palette: ['#000000', '#111111', '#333333', '#555555', '#777777', '#999999', '#bbbbbb', '#ffffff'],
+            defaultColor: '#000000',
+            screenBgColor: '#e2eeee',
+            interfaceColors: {
+                selectColor: 'rgba(0, 0, 0, 0.9)',
+                resizeIconColor: 'rgba(0, 0, 0, 0.6)',
+                hoverColor: 'rgba(0, 0, 0, 0.5)',
+                rulerColor: '#ff8200',
+                rulerLineColor: '#955B2F',
+                selectionStrokeColor: 'rgba(0, 0, 0, 0.9)'
+            }
+        });
     }
 
     // protected packColor(color: string): string {

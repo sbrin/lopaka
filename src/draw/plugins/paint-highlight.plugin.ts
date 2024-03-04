@@ -14,6 +14,7 @@ export class PaintHighlightPlugin extends DrawPlugin {
             ) as PaintPlugin;
         }
         const {display, scale} = this.session.state;
+        const {interfaceColors} = this.session.getPlatformFeatures();
         if (point) {
             if (
                 event.shiftKey &&
@@ -28,7 +29,7 @@ export class PaintHighlightPlugin extends DrawPlugin {
                     ctx.lineTo(display.x * scale.x, point.y);
                     ctx.moveTo(point.x, 0);
                     ctx.lineTo(point.x, display.y * scale.y);
-                    ctx.strokeStyle = this.session.getPlatformFeatures().defaultColor + '80';
+                    ctx.strokeStyle = interfaceColors.selectionStrokeColor;
                     ctx.setLineDash([5, 5]);
                     ctx.lineWidth = 1;
                     ctx.stroke();
@@ -39,7 +40,7 @@ export class PaintHighlightPlugin extends DrawPlugin {
                         .add(scale.x / 2);
                     ctx.moveTo(lastPoint.x, lastPoint.y);
                     ctx.lineTo(point.x, point.y);
-                    ctx.strokeStyle = this.session.getPlatformFeatures().defaultColor + '80';
+                    ctx.strokeStyle = interfaceColors.selectionStrokeColor;
                     ctx.stroke();
                     ctx.restore();
                 }

@@ -4,6 +4,7 @@ import {DrawPlugin} from './draw.plugin';
 export class ResizeIconsPlugin extends DrawPlugin {
     update(ctx: CanvasRenderingContext2D, point: Point) {
         const {scale, layers} = this.session.state;
+        const {interfaceColors} = this.session.getPlatformFeatures();
         const resizableLayers = layers.filter((l) => l.resizable && l.selected);
         if (resizableLayers.length == 1) {
             ctx.save();
@@ -15,7 +16,7 @@ export class ResizeIconsPlugin extends DrawPlugin {
                 ctx.moveTo(c.x, c.y);
                 ctx.arc(c.x, c.y, 4, 0, 2 * Math.PI);
             });
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.strokeStyle = interfaceColors.resizeIconColor;
             ctx.lineWidth = 1;
             ctx.stroke();
             ctx.restore();

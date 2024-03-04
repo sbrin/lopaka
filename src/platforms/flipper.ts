@@ -43,9 +43,19 @@ export class FlipperPlatform extends Platform {
 
     constructor() {
         super();
-        this.features.hasInvertedColors = false;
-        this.features.defaultColor = '#000000';
-        this.features.screenBgColor = '#ff8200';
+        Object.assign(this.features, {
+            hasInvertedColors: false,
+            defaultColor: '#000000',
+            screenBgColor: '#ff8200',
+            interfaceColors: {
+                selectColor: 'rgba(255, 255, 255, 0.9)',
+                resizeIconColor: 'rgba(255, 255, 255, 0.6)',
+                hoverColor: 'rgba(255, 255, 255, 0.5)',
+                rulerColor: '#ff8200',
+                rulerLineColor: '#955B2F',
+                selectionStrokeColor: 'rgba(255, 255, 255, 0.9)'
+            }
+        });
     }
 
     protected templates = {

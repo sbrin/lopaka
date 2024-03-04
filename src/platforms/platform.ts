@@ -15,6 +15,8 @@ export type TPlatformFeatures = {
         resizeIconColor: string;
         hoverColor: string;
         rulerColor: string;
+        rulerLineColor: string;
+        selectionStrokeColor: string;
     };
 };
 
@@ -35,10 +37,12 @@ export abstract class Platform {
         hasIndexedColors: false,
         palette: [],
         interfaceColors: {
-            selectColor: '#ff0000',
-            resizeIconColor: '#ff0000',
-            hoverColor: '#ff0000',
-            rulerColor: '#ff0000'
+            selectColor: 'rgba(255, 255, 255, 0.9)',
+            resizeIconColor: 'rgba(255, 255, 255, 0.6)',
+            hoverColor: 'rgba(255, 255, 255, 0.5)',
+            rulerColor: '#ff8200',
+            rulerLineColor: '#955B2F',
+            selectionStrokeColor: 'rgba(255, 255, 255, 0.9)'
         }
     };
 

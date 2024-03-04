@@ -43,7 +43,7 @@ const palette = computed(() => {
     return session.platforms[platform.value].features.palette;
 });
 
-function onChange(event: Event, param: TLayerModifier) {
+function onChange(event: Event, param: TLayerModifier, value?: any) {
     if (Date.now() - lastUpdate > 500) {
         activeLayer.value.pushHistory();
     }
@@ -55,7 +55,11 @@ function onChange(event: Event, param: TLayerModifier) {
             break;
         case TModifierType.string:
         case TModifierType.color:
-            param.setValue(target.value);
+            if (value) {
+                param.setValue(value);
+            } else {
+                param.setValue(target.value);
+            }
             break;
         case TModifierType.boolean:
             param.setValue(target.checked);
@@ -72,9 +76,6 @@ function onChange(event: Event, param: TLayerModifier) {
                 session.virtualScreen.redraw();
             });
             break;
-        // case TModifierType.image:
-        //     param.setValue(icons.value.find((image) => target.dataset.name === image.name).image);
-        //     break;
     }
     session.virtualScreen.redraw();
 }
@@ -110,28 +111,23 @@ const LABELS = {
     </div>
     <div class="inspector" v-if="activeLayer">
         <datalist id="presetColors">
-            <template v-if="palette">
-                <option v-for="color in palette" :value="color" />
-            </template>
-            <template v-else>
-                <!-- 16 colors -->
-                <option>#000000</option>
-                <option>#0000AA</option>
-                <option>#00AA00</option>
-                <option>#00AAAA</option>
-                <option>#AA0000</option>
-                <option>#AA00AA</option>
-                <option>#AA5500</option>
-                <option>#AAAAAA</option>
-                <option>#555555</option>
-                <option>#5555FF</option>
-                <option>#55FF55</option>
-                <option>#55FFFF</option>
-                <option>#FF5555</option>
-                <option>#FF55FF</option>
-                <option>#FFFF55</option>
-                <option>#FFFFFF</option>
-            </template>
+            <!-- 16 colors -->
+            <option>#000000</option>
+            <option>#0000AA</option>
+            <option>#00AA00</option>
+            <option>#00AAAA</option>
+            <option>#AA0000</option>
+            <option>#AA00AA</option>
+            <option>#AA5500</option>
+            <option>#AAAAAA</option>
+            <option>#555555</option>
+            <option>#5555FF</option>
+            <option>#55FF55</option>
+            <option>#55FFFF</option>
+            <option>#FF5555</option>
+            <option>#FF55FF</option>
+            <option>#FFFF55</option>
+            <option>#FFFFFF</option>
         </datalist>
         <div class="title inspector__title">{{ activeLayer.name }}</div>
         <div class="inspector-panel">
@@ -179,7 +175,16 @@ const LABELS = {
                         />
                     </div>
                     <div v-else-if="param.type == TModifierType.color">
+                        <div class="color-palette" v-if="palette">
+                            <div
+                                class="color-palette-box"
+                                @click="onChange($event, param, color)"
+                                v-for="color in palette"
+                                :style="{backgroundColor: color}"
+                            ></div>
+                        </div>
                         <input
+                            v-else
                             :disabled="session.state.isPublic"
                             class="inspector__input fui-form-input"
                             type="color"
@@ -276,5 +281,21 @@ select.inspector__input {
 
 .selected {
     border: 1px dashed #01f9d8 !important;
+}
+
+.color-palette {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 6px;
+    row-gap: 5px;
+    background-color: var(--secondary-color);
+    padding: 5px;
+    width: fit-content;
+}
+.color-palette-box {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
 }
 </style>

@@ -4,9 +4,9 @@ export class SmartRulerPlugin extends DrawPlugin {
     public update(ctx: CanvasRenderingContext2D): void {
         const {layers, scale, display} = this.session.state;
         const selected = layers.filter((layer) => layer.selected || layer.isEditing());
-        const features = this.session.getPlatformFeatures();
-        const textColor = '#ff8200';
-        const lineColor = features.hasInvertedColors ? '#955B2F' : '#000000';
+        const {interfaceColors} = this.session.getPlatformFeatures();
+        const textColor = interfaceColors.rulerColor;
+        const lineColor = interfaceColors.rulerLineColor;
         if (selected.length) {
             // show distance to left and top
             ctx.save();
