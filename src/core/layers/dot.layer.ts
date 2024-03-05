@@ -25,8 +25,11 @@ export class DotLayer extends RectangleLayer {
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
+        const {position, editPoint, firstPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
+                this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
+                break;
             case EditMode.CREATING:
                 this.position = point.clone();
                 break;
