@@ -1,8 +1,4 @@
 import {expect, test, vi} from 'vitest';
-import {getFont, loadFont} from '../../draw/fonts';
-import font from '../../draw/fonts/bdf/4x6.bdf';
-import font2 from '../../draw/fonts/bdf/5x8.bdf';
-import {FontFormat} from '../../draw/fonts/font';
 import * as utils from '../../utils';
 import {Point} from '../point';
 import {EditMode} from './abstract.layer';
