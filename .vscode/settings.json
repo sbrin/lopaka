@@ -20,4 +20,6 @@
     },
     "javascript.preferences.importModuleSpecifier": "relative",
     "typescript.preferences.importModuleSpecifier": "relative",
+    "vitest.enable": true,
+    "vitest.commandLine": ""
 }

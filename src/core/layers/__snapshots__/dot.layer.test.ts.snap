@@ -1,0 +1,315 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Create layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    0,
+    0,
+  ],
+  "s": [
+    1,
+    1,
+  ],
+  "t": "dot",
+  "u": "000001",
+}
+`;
+
+exports[`Create layer 2`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+  Symbol(size): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+}
+`;
+
+exports[`Draw layer 1`] = `
+[
+  {
+    "property": "fillStyle",
+    "value": "#000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#000",
+  },
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      10,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      10,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Edit layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    10,
+  ],
+  "s": [
+    1,
+    1,
+  ],
+  "t": "dot",
+  "u": "000001",
+}
+`;
+
+exports[`Edit layer 2`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    30,
+    20,
+  ],
+  "s": [
+    1,
+    1,
+  ],
+  "t": "dot",
+  "u": "000001",
+}
+`;
+
+exports[`Edit layer 3`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 10,
+    Symbol(y): 10,
+  },
+  Symbol(size): Point {
+    Symbol(x): 1,
+    Symbol(y): 1,
+  },
+}
+`;
+
+exports[`Modifiers 1`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    0,
+  ],
+  "s": [
+    1,
+    1,
+  ],
+  "t": "dot",
+  "u": "000001",
+}
+`;
+
+exports[`Modifiers 2`] = `
+{
+  "c": "#FF0000",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "s": [
+    1,
+    1,
+  ],
+  "t": "dot",
+  "u": "000001",
+}
+`;
+
+exports[`Modifiers 3`] = `
+{
+  "c": "#FF0000",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": true,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "s": [
+    1,
+    1,
+  ],
+  "t": "dot",
+  "u": "000001",
+}
+`;
+
+exports[`Move layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    30,
+    20,
+  ],
+  "s": [
+    1,
+    1,
+  ],
+  "t": "dot",
+  "u": "000001",
+}
+`;
+
+exports[`Move layer 2`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    40,
+    30,
+  ],
+  "s": [
+    1,
+    1,
+  ],
+  "t": "dot",
+  "u": "000001",
+}
+`;
+
+exports[`Move layer 3`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+  Symbol(size): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+}
+`;

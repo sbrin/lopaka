@@ -1,0 +1,4502 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Create layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    0,
+    0,
+  ],
+  "r": 1,
+  "t": "circle",
+  "u": "000001",
+}
+`;
+
+exports[`Create layer 2`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+  Symbol(size): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+}
+`;
+
+exports[`Draw circle with different radius 1`] = `
+[
+  {
+    "property": "fillStyle",
+    "value": "#000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#000",
+  },
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      11,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      11.5,
+      11.5,
+      1.5,
+      0,
+      6.283185307179586,
+    ],
+    "command": "arc",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw circle with different radius 2`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      12,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      12.5,
+      12.5,
+      2.5,
+      0,
+      6.283185307179586,
+    ],
+    "command": "arc",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw circle with different radius 3`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      13,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      13.5,
+      13.5,
+      3.5,
+      0,
+      6.283185307179586,
+    ],
+    "command": "arc",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw circle with different radius 4`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      14,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      14.5,
+      14.5,
+      4.5,
+      0,
+      6.283185307179586,
+    ],
+    "command": "arc",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw circle with different radius 5`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      15,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      15.5,
+      15.5,
+      5.5,
+      0,
+      6.283185307179586,
+    ],
+    "command": "arc",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw circle with different radius 6`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      16,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      16.5,
+      16.5,
+      6.5,
+      0,
+      6.283185307179586,
+    ],
+    "command": "arc",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw circle with different radius 7`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      17,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      17.5,
+      17.5,
+      7.5,
+      0,
+      6.283185307179586,
+    ],
+    "command": "arc",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw circle with different radius 8`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      18,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      25,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      25,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      25,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      25,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      25,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      25,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      25,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      25,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      25,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      25,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      25,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      25,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      18.5,
+      18.5,
+      8.5,
+      0,
+      6.283185307179586,
+    ],
+    "command": "arc",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw circle with different radius 9`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      19,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      28,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      28,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      28,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      28,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      28,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      28,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      28,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      28,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      28,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      21,
+      28,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      28,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      28,
+      21,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      27,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      27,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      27,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      27,
+      22,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      27,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      27,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      27,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      27,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      24,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      25,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      25,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      25,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      25,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      25,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      25,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      25,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      25,
+      26,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      27,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      27,
+      23,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      27,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      27,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      19.5,
+      19.5,
+      9.5,
+      0,
+      6.283185307179586,
+    ],
+    "command": "arc",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw circle with different radius 10`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 10,
+    Symbol(y): 10,
+  },
+  Symbol(size): Point {
+    Symbol(x): 19,
+    Symbol(y): 19,
+  },
+}
+`;
+
+exports[`Draw layer 1`] = `
+[
+  {
+    "property": "fillStyle",
+    "value": "#000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#000",
+  },
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      15,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      15.5,
+      15.5,
+      5.5,
+      0,
+      6.283185307179586,
+    ],
+    "command": "arc",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Edit layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    10,
+  ],
+  "r": 1,
+  "t": "circle",
+  "u": "000001",
+}
+`;
+
+exports[`Edit layer 2`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    10,
+  ],
+  "r": 8,
+  "t": "circle",
+  "u": "000001",
+}
+`;
+
+exports[`Edit layer 3`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 10,
+    Symbol(y): 10,
+  },
+  Symbol(size): Point {
+    Symbol(x): 17,
+    Symbol(y): 17,
+  },
+}
+`;
+
+exports[`Modifiers 1`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    0,
+  ],
+  "r": 1,
+  "t": "circle",
+  "u": "000001",
+}
+`;
+
+exports[`Modifiers 2`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 10,
+    Symbol(y): 20,
+  },
+  Symbol(size): Point {
+    Symbol(x): 21,
+    Symbol(y): 21,
+  },
+}
+`;
+
+exports[`Modifiers 3`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "r": 10,
+  "t": "circle",
+  "u": "000001",
+}
+`;
+
+exports[`Modifiers 4`] = `
+{
+  "c": "#FFFFFF",
+  "f": true,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "r": 10,
+  "t": "circle",
+  "u": "000001",
+}
+`;
+
+exports[`Modifiers 5`] = `
+{
+  "c": "#FF0000",
+  "f": true,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "r": 10,
+  "t": "circle",
+  "u": "000001",
+}
+`;
+
+exports[`Modifiers 6`] = `
+{
+  "c": "#FF0000",
+  "f": true,
+  "g": undefined,
+  "i": undefined,
+  "in": true,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "r": 10,
+  "t": "circle",
+  "u": "000001",
+}
+`;
+
+exports[`Move layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    20,
+    10,
+  ],
+  "r": 5,
+  "t": "circle",
+  "u": "000001",
+}
+`;
+
+exports[`Move layer 2`] = `
+{
+  "c": "#FFFFFF",
+  "f": false,
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    30,
+    20,
+  ],
+  "r": 5,
+  "t": "circle",
+  "u": "000001",
+}
+`;
+
+exports[`Move layer 3`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 30,
+    Symbol(y): 20,
+  },
+  Symbol(size): Point {
+    Symbol(x): 11,
+    Symbol(y): 11,
+  },
+}
+`;

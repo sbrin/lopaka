@@ -1,0 +1,695 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Create layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    0,
+    0,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Create layer 2`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+  Symbol(size): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+}
+`;
+
+exports[`Draw layer 1`] = `
+[
+  {
+    "property": "fillStyle",
+    "value": "#000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#000",
+  },
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      10,
+      5,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      5,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      6,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      6,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      7,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      7,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      7,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      8,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      8,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      6,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      7,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      7,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      8,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      8,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      5,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      5,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      6,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      7,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      8,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      5,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      5,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      6,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      7,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      8,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      22,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      23,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      24,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      27,
+      6,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      7,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      28,
+      7,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      26,
+      8,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      28,
+      8,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      27,
+      9,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "save",
+  },
+  {
+    "property": "fillStyle",
+    "value": "rgba(0,0,0,0)",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      0,
+      0,
+      0,
+      0,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "restore",
+  },
+]
+`;
+
+exports[`Edit layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Hello",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    10,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Edit layer 2`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Hello",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    30,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Edit layer 3`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 30,
+    Symbol(y): 15,
+  },
+  Symbol(size): Point {
+    Symbol(x): 20,
+    Symbol(y): 5,
+  },
+}
+`;
+
+exports[`Modifiers 1`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    0,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Modifiers 2`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Modifiers 3`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 2,
+}
+`;
+
+exports[`Modifiers 4`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "5x8",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 2,
+}
+`;
+
+exports[`Modifiers 5`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Hello",
+  "f": "5x8",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 2,
+}
+`;
+
+exports[`Modifiers 6`] = `
+{
+  "c": "#FF0000",
+  "d": "Hello",
+  "f": "5x8",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 2,
+}
+`;
+
+exports[`Modifiers 7`] = `
+{
+  "c": "#FF0000",
+  "d": "Hello",
+  "f": "5x8",
+  "g": undefined,
+  "i": undefined,
+  "in": true,
+  "n": undefined,
+  "p": [
+    10,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 2,
+}
+`;
+
+exports[`Move layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    20,
+    10,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Move layer 2`] = `
+{
+  "c": "#FFFFFF",
+  "d": "Text",
+  "f": "4x6",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p": [
+    30,
+    20,
+  ],
+  "t": "string",
+  "u": "000001",
+  "z": 1,
+}
+`;
+
+exports[`Move layer 3`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 30,
+    Symbol(y): 15,
+  },
+  Symbol(size): Point {
+    Symbol(x): 16,
+    Symbol(y): 5,
+  },
+}
+`;
