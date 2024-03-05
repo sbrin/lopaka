@@ -9,6 +9,10 @@ const getContextMock = (state: any[], type: string) => {
             if (command == 'getState') {
                 return () => state;
             }
+            if (command == 'clearState') {
+                state.splice(0);
+                return () => void 0;
+            }
             if (command == 'createPattern') {
                 return () => ({
                     setTransform: vi.fn()
