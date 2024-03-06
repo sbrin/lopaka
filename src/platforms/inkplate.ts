@@ -9,7 +9,9 @@ export class InkplatePlatform extends AdafruitPlatform {
     protected templates = {
         Default: {
             template: defaultTemplate,
-            settings: {}
+            settings: {
+                wrap: false
+            }
         }
     };
 
@@ -36,17 +38,17 @@ export class InkplatePlatform extends AdafruitPlatform {
             case '#000000':
                 return '0';
             case '#111111':
-                return '6';
-            case '#333333':
-                return '5';
-            case '#555555':
-                return '4';
-            case '#777777':
-                return '3';
-            case '#999999':
-                return '2';
-            case '#bbbbbb':
                 return '1';
+            case '#333333':
+                return '2';
+            case '#555555':
+                return '3';
+            case '#777777':
+                return '4';
+            case '#999999':
+                return '5';
+            case '#bbbbbb':
+                return '6';
             case '#ffffff':
                 return '7';
         }

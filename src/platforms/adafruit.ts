@@ -1,6 +1,7 @@
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
+import {Point} from '../core/point';
 import {fontTypes} from '../draw/fonts/fontTypes';
 import {imgDataToXBMP, packedHexColor565, toCppVariableName} from '../utils';
 import {AdafruitParser} from './parsers/adafruit.parser';
@@ -14,6 +15,16 @@ export class AdafruitPlatform extends Platform {
     protected fonts: TPlatformFont[] = [fontTypes['adafruit']];
     protected parser: AdafruitParser = new AdafruitParser();
 
+    protected displays = [
+        {title: '2', size: new Point(202, 104)},
+        {title: '6COLOR', size: new Point(600, 448)},
+        {title: '4TEMPERA', size: new Point(600, 600)},
+        {title: '6', size: new Point(800, 600)},
+        {title: '5', size: new Point(960, 540)},
+        {title: '6PLUS', size: new Point(1024, 758)},
+        {title: '10', size: new Point(1200, 825)}
+    ];
+
     constructor() {
         super();
         this.features.hasCustomFontSize = true;
@@ -25,7 +36,9 @@ export class AdafruitPlatform extends Platform {
     protected templates = {
         Default: {
             template: defaultTemplate,
-            settings: {}
+            settings: {
+                wrap: false
+            }
         }
     };
 
