@@ -39,8 +39,8 @@ const LABELS = {
 </script>
 <template>
     <div class="code-settings" v-if="platform !== Uint32RawPlatform.id">
-        <div class="title">Settings:</div>
-        <div class="fui-select" v-if="template.length == 1">
+        <div class="title" v-if="Object.keys(templates).length > 1 || Object.keys(settings).length">Settings:</div>
+        <div class="fui-select" v-if="Object.keys(templates).length > 1">
             <label for="template" class="fui-form-label">Code style:</label>
             <select id="template" class="fui-select__select fui-form-input" v-model="template" @change="changeTemplate">
                 <option v-for="(item, idx) in Object.keys(templates)" :key="idx" :value="item">
