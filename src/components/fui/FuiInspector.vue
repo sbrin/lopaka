@@ -136,7 +136,7 @@ const LABELS = {
                     class="inspector-panel__param"
                     v-if="param.type !== TModifierType.image"
                     :class="{
-                        'inspector-panel__param_row': [TModifierType.boolean, TModifierType.color].includes(param.type)
+                        'inspector-panel__param_wide': [TModifierType.color].includes(param.type)
                     }"
                 >
                     <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">
@@ -254,6 +254,11 @@ const LABELS = {
     margin-top: 8px;
     align-items: center;
 }
+
+.inspector-panel__param_wide {
+    flex-basis: fit-content;
+}
+
 .inspector__title {
     overflow: hidden;
     margin-top: 8px;
@@ -280,10 +285,6 @@ select.inspector__input {
     width: 165px;
 }
 
-.selected {
-    border-color: #ffffff !important;
-}
-
 .color-palette {
     display: flex;
     flex-direction: row;
@@ -293,11 +294,18 @@ select.inspector__input {
     background-color: var(--secondary-color);
     padding: 5px;
     width: fit-content;
+    border-radius: 6px;
 }
+
 .color-palette-box {
     width: 20px;
     height: 20px;
-    border: 0.5px solid #000000;
     cursor: pointer;
+    border: 2px solid var(--secondary-color);
+    border-radius: 4px;
+}
+
+.color-palette-box.selected {
+    border-color: var(--primary-color);
 }
 </style>
