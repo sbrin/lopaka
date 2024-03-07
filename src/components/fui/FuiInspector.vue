@@ -136,7 +136,8 @@ const LABELS = {
                     class="inspector-panel__param"
                     v-if="param.type !== TModifierType.image"
                     :class="{
-                        'inspector-panel__param_wide': [TModifierType.color].includes(param.type)
+                        'inspector-panel__param_row': [TModifierType.boolean].includes(param.type),
+                        'inspector-panel__param_wide': [TModifierType.color].includes(param.type),
                     }"
                 >
                     <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">
