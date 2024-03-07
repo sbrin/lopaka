@@ -137,7 +137,7 @@ const LABELS = {
                     v-if="param.type !== TModifierType.image"
                     :class="{
                         'inspector-panel__param_row': [TModifierType.boolean].includes(param.type),
-                        'inspector-panel__param_wide': [TModifierType.color].includes(param.type),
+                        'inspector-panel__param_wide': [TModifierType.color, TModifierType.string].includes(param.type),
                     }"
                 >
                     <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">
@@ -153,7 +153,7 @@ const LABELS = {
                             :readonly="!param.setValue"
                         />
                     </div>
-                    <div v-else-if="param.type == TModifierType.string">
+                    <template v-else-if="param.type == TModifierType.string">
                         <input
                             :disabled="session.state.isPublic"
                             class="inspector__input fui-form-input"
@@ -162,7 +162,7 @@ const LABELS = {
                             @keyup="onChange($event, param)"
                             :readonly="!param.setValue"
                         />
-                    </div>
+                    </template>
                     <div v-else-if="param.type == TModifierType.boolean" class="fui-form-checkbox">
                         <input
                             :disabled="session.state.isPublic"
@@ -258,6 +258,7 @@ const LABELS = {
 
 .inspector-panel__param_wide {
     flex-basis: fit-content;
+    flex-grow: 1;
 }
 
 .inspector__title {
@@ -276,10 +277,6 @@ const LABELS = {
     /* height: 20px; */
     padding: 0px;
     width: 60px;
-}
-
-.inspector__input[type='text'] {
-    width: 163px;
 }
 
 select.inspector__input {
