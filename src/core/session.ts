@@ -307,7 +307,7 @@ export async function loadLayers(states: any[]) {
             layer.state = state;
             session.addLayer(layer);
         });
-        session.virtualScreen.redraw(false);
+        session.virtualScreen.redraw(true);
     });
 }
 

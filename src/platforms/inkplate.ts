@@ -1,10 +1,13 @@
 import {AdafruitPlatform} from './adafruit';
+import {InkplateParser} from './parsers/inkplate.parser';
 import defaultTemplate from './templates/adafruit/inkplate.pug';
 
 export class InkplatePlatform extends AdafruitPlatform {
     public static id = 'inkplate';
     protected name = 'Inkplate';
     protected description = 'Inkplate';
+
+    protected parser: InkplateParser = new InkplateParser();
 
     protected templates = {
         Default: {
@@ -53,6 +56,6 @@ export class InkplatePlatform extends AdafruitPlatform {
             case '#ffffff':
                 return '7';
         }
-        return '1';
+        return '0';
     }
 }

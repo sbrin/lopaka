@@ -44,7 +44,8 @@ export class AdafruitParser extends AbstractParser {
                             text: text.replace(/"/g, ''),
                             position: new Point(cursorPos.x, cursorPos.y + 7 * textSize),
                             font: 'adafruit',
-                            color: unpackedHexColor565(textColor)
+                            color: this.getColor(textColor),
+                            scaleFactor: textSize
                         });
                     }
                     break;
@@ -57,7 +58,7 @@ export class AdafruitParser extends AbstractParser {
                             data: xbmpToImgData(images.get(imageName), width, height, true),
                             position: new Point(parseInt(x), parseInt(y)),
                             size: new Point(parseInt(width), parseInt(height)),
-                            color: unpackedHexColor565(color),
+                            color: this.getColor(color),
                             imageName
                         });
                     }
@@ -69,7 +70,7 @@ export class AdafruitParser extends AbstractParser {
                             type: 'line',
                             p1: new Point(parseInt(x1), parseInt(y1)),
                             p2: new Point(parseInt(x2), parseInt(y2)),
-                            color: unpackedHexColor565(color)
+                            color: this.getColor(color)
                         });
                     }
                     break;
@@ -82,7 +83,7 @@ export class AdafruitParser extends AbstractParser {
                             position: new Point(parseInt(x), parseInt(y)),
                             size: new Point(parseInt(width), parseInt(height)),
                             fill: call.functionName === 'fillRect',
-                            color: unpackedHexColor565(color)
+                            color: this.getColor(color)
                         });
                     }
                     break;
@@ -92,7 +93,7 @@ export class AdafruitParser extends AbstractParser {
                         states.push({
                             type: 'dot',
                             position: new Point(parseInt(x), parseInt(y)),
-                            color: unpackedHexColor565(color)
+                            color: this.getColor(color)
                         });
                     }
                     break;
@@ -105,12 +106,16 @@ export class AdafruitParser extends AbstractParser {
                             position: new Point(parseInt(x) - parseInt(radius), parseInt(y) - parseInt(radius)),
                             radius: parseInt(radius),
                             fill: call.functionName === 'fillCircle',
-                            color: unpackedHexColor565(color)
+                            color: this.getColor(color)
                         });
                     }
                     break;
             }
         });
         return states;
+    }
+
+    protected getColor(color: string): string {
+        return unpackedHexColor565(color);
     }
 }
