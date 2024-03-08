@@ -257,8 +257,8 @@ export class Session {
                         case 'clear':
                             change.state.forEach((l) => {
                                 const type: ELayerType = l.t;
-                                if (type in LayerClassMap) {
-                                    const layer = new LayerClassMap[type](this.getPlatformFeatures());
+                                if (type in this.LayerClassMap) {
+                                    const layer = new this.LayerClassMap[type](this.getPlatformFeatures());
                                     layer.loadState(l);
                                     this.addLayer(layer, false);
                                     layer.saveState();

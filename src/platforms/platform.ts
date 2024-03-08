@@ -8,6 +8,16 @@ export type TPlatformFeatures = {
     hasRGBSupport: boolean;
     defaultColor: string;
     screenBgColor?: string;
+    hasIndexedColors?: boolean;
+    palette?: string[];
+    interfaceColors: {
+        selectColor: string;
+        resizeIconColor: string;
+        hoverColor: string;
+        rulerColor: string;
+        rulerLineColor: string;
+        selectionStrokeColor: string;
+    };
 };
 
 /**
@@ -23,7 +33,17 @@ export abstract class Platform {
         hasInvertedColors: false,
         hasRGBSupport: false,
         defaultColor: '#FFFFFF',
-        screenBgColor: '#000000'
+        screenBgColor: '#000000',
+        hasIndexedColors: false,
+        palette: [],
+        interfaceColors: {
+            selectColor: 'rgba(255, 255, 255, 0.9)',
+            resizeIconColor: 'rgba(255, 255, 255, 0.6)',
+            hoverColor: 'rgba(255, 255, 255, 0.5)',
+            rulerColor: '#ff8200',
+            rulerLineColor: '#955B2F',
+            selectionStrokeColor: 'rgba(255, 255, 255, 0.9)'
+        }
     };
 
     protected templates: any;

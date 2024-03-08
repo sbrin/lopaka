@@ -254,7 +254,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
     grid-template-columns: 180px 4fr 240px;
     grid-template-rows: auto auto auto;
     grid-column-gap: 16px;
-    grid-row-gap: 16px;
+    grid-row-gap: 8px;
 }
 
 .fui-editor__left {
@@ -284,7 +284,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
     flex-shrink: 0;
     overflow: auto;
     display: flex;
-    padding: 10px 20px 20px 0px;
+    padding: 0 20px 20px 0px;
     margin: 0 auto;
 }
 

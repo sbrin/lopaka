@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import {computed, ref, toRefs, watch} from 'vue';
 import {useSession} from '../../core/session';
-import { U8g2Platform } from "../../platforms/u8g2";
-import { logEvent } from "../../utils";
+import {U8g2Platform} from '../../platforms/u8g2';
+import {logEvent} from '../../utils';
+import {Uint32RawPlatform} from '../../platforms/uint32-raw';
 const session = useSession();
 const {platform} = toRefs(session.state);
 const templates = computed(() => platform.value && session.platforms[platform.value].getTemplates());
@@ -24,22 +25,22 @@ function setSetting(event: Event, name: any) {
     const target = event.target as HTMLInputElement;
     session.platforms[platform.value].getTemplateSettings()[name] = target.checked;
     session.virtualScreen.redraw();
-    logEvent("code_setting", name);
+    logEvent('code_setting', name);
 }
 
 function changeTemplate() {
-    logEvent("code_template", template.value);
+    logEvent('code_template', template.value);
 }
 
 const LABELS = {
     wrap: 'Wrapper function',
-    progmem: 'Declare as PROGMEM',
-}
+    progmem: 'Declare as PROGMEM'
+};
 </script>
 <template>
-    <div class="code-settings" v-if="platform === U8g2Platform.id">
-        <div class="title">Settings:</div>
-        <div class="fui-select">
+    <div class="code-settings" v-if="platform !== Uint32RawPlatform.id">
+        <div class="title" v-if="Object.keys(templates).length > 1 || Object.keys(settings).length">Settings:</div>
+        <div class="fui-select" v-if="Object.keys(templates).length > 1">
             <label for="template" class="fui-form-label">Code style:</label>
             <select id="template" class="fui-select__select fui-form-input" v-model="template" @change="changeTemplate">
                 <option v-for="(item, idx) in Object.keys(templates)" :key="idx" :value="item">

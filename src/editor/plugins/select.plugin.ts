@@ -50,11 +50,13 @@ export class SelectPlugin extends AbstractEditorPlugin {
     onMouseMove(point: Point, event: MouseEvent): void {
         if (this.captured) {
             const {scale} = this.session.state;
+            const {interfaceColors} = this.session.getPlatformFeatures();
             const screenPoint = point.clone().multiply(scale);
             const position = this.firstPoint.clone().multiply(scale).min(screenPoint);
             const size = point.clone().subtract(this.firstPoint).abs().multiply(scale);
             Object.assign(this.selectionElement.style, {
                 display: 'block',
+                borderColor: interfaceColors.selectionStrokeColor,
                 left: `${position.x}px`,
                 top: `${position.y}px`,
                 width: `${size.x}px`,

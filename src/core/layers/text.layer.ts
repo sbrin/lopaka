@@ -92,7 +92,7 @@ export class TextLayer extends AbstractLayer {
         if (!this.features.hasCustomFontSize) {
             delete this.modifiers.fontSize;
         }
-        if (!this.features.hasRGBSupport) {
+        if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
             delete this.modifiers.color;
         }
         if (!this.features.hasInvertedColors) {

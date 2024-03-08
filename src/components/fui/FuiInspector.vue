@@ -11,7 +11,7 @@ import {
 import {useSession} from '../../core/session';
 import {loadFont} from '../../draw/fonts';
 import FuiButton from './FuiButton.vue';
-import { logEvent } from "../../utils";
+import {logEvent} from '../../utils';
 const session = useSession();
 const {platform} = toRefs(session.state);
 const {updates} = toRefs(session.virtualScreen.state);
@@ -39,7 +39,11 @@ const fonts = computed(() => {
     return session.platforms[platform.value].getFonts();
 });
 
-function onChange(event: Event, param: TLayerModifier) {
+const palette = computed(() => {
+    return session.platforms[platform.value].features.palette;
+});
+
+function onChange(event: Event, param: TLayerModifier, value?: any) {
     if (Date.now() - lastUpdate > 500) {
         activeLayer.value.pushHistory();
     }
@@ -51,7 +55,11 @@ function onChange(event: Event, param: TLayerModifier) {
             break;
         case TModifierType.string:
         case TModifierType.color:
-            param.setValue(target.value);
+            if (value) {
+                param.setValue(value);
+            } else {
+                param.setValue(target.value);
+            }
             break;
         case TModifierType.boolean:
             param.setValue(target.checked);
@@ -68,9 +76,6 @@ function onChange(event: Event, param: TLayerModifier) {
                 session.virtualScreen.redraw();
             });
             break;
-        // case TModifierType.image:
-        //     param.setValue(icons.value.find((image) => target.dataset.name === image.name).image);
-        //     break;
     }
     session.virtualScreen.redraw();
 }
@@ -131,7 +136,8 @@ const LABELS = {
                     class="inspector-panel__param"
                     v-if="param.type !== TModifierType.image"
                     :class="{
-                        'inspector-panel__param_row': [TModifierType.boolean, TModifierType.color].includes(param.type)
+                        'inspector-panel__param_row': [TModifierType.boolean].includes(param.type),
+                        'inspector-panel__param_wide': [TModifierType.color, TModifierType.string].includes(param.type)
                     }"
                 >
                     <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">
@@ -147,7 +153,7 @@ const LABELS = {
                             :readonly="!param.setValue"
                         />
                     </div>
-                    <div v-else-if="param.type == TModifierType.string">
+                    <template v-else-if="param.type == TModifierType.string">
                         <input
                             :disabled="session.state.isPublic"
                             class="inspector__input fui-form-input"
@@ -156,7 +162,7 @@ const LABELS = {
                             @keyup="onChange($event, param)"
                             :readonly="!param.setValue"
                         />
-                    </div>
+                    </template>
                     <div v-else-if="param.type == TModifierType.boolean" class="fui-form-checkbox">
                         <input
                             :disabled="session.state.isPublic"
@@ -169,8 +175,19 @@ const LABELS = {
                             :key="updates + '_' + name"
                         />
                     </div>
+
                     <div v-else-if="param.type == TModifierType.color">
+                        <div class="color-palette" v-if="palette.length" :key="updates + '_' + name">
+                            <div
+                                class="color-palette-box"
+                                @click="onChange($event, param, color)"
+                                v-for="color in palette"
+                                :style="{backgroundColor: color}"
+                                :class="{selected: color === param.getValue()}"
+                            ></div>
+                        </div>
                         <input
+                            v-else
                             :disabled="session.state.isPublic"
                             class="inspector__input fui-form-input"
                             type="color"
@@ -239,6 +256,12 @@ const LABELS = {
     margin-top: 8px;
     align-items: center;
 }
+
+.inspector-panel__param_wide {
+    flex-basis: fit-content;
+    flex-grow: 1;
+}
+
 .inspector__title {
     overflow: hidden;
     margin-top: 8px;
@@ -257,15 +280,31 @@ const LABELS = {
     width: 60px;
 }
 
-.inspector__input[type='text'] {
-    width: 163px;
-}
-
 select.inspector__input {
     width: 165px;
 }
 
-.selected {
-    border: 1px dashed #01f9d8 !important;
+.color-palette {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 5px;
+    row-gap: 5px;
+    background-color: var(--secondary-color);
+    padding: 5px;
+    width: fit-content;
+    border-radius: 6px;
+}
+
+.color-palette-box {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    border: 2px solid var(--secondary-color);
+    border-radius: 4px;
+}
+
+.color-palette-box.selected {
+    border-color: var(--primary-color);
 }
 </style>
