@@ -137,7 +137,7 @@ const LABELS = {
                     v-if="param.type !== TModifierType.image"
                     :class="{
                         'inspector-panel__param_row': [TModifierType.boolean].includes(param.type),
-                        'inspector-panel__param_wide': [TModifierType.color, TModifierType.string].includes(param.type),
+                        'inspector-panel__param_wide': [TModifierType.color, TModifierType.string].includes(param.type)
                     }"
                 >
                     <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">
@@ -175,8 +175,9 @@ const LABELS = {
                             :key="updates + '_' + name"
                         />
                     </div>
+
                     <div v-else-if="param.type == TModifierType.color">
-                        <div class="color-palette" v-if="palette">
+                        <div class="color-palette" v-if="palette.length" :key="updates + '_' + name">
                             <div
                                 class="color-palette-box"
                                 @click="onChange($event, param, color)"
