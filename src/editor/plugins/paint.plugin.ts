@@ -1,3 +1,4 @@
+import {Keys} from '../../core/keys.enum';
 import {EditMode} from '../../core/layers/abstract.layer';
 import {PaintLayer} from '../../core/layers/paint.layer';
 import {Point} from '../../core/point';
@@ -52,6 +53,17 @@ export class PaintPlugin extends AbstractEditorPlugin {
             activeLayer.stopEdit();
             this.captured = false;
             this.session.virtualScreen.redraw();
+        }
+    }
+
+    onKeyDown(key: Keys, event: KeyboardEvent): void {
+        const {activeLayer} = this.session.editor.state;
+        if (activeLayer && key === Keys.Escape) {
+            activeLayer.stopEdit();
+            this.captured = false;
+            this.session.virtualScreen.redraw();
+            this.session.editor.state.activeTool = null;
+            this.session.editor.state.activeLayer = null;
         }
     }
 
