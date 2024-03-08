@@ -1,4 +1,5 @@
 import {Keys} from '../../core/keys.enum';
+import {AbstractLayer} from '../../core/layers/abstract.layer';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
 import {Session} from '../../core/session';
@@ -65,6 +66,21 @@ export class SelectPlugin extends AbstractEditorPlugin {
         }
     }
 
+    private intersect(layer: AbstractLayer, position: Point, size: Point): boolean {
+        const layerInBounds = new Rect(position, size).intersect(layer.bounds);
+        if (layerInBounds) {
+            for (let x = 0; x < size.x; x++) {
+                for (let y = 0; y < size.y; y++) {
+                    const point = position.clone().add(x, y);
+                    if (layer.contains(point)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     onMouseUp(point: Point, event: MouseEvent): void {
         const {layers, display, scale} = this.session.state;
         if (this.captured) {
@@ -77,7 +93,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.session.editor.selectionUpdate();
                 return;
             }
-            layers.forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
+            layers.forEach((l) => (l.selected = this.intersect(l, position, size)));
         } else if (!this.foreign) {
             const selected = layers.filter((l) => l.selected);
             const hovered = layers.filter((l) => l.contains(point));
