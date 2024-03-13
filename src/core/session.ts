@@ -225,7 +225,7 @@ export class Session {
     };
 
     getPlatformFeatures(): TPlatformFeatures {
-        return this.platforms[this.state.platform].features;
+        return this.platforms[this.state.platform]?.features;
     }
     lock = () => {
         this.state.lock = true;
@@ -332,8 +332,6 @@ export function useSession(id?: string) {
         if (window.top === window.self) {
             const platformLocal = localStorage.getItem('lopaka_library');
             session.setPlatform(platformLocal ?? U8g2Platform.id);
-        } else {
-            session.setPlatform(U8g2Platform.id);
         }
         session.setDisplayCustom(localStorage.getItem('lopaka_display_custom') === 'true');
         const displayStored = localStorage.getItem('lopaka_display');
