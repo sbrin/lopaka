@@ -258,8 +258,6 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 
 .fui-editor__left {
     grid-area: 1 / 1 / 6 / 2;
-    max-height: calc(100vh);
-    overflow-y: auto;
 }
 .fui-editor__top {
     grid-area: 1 / 2 / 2 / 4;
