@@ -74,6 +74,8 @@ body {
     overflow: hidden;
     margin: 0 16px 16px 0;
     padding: 0;
+    max-height: 100vh;
+    overflow-y: auto;
 }
 
 .layer {
