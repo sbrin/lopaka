@@ -34,7 +34,11 @@ export class MovePlugin extends AbstractEditorPlugin {
         if (this.captured) {
             const {layers} = this.session.state;
             this.captured = false;
-            layers.filter((l) => l.isEditing()).forEach((layer) => layer.stopEdit());
+            layers
+                .filter((l) => l.isEditing())
+                .forEach((layer) => {
+                    layer.stopEdit();
+                });
         }
     }
 
@@ -48,12 +52,30 @@ export class MovePlugin extends AbstractEditorPlugin {
             // move layer to front / back
             if (selectedLayers.length == 1 && (event.metaKey || event.ctrlKey)) {
                 switch (key) {
-                    case Keys.ArrowDown:
-                        selectedLayers[0].index--;
+                    case Keys.ArrowDown: {
+                        const index = layers.indexOf(selectedLayers[0]);
+                        if (index > 0) {
+                            layers[index] = layers[index - 1];
+                            layers[index - 1] = selectedLayers[0];
+                        }
+                        this.session.state.layers = layers.map((l, i) => {
+                            l.index = i;
+                            return l;
+                        });
                         break;
-                    case Keys.ArrowUp:
-                        selectedLayers[0].index++;
+                    }
+                    case Keys.ArrowUp: {
+                        const index = layers.indexOf(selectedLayers[0]);
+                        if (index < layers.length - 1) {
+                            layers[index] = layers[index + 1];
+                            layers[index + 1] = selectedLayers[0];
+                        }
+                        this.session.state.layers = layers.map((l, i) => {
+                            l.index = i;
+                            return l;
+                        });
                         break;
+                    }
                 }
             } else {
                 switch (key) {

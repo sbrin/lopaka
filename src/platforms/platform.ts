@@ -1,4 +1,6 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
+import {AbstractParser} from './parsers/abstract-parser';
+import {SourceMapParser} from './parsers/source-map-parser';
 
 export type TPlatformFeatures = {
     hasCustomFontSize: boolean;
@@ -6,6 +8,16 @@ export type TPlatformFeatures = {
     hasRGBSupport: boolean;
     defaultColor: string;
     screenBgColor?: string;
+    hasIndexedColors?: boolean;
+    palette?: string[];
+    interfaceColors: {
+        selectColor: string;
+        resizeIconColor: string;
+        hoverColor: string;
+        rulerColor: string;
+        rulerLineColor: string;
+        selectionStrokeColor: string;
+    };
 };
 
 /**
@@ -21,14 +33,30 @@ export abstract class Platform {
         hasInvertedColors: false,
         hasRGBSupport: false,
         defaultColor: '#FFFFFF',
-        screenBgColor: '#000000'
+        screenBgColor: '#000000',
+        hasIndexedColors: false,
+        palette: [],
+        interfaceColors: {
+            selectColor: 'rgba(255, 255, 255, 0.9)',
+            resizeIconColor: 'rgba(255, 255, 255, 0.6)',
+            hoverColor: 'rgba(255, 255, 255, 0.5)',
+            rulerColor: '#ff8200',
+            rulerLineColor: '#955B2F',
+            selectionStrokeColor: 'rgba(255, 255, 255, 0.9)'
+        }
     };
 
     protected templates: any;
     protected currentTemplate: string = 'Default';
     protected settings = {};
+    protected parser: AbstractParser;
+    public sourceMapParser: SourceMapParser = new SourceMapParser();
 
     abstract generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string;
+
+    importSourceCode(sourceCode: string): any[] {
+        return this.parser.importSourceCode(sourceCode);
+    }
 
     public getTemplate(): string {
         return this.currentTemplate;

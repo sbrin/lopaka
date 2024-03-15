@@ -4,4 +4,5 @@ services:
     build: .
     ports:
       - "80:80"
+    image: woomoo/lopaka
 

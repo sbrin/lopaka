@@ -1,19 +1,16 @@
 import {TPlatformFeatures} from '../../platforms/platform';
+import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TLayerState, TModifierType} from './abstract.layer';
-
-type TCircleState = TLayerState & {
-    p: number[]; // position
-    r: number; // radius
-    f: boolean; // fill
-};
+import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
 
 export class CircleLayer extends AbstractLayer {
     protected type: ELayerType = 'circle';
-    protected state: TCircleState;
+    @mapping('r')
     public radius: number = 1;
+    @mapping('p', 'point')
     public position: Point = new Point();
+    @mapping('f')
     public fill: boolean = false;
 
     protected editState: {
@@ -23,26 +20,12 @@ export class CircleLayer extends AbstractLayer {
         editPoint: TLayerEditPoint;
     } = null;
 
-    public get properties(): any {
-        return {
-            x: this.position.x + this.radius,
-            y: this.position.y + this.radius,
-            r: this.radius,
-            fill: this.fill,
-            color: this.color,
-            type: this.type,
-            id: this.uid,
-            inverted: this.inverted
-        };
-    }
-
     modifiers: TLayerModifiers = {
         x: {
             getValue: () => this.position.x,
             setValue: (v: number) => {
                 this.position.x = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -52,7 +35,6 @@ export class CircleLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.position.y = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -62,7 +44,6 @@ export class CircleLayer extends AbstractLayer {
             setValue: (v: number) => {
                 this.radius = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -71,7 +52,6 @@ export class CircleLayer extends AbstractLayer {
             getValue: () => this.fill,
             setValue: (v: boolean) => {
                 this.fill = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -81,7 +61,6 @@ export class CircleLayer extends AbstractLayer {
             setValue: (v: string) => {
                 this.color = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.color
@@ -90,7 +69,6 @@ export class CircleLayer extends AbstractLayer {
             getValue: () => this.inverted,
             setValue: (v: boolean) => {
                 this.inverted = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -99,7 +77,7 @@ export class CircleLayer extends AbstractLayer {
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
-        if (!this.features.hasRGBSupport) {
+        if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
             delete this.modifiers.color;
         }
         if (!this.features.hasInvertedColors) {
@@ -163,6 +141,7 @@ export class CircleLayer extends AbstractLayer {
     ];
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
+        this.pushHistory();
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
@@ -209,8 +188,6 @@ export class CircleLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.saveState();
-        this.history.push(this.state);
     }
 
     draw() {
@@ -222,32 +199,7 @@ export class CircleLayer extends AbstractLayer {
         dc.pixelateCircle(center, radius, this.fill);
     }
 
-    saveState() {
-        const state: TCircleState = {
-            p: this.position.xy,
-            r: this.radius,
-            n: this.name,
-            i: this.index,
-            g: this.group,
-            t: this.type,
-            u: this.uid,
-            c: this.color,
-            f: this.fill,
-            in: this.inverted
-        };
-        this.state = state;
-    }
-
-    loadState(state: TCircleState) {
-        this.position = new Point(state.p);
-        this.radius = state.r;
-        this.name = state.n;
-        this.index = state.i;
-        this.group = state.g;
-        this.uid = state.u;
-        this.color = state.c;
-        this.fill = state.f;
-        this.inverted = state.in;
+    onLoadState() {
         this.updateBounds();
         this.mode = EditMode.NONE;
     }

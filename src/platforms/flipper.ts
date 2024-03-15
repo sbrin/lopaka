@@ -1,8 +1,10 @@
+import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {FontFormat} from '../draw/fonts/font';
 import {bdfFonts} from '../draw/fonts/fontTypes';
-import {imgDataToXBMP, toCppVariableName} from '../utils';
+import {imgDataToXBMP} from '../utils';
+import {FlipperParser} from './parsers/flipper.parser';
 import {Platform} from './platform';
 import defaultTemplate from './templates/flipper/default.pug';
 
@@ -10,6 +12,8 @@ export class FlipperPlatform extends Platform {
     public static id = 'flipper';
     protected name = 'Flipper Zero';
     protected description = 'Flipper Zero';
+    protected parser: FlipperParser = new FlipperParser();
+
     protected fonts: TPlatformFont[] = [
         {
             title: 'FontPrimary',
@@ -39,9 +43,19 @@ export class FlipperPlatform extends Platform {
 
     constructor() {
         super();
-        this.features.hasInvertedColors = false;
-        this.features.defaultColor = '#000000';
-        this.features.screenBgColor = '#ff8200';
+        Object.assign(this.features, {
+            hasInvertedColors: false,
+            defaultColor: '#000000',
+            screenBgColor: '#ff8200',
+            interfaceColors: {
+                selectColor: 'rgba(255, 255, 255, 0.9)',
+                resizeIconColor: 'rgba(255, 255, 255, 0.6)',
+                hoverColor: 'rgba(255, 255, 255, 0.5)',
+                rulerColor: '#ff8200',
+                rulerLineColor: '#955B2F',
+                selectionStrokeColor: 'rgba(255, 255, 255, 0.9)'
+            }
+        });
     }
 
     protected templates = {
@@ -58,7 +72,7 @@ export class FlipperPlatform extends Platform {
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
-                const props = layer.properties;
+                const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer && !layer.imageName) {
                     const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y).join(',');
                     if (xbmps.includes(XBMP)) {

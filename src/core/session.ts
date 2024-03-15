@@ -4,9 +4,9 @@ import {getFont, loadFont} from '../draw/fonts';
 import {VirtualScreen} from '../draw/virtual-screen';
 import {Editor} from '../editor/editor';
 import {U8g2Platform} from '../platforms/u8g2';
-import {generateUID, logEvent, postParentMessage} from '../utils';
+import {generateUID, loadImageDataAsync, logEvent, postParentMessage} from '../utils';
 import displays from './displays';
-import {ChangeHistory, useHistory} from './history';
+import {ChangeHistory, TChange, THistoryEvent, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
 import {CircleLayer} from './layers/circle.layer';
 import {DotLayer} from './layers/dot.layer';
@@ -18,6 +18,7 @@ import {RectangleLayer} from './layers/rectangle.layer';
 import {TextLayer} from './layers/text.layer';
 import platforms from './platforms';
 import {Point} from './point';
+import {paramsToState} from './decorators/mapping';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -34,6 +35,20 @@ type TSessionState = {
 };
 
 export class Session {
+    LayerClassMap: {[key in ELayerType]: any} = {
+        box: RectangleLayer,
+        frame: RectangleLayer,
+        rect: RectangleLayer,
+        circle: CircleLayer,
+        disc: CircleLayer,
+        dot: DotLayer,
+        icon: IconLayer,
+        line: LineLayer,
+        string: TextLayer,
+        paint: PaintLayer,
+        ellipse: EllipseLayer
+    };
+
     id: string = generateUID();
     displays = displays;
     platforms = platforms;
@@ -60,18 +75,20 @@ export class Session {
         highlight: true,
         pointer: false
     });
-    removeLayer = (layer: AbstractLayer) => {
-        this.state.layers = this.state.layers.filter((l) => l !== layer);
-        this.history.push({
-            type: 'remove',
-            layer,
-            state: layer.getState()
-        });
+    removeLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
+        this.state.layers = this.state.layers.filter((l) => l.uid !== layer.uid);
+        if (saveHistory) {
+            this.history.push({
+                type: 'remove',
+                layer,
+                state: layer.state
+            });
+        }
         this.virtualScreen.redraw();
     };
     mergeLayers = (layers: AbstractLayer[]) => {
         const layer = new PaintLayer(this.getPlatformFeatures());
-        this.addLayer(layer);
+        this.addLayer(layer, false);
         const ctx = layer.getBuffer().getContext('2d');
         layers.forEach((l) => {
             l.selected = false;
@@ -80,9 +97,13 @@ export class Session {
             }
             ctx.drawImage(l.getBuffer(), 0, 0);
             ctx.globalCompositeOperation = 'source-over';
-            this.removeLayer(l);
+            this.removeLayer(l, false);
         });
-        layer.saveState();
+        this.history.push({
+            type: 'merge',
+            layer,
+            state: layers
+        });
         layer.recalculate();
         layer.applyColor();
         layer.stopEdit();
@@ -90,17 +111,19 @@ export class Session {
         layer.draw();
         this.virtualScreen.redraw();
     };
-    addLayer = (layer: AbstractLayer) => {
+    addLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
         const {display, scale, layers} = this.state;
         layer.resize(display, scale);
         layer.index = layer.index ?? layers.length + 1;
         layer.name = layer.name ?? 'Layer ' + (layers.length + 1);
         layers.unshift(layer);
-        this.history.push({
-            type: 'add',
-            layer,
-            state: layer.getState()
-        });
+        if (saveHistory) {
+            this.history.push({
+                type: 'add',
+                layer,
+                state: layer.state
+            });
+        }
         layer.draw();
     };
     clearLayers = () => {
@@ -144,24 +167,27 @@ export class Session {
         const fonts = this.platforms[name].getFonts();
         this.lock();
         this.editor.clear();
-        // preload used fonts
         const layersToload = JSON.parse(localStorage.getItem(`${name}_lopaka_layers`));
-        const usedFonts: string[] = layersToload ? layersToload.map((l) => l.f) : [fonts[0].name];
+        return this.loadFontsForLayers(
+            layersToload ? layersToload.filter((l) => l.type == 'string').map((l) => l.f) : [fonts[0].name]
+        ).then(() => {
+            this.editor.font = getFont(fonts[0].name);
+            this.unlock();
+            if (window.top === window.self) {
+                loadLayers(layersToload ?? []);
+                localStorage.setItem('lopaka_library', name);
+            }
+            this.virtualScreen.redraw(false);
+            isLogged && logEvent('select_library', name);
+        });
+    };
+
+    loadFontsForLayers = (usedFonts: string[]) => {
+        const fonts = this.platforms[this.state.platform].getFonts();
         if (!usedFonts.includes(fonts[0].name)) {
             usedFonts.push(fonts[0].name);
         }
-        return Promise.all(fonts.filter((font) => usedFonts.includes(font.name)).map((font) => loadFont(font))).then(
-            () => {
-                this.editor.font = getFont(fonts[0].name);
-                this.unlock();
-                if (window.top === window.self) {
-                    loadLayers(layersToload ?? []);
-                    localStorage.setItem('lopaka_library', name);
-                }
-                this.virtualScreen.redraw(false);
-                isLogged && logEvent('select_library', name);
-            }
-        );
+        return Promise.all(fonts.filter((font) => usedFonts.includes(font.name)).map((font) => loadFont(font)));
     };
 
     setIsPublic = (enabled: boolean) => {
@@ -170,39 +196,36 @@ export class Session {
 
     generateCode = (): TSourceCode => {
         const {platform, layers} = this.state;
-        const layerNameRegex = /^@([\d\w]+);/g;
-        const paramsRegex = /@(\w+):/g;
         const code = this.platforms[platform].generateSourceCode(
             layers.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
             this.virtualScreen.ctx
         );
-        let layersMap = {};
-        const lines = code.split('\n');
-        const result = [];
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i];
-            const match = layerNameRegex.exec(line);
-            if (match?.length > 1) {
-                const id = match[1];
-                const map = {line: i, params: {}};
-                line = line.replace(layerNameRegex, '');
-                const paramsMatch = line.match(paramsRegex);
-                if (paramsMatch?.length > 0) {
-                    paramsMatch.forEach((p) => {
-                        const param = line.indexOf(p);
-                        line = line.replace(p, '');
-                        map.params[p.replace('@', '').replace(':', '')] = param;
-                    });
+        return this.platforms[platform].sourceMapParser.parse(code);
+    };
+
+    importCode = async (code: string) => {
+        this.clearLayers();
+        const {platform} = this.state;
+        const states = this.platforms[platform].importSourceCode(code);
+        for (const state of states) {
+            if (state.type == 'string') {
+                if (!this.platforms[platform].getFonts().find((f) => f.name == state.font)) {
+                    state.font = this.platforms[platform].getFonts()[0].name;
                 }
-                layersMap[id] = map;
             }
-            result.push(line);
+            if (state.type == 'icon' && state.iconSrc) {
+                await loadImageDataAsync(state.iconSrc).then((imgData) => {
+                    state.data = imgData;
+                    state.size = new Point(imgData.width, imgData.height);
+                });
+                delete state.iconSrc;
+            }
         }
-        return {code: result.join('\n'), map: layersMap};
+        await loadLayers(states.map((state) => paramsToState(state, this.LayerClassMap)));
     };
 
     getPlatformFeatures(): TPlatformFeatures {
-        return this.platforms[this.state.platform].features;
+        return this.platforms[this.state.platform]?.features;
     }
     lock = () => {
         this.state.lock = true;
@@ -210,40 +233,87 @@ export class Session {
     unlock = () => {
         this.state.lock = false;
     };
-    constructor() {}
+    constructor() {
+        this.history.subscribe((event: THistoryEvent, change: TChange) => {
+            switch (event.type) {
+                case 'undo':
+                    switch (change.type) {
+                        case 'add':
+                            this.removeLayer(change.layer, false);
+                            break;
+                        case 'remove':
+                            this.addLayer(change.layer, false);
+                            break;
+                        case 'change':
+                            change.layer.state = change.state;
+                            change.layer.draw();
+                            break;
+                        case 'merge':
+                            this.removeLayer(change.layer, false);
+                            change.state.forEach((l) => {
+                                this.addLayer(l, false);
+                            });
+                            break;
+                        case 'clear':
+                            change.state.forEach((l) => {
+                                const type: ELayerType = l.t;
+                                if (type in this.LayerClassMap) {
+                                    const layer = new this.LayerClassMap[type](this.getPlatformFeatures());
+                                    layer.loadState(l);
+                                    this.addLayer(layer, false);
+                                    layer.saveState();
+                                }
+                            });
+                            break;
+                    }
+                    this.virtualScreen.redraw();
+                    break;
+                // case 'redo':
+                //     switch (change.type) {
+                //         case 'add':
+                //             this.addLayer(change.layer, false);
+                //             break;
+                //         case 'remove':
+                //             this.removeLayer(change.layer, false);
+                //             break;
+                //         case 'change':
+                //             change.layer.loadState(change.state);
+                //             change.layer.draw();
+                //             break;
+                //         case 'merge':
+                //             this.addLayer(change.layer, false);
+                //             change.state.forEach((l) => {
+                //                 this.removeLayer(l, false);
+                //             });
+                //             break;
+                //         case 'clear':
+                //             this.clearLayers();
+                //             break;
+                //     }
+                //     this.virtualScreen.redraw();
+                //     break;
+            }
+        });
+    }
 }
-export const LayerClassMap: {[key in ELayerType]: any} = {
-    box: RectangleLayer,
-    frame: RectangleLayer,
-    rect: RectangleLayer,
-    circle: CircleLayer,
-    disc: CircleLayer,
-    dot: DotLayer,
-    icon: IconLayer,
-    line: LineLayer,
-    string: TextLayer,
-    paint: PaintLayer,
-    ellipse: EllipseLayer
-};
-// for testing
-export function loadLayers(layers: any[]) {
+
+export async function loadLayers(states: any[]) {
     const session = useSession();
     session.state.layers = [];
-    layers.forEach((l) => {
-        const type: ELayerType = l.t;
-        if (type in LayerClassMap) {
-            const layer = new LayerClassMap[type](session.getPlatformFeatures());
-            layer.loadState(l);
+    return session.loadFontsForLayers(states.filter((s) => s.t == 'string').map((s) => s.f)).then(() => {
+        states.forEach((state) => {
+            const layerClass = session.LayerClassMap[state.t];
+            const layer = new layerClass(session.getPlatformFeatures());
+            layer.state = state;
             session.addLayer(layer);
-            layer.saveState();
-        }
+        });
+        session.virtualScreen.redraw(true);
     });
-    session.virtualScreen.redraw(false);
 }
 
 export function saveLayers() {
     const session = useSession();
-    const packedSession = JSON.stringify(session.state.layers.map((l) => l.getState()));
+    const packedSession = JSON.stringify(session.state.layers.map((l) => l.state));
     if (window.top !== window.self) {
         postParentMessage('updateLayers', packedSession);
         postParentMessage('updateThumbnail', session.virtualScreen.canvas.toDataURL());
@@ -251,9 +321,8 @@ export function saveLayers() {
         localStorage.setItem(`${session.state.platform}_lopaka_layers`, packedSession);
     }
     console.log('Saved session size', packedSession.length, 'bytes');
+    console.log('Saved session', packedSession);
 }
-// for testing
-window['saveLayers'] = saveLayers;
 
 export function useSession(id?: string) {
     if (currentSessionId) {
@@ -263,8 +332,6 @@ export function useSession(id?: string) {
         if (window.top === window.self) {
             const platformLocal = localStorage.getItem('lopaka_library');
             session.setPlatform(platformLocal ?? U8g2Platform.id);
-        } else {
-            session.setPlatform(U8g2Platform.id);
         }
         session.setDisplayCustom(localStorage.getItem('lopaka_display_custom') === 'true');
         const displayStored = localStorage.getItem('lopaka_display');
