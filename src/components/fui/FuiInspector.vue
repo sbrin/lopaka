@@ -212,19 +212,21 @@ const LABELS = {
                 </div>
             </template>
         </div>
-        <div class="title inspector__title" v-if="actions.length">Image operations</div>
-        <div class="inspector-actions">
-            <div class="inspector-action-button" v-for="action in actions">
-                <FuiButton
-                    :disabled="session.state.isPublic"
-                    @click="onAction(action)"
-                    :title="action.title"
-                    :isIcon="true"
-                >
-                    {{ action.label }}
-                </FuiButton>
+        <template v-if="!session.state.isPublic">
+            <div class="title inspector__title" v-if="actions.length">Image operations</div>
+            <div class="inspector-actions">
+                <div class="inspector-action-button" v-for="action in actions">
+                    <FuiButton
+                        :disabled="session.state.isPublic"
+                        @click="onAction(action)"
+                        :title="action.title"
+                        :isIcon="true"
+                    >
+                        {{ action.label }}
+                    </FuiButton>
+                </div>
             </div>
-        </div>
+        </template>
     </div>
 </template>
 <style lang="css" scoped>

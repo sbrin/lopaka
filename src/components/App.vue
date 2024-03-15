@@ -164,7 +164,7 @@ window.addEventListener('message', async (event) => {
 navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 </script>
 <template>
-    <div class="fui-editor">
+    <div class="fui-editor" v-if="platform">
         <div class="fui-editor__left">
             <FuiLayers v-show="!isEmpty">
                 <FuiButton v-if="!session.state.isPublic" @click="resetScreen" small danger v-show="!isEmpty">
@@ -246,7 +246,6 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 .fui-editor {
     background: var(--bg-color);
     margin: 0 auto;
-    padding: 0 calc((100vw - 1280px) / 4);
     position: relative;
     box-sizing: border-box;
 
@@ -264,7 +263,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
     grid-area: 1 / 2 / 2 / 4;
 }
 .fui-editor__main {
-    width: 800px;
+    min-width: var(--main-width);
     grid-area: 2 / 2 / 3 / 3;
     min-height: 400px;
 }
@@ -273,18 +272,18 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 }
 .fui-editor__bottom {
     grid-area: 3 / 2 / 4 / 3;
-    max-width: 800px;
+    max-width: var(--main-width);
 }
 .fui-editor__bottom-right {
     grid-area: 3 / 3 / 4 / 4;
 }
 
 .fui-editor__canvas {
-    max-height: 50vh;
+    max-height: 75vh;
     flex-shrink: 0;
     overflow: auto;
     display: flex;
-    padding: 0 20px 20px 0px;
+    padding: 0px 20px 20px 0;
     margin: 0 auto;
 }
 

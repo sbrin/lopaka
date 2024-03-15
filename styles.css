@@ -14,6 +14,7 @@
     --danger-color: #eb4e27;
     --success-color: #cddc39;
     --input-font-size: 18px;
+    --main-width: 830px;
 }
 
 h1,
@@ -57,7 +58,7 @@ body {
 }
 
 .tools {
-    margin: 8px 0 0 0;
+    margin: 16px 0 0 0;
     display: flex;
     flex-wrap: wrap;
     width: 100%;
@@ -73,6 +74,8 @@ body {
     overflow: hidden;
     margin: 0 16px 16px 0;
     padding: 0;
+    max-height: 100vh;
+    overflow-y: auto;
 }
 
 .layer {
