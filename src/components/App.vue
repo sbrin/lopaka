@@ -283,7 +283,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
     flex-shrink: 0;
     overflow: auto;
     display: flex;
-    padding: 0px 20px 20px 0;
+    padding: 10px 20px 20px 20px;
     margin: 0 auto;
 }
 
