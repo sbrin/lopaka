@@ -1,0 +1,36 @@
+static const uint8_t image_paint_0_bits[] = {0x04,0x0e,0x1f};
+static const uint8_t image_paint_1_bits[] = {0x1f,0x0e,0x04};
+static const uint8_t image_paint_2_bits[] = {0x01,0x03,0x07,0x03,0x01};
+u8g2_ClearBuffer(&u8g2); 
+u8g2_SetBitmapMode(&u8g2, 1);
+u8g2_SetFontMode(&u8g2, 1);
+void draw(void) {
+    u8g2_DrawXBM(&u8g2, 72, 0, 5, 3, image_paint_0_bits);
+    u8g2_DrawXBM(&u8g2, 15, 0, 5, 3, image_paint_0_bits);
+    u8g2_SetFont(&u8g2, u8g2_font_profont22_tr);
+    u8g2_DrawStr(&u8g2, 36, 34, "All-in-one");
+    u8g2_DrawStr(&u8g2, 35, 50, " embedded");
+    u8g2_DrawStr(&u8g2, 19, 66, "graphics tool");
+    u8g2_SetFont(&u8g2, u8g2_font_5x8_tr);
+    u8g2_DrawStr(&u8g2, 1, 11, "Platforms");
+    u8g2_DrawStr(&u8g2, 59, 11, "Screens");
+    u8g2_DrawStr(&u8g2, 0, 83, "Code");
+    u8g2_DrawStr(&u8g2, 40, 83, "Convert");
+    u8g2_DrawXBM(&u8g2, 4, 93, 5, 3, image_paint_1_bits);
+    u8g2_DrawXBM(&u8g2, 40, 93, 5, 3, image_paint_1_bits);
+    u8g2_DrawStr(&u8g2, 0, 90, "preview");
+    u8g2_DrawStr(&u8g2, 40, 90, "images");
+    u8g2_SetFont(&u8g2, u8g2_font_4x6_tr);
+    u8g2_DrawStr(&u8g2, 166, 31, "Fonts");
+    u8g2_DrawXBM(&u8g2, 188, 26, 3, 5, image_paint_2_bits);
+    u8g2_DrawStr(&u8g2, 91, 87, "U8G2");
+    u8g2_DrawFrame(&u8g2, 87, 79, 23, 11);
+    u8g2_DrawStr(&u8g2, 116, 87, "ADAFRUIT");
+    u8g2_DrawStr(&u8g2, 156, 87, "FLIPPER");
+    u8g2_DrawFrame(&u8g2, 113, 79, 37, 11);
+    u8g2_DrawFrame(&u8g2, 153, 79, 33, 11);
+    u8g2_DrawXBM(&u8g2, 116, 0, 5, 3, image_paint_0_bits);
+    u8g2_SetFont(&u8g2, u8g2_font_5x8_tr);
+    u8g2_DrawStr(&u8g2, 107, 11, "Scale");
+}
+u8g2_SendBuffer(&u8g2); 

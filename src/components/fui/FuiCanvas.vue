@@ -11,6 +11,7 @@ const session = useSession();
 const {editor, virtualScreen, state} = session;
 const {display, scale, lock} = toRefs(state);
 const {activeTool} = toRefs(editor.state);
+
 onMounted(() => {
     virtualScreen.setCanvas(screen.value);
     editor.setContainer(container.value as HTMLElement);
