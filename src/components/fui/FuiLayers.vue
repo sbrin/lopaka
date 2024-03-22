@@ -67,4 +67,13 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
         </VueDraggable>
     </div>
 </template>
-<style lang="css"></style>
+<style lang="css" scoped>
+
+.layers__list {
+    font-size: 24px;
+    overflow: hidden;
+    margin: 0 16px 16px 0;
+    padding: 0 0 8px 0;
+    overflow-y: auto;
+}
+</style>

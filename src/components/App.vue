@@ -38,7 +38,6 @@ const flipperPreviewBtnText = computed(() => (flipper.value ? 'Disconnect' : 'Li
 const showCopyCode = computed(() => updates.value && session.state.layers.length > 0);
 
 const flipper: ShallowRef<FlipperRPC> = ref(null);
-let isChanged = ref(false);
 
 watch(
     updates,
@@ -46,8 +45,8 @@ watch(
         if (flipper.value) {
             sendFlipperImage();
         }
-        isChanged.value = true;
-    }, 500)
+        saveLayers();
+    }, 1000)
 );
 
 // methods
@@ -133,12 +132,6 @@ function sendFlipperImage() {
     flipper.value.sendImage(virtualScreen.canvasContext.getImageData(0, 0, 128, 64));
 }
 
-function saveChanges() {
-    saveLayers();
-    isChanged.value = false;
-    logEvent('button_save');
-}
-
 onMounted(() => {
     postParentMessage('mounted', {});
 });
@@ -183,13 +176,6 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                     title="Connect your Flipper to USB port"
                 >
                     {{ flipperPreviewBtnText }}
-                </FuiButton>
-                <FuiButton
-                    v-if="!session.state.isPublic && isChanged"
-                    @click="saveChanges"
-                    title="Save changes for selected library"
-                >
-                    Save
                 </FuiButton>
             </div>
             <FuiTools v-if="!session.state.isPublic"></FuiTools>
@@ -251,13 +237,13 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 
     display: grid;
     grid-template-columns: 180px 4fr 240px;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: 80px auto 450px;
     grid-column-gap: 16px;
     grid-row-gap: 8px;
 }
 
 .fui-editor__left {
-    grid-area: 1 / 1 / 6 / 2;
+    grid-area: 1 / 1 / 5 / 2;
 }
 .fui-editor__top {
     grid-area: 1 / 2 / 2 / 4;
@@ -283,7 +269,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
     flex-shrink: 0;
     overflow: auto;
     display: flex;
-    padding: 0px 20px 20px 0;
+    padding: 10px 20px 20px 20px;
     margin: 0 auto;
 }
 
