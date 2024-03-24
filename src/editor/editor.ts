@@ -113,7 +113,7 @@ export class Editor {
             if (this.session.state.isPublic) {
                 return;
             }
-            if (Object.values(Keys).indexOf(event.code as Keys) != -1) {
+            if (event.target === document.body && Object.values(Keys).indexOf(event.code as Keys) != -1) {
                 event.preventDefault();
                 this.onKeyDown(Keys[event.code], event);
             }
