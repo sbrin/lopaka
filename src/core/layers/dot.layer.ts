@@ -7,19 +7,7 @@ import {RectangleLayer} from './rectangle.layer';
 export class DotLayer extends RectangleLayer {
     protected type: ELayerType = 'dot';
     protected brushSize: Point = new Point(1);
-    public size: Point = this.brushSize.clone();
     public resizable: boolean = false;
-    public fill: boolean = true;
-
-    public get properties(): any {
-        return {
-            x: this.position.x,
-            y: this.position.y,
-            color: this.color,
-            type: this.type,
-            id: this.uid
-        };
-    }
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
@@ -33,16 +21,24 @@ export class DotLayer extends RectangleLayer {
             delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
+        this.size = this.brushSize.clone();
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
+        const {position, editPoint, firstPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
+                this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
+                break;
             case EditMode.CREATING:
                 this.position = point.clone();
                 break;
         }
-        this.bounds = new Rect(this.position, this.size);
+        this.updateBounds();
         this.draw();
+    }
+
+    updateBounds(): void {
+        this.bounds = new Rect(this.position, this.size.clone());
     }
 }

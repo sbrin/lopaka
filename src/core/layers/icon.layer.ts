@@ -12,9 +12,7 @@ export class IconLayer extends AbstractImageLayer {
             getValue: () => this.position.x,
             setValue: (v: number) => {
                 this.position.x = v;
-
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -24,7 +22,6 @@ export class IconLayer extends AbstractImageLayer {
             setValue: (v: number) => {
                 this.position.y = v;
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.number
@@ -50,7 +47,6 @@ export class IconLayer extends AbstractImageLayer {
                 this.data = addAlphaChannelToImageData(ctx.getImageData(0, 0, w, h), this.color);
                 this.size = new Point(w, h);
                 this.updateBounds();
-                this.saveState();
                 this.applyColor();
                 this.draw();
             },
@@ -62,7 +58,6 @@ export class IconLayer extends AbstractImageLayer {
                 this.color = v;
                 this.applyColor();
                 this.draw();
-                this.saveState();
             },
             type: TModifierType.color
         },
@@ -70,7 +65,6 @@ export class IconLayer extends AbstractImageLayer {
             getValue: () => this.overlay,
             setValue: (v: boolean) => {
                 this.overlay = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -79,7 +73,6 @@ export class IconLayer extends AbstractImageLayer {
             getValue: () => this.inverted,
             setValue: (v: boolean) => {
                 this.inverted = v;
-                this.saveState();
                 this.draw();
             },
             type: TModifierType.boolean
@@ -87,6 +80,7 @@ export class IconLayer extends AbstractImageLayer {
     };
 
     startEdit(mode: EditMode, point: Point) {
+        this.pushHistory();
         this.mode = mode;
         this.editState = {
             firstPoint: point,
@@ -97,7 +91,7 @@ export class IconLayer extends AbstractImageLayer {
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
-        if (!this.features.hasRGBSupport) {
+        if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
             delete this.modifiers.color;
         }
         if (!this.features.hasInvertedColors) {
@@ -128,7 +122,5 @@ export class IconLayer extends AbstractImageLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.saveState();
-        this.history.push(this.state);
     }
 }

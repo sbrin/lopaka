@@ -14,6 +14,7 @@
     --danger-color: #eb4e27;
     --success-color: #cddc39;
     --input-font-size: 18px;
+    --main-width: 830px;
 }
 
 h1,
@@ -32,11 +33,6 @@ body {
     visibility: hidden;
 }
 
-
-
-.fui-editor__left {
-    /* width: 178px; */
-}
 
 #lopaka_app {
     display: flex;
@@ -57,7 +53,7 @@ body {
 }
 
 .tools {
-    margin: 8px 0 8px 0;
+    margin: 16px 0 0 0;
     display: flex;
     flex-wrap: wrap;
     width: 100%;
@@ -66,13 +62,6 @@ body {
 
 .tools__btn {
     margin: 0 8px 8px 0;
-}
-
-.layers__list {
-    font-size: 24px;
-    overflow: hidden;
-    margin: 0 16px 16px 0;
-    padding: 0;
 }
 
 .layer {

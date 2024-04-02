@@ -25,7 +25,7 @@ const hovered = ref(false);
 
 watch(
     [updates, layers],
-    debounce(() => onUpdate(), 250)
+    debounce(() => onUpdate(), 500)
 );
 
 watch(
@@ -47,9 +47,6 @@ function selectRow() {
     }
 }
 function onUpdate() {
-    if (hovered.value) {
-        return;
-    }
     const sourceCode = session.generateCode();
     content.value = sourceCode.code;
     layersMap = sourceCode.map;

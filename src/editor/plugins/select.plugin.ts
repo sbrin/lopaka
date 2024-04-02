@@ -1,4 +1,5 @@
 import {Keys} from '../../core/keys.enum';
+import {AbstractLayer} from '../../core/layers/abstract.layer';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
 import {Session} from '../../core/session';
@@ -50,17 +51,34 @@ export class SelectPlugin extends AbstractEditorPlugin {
     onMouseMove(point: Point, event: MouseEvent): void {
         if (this.captured) {
             const {scale} = this.session.state;
+            const {interfaceColors} = this.session.getPlatformFeatures();
             const screenPoint = point.clone().multiply(scale);
             const position = this.firstPoint.clone().multiply(scale).min(screenPoint);
             const size = point.clone().subtract(this.firstPoint).abs().multiply(scale);
             Object.assign(this.selectionElement.style, {
                 display: 'block',
+                borderColor: interfaceColors.selectionStrokeColor,
                 left: `${position.x}px`,
                 top: `${position.y}px`,
                 width: `${size.x}px`,
                 height: `${size.y}px`
             });
         }
+    }
+
+    private intersect(layer: AbstractLayer, position: Point, size: Point): boolean {
+        const layerInBounds = new Rect(position, size).intersect(layer.bounds);
+        if (layerInBounds) {
+            for (let x = 0; x < size.x; x++) {
+                for (let y = 0; y < size.y; y++) {
+                    const point = position.clone().add(x, y);
+                    if (layer.contains(point)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     onMouseUp(point: Point, event: MouseEvent): void {
@@ -75,7 +93,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.session.editor.selectionUpdate();
                 return;
             }
-            layers.forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
+            layers.forEach((l) => (l.selected = this.intersect(l, position, size)));
         } else if (!this.foreign) {
             const selected = layers.filter((l) => l.selected);
             const hovered = layers.filter((l) => l.contains(point));

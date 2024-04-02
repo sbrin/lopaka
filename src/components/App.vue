@@ -38,7 +38,6 @@ const flipperPreviewBtnText = computed(() => (flipper.value ? 'Disconnect' : 'Li
 const showCopyCode = computed(() => updates.value && session.state.layers.length > 0);
 
 const flipper: ShallowRef<FlipperRPC> = ref(null);
-let isChanged = ref(false);
 
 watch(
     updates,
@@ -46,8 +45,8 @@ watch(
         if (flipper.value) {
             sendFlipperImage();
         }
-        isChanged.value = true;
-    }, 500)
+        saveLayers();
+    }, 1000)
 );
 
 // methods
@@ -133,11 +132,6 @@ function sendFlipperImage() {
     flipper.value.sendImage(virtualScreen.canvasContext.getImageData(0, 0, 128, 64));
 }
 
-function saveChanges() {
-    saveLayers();
-    isChanged.value = false;
-}
-
 onMounted(() => {
     postParentMessage('mounted', {});
 });
@@ -163,7 +157,7 @@ window.addEventListener('message', async (event) => {
 navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 </script>
 <template>
-    <div class="fui-editor">
+    <div class="fui-editor" v-if="platform">
         <div class="fui-editor__left">
             <FuiLayers v-show="!isEmpty">
                 <FuiButton v-if="!session.state.isPublic" @click="resetScreen" small danger v-show="!isEmpty">
@@ -183,13 +177,6 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 >
                     {{ flipperPreviewBtnText }}
                 </FuiButton>
-                <FuiButton
-                    v-if="!session.state.isPublic && isChanged"
-                    @click="saveChanges"
-                    title="Save changes for selected library"
-                >
-                    Save
-                </FuiButton>
             </div>
             <FuiTools v-if="!session.state.isPublic"></FuiTools>
         </div>
@@ -197,7 +184,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
             <div class="fui-editor__canvas">
                 <FuiCanvas ref="fuiCanvas" />
             </div>
-        </div> 
+        </div>
         <div class="fui-editor__main-right">
             <FuiInspector />
         </div>
@@ -217,12 +204,21 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
                 ></FuiIcons>
                 <FuiCode v-show="activeTab === 'code'"></FuiCode>
                 <div class="buttons-bottom">
-                    <FuiFile
-                        v-if="!session.state.isPublic"
-                        type="file"
-                        title="import image"
-                        @set-active-tab="setactiveTab"
-                    ></FuiFile>
+                    <div>
+                        <FuiFile
+                            style="margin-right: 8px"
+                            v-if="!session.state.isPublic"
+                            type="code"
+                            title="import code"
+                            @set-active-tab="setactiveTab"
+                        ></FuiFile>
+                        <FuiFile
+                            v-if="!session.state.isPublic"
+                            type="image"
+                            title="import image"
+                            @set-active-tab="setactiveTab"
+                        ></FuiFile>
+                    </div>
                     <FuiButton @click="copyCode" v-show="showCopyCode">copy code</FuiButton>
                 </div>
             </div>
@@ -236,42 +232,48 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 .fui-editor {
     background: var(--bg-color);
     margin: 0 auto;
-    padding: 0 calc((100vw - 1280px) / 4);
     position: relative;
     box-sizing: border-box;
 
     display: grid;
     grid-template-columns: 180px 4fr 240px;
-    grid-template-rows: auto auto auto; 
+    grid-template-rows: 80px auto 450px;
     grid-column-gap: 16px;
-    grid-row-gap: 16px;
+    grid-row-gap: 8px;
 }
 
-.fui-editor__left           { grid-area: 1 / 1 / 6 / 2; }
-.fui-editor__top            { grid-area: 1 / 2 / 2 / 4; }
-.fui-editor__main           { 
-    width: 800px;
+.fui-editor__left {
+    grid-area: 1 / 1 / 5 / 2;
+}
+.fui-editor__top {
+    grid-area: 1 / 2 / 2 / 4;
+}
+.fui-editor__main {
+    min-width: var(--main-width);
     grid-area: 2 / 2 / 3 / 3;
     min-height: 400px;
 }
-.fui-editor__main-right     { grid-area: 2 / 3 / 3 / 4; }
-.fui-editor__bottom         { 
-    grid-area: 3 / 2 / 4 / 3;
-    max-width: 800px;
+.fui-editor__main-right {
+    grid-area: 2 / 3 / 3 / 4;
 }
-.fui-editor__bottom-right   { grid-area: 3 / 3 / 4 / 4; }
+.fui-editor__bottom {
+    grid-area: 3 / 2 / 4 / 3;
+    max-width: var(--main-width);
+}
+.fui-editor__bottom-right {
+    grid-area: 3 / 3 / 4 / 4;
+}
 
 .fui-editor__canvas {
-    max-height: 50vh;
+    max-height: 75vh;
     flex-shrink: 0;
     overflow: auto;
     display: flex;
-    padding: 0px 20px 20px 0px;
+    padding: 10px 20px 20px 20px;
     margin: 0 auto;
 }
 
 .fui-editor__tabs {
-
 }
 
 .fui-editor__main {

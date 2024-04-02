@@ -14,7 +14,7 @@ export class CopyPlugin extends AbstractEditorPlugin {
         if (key === Keys.KeyC && (event.ctrlKey || event.metaKey)) {
             const selected = layers.filter((layer) => layer.selected);
             if (selected.length) {
-                this.buffer = selected.map((layer) => ({constructor: layer.constructor, state: layer.getState()}));
+                this.buffer = selected.map((layer) => ({constructor: layer.constructor, state: layer.state}));
             }
         } else if (key === Keys.KeyV && (event.ctrlKey || event.metaKey)) {
             if (this.buffer) {
@@ -22,7 +22,7 @@ export class CopyPlugin extends AbstractEditorPlugin {
                 this.buffer.forEach((record) => {
                     const l: AbstractLayer = new record.constructor(this.session.getPlatformFeatures());
                     const uid = l.uid;
-                    l.loadState(record.state);
+                    l.state = record.state;
                     l.uid = uid;
                     if (l.modifiers.x && l.modifiers.y) {
                         l.modifiers.x.setValue(l.modifiers.x.getValue() + 2);

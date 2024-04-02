@@ -5,26 +5,15 @@ import {
     flipImageDataByY,
     hexToRgb,
     invertImageData,
-    packImage,
-    rotateImageData,
-    unpackImage
+    rotateImageData
 } from '../../utils';
+import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerActions, TLayerEditPoint, TLayerState} from './abstract.layer';
-
-export type TImageState = TLayerState & {
-    p: number[]; // position
-    s: number[]; // size
-    d: string; // data
-    nm: string; // name
-    o: boolean; // overlay
-    c?: string; // color
-};
+import {AbstractLayer, EditMode, TLayerActions} from './abstract.layer';
 
 export abstract class AbstractImageLayer extends AbstractLayer {
     protected type: ELayerType;
-    protected state: TImageState;
     protected editState: {
         firstPoint: Point;
         position: Point;
@@ -47,11 +36,15 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         };
     }
 
-    public position: Point = new Point();
-    public size: Point = new Point();
-    public data: ImageData;
-    public overlay: boolean;
-    public imageName: string;
+    @mapping('p', 'point') public position: Point = new Point();
+
+    @mapping('s', 'point') public size: Point = new Point();
+
+    @mapping('d', 'image') public data: ImageData;
+
+    @mapping('o') public overlay: boolean;
+
+    @mapping('nm') public imageName: string;
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
@@ -63,7 +56,6 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             title: 'Flip horizontally',
             action: () => {
                 this.data = flipImageDataByX(this.data);
-                this.saveState();
                 this.draw();
             }
         },
@@ -72,7 +64,6 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             title: 'Flip vertically',
             action: () => {
                 this.data = flipImageDataByY(this.data);
-                this.saveState();
                 this.draw();
             }
         },
@@ -83,7 +74,6 @@ export abstract class AbstractImageLayer extends AbstractLayer {
                 this.data = rotateImageData(this.data);
                 this.size = new Point(this.data.width, this.data.height);
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             }
         },
@@ -92,7 +82,6 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             title: 'Invert colors',
             action: () => {
                 this.data = invertImageData(this.data, this.color);
-                this.saveState();
                 this.draw();
             }
         },
@@ -102,7 +91,6 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             action: () => {
                 this.recalculate();
                 this.updateBounds();
-                this.saveState();
                 this.draw();
             }
         },
@@ -159,38 +147,10 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         dc.ctx.restore();
     }
 
-    saveState() {
-        const state: TImageState = {
-            p: this.position.xy,
-            s: this.size.xy,
-            d: packImage(this.data),
-            nm: this.imageName,
-            n: this.name,
-            i: this.index,
-            g: this.group,
-            t: this.type,
-            o: this.overlay,
-            u: this.uid,
-            c: this.color,
-            in: this.inverted
-        };
-        this.state = state;
-    }
-
-    loadState(state: TImageState) {
-        this.position = new Point(state.p);
-        this.size = new Point(state.s);
-        this.name = state.n;
-        this.index = state.i;
-        this.group = state.g;
-        this.data = unpackImage(state.d, this.size.x, this.size.y);
-        this.color = state.c || this.features.defaultColor;
-        this.imageName = state.nm;
-        this.overlay = state.o;
-        this.uid = state.u;
-        this.inverted = state.in;
+    onLoadState() {
         this.updateBounds();
         this.mode = EditMode.NONE;
+        this.applyColor();
     }
 
     updateBounds(): void {

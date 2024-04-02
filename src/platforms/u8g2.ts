@@ -1,11 +1,13 @@
+import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {TextLayer} from '../core/layers/text.layer';
 import {bdfFonts} from '../draw/fonts/fontTypes';
 import {imgDataToXBMP, toCppVariableName} from '../utils';
+import {U8g2Parser} from './parsers/u8g2.parser';
 import {Platform} from './platform';
-import defaultTemplate from './templates/u8g2/default.pug';
 import cEspIdfTemplate from './templates/u8g2/c_esp_idf.pug';
+import defaultTemplate from './templates/u8g2/default.pug';
 
 // for backwards compatibility
 // TODO: remove after 15.04.2024
@@ -23,6 +25,7 @@ export class U8g2Platform extends Platform {
     protected name = 'U8g2';
     protected description = 'U8g2';
     protected fonts: TPlatformFont[] = [...bdfFonts];
+    protected parser: U8g2Parser = new U8g2Parser();
 
     protected currentTemplate: string = 'arduino';
 
@@ -57,7 +60,7 @@ export class U8g2Platform extends Platform {
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
-                const props = layer.properties;
+                const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
                     const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y).join(',');
                     if (xbmps.includes(XBMP)) {

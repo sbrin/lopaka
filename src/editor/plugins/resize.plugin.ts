@@ -1,17 +1,23 @@
 import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
 import {Point} from '../../core/point';
+import {Rect} from '../../core/rect';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
 export class ResizePlugin extends AbstractEditorPlugin {
     captured: boolean = false;
     resizeLayer: AbstractLayer = null;
 
+    getPadding() {
+        const {scale} = this.session.state;
+        return new Rect(-8, -8, 16, 16).divide(scale).round();
+    }
+
     onMouseDown(point: Point, event: MouseEvent): void {
         const {activeTool} = this.session.editor.state;
         if (activeTool) return;
         const {layers} = this.session.state;
         const resizableLayers = layers.filter(
-            (layer) => layer.resizable && layer.selected && layer.bounds.clone().add(-1, -1, 2, 2).contains(point)
+            (layer) => layer.resizable && layer.selected && layer.bounds.clone().add(this.getPadding()).contains(point)
         );
         if (resizableLayers.length == 1) {
             const layer = resizableLayers[0];
@@ -35,7 +41,8 @@ export class ResizePlugin extends AbstractEditorPlugin {
             if (activeTool) return;
             const {layers} = this.session.state;
             const resizableLayers = layers.filter(
-                (layer) => layer.resizable && layer.selected && layer.bounds.clone().add(-1, -1, 2, 2).contains(point)
+                (layer) =>
+                    layer.resizable && layer.selected && layer.bounds.clone().add(this.getPadding()).contains(point)
             );
             if (resizableLayers.length == 1) {
                 const layer = resizableLayers[0];
