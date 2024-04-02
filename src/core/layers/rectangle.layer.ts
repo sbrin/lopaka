@@ -84,7 +84,7 @@ export class RectangleLayer extends AbstractLayer {
         radius: {
             getValue: () => this.radius,
             setValue: (v: number) => {
-                this.radius = v;
+                this.radius = Math.min(v, Math.round(this.size.x / 2), Math.round(this.size.y / 2));
                 this.updateBounds();
                 this.saveState();
                 this.draw();
