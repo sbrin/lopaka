@@ -176,6 +176,15 @@ export class Point {
         this[y] = Math.ceil(this[y]);
         return this;
     }
+    swap(): Point {
+        const t = this[x];
+        this[x] = this[y];
+        this[y] = t;
+        return this;
+    }
+    sign(): [number, number] {
+        return [Math.sign(this[x]), Math.sign(this[y])];
+    }
     distanceTo(p: Point): number {
         return Math.hypot(this.x - p.x, this.y - p.y);
     }

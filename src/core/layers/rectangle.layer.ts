@@ -62,7 +62,7 @@ export class RectangleLayer extends AbstractLayer {
         radius: {
             getValue: () => this.radius,
             setValue: (v: number) => {
-                this.radius = Math.min(v, Math.round(this.size.x / 2), Math.round(this.size.y / 2));
+                this.radius = Math.max(0, Math.min(v, Math.round(this.size.x / 2), Math.round(this.size.y / 2)));
                 this.draw();
             },
             type: TModifierType.number
