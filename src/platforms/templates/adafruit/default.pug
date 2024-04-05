@@ -19,8 +19,8 @@ each layer in layers
         when 'line'
             | @!{layer.uid};!{pad}display.drawLine(!{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]}, !{packColor(layer.color)});
         when 'rect'
-            - var func = layer.fill ? 'fillRect' : 'drawRect'
-            | @!{layer.uid};!{pad}display.!{func}(!{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
+            - var func = (layer.fill ? 'fill' : 'draw') + (layer.radius? 'Round' : '') + 'Rect'
+            | @!{layer.uid};!{pad}display.!{func}(!{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''}, !{packColor(layer.color)});
         when 'circle'
             - var func = layer.fill ? 'fillCircle' : 'drawCircle'
             | @!{layer.uid};!{pad}display.!{func}(!{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius}, !{packColor(layer.color)});

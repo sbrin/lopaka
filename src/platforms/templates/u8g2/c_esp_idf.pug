@@ -32,8 +32,8 @@ each layer in layers
         when 'line'
             | @!{layer.uid};!{pad}u8g2_DrawLine(&u8g2, !{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]});
         when 'rect'
-            - var func = layer.fill ? 'DrawBox' : 'DrawFrame'
-            | @!{layer.uid};!{pad}u8g2_!{func}(&u8g2, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]});
+            - var func = 'Draw' + (layer.radius? 'R': '') + (layer.fill ? 'Box' : 'Frame')
+            | @!{layer.uid};!{pad}u8g2_!{func}(&u8g2, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''});
         when 'circle'
             - var func = layer.fill ? 'DrawDisc' : 'DrawCircle'
             | @!{layer.uid};!{pad}u8g2_!{func}(&u8g2, !{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius});
