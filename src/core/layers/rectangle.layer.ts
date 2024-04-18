@@ -43,7 +43,7 @@ export class RectangleLayer extends AbstractLayer {
         w: {
             getValue: () => this.size.x,
             setValue: (v: number) => {
-                this.size.x = Math.max(v, 1);
+                this.size.x = Math.max(v, this.radius * 2 + 2);
                 this.updateBounds();
                 this.draw();
             },
@@ -52,7 +52,7 @@ export class RectangleLayer extends AbstractLayer {
         h: {
             getValue: () => this.size.y,
             setValue: (v: number) => {
-                this.size.y = Math.max(v, 1);
+                this.size.y = Math.max(v, this.radius * 2 + 2);
                 this.updateBounds();
                 this.draw();
             },
@@ -61,7 +61,10 @@ export class RectangleLayer extends AbstractLayer {
         radius: {
             getValue: () => this.radius,
             setValue: (v: number) => {
-                this.radius = Math.max(0, Math.min(v, Math.round(this.size.x / 2), Math.round(this.size.y / 2)));
+                this.radius = Math.max(
+                    0,
+                    Math.min(v, Math.round(this.size.x / 2 - 1), Math.round(this.size.y / 2 - 1))
+                );
                 this.draw();
             },
             type: TModifierType.number
@@ -121,7 +124,7 @@ export class RectangleLayer extends AbstractLayer {
                 this.size = this.editState.size
                     .clone()
                     .subtract(offset)
-                    .max(new Point(this.radius * 2));
+                    .max(new Point(this.radius * 2 + 2));
             }
         },
         {
@@ -138,7 +141,7 @@ export class RectangleLayer extends AbstractLayer {
                 this.size = this.editState.size
                     .clone()
                     .add(offset.x, -offset.y)
-                    .max(new Point(this.radius * 2));
+                    .max(new Point(this.radius * 2 + 2));
             }
         },
         {
@@ -150,7 +153,7 @@ export class RectangleLayer extends AbstractLayer {
                 this.size = this.editState.size
                     .clone()
                     .add(offset)
-                    .max(new Point(this.radius * 2));
+                    .max(new Point(this.radius * 2 + 2));
             }
         }
     ];
