@@ -1,0 +1,1039 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Create layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p1": [
+    0,
+    0,
+  ],
+  "p2": [
+    0,
+    0,
+  ],
+  "t": "line",
+  "u": "000001",
+}
+`;
+
+exports[`Create layer 2`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+  Symbol(size): Point {
+    Symbol(x): 0,
+    Symbol(y): 0,
+  },
+}
+`;
+
+exports[`Draw layer 1`] = `
+[
+  {
+    "property": "fillStyle",
+    "value": "#000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#000",
+  },
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      10,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw layer 2`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      10,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw layer 3`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      10,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw layer 4`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      20,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw layer 5`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      10,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      20,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Draw layer 6`] = `
+[
+  {
+    "args": [
+      -1,
+      -1,
+      129,
+      65,
+    ],
+    "command": "clearRect",
+  },
+  {
+    "property": "fillStyle",
+    "value": "#FF0000",
+  },
+  {
+    "property": "strokeStyle",
+    "value": "#FF0000",
+  },
+  {
+    "args": [],
+    "command": "beginPath",
+  },
+  {
+    "args": [
+      20,
+      20,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      19,
+      19,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      18,
+      18,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      17,
+      17,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      16,
+      16,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      15,
+      15,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      14,
+      14,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      13,
+      13,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      12,
+      12,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      11,
+      11,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [
+      10,
+      10,
+      1,
+      1,
+    ],
+    "command": "rect",
+  },
+  {
+    "args": [],
+    "command": "fill",
+  },
+  {
+    "args": [],
+    "command": "closePath",
+  },
+]
+`;
+
+exports[`Edit layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p1": [
+    0,
+    0,
+  ],
+  "p2": [
+    0,
+    0,
+  ],
+  "t": "line",
+  "u": "000001",
+}
+`;
+
+exports[`Edit layer 2`] = `
+{
+  "c": "#FFFFFF",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p1": [
+    10,
+    10,
+  ],
+  "p2": [
+    30,
+    20,
+  ],
+  "t": "line",
+  "u": "000001",
+}
+`;
+
+exports[`Edit layer 3`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 10,
+    Symbol(y): 10,
+  },
+  Symbol(size): Point {
+    Symbol(x): 21,
+    Symbol(y): 11,
+  },
+}
+`;
+
+exports[`Modifiers 1`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 10,
+    Symbol(y): 20,
+  },
+  Symbol(size): Point {
+    Symbol(x): 21,
+    Symbol(y): 21,
+  },
+}
+`;
+
+exports[`Modifiers 2`] = `
+{
+  "c": "#FFFFFF",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p1": [
+    10,
+    20,
+  ],
+  "p2": [
+    30,
+    40,
+  ],
+  "t": "line",
+  "u": "000001",
+}
+`;
+
+exports[`Modifiers 3`] = `
+{
+  "c": "#FFFFFF",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p1": [
+    10,
+    20,
+  ],
+  "p2": [
+    30,
+    40,
+  ],
+  "t": "line",
+  "u": "000001",
+}
+`;
+
+exports[`Modifiers 4`] = `
+{
+  "c": "#FF0000",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p1": [
+    10,
+    20,
+  ],
+  "p2": [
+    30,
+    40,
+  ],
+  "t": "line",
+  "u": "000001",
+}
+`;
+
+exports[`Modifiers 5`] = `
+{
+  "c": "#FF0000",
+  "g": undefined,
+  "i": undefined,
+  "in": true,
+  "n": undefined,
+  "p1": [
+    10,
+    20,
+  ],
+  "p2": [
+    30,
+    40,
+  ],
+  "t": "line",
+  "u": "000001",
+}
+`;
+
+exports[`Move layer 1`] = `
+{
+  "c": "#FFFFFF",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p1": [
+    10,
+    20,
+  ],
+  "p2": [
+    20,
+    30,
+  ],
+  "t": "line",
+  "u": "000001",
+}
+`;
+
+exports[`Move layer 2`] = `
+{
+  "c": "#FFFFFF",
+  "g": undefined,
+  "i": undefined,
+  "in": false,
+  "n": undefined,
+  "p1": [
+    40,
+    30,
+  ],
+  "p2": [
+    50,
+    40,
+  ],
+  "t": "line",
+  "u": "000001",
+}
+`;
+
+exports[`Move layer 3`] = `
+Rect {
+  Symbol(pos): Point {
+    Symbol(x): 40,
+    Symbol(y): 30,
+  },
+  Symbol(size): Point {
+    Symbol(x): 11,
+    Symbol(y): 11,
+  },
+}
+`;

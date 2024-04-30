@@ -1,26 +1,17 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
-import {CircleLayer} from '../core/layers/circle.layer';
-import {DotLayer} from '../core/layers/dot.layer';
-import {EllipseLayer} from '../core/layers/ellipse.layer';
-import {IconLayer} from '../core/layers/icon.layer';
-import {LineLayer} from '../core/layers/line.layer';
-import {PaintLayer} from '../core/layers/paint.layer';
-import {RectangleLayer} from '../core/layers/rectangle.layer';
-import {TextLayer} from '../core/layers/text.layer';
-const layerClassMap = {
-    box: RectangleLayer,
-    frame: RectangleLayer,
-    rect: RectangleLayer,
-    circle: CircleLayer,
-    disc: CircleLayer,
-    dot: DotLayer,
-    icon: IconLayer,
-    line: LineLayer,
-    string: TextLayer,
-    paint: PaintLayer,
-    ellipse: EllipseLayer
-};
-export const layersMock: AbstractLayer[] = [
+import {loadFont} from '../draw/fonts';
+import profont22 from '../draw/fonts/bdf/profont22.bdf';
+import {FontFormat} from '../draw/fonts/font';
+import {useSession} from '../core/session';
+
+loadFont({
+    name: 'profont22',
+    title: 'profont22',
+    file: profont22,
+    format: FontFormat.FORMAT_BDF
+});
+
+const layersMock: any[] = [
     {
         n: 'box_veqtjp8jf9ln6isyfz',
         t: 'box',
@@ -159,14 +150,19 @@ export const layersMock: AbstractLayer[] = [
         ry: 7,
         f: false
     }
-].map((l) => {
-    const type: ELayerType = l.t as any;
-    const layer = new layerClassMap[type]({
-        hasCustomFontSize: false,
-        hasInvertedColors: false,
-        hasRGBSupport: false,
-        defaultColor: '#000000'
+];
+
+export function getLayersMock(): AbstractLayer[] {
+    const LayerClassMap = useSession().LayerClassMap;
+    return layersMock.map((l: any) => {
+        const type: ELayerType = l.t as any;
+        const layer = new LayerClassMap[type]({
+            hasCustomFontSize: false,
+            hasInvertedColors: false,
+            hasRGBSupport: false,
+            defaultColor: '#000000'
+        });
+        layer.state = l;
+        return layer;
     });
-    layer.state = l;
-    return layer;
-});
+}

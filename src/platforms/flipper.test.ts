@@ -1,10 +1,10 @@
 import {describe, expect, it} from 'vitest';
-import {layersMock} from './layers.mock';
 import {FlipperPlatform} from './flipper';
+import {getLayersMock} from './layers.mock';
 
 describe('Flipper zero platform', () => {
     it('generating source code', () => {
         const platform = new FlipperPlatform();
-        expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
+        expect(platform.generateSourceCode(getLayersMock())).toMatchSnapshot();
     });
 });

@@ -1,28 +1,18 @@
 import {vi} from 'vitest';
-vi.mock('./src/draw/fonts/index.ts', () => ({
-    getFont: (name) => {
-        return {
-            name,
-            getSize: () => {
-                return 1;
-            }
-        };
-    },
-    loadFont: (platformFont) => {
-        return Promise.resolve({
-            name: platformFont.name,
-            getSize: () => {
-                return 1;
-            }
-        });
-    }
-}));
-const getContextMock = (type: string) => {
+
+const getContextMock = (state: any[], type: string) => {
     if (type !== '2d') {
         throw Error(`Canvas context ${type} disallowed for tests`);
     }
     return new Proxy<CanvasRenderingContext2D>({} as CanvasRenderingContext2D, {
         get: (c: CanvasRenderingContext2D, command: any) => {
+            if (command == 'getState') {
+                return () => state;
+            }
+            if (command == 'clearState') {
+                state.splice(0);
+                return () => void 0;
+            }
             if (command == 'createPattern') {
                 return () => ({
                     setTransform: vi.fn()
@@ -36,9 +26,13 @@ const getContextMock = (type: string) => {
                     data: new Uint8ClampedArray(100 * 100 * 4)
                 });
             }
-            return vi.fn();
+
+            return (...args) => {
+                state.push({command, args});
+            };
         },
         set: (c: CanvasRenderingContext2D, property: any, value: any) => {
+            state.push({property, value});
             return true;
         }
     });
@@ -49,17 +43,19 @@ function mock(w: any, d: any) {
     d.createElement = (...args: any[]) => {
         const el = createElement.apply(d, args);
         if (args[0] == 'canvas') {
+            const state = [];
             Object.assign(el, {
                 toDataURL: () => 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=',
                 // mock canvas 2d context
-                getContext: getContextMock
+                getContext: getContextMock.bind(null, state)
             });
         }
         return el;
     };
 
     vi.stubGlobal('OffscreenCanvas', function () {
-        this.getContext = getContextMock;
+        const state = [];
+        this.getContext = getContextMock.bind(null, state);
     });
 
     vi.stubGlobal('DOMMatrix', function () {
