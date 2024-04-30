@@ -1,0 +1,55 @@
+each decl in declarations 
+    if decl.type == 'bitmap'
+        | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+        |
+    else 
+        | !{decl}
+        |
+if settings.wrap
+    | void draw(void) {
+    |
+- var textColor = '#ffffff'
+- var textSize = '1'
+- var textWrap = true
+- var pad = settings.wrap ? '    ' : ''
+each layer in layers 
+    case layer.type
+        when 'dot'
+            | @!{layer.uid};!{pad}tft.drawPixel(!{layer.position[0]}, !{layer.position[1]}, !{packColor(layer.color)});
+        when 'line'
+            | @!{layer.uid};!{pad}tft.drawLine(!{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]}, !{packColor(layer.color)});
+        when 'rect'
+            - var func = layer.fill ? 'fillRect' : 'drawRect'
+            | @!{layer.uid};!{pad}tft.!{func}(!{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
+        when 'circle'
+            - var func = layer.fill ? 'fillCircle' : 'drawCircle'
+            | @!{layer.uid};!{pad}tft.!{func}(!{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius}, !{packColor(layer.color)});
+        when 'ellipse'
+            - var func = layer.fill ? 'fillEllipse' : 'drawEllipse'
+            | @!{layer.uid};!{pad}tft.!{func}(@x:!{layer.position[0] + layer.rx}, @y:!{layer.position[1] + layer.ry}, @rx:!{layer.rx}, @ry:!{layer.ry}, !{packColor(layer.color)});
+        when 'string'
+            if layer.color != textColor
+                - textColor = layer.color
+                | !{pad}tft.setTextColor(!{packColor(layer.color)});
+                |
+            if layer.scaleFactor != textSize
+                - textSize = layer.scaleFactor
+                | !{pad}tft.setTextSize(!{layer.scaleFactor});
+                |
+            //- if layer.wrap != textWrap
+            //-     - textWrap = layer.wrap
+            //-     | !{pad}tft.setTextWrap(false);
+            //-     |
+            | @!{layer.uid};!{pad}tft.drawString("!{layer.text}", !{layer.position[0]}, !{layer.position[1] - layer.bounds[3]});
+        when 'paint'
+        when 'icon'
+            | @!{layer.uid};!{pad}tft.drawBitmap(!{layer.position[0]}, !{layer.position[1]}, !{layer.imageName}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
+        default 
+            |
+            | // Unknown layer type !{layer.type}
+            |
+    |
+    |
+if settings.wrap
+    | }
+    |
