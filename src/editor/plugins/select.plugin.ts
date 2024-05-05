@@ -39,6 +39,14 @@ export class SelectPlugin extends AbstractEditorPlugin {
                     this.session.state.layers.forEach((l) => (l.selected = false));
                     upperLayer.selected = true;
                 }
+                // select all layers in groups
+                if (upperLayer.group) {
+                    layers.forEach((l) => {
+                        if (l.group && l.group === upperLayer.group) {
+                            l.selected = upperLayer.selected;
+                        }
+                    });
+                }
             } else {
                 // if there is no hovered layer, start box selection
                 this.captured = true;
@@ -93,7 +101,16 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.session.editor.selectionUpdate();
                 return;
             }
-            layers.forEach((l) => (l.selected = this.intersect(l, position, size)));
+            layers.forEach((l) => {
+                l.selected = this.intersect(l, position, size);
+                if (l.selected && l.group) {
+                    layers.forEach((ll) => {
+                        if (ll.group && ll.group === l.group) {
+                            ll.selected = true;
+                        }
+                    });
+                }
+            });
         } else if (!this.foreign) {
             const selected = layers.filter((l) => l.selected);
             const hovered = layers.filter((l) => l.contains(point));

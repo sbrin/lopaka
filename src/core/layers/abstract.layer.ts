@@ -102,7 +102,7 @@ export abstract class AbstractLayer {
     // Layer index
     @mapping('i') public index: number;
     // public group
-    @mapping('g') public group: number;
+    @mapping('g') public group: string;
     // color
     @mapping('c') public color: string = '#000000';
     // ibnverted

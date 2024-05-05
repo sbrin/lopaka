@@ -23,6 +23,7 @@ import {PaintTool} from './tools/paint.tool';
 import {RectTool} from './tools/rect.tool';
 import {TextTool} from './tools/text.tool';
 import {HistoryPlugin} from './plugins/history.plugin';
+import {GroupPlugin} from './plugins/group.plugin';
 
 type TEditorState = {
     activeLayer: AbstractLayer;
@@ -80,7 +81,8 @@ export class Editor {
                 new HistoryPlugin(this.session, this.container),
                 new DeletePlugin(this.session, this.container),
                 new SavePlugin(this.session, this.container),
-                new ImageDropPlugin(this.session, this.container)
+                new ImageDropPlugin(this.session, this.container),
+                new GroupPlugin(this.session, this.container)
             ]
         );
     }
