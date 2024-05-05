@@ -129,7 +129,6 @@ export class DrawContext {
     pixelateRectCorner(point: Point, radius: number, quadrant: number, fill: boolean): DrawContext {
         const signs = new Point(quadrant == 0 || quadrant == 3 ? 1 : -1, quadrant == 0 || quadrant == 1 ? 1 : -1);
         const center = point.clone().add(new Point(radius).multiply(signs));
-        this.ctx.beginPath();
         for (let x = 0; x < radius; x++) {
             let y = Math.sqrt(radius * radius - x * x);
             let p = center.clone().subtract(new Point(x, y).multiply(signs)).round();
@@ -138,13 +137,11 @@ export class DrawContext {
             p = center.clone().subtract(new Point(y, x).multiply(signs)).round();
             this.ctx.rect(p.x, p.y, 1, 1);
         }
-        this.ctx.fill();
         return this;
     }
 
     pixelateRoundedRect(position: Point, size: Point, radius: number, fill: boolean): DrawContext {
         this.ctx.beginPath();
-
         this.ctx.rect(position.x + radius, position.y, size.x - 2 * radius, 1);
         this.ctx.rect(position.x + radius, position.y + size.y - 1, size.x - 2 * radius, 1);
         this.ctx.rect(position.x, position.y + radius, 1, size.y - 2 * radius);
@@ -153,17 +150,21 @@ export class DrawContext {
             this.ctx.fillRect(position.x + radius, position.y, size.x - 2 * radius, size.y);
             this.ctx.fillRect(position.x, position.y + radius, size.x, size.y - 2 * radius);
         }
-        this.ctx.fill();
         this.pixelateRectCorner(position, radius + 1, 0, fill);
         this.pixelateRectCorner(new Point(position.x + size.x - 1, position.y), radius + 1, 1, fill);
         this.pixelateRectCorner(new Point(position.x + size.x - 1, position.y + size.y - 1), radius + 1, 2, fill);
         this.pixelateRectCorner(new Point(position.x, position.y + size.y - 1), radius + 1, 3, fill);
-        this.ctx.save();
-        this.ctx.fillStyle = 'rgba(0,0,0,0)';
-        this.ctx.beginPath();
-        this.ctx.rect(position.x, position.y, size.x, size.y);
         this.ctx.fill();
-        this.ctx.restore();
+        if (fill) {
+            this.ctx.save();
+            this.ctx.fillStyle = 'rgba(0,0,0,0)';
+            this.ctx.beginPath();
+            this.ctx.arc(position.x + radius, position.y + radius, radius, Math.PI, 1.5 * Math.PI);
+            this.ctx.arc(position.x + size.x - radius, position.y + radius, radius, 1.5 * Math.PI, 2 * Math.PI);
+            this.ctx.arc(position.x + size.x - radius, position.y + size.y - radius, radius, 0, 0.5 * Math.PI);
+            this.ctx.arc(position.x + radius, position.y + size.y - radius, radius, 0.5 * Math.PI, Math.PI);
+            this.ctx.fill();
+        }
         return this;
     }
 
