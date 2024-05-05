@@ -320,8 +320,6 @@ export function saveLayers() {
     } else {
         localStorage.setItem(`${session.state.platform}_lopaka_layers`, packedSession);
     }
-    console.log('Saved session size', packedSession.length, 'bytes');
-    console.log('Saved session', packedSession);
 }
 
 export function useSession(id?: string) {
