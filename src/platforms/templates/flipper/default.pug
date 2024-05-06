@@ -17,8 +17,8 @@ each layer in layers
         when 'line'
             | @!{layer.uid};canvas_draw_line(canvas, !{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]});
         when 'rect'
-            - var func = layer.fill ? 'canvas_draw_box' : 'canvas_draw_frame'
-            | @!{layer.uid};!{func}(canvas, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]});
+            - var func = `canvas_draw_${layer.radius? 'r_': ''}${layer.fill ? 'box' : 'frame'}`;
+            | @!{layer.uid};!{func}(canvas, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''});
         when 'circle'
             - var func = layer.fill ? 'canvas_draw_disc' : 'canvas_draw_circle'
             | @!{layer.uid};!{func}(canvas, !{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius});
