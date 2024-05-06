@@ -8,6 +8,11 @@ export class GroupPlugin extends AbstractEditorPlugin {
         if (key === Keys.KeyG && (event.ctrlKey || event.metaKey)) {
             const selected = layers.filter((layer) => layer.selected);
             if (selected.length) {
+                this.session.history.push({
+                    type: 'group',
+                    layer: null,
+                    state: selected.map((l) => ({uid: l.uid, group: l.group}))
+                });
                 if (event.shiftKey) {
                     // remove groups
                     selected.forEach((layer) => {

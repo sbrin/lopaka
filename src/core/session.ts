@@ -254,6 +254,13 @@ export class Session {
                                 this.addLayer(l, false);
                             });
                             break;
+                        case 'group':
+                            this.state.layers.forEach((l) => {
+                                const groupChange = change.state.find((c) => c.uid == l.uid);
+                                if (groupChange) {
+                                    l.group = groupChange.group;
+                                }
+                            });
                         case 'clear':
                             change.state.forEach((l) => {
                                 const type: ELayerType = l.t;
