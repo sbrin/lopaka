@@ -1,0 +1,51 @@
+each decl in declarations 
+    if decl.type == 'bitmap'
+        | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+        |
+    else 
+        | !{decl}
+        |
+if settings.wrap
+    | void draw(void) {
+    |
+- var textColor = 'WHITE'
+- var textSize = '1'
+- var textWrap = true
+- var pad = settings.wrap ? '    ' : ''
+each layer in layers 
+    case layer.type
+        when 'dot'
+            | @!{layer.uid};!{pad}display.setPixel(!{layer.position[0]}, !{layer.position[1]});
+        when 'line'
+            | @!{layer.uid};!{pad}display.drawLine(!{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]});
+        when 'rect'
+            - var func = layer.fill ? 'fillRect' : 'drawRect'
+            | @!{layer.uid};!{pad}display.!{func}(!{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]});
+        when 'circle'
+            - var func = layer.fill ? 'fillCircle' : 'drawCircle'
+            | @!{layer.uid};!{pad}display.!{func}(!{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius});
+        when 'ellipse'
+            - var func = layer.fill ? 'fillEllipse' : 'drawEllipse'
+            | @!{layer.uid};!{pad}display.!{func}(@x:!{layer.position[0] + layer.rx}, @y:!{layer.position[1] + layer.ry}, @rx:!{layer.rx}, @ry:!{layer.ry});
+        when 'string'
+            //- if layer.color != textColor
+            //-     - textColor = layer.color
+            //-     | !{pad}display.setTextColor(!{packColor(layer.color)});
+            //-     |
+            //- if layer.scaleFactor != textSize
+            //-     - textSize = layer.scaleFactor
+            //-     | !{pad}display.setTextSize(!{layer.scaleFactor});
+            //-     |
+            | @!{layer.uid};!{pad}display.drawString(!{layer.position[0]}, !{layer.position[1] - layer.bounds[3]}, "!{layer.text}");
+        when 'paint'
+        when 'icon'
+            | @!{layer.uid};!{pad}display.drawXbm(!{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}, !{layer.imageName});
+        default 
+            |
+            | // Unknown layer type !{layer.type}
+            |
+    |
+    |
+if settings.wrap
+    | }
+    |
