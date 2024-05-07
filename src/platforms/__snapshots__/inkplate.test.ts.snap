@@ -21,5 +21,7 @@ display.setCursor(3, 10);
 // Unknown layer type ellipse
 
 @rrsjcz4oz2ln6jx4y4;display.drawBitmap(0, 0, image_paint_0_bits, 128, 64, 0);
+@njsoidnfijoinisn;display.fillRoundRect(10, 4, 12, 19, 3, 0);
+@jnijisniijaojosd;display.drawRoundRect(45, 20, 14, 12, 5, 0);
 "
 `;
