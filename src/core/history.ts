@@ -1,9 +1,9 @@
 import {AbstractLayer} from './layers/abstract.layer';
 
 export type TChange = {
-    type: 'add' | 'remove' | 'change' | 'clear' | 'merge' | 'group';
-    layer: AbstractLayer;
-    state: any;
+    type: 'add' | 'remove' | 'change' | 'clear' | 'merge' | 'group' | 'begin' | 'end';
+    layer?: AbstractLayer;
+    state?: any;
 };
 
 export type THistoryEvent = {
@@ -29,10 +29,29 @@ export class ChangeHistory {
         this.emit({type: 'push'}, change);
     }
 
+    public batchStart() {
+        this.push({type: 'end'});
+    }
+
+    public batchEnd() {
+        this.push({type: 'begin'});
+    }
+
     public undo() {
         if (this.history.length) {
-            const change = this.history.pop();
-            this.emit({type: 'undo'}, change);
+            let change = this.history.pop();
+            console.log('undpo', change);
+            if (change.type == 'begin') {
+                // undo all changes to end
+                while (change.type != 'end') {
+                    change = this.history.pop();
+                    if (change.type != 'end') {
+                        this.emit({type: 'undo'}, change);
+                    }
+                }
+            } else {
+                this.emit({type: 'undo'}, change);
+            }
         }
     }
 

@@ -18,6 +18,7 @@ export class MovePlugin extends AbstractEditorPlugin {
         const hovered = layers.filter((l) => l.contains(point));
         if (selected.length && hovered.length) {
             this.captured = true;
+            this.session.history.batchStart();
             selected.forEach((layer) => layer.startEdit(EditMode.MOVING, point.clone()));
         }
     }
@@ -39,6 +40,7 @@ export class MovePlugin extends AbstractEditorPlugin {
                 .forEach((layer) => {
                     layer.stopEdit();
                 });
+            this.session.history.batchEnd();
         }
     }
 
