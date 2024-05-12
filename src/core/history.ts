@@ -40,7 +40,6 @@ export class ChangeHistory {
     public undo() {
         if (this.history.length) {
             let change = this.history.pop();
-            console.log('undpo', change);
             if (change.type == 'begin') {
                 // undo all changes to end
                 while (change.type != 'end') {
