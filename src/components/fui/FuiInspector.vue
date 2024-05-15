@@ -13,26 +13,22 @@ import {loadFont} from '../../draw/fonts';
 import FuiButton from './FuiButton.vue';
 import {logEvent} from '../../utils';
 const session = useSession();
-const {platform} = toRefs(session.state);
-const {updates} = toRefs(session.virtualScreen.state);
-const {selectionUpdates} = toRefs(session.editor.state);
+const {platform, immidiateUpdates, selectionUpdates} = toRefs(session.state);
 let lastUpdate = 0;
 
 const activeLayer: ComputedRef<UnwrapRef<AbstractLayer>> = computed(() => {
-    const selection = session.state.layers.filter((l) => l.selected);
-    return updates.value && selection.length == 1 ? selection[0] : null;
+    const {selected} = session.layersManager;
+    return immidiateUpdates.value && selected.length == 1 ? selected[0] : null;
 });
 
 const params: ComputedRef<UnwrapRef<TLayerModifiers>> = computed(() =>
-    updates.value && activeLayer.value ? activeLayer.value.modifiers : {}
+    immidiateUpdates.value && activeLayer.value ? activeLayer.value.modifiers : {}
 );
 
-const actions = computed(() => (updates.value && activeLayer.value ? activeLayer.value.actions : []));
+const actions = computed(() => (immidiateUpdates.value && activeLayer.value ? activeLayer.value.actions : []));
 
 const layerToMerge = computed(
-    () =>
-        selectionUpdates.value &&
-        session.state.layers.filter((l) => l.selected && l instanceof AbstractLayer).length > 1
+    () => selectionUpdates.value && session.layersManager.selected.filter((l) => l instanceof AbstractLayer).length > 1
 );
 
 const fonts = computed(() => {
@@ -88,7 +84,7 @@ function onAction(action: TLayerAction) {
 
 function mergeLayers() {
     session.mergeLayers(
-        (session.state.layers as AbstractLayer[]).filter(
+        (session.layersManager.sorted as AbstractLayer[]).filter(
             (l) => l.selected && (!(l instanceof AbstractImageLayer) || !l.overlay)
         )
     );
@@ -151,6 +147,7 @@ const LABELS = {
                             :value="param.getValue()"
                             @change="onChange($event, param)"
                             :readonly="!param.setValue"
+                            :key="immidiateUpdates + '_' + name"
                         />
                     </div>
                     <template v-else-if="param.type == TModifierType.string">
@@ -161,6 +158,7 @@ const LABELS = {
                             :value="param.getValue()"
                             @keyup="onChange($event, param)"
                             :readonly="!param.setValue"
+                            :key="immidiateUpdates + '_' + name"
                         />
                     </template>
                     <div v-else-if="param.type == TModifierType.boolean" class="fui-form-checkbox">
@@ -172,12 +170,12 @@ const LABELS = {
                             @change="onChange($event, param)"
                             :readonly="!param.setValue"
                             :id="`inspector_${param.type}_${name}`"
-                            :key="updates + '_' + name"
+                            :key="immidiateUpdates + '_' + name"
                         />
                     </div>
 
                     <div v-else-if="param.type == TModifierType.color">
-                        <div class="color-palette" v-if="palette.length" :key="updates + '_' + name">
+                        <div class="color-palette" v-if="palette.length" :key="immidiateUpdates + '_' + name">
                             <div
                                 class="color-palette-box"
                                 @click="onChange($event, param, color)"

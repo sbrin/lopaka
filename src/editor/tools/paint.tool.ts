@@ -20,18 +20,19 @@ export class PaintTool extends AbstractTool {
     }
 
     onActivate(): void {
-        const selected = this.editor.session.state.layers.filter((l) => l.selected);
+        const selected = this.editor.session.layersManager.selected;
         const selectedPaints = selected.filter((l) => l instanceof PaintLayer);
+        const {layersManager} = this.editor.session;
         // we need to deselect all layers except one PaintLayer
-        selected.forEach((l) => (l.selected = false));
+        selected.forEach((l) => layersManager.unselectLayer(l));
         if (selectedPaints.length) {
             const layer = selectedPaints[0];
-            layer.selected = true;
+            this.editor.session.layersManager.selectLayer(layer);
             this.editor.state.activeLayer = layer;
         } else {
             const layer = this.createLayer();
             this.editor.session.addLayer(layer);
-            layer.selected = true;
+            layersManager.selectLayer(layer);
             this.editor.state.activeLayer = layer;
         }
         const paintPlugin = this.editor.plugins.find((p: AbstractEditorPlugin) => p instanceof PaintPlugin);

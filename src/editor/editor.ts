@@ -28,7 +28,6 @@ import {GroupPlugin} from './plugins/group.plugin';
 type TEditorState = {
     activeLayer: AbstractLayer;
     activeTool: AbstractTool;
-    selectionUpdates: number;
 };
 
 export class Editor {
@@ -43,8 +42,7 @@ export class Editor {
 
     state: UnwrapRef<TEditorState> = reactive({
         activeLayer: null,
-        activeTool: null,
-        selectionUpdates: 1
+        activeTool: null
     });
 
     constructor(public session: Session) {}
@@ -87,10 +85,6 @@ export class Editor {
         );
     }
 
-    selectionUpdate(): void {
-        this.state.selectionUpdates++;
-    }
-
     clear(): void {
         this.plugins.forEach((p: AbstractEditorPlugin) => p.onClear());
         this.state.activeTool = null;
@@ -110,7 +104,7 @@ export class Editor {
 
     handleEvent = (event: MouseEvent | KeyboardEvent | DragEvent) => {
         const {virtualScreen, state} = this.session;
-        const {display, scale, layers} = state;
+        const {scale} = state;
         if (event instanceof KeyboardEvent) {
             if (this.session.state.isPublic) {
                 return;

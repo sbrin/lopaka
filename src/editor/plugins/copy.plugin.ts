@@ -10,15 +10,15 @@ type TCopyRecord = {
 export class CopyPlugin extends AbstractEditorPlugin {
     buffer: TCopyRecord[];
     onKeyDown(key: Keys, event: KeyboardEvent): void {
-        const {layers} = this.session.state;
+        const {layersManager} = this.session;
         if (key === Keys.KeyC && (event.ctrlKey || event.metaKey)) {
-            const selected = layers.filter((layer) => layer.selected);
+            const selected = layersManager.selected;
             if (selected.length) {
                 this.buffer = selected.map((layer) => ({constructor: layer.constructor, state: layer.state}));
             }
         } else if (key === Keys.KeyV && (event.ctrlKey || event.metaKey)) {
             if (this.buffer) {
-                layers.forEach((layer) => (layer.selected = false));
+                layersManager.clearSelection();
                 this.buffer.forEach((record) => {
                     const l: AbstractLayer = new record.constructor(this.session.getPlatformFeatures());
                     const uid = l.uid;
@@ -34,9 +34,9 @@ export class CopyPlugin extends AbstractEditorPlugin {
                         l.modifiers.x2.setValue(l.modifiers.x2.getValue() + 2);
                         l.modifiers.y2.setValue(l.modifiers.y2.getValue() + 2);
                     }
-                    l.index = layers.length;
-                    l.name = 'Layer ' + (layers.length + 1);
-                    l.selected = true;
+                    l.index = layersManager.count;
+                    l.name = 'Layer ' + (layersManager.count + 1);
+                    layersManager.selectLayer(l);
                     l.stopEdit();
                     this.session.addLayer(l);
                 });

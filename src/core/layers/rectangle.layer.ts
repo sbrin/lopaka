@@ -24,7 +24,6 @@ export class RectangleLayer extends AbstractLayer {
             getValue: () => this.position.x,
             setValue: (v: number) => {
                 this.position.x = v;
-
                 this.updateBounds();
                 this.draw();
             },

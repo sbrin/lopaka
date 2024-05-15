@@ -24,26 +24,30 @@ export class SelectPlugin extends AbstractEditorPlugin {
 
     onMouseDown(point: Point, event: MouseEvent): void {
         this.foreign = false;
-        const {layers, scale, display} = this.session.state;
+        const {layersManager} = this.session;
         const {activeTool} = this.session.editor.state;
         if (!activeTool) {
-            const hovered = layers.filter((l) => l.contains(point)).sort((a, b) => b.index - a.index);
+            const hovered = layersManager.contains(point).reverse();
             if (hovered.length) {
                 // if there is a hovered layer
                 const upperLayer = hovered[0];
                 // add or remove from selection if ctrl or cmd is pressed
                 if (event.ctrlKey || event.metaKey) {
-                    upperLayer.selected = !upperLayer.selected;
+                    if (upperLayer.selected) {
+                        layersManager.unselectLayer(upperLayer);
+                    } else {
+                        layersManager.selectLayer(upperLayer);
+                    }
                 } else if (!upperLayer.selected) {
                     // if layer is not selected, select it and unselect others
-                    this.session.state.layers.forEach((l) => (l.selected = false));
-                    upperLayer.selected = true;
+                    layersManager.clearSelection();
+                    layersManager.selectLayer(upperLayer);
                 }
                 // select all layers in groups
-                if (upperLayer.group) {
-                    layers.forEach((l) => {
+                if (upperLayer.group && !event.altKey) {
+                    layersManager.eachLayer((l) => {
                         if (l.group && l.group === upperLayer.group) {
-                            l.selected = upperLayer.selected;
+                            layersManager.selectLayer(l);
                         }
                     });
                 }
@@ -52,7 +56,6 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.captured = true;
                 this.firstPoint = point.clone();
             }
-            this.session.editor.selectionUpdate();
         }
     }
 
@@ -90,48 +93,49 @@ export class SelectPlugin extends AbstractEditorPlugin {
     }
 
     onMouseUp(point: Point, event: MouseEvent): void {
-        const {layers, display, scale} = this.session.state;
+        const {layersManager} = this.session;
         if (this.captured) {
             this.captured = false;
             this.selectionElement.style.display = 'none';
             const position = this.firstPoint.clone().min(point);
             const size = point.clone().subtract(this.firstPoint).abs();
             if (size.x < 2 && size.y < 2) {
-                layers.filter((l) => l.selected).forEach((l) => (l.selected = false));
-                this.session.editor.selectionUpdate();
+                layersManager.clearSelection();
                 return;
             }
-            layers.forEach((l) => {
-                l.selected = this.intersect(l, position, size);
+            layersManager.eachLayer((l) => {
+                if (this.intersect(l, position, size)) {
+                    layersManager.selectLayer(l);
+                } else {
+                    layersManager.unselectLayer(l);
+                }
                 if (l.selected && l.group) {
-                    layers.forEach((ll) => {
+                    layersManager.eachLayer((ll) => {
                         if (ll.group && ll.group === l.group) {
-                            ll.selected = true;
+                            layersManager.selectLayer(ll);
                         }
                     });
                 }
             });
         } else if (!this.foreign) {
-            const selected = layers.filter((l) => l.selected);
-            const hovered = layers.filter((l) => l.contains(point));
+            const selected = layersManager.selected;
+            const hovered = layersManager.contains(point);
             if (!hovered.length) {
-                selected.forEach((layer) => (layer.selected = false));
+                selected.forEach((layer) => layersManager.unselectLayer(layer));
             }
         }
         this.foreign = true;
-        this.session.editor.selectionUpdate();
     }
 
     onKeyDown(key: Keys, event: KeyboardEvent): void {
-        const {layers} = this.session.state;
+        const {layersManager} = this.session;
         if (this.session.editor.state.activeTool) return;
         if (key === Keys.Escape) {
-            layers.forEach((l) => (l.selected = false));
-            this.session.virtualScreen.redraw(false);
+            layersManager.clearSelection();
+            this.session.virtualScreen.redraw();
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {
-            layers.forEach((l) => (l.selected = true));
-            this.session.virtualScreen.redraw(false);
+            layersManager.eachLayer((l) => layersManager.selectLayer(l));
+            this.session.virtualScreen.redraw();
         }
-        this.session.editor.selectionUpdate();
     }
 }

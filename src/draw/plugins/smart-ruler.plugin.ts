@@ -2,8 +2,9 @@ import {DrawPlugin} from './draw.plugin';
 
 export class SmartRulerPlugin extends DrawPlugin {
     public update(ctx: CanvasRenderingContext2D): void {
-        const {layers, scale, display} = this.session.state;
-        const selected = layers.filter((layer) => layer.selected || layer.isEditing());
+        const {scale, display} = this.session.state;
+        const {layersManager} = this.session;
+        const selected = layersManager.sorted.filter((layer) => layer.selected || layer.isEditing());
         const {interfaceColors} = this.session.getPlatformFeatures();
         const textColor = interfaceColors.rulerColor;
         const lineColor = interfaceColors.rulerLineColor;

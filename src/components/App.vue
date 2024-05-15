@@ -2,13 +2,14 @@
 import {ShallowRef, computed, onMounted, ref, toRefs, watch} from 'vue';
 import {IconLayer} from '../core/layers/icon.layer';
 import {Point} from '../core/point';
-import {loadLayers, saveLayers, useSession} from '../core/session';
+import {loadLayers, useSession} from '../core/session';
 import {FlipperRPC} from '../flipper-rpc';
 import {FlipperPlatform} from '../platforms/flipper';
-import {debounce, loadImageAsync, logEvent, postParentMessage, throttle} from '../utils';
+import {debounce, loadImageAsync, logEvent, postParentMessage} from '../utils';
 import FuiButton from './fui/FuiButton.vue';
 import FuiCanvas from './fui/FuiCanvas.vue';
 import FuiCode from './fui/FuiCode.vue';
+import FuiEditorSettings from './fui/FuiCodeSettings.vue';
 import FuiFile from './fui/FuiFile.vue';
 import FuiIcons from './fui/FuiIcons.vue';
 import FuiInspector from './fui/FuiInspector.vue';
@@ -18,7 +19,6 @@ import FuiSelectPlatform from './fui/FuiSelectPlatform.vue';
 import FuiSelectScale from './fui/FuiSelectScale.vue';
 import FuiTabs from './fui/FuiTabs.vue';
 import FuiTools from './fui/FuiTools.vue';
-import FuiEditorSettings from './fui/FuiCodeSettings.vue';
 
 let fuiImages = {},
     imageDataCache = {};
@@ -28,14 +28,14 @@ const fuiCanvas = ref(null),
 const session = useSession();
 const {editor, virtualScreen, state} = session;
 const {platform, customImages} = toRefs(state);
-const {updates} = toRefs(virtualScreen.state);
+const {updates} = toRefs(session.state);
 
 // computed
-const isEmpty = computed(() => updates.value && session.state.layers.length === 0);
+const isEmpty = computed(() => updates.value && session.layersManager.count === 0);
 const isFlipper = computed(() => platform.value === FlipperPlatform.id);
 const isSerialSupported = computed(() => window.navigator.serial !== undefined);
 const flipperPreviewBtnText = computed(() => (flipper.value ? 'Disconnect' : 'Live View'));
-const showCopyCode = computed(() => updates.value && session.state.layers.length > 0);
+const showCopyCode = computed(() => updates.value && session.layersManager.count > 0);
 
 const flipper: ShallowRef<FlipperRPC> = ref(null);
 
@@ -45,7 +45,6 @@ watch(
         if (flipper.value) {
             sendFlipperImage();
         }
-        saveLayers();
     }, 1000)
 );
 
@@ -71,10 +70,10 @@ function copyCode() {
 }
 
 function addImageToCanvas(data) {
-    session.state.layers.forEach((layer) => (layer.selected = false));
+    session.layersManager.clearSelection();
     const newLayer = new IconLayer(session.getPlatformFeatures());
     newLayer.name = data.name;
-    newLayer.selected = true;
+    session.layersManager.selectLayer(newLayer);
     newLayer.modifiers.icon.setValue(data.icon);
     newLayer.size = new Point(data.width, data.height);
     newLayer.updateBounds();
