@@ -9,16 +9,30 @@ export class HighlightPlugin extends DrawPlugin {
         const {interfaceColors} = this.session.getPlatformFeatures();
         ctx.save();
         ctx.beginPath();
+        const groups: Set<string> = new Set();
         layersManager.eachLayer((layer) => {
             const bounds = layer.bounds.clone().multiply(scale).round().add(-0.5, -0.5, 1, 1);
             if (layer.selected) {
-                ctx.save();
-                ctx.strokeStyle = interfaceColors.selectColor;
-                ctx.lineWidth = 1;
-                ctx.setLineDash([5, 5]);
-                ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
-                ctx.restore();
+                if (layer.group) {
+                    groups.add(layer.group);
+                } else {
+                    ctx.save();
+                    ctx.strokeStyle = interfaceColors.selectColor;
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
+                    ctx.restore();
+                }
             }
+        });
+        groups.forEach((group) => {
+            const groupBounds = layersManager.getGroupBounds(group).multiply(scale).round().add(-0.5, -0.5, 1, 1);
+            ctx.save();
+            ctx.strokeStyle = interfaceColors.hoverColor;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 10]);
+            ctx.strokeRect(groupBounds.x, groupBounds.y, groupBounds.w, groupBounds.h);
+            ctx.restore();
         });
         if (point) {
             const hovered = layersManager.sorted
@@ -26,13 +40,31 @@ export class HighlightPlugin extends DrawPlugin {
                 .reverse();
             if (hovered.length) {
                 const upperLayer = hovered[0];
-                if (!upperLayer.selected) {
+                if (!upperLayer.selected || upperLayer.group) {
+                    if (upperLayer.group) {
+                        const groupBounds = layersManager
+                            .getGroupBounds(upperLayer.group)
+                            .multiply(scale)
+                            .round()
+                            .add(-0.5, -0.5, 1, 1);
+                        ctx.save();
+                        ctx.strokeStyle = interfaceColors.hoverColor;
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([5, 10]);
+                        ctx.strokeRect(groupBounds.x, groupBounds.y, groupBounds.w, groupBounds.h);
+                        ctx.restore();
+                    }
+                    // else {
                     const bounds = upperLayer.bounds.clone().multiply(scale).round().add(-0.5, -0.5, 1, 1);
                     ctx.save();
                     ctx.strokeStyle = interfaceColors.hoverColor;
                     ctx.lineWidth = 1;
+                    if (upperLayer.group) {
+                        ctx.setLineDash([5, 5]);
+                    }
                     ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
                     ctx.restore();
+                    // }
                 }
             }
         }

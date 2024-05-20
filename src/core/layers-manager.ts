@@ -12,6 +12,7 @@ import {PaintLayer} from './layers/paint.layer';
 import {RectangleLayer} from './layers/rectangle.layer';
 import {TextLayer} from './layers/text.layer';
 import {Point} from './point';
+import {Rect} from './rect';
 import {Session} from './session';
 
 export class LayersManager {
@@ -58,6 +59,15 @@ export class LayersManager {
         return this.layersMap.get(uid);
     }
 
+    getLayersInGroup(group: string): AbstractLayer[] {
+        return this.groupsMap.get(group).map((uid) => this.getLayer(uid));
+    }
+
+    getGroupBounds(group: string): Rect {
+        const layers = this.getLayersInGroup(group);
+        return layers.reduce((acc, l) => acc.extends(l.bounds), new Rect(layers[0].bounds));
+    }
+
     eachLayer(callback: (layer: AbstractLayer) => void) {
         this.layersMap.forEach(callback);
         this.requestUpdate();
@@ -86,7 +96,7 @@ export class LayersManager {
     }
 
     clearSelection() {
-        this.layersMap.forEach((l) => (l.selected = false));
+        this.eachLayer((l) => (l.selected = false));
         this.session.state.selectionUpdates++;
     }
 
@@ -106,6 +116,12 @@ export class LayersManager {
         layer.name = layer.name ?? 'Layer ' + (this.layersMap.size + 1);
         this.layersMap.set(layer.uid, layer);
         layer.draw();
+        if (layer.group) {
+            if (!this.groupsMap.has(layer.group)) {
+                this.groupsMap.set(layer.group, []);
+            }
+            this.groupsMap.get(layer.group).push(layer.uid);
+        }
         this.requestUpdate();
     }
 
@@ -116,6 +132,18 @@ export class LayersManager {
             .forEach((l: AbstractLayer) => {
                 l.group = groupName;
             });
+        let groupInserted = false;
+        let index = 1;
+        this.sorted.forEach((l) => {
+            if (l.group === groupName) {
+                groupInserted = true;
+                layers.forEach((layer) => {
+                    layer.index = index++;
+                });
+            } else {
+                l.index = index++;
+            }
+        });
         this.groupsMap.set(
             groupName,
             layers.map((l) => l.uid)
@@ -152,6 +180,9 @@ export class LayersManager {
 
     removeLayer(layer: AbstractLayer) {
         this.layersMap.delete(layer.uid);
+        if (layer.group) {
+            this.groupsMap.get(layer.group)?.splice(this.groupsMap.get(layer.group).indexOf(layer.uid), 1);
+        }
         this.requestUpdate();
         // this.session.state.layers = this.session.state.layers.filter((l) => l.uid !== layer.uid);
     }

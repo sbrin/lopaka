@@ -45,6 +45,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 }
                 // select all layers in groups
                 if (upperLayer.group && !event.altKey) {
+                    layersManager.clearSelection();
                     layersManager.eachLayer((l) => {
                         if (l.group && l.group === upperLayer.group) {
                             layersManager.selectLayer(l);
