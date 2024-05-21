@@ -5,6 +5,11 @@
     font-style: normal;
 }
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
 :root {
     --primary-color: #ff8200;
     --secondary-color: #441f07;
@@ -33,7 +38,6 @@ body {
     visibility: hidden;
 }
 
-
 #lopaka_app {
     display: flex;
 }
@@ -43,7 +47,6 @@ body {
     flex-direction: column;
     align-items: center;
 }
-
 
 .title {
     margin: 0 0 8px 0;
