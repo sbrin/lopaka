@@ -26,12 +26,13 @@ module.exports = {
         themes: [
             {
                 lopaka: {
+                    ...require('daisyui/src/theming/themes').dark,
                     primary: '#FF8200',
                     neutral: '#441F07',
                     'base-100': '#120800', // bg
-                    "base-200": "#441F07", // default button
-                    "base-300": "#FF8200", // default tabs
-                    "base-content": "#f3f4f6",
+                    'base-200': '#441F07', // default button
+                    'base-300': '#FF8200', // default tabs
+                    'base-content': '#f3f4f6',
                     secondary: '#7dd3fc',
                     accent: '#047857',
                     info: '#00c9ff',
