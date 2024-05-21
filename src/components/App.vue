@@ -230,7 +230,6 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 </template>
 <style lang="css">
 .fui-editor {
-    background: var(--bg-color);
     margin: 0 auto;
     position: relative;
     box-sizing: border-box;

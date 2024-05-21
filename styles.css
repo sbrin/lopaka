@@ -10,7 +10,7 @@
 @tailwind utilities;
 @tailwind variants;
 
-:root {
+/* :root {
     --primary-color: #ff8200;
     --secondary-color: #441f07;
     --bg-color: #1c0e02;
@@ -25,17 +25,19 @@
 h1,
 h2,
 h3 {
-    /* font-family: "helvB08_tr"; */
     font-weight: normal;
 }
 
 body {
     margin: 0;
     padding: 0;
-    background: var(--bg-color);
     color: var(--primary-color);
     font-family: 'haxrcorp4089_tr';
     visibility: hidden;
+}
+
+a {
+    color: var(--primary-color);
 }
 
 #lopaka_app {
@@ -51,7 +53,6 @@ body {
 .title {
     margin: 0 0 8px 0;
     font-size: 32px;
-    /* font-family: "helvB08_tr"; */
     font-weight: normal;
 }
 
@@ -65,74 +66,6 @@ body {
 
 .tools__btn {
     margin: 0 8px 8px 0;
-}
-
-.layer {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    height: 20px;
-    padding: 2px 0 2px 8px;
-    margin-bottom: 1px;
-    border-radius: 4px;
-    justify-content: space-between;
-}
-
-.layer:hover {
-    background-color: var(--secondary-color);
-}
-
-.layer:hover .layer__remove {
-    display: block;
-}
-
-.layer__name {
-    max-width: 132px;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.layer_ignored {
-    color: #999;
-}
-
-.layer_selected .layer__name:before {
-    display: inline-block;
-    content: '';
-    background: var(--success-color);
-    transform: translateY(-4px);
-    width: 4px;
-    height: 4px;
-    margin-right: 4px;
-}
-
-.layer__remove {
-    display: none;
-    color: var(--danger-color);
-    margin: 0 8px;
-    padding-bottom: 4px;
-}
-
-.fui-code {
-    background: var(--primary-color);
-    border: 2px solid var(--border-dark-color);
-    border-radius: 0 10px 10px 10px;
-    border-top: 0;
-    margin: 0 0 8px 0;
-    padding: 8px;
-    height: 350px;
-    color: var(--secondary-color);
-    text-transform: none;
-    overflow: auto;
-    white-space: pre;
-}
-
-.fui-code:focus {
-    outline: none;
-}
-
-.fui-code pre {
-    margin: 0;
 }
 
 .fui-tabs {
@@ -196,10 +129,6 @@ body {
     font-size: 24px;
 }
 
-a {
-    color: var(--primary-color);
-}
-
 .fui-form-column {
     margin-left: 16px;
 }
@@ -211,7 +140,6 @@ a {
 }
 .fui-form-label {
     font-size: 24px;
-    /* padding: 0 8px 4px 0; */
 }
 .fui-form-header {
     font-size: 32px;
@@ -228,4 +156,4 @@ a {
     order: -1;
     padding: 0 10px 0 0;
     width: 12px;
-}
+} */
