@@ -10,7 +10,7 @@
 @tailwind utilities;
 @tailwind variants;
 
-/* :root {
+:root {
     --primary-color: #ff8200;
     --secondary-color: #441f07;
     --bg-color: #1c0e02;
@@ -151,9 +151,12 @@ a {
     padding: 8px;
     color: var(--primary-color);
     box-sizing: border-box;
+    font-family: sans-serif;
+    font-size: small;
 }
 .fui-form-checkbox {
     order: -1;
     padding: 0 10px 0 0;
+    height: 12px;
     width: 12px;
-} */
+}
