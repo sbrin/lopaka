@@ -158,7 +158,7 @@ const LABELS = {
                         :id="`inspector_${param.type}_${name}`"
                         :key="updates + '_' + name"
                     />
-                    <label class="label label-text pr-2" :for="`inspector_${param.type}_${name}`">
+                    <label class="label label-text pr-2 cursor-pointer" :for="`inspector_${param.type}_${name}`">
                         {{ LABELS[name] ?? name }}
                     </label>
                     <div v-if="param.type == TModifierType.number" class="w-20">
@@ -169,6 +169,7 @@ const LABELS = {
                             :value="param.getValue()"
                             @change="onChange($event, param)"
                             :readonly="!param.setValue"
+                            :id="`inspector_${param.type}_${name}`"
                         />
                     </div>
                     <template v-else-if="param.type == TModifierType.string">
