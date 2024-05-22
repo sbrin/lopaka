@@ -14,6 +14,7 @@ export class DotLayer extends RectangleLayer {
         delete this.modifiers.w;
         delete this.modifiers.h;
         delete this.modifiers.fill;
+        delete this.modifiers.radius;
         if (!this.features.hasRGBSupport) {
             delete this.modifiers.color;
         }
@@ -36,6 +37,16 @@ export class DotLayer extends RectangleLayer {
         }
         this.updateBounds();
         this.draw();
+    }
+
+    draw(): void {
+        const {dc, position, size} = this;
+        dc.clear();
+        dc.ctx.fillStyle = this.color;
+        dc.ctx.strokeStyle = this.color;
+        dc.ctx.beginPath();
+        dc.ctx.rect(position.x, position.y, size.x, size.y);
+        dc.ctx.fill();
     }
 
     updateBounds(): void {
