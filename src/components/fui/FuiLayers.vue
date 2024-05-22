@@ -82,7 +82,7 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
     display: flex;
     align-items: center;
     cursor: pointer;
-    height: 20px;
+    height: 24px;
     padding: 2px 0 2px 8px;
     margin-bottom: 1px;
     border-radius: 4px;
@@ -121,6 +121,6 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
     display: none;
     color: var(--danger-color);
     margin: 0 8px;
-    padding-bottom: 4px;
+    height: 32px;
 }
 </style>

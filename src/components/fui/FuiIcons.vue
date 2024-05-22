@@ -154,5 +154,7 @@ function iconDragStart(e: DragEvent) {
     border: 1px solid var(--border-dark-color);
     border-radius: 4px;
     text-align: center;
+    height: 18px;
+    line-height: 18px;
 }
 </style>
