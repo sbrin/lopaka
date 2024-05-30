@@ -11,20 +11,20 @@ export class AddPlugin extends AbstractEditorPlugin {
 
     onMouseDown(point: Point, event: MouseEvent): void {
         const {state} = this.session.editor;
-        const {layers} = this.session.state;
+        const {layersManager} = this.session;
         if (!state.activeTool || state.activeLayer) {
             return;
         }
-        if (layers.find((l) => l.isEditing())) {
+        if (layersManager.sorted.find((l) => l.isEditing())) {
             return;
         } else {
             this.captured = true;
-            layers.forEach((l) => (l.selected = false));
+            layersManager.clearSelection();
             state.activeLayer = state.activeTool.createLayer();
             this.session.addLayer(state.activeLayer as AbstractLayer);
             state.activeLayer.startEdit(EditMode.CREATING, point);
             state.activeTool.onStartEdit(state.activeLayer as AbstractLayer, point, event);
-            this.session.virtualScreen.redraw(false);
+            this.session.virtualScreen.redraw();
         }
     }
 
@@ -32,7 +32,7 @@ export class AddPlugin extends AbstractEditorPlugin {
         if (this.captured) {
             const {activeLayer} = this.session.editor.state;
             activeLayer.edit(point, event);
-            this.session.virtualScreen.redraw(false);
+            this.session.virtualScreen.redraw();
         }
     }
 
@@ -42,7 +42,7 @@ export class AddPlugin extends AbstractEditorPlugin {
             this.captured = false;
             activeLayer.stopEdit();
             activeTool.onStopEdit(activeLayer as AbstractLayer, point, event);
-            activeLayer.selected = true;
+            this.session.layersManager.selectLayer(activeLayer as AbstractLayer);
             this.session.virtualScreen.redraw();
         }
     }

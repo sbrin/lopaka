@@ -23,7 +23,6 @@ export class VirtualScreen {
 
     private pluginLayer: HTMLCanvasElement = null;
     private pluginLayerContext: CanvasRenderingContext2D = null;
-    public state;
 
     private scope: EffectScope;
     canvas: HTMLCanvasElement = null;
@@ -56,15 +55,15 @@ export class VirtualScreen {
         this.plugins.push(new PaintHighlightPlugin(session));
         this.scope = new EffectScope();
         this.scope.run(() => {
-            this.state = reactive({
-                updates: 1
-            });
+            // this.state = reactive({
+            //     updates: 1
+            // });
             watch([platform], () => {
-                this.redraw(false);
+                this.redraw();
             });
             watch([scale, display], () => {
                 this.resize();
-                this.redraw(false);
+                this.redraw();
             });
         });
     }
@@ -92,7 +91,7 @@ export class VirtualScreen {
             });
         }
         this.resize();
-        this.redraw(false);
+        this.redraw();
     }
 
     updateMousePosition(position: Point, event: MouseEvent) {
@@ -114,11 +113,11 @@ export class VirtualScreen {
 
     getLayersInPoint(position: Point): AbstractLayer[] {
         const point = position.clone().divide(this.session.state.scale).round();
-        return this.session.state.layers.filter((layer) => layer.contains(point)).sort((a, b) => b.index - a.index);
+        return this.session.layersManager.contains(point).reverse();
     }
 
     public resize() {
-        const {display, scale, layers} = this.session.state;
+        const {display, scale} = this.session.state;
         const size = display.clone();
         this.screen.width = size.x;
         this.screen.height = size.y;
@@ -138,33 +137,28 @@ export class VirtualScreen {
                 height: `${size.y * scale.y + DrawPlugin.offset.y * 2}px`
             });
         }
-        layers.forEach((layer: AbstractLayer) => {
+        this.session.layersManager.eachLayer((layer: AbstractLayer) => {
             layer.resize(display, scale);
             layer.draw();
         });
     }
 
-    public redraw(update = true) {
+    public redraw() {
         if (!this.canvas) return;
         this.clear();
         const overlays = [];
-        this.session.state.layers
-            .sort((a, b) => a.index - b.index)
-            .forEach((layer) => {
-                // skip all oberlays
-                if (layer.modifiers.overlay && layer.modifiers.overlay.getValue()) {
-                    overlays.push(layer);
-                    return;
-                }
-                if (layer.inverted) {
-                    this.ctx.globalCompositeOperation = 'difference';
-                }
-                this.ctx.drawImage(layer.getBuffer(), 0, 0);
-                this.ctx.globalCompositeOperation = 'source-over';
-            });
-        if (update) {
-            this.state.updates++;
-        }
+        this.session.layersManager.sorted.forEach((layer) => {
+            // skip all oberlays
+            if (layer.modifiers.overlay && layer.modifiers.overlay.getValue()) {
+                overlays.push(layer);
+                return;
+            }
+            if (layer.inverted) {
+                this.ctx.globalCompositeOperation = 'difference';
+            }
+            this.ctx.drawImage(layer.getBuffer(), 0, 0);
+            this.ctx.globalCompositeOperation = 'source-over';
+        });
         // create data without alpha channel
         const data = this.ctx.getImageData(0, 0, this.screen.width, this.screen.height).data.map((v, i) => {
             if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;

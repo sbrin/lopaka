@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {UnwrapRef, computed, ref} from 'vue';
+import {UnwrapRef, computed, ref, toRefs, watch} from 'vue';
 import {AbstractLayer} from '../../core/layers/abstract.layer';
 import {useSession} from '../../core/session';
 import {TextLayer} from '../../core/layers/text.layer';
@@ -9,13 +9,13 @@ const session = useSession();
 const drag = ref(false);
 
 const layers = computed({
-    get: () => session.state.layers.slice().sort((a, b) => b.index - a.index),
+    get: () => session.state.updates && session.layersManager.sorted,
     set: (l) => {
         const len = l.length;
         l.forEach((layer, index) => {
             layer.index = len - index;
         });
-        session.state.layers = l.slice().sort((a, b) => a.index - b.index);
+        session.layersManager.requestUpdate();
         session.virtualScreen.redraw();
     }
 });
@@ -28,9 +28,8 @@ function classNames(layer) {
 }
 
 function setActive(layer: UnwrapRef<AbstractLayer>) {
-    layers.value.forEach((l) => (l.selected = false));
-    layer.selected = true;
-    session.editor.selectionUpdate();
+    session.layersManager.clearSelection();
+    session.layersManager.selectLayer(layer as AbstractLayer);
     session.virtualScreen.redraw();
 }
 
@@ -68,7 +67,6 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
     </div>
 </template>
 <style lang="css" scoped>
-
 .layers__list {
     font-size: 24px;
     overflow: hidden;

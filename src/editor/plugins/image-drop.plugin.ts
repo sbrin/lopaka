@@ -6,7 +6,7 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
     onDrop(point: Point, event: DragEvent): void {
         const name = event.dataTransfer.getData('text/plain');
         const url = event.dataTransfer.getData('text/uri');
-        this.session.state.layers.forEach((layer) => (layer.selected = false));
+        this.session.layersManager.clearSelection();
         if (event.dataTransfer.files.length > 0) {
             // todo drop from desktop
         } else {
@@ -15,8 +15,8 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
     }
 
     private async addImageLayer(name: string, url: string, point: Point) {
-        const {virtualScreen} = this.session;
-        this.session.state.layers.forEach((layer) => (layer.selected = false));
+        const {virtualScreen, layersManager} = this.session;
+        layersManager.clearSelection();
         const icon = new Image();
         icon.src = url;
         icon.crossOrigin = 'anonymous';
@@ -31,7 +31,7 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
         newLayer.name = name;
         newLayer.size = size;
         newLayer.position = point.clone().subtract(size.clone().divide(2));
-        newLayer.selected = true;
+        layersManager.selectLayer(newLayer);
         newLayer.modifiers.icon.setValue(icon);
         newLayer.stopEdit();
         this.session.addLayer(newLayer);

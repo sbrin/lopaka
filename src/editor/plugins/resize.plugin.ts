@@ -15,9 +15,9 @@ export class ResizePlugin extends AbstractEditorPlugin {
     onMouseDown(point: Point, event: MouseEvent): void {
         const {activeTool} = this.session.editor.state;
         if (activeTool) return;
-        const {layers} = this.session.state;
-        const resizableLayers = layers.filter(
-            (layer) => layer.resizable && layer.selected && layer.bounds.clone().add(this.getPadding()).contains(point)
+        const {layersManager} = this.session;
+        const resizableLayers = layersManager.selected.filter(
+            (layer) => layer.resizable && layer.bounds.clone().add(this.getPadding()).contains(point)
         );
         if (resizableLayers.length == 1) {
             const layer = resizableLayers[0];
@@ -39,10 +39,9 @@ export class ResizePlugin extends AbstractEditorPlugin {
         } else {
             const {activeTool} = this.session.editor.state;
             if (activeTool) return;
-            const {layers} = this.session.state;
-            const resizableLayers = layers.filter(
-                (layer) =>
-                    layer.resizable && layer.selected && layer.bounds.clone().add(this.getPadding()).contains(point)
+            const {layersManager} = this.session;
+            const resizableLayers = layersManager.selected.filter(
+                (layer) => layer.resizable && layer.bounds.clone().add(this.getPadding()).contains(point)
             );
             if (resizableLayers.length == 1) {
                 const layer = resizableLayers[0];

@@ -3,9 +3,10 @@ import {DrawPlugin} from './draw.plugin';
 
 export class ResizeIconsPlugin extends DrawPlugin {
     update(ctx: CanvasRenderingContext2D, point: Point) {
-        const {scale, layers} = this.session.state;
+        const {scale} = this.session.state;
+        const {layersManager} = this.session;
         const {interfaceColors} = this.session.getPlatformFeatures();
-        const resizableLayers = layers.filter((l) => l.resizable && l.selected);
+        const resizableLayers = layersManager.selected.filter((l) => l.resizable);
         if (resizableLayers.length == 1) {
             ctx.save();
             ctx.beginPath();

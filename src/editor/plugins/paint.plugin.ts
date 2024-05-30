@@ -10,15 +10,16 @@ export class PaintPlugin extends AbstractEditorPlugin {
 
     onMouseDown(point: Point, event: MouseEvent): void {
         const {activeTool, activeLayer} = this.session.editor.state;
+        const {layersManager} = this.session;
         if (activeTool && activeTool.getName() === 'paint') {
             this.captured = true;
             if (!activeLayer) {
-                const selected = this.session.state.layers.filter((l) => l.selected && l instanceof PaintLayer);
+                const selected = layersManager.selected.filter((l) => l instanceof PaintLayer);
                 if (selected.length == 1) {
                     this.session.editor.state.activeLayer = selected[0];
                 } else {
                     const layer = (this.session.editor.state.activeLayer = activeTool.createLayer());
-                    layer.selected = true;
+                    layersManager.selectLayer(layer);
                     this.session.addLayer(layer);
                     this.session.editor.state.activeLayer = layer;
                 }
@@ -35,14 +36,14 @@ export class PaintPlugin extends AbstractEditorPlugin {
             }
         }
         this.lastPoint = point.clone().floor();
-        this.session.virtualScreen.redraw(false);
+        this.session.virtualScreen.redraw();
     }
 
     onMouseMove(point: Point, event: MouseEvent): void {
         const {activeLayer} = this.session.editor.state;
         if (this.captured) {
             activeLayer.edit(point.clone(), event);
-            this.session.virtualScreen.redraw(false);
+            this.session.virtualScreen.redraw();
             this.lastPoint = point;
         }
     }

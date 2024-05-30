@@ -23,11 +23,11 @@ import {PaintTool} from './tools/paint.tool';
 import {RectTool} from './tools/rect.tool';
 import {TextTool} from './tools/text.tool';
 import {HistoryPlugin} from './plugins/history.plugin';
+import {GroupPlugin} from './plugins/group.plugin';
 
 type TEditorState = {
     activeLayer: AbstractLayer;
     activeTool: AbstractTool;
-    selectionUpdates: number;
 };
 
 export class Editor {
@@ -42,8 +42,7 @@ export class Editor {
 
     state: UnwrapRef<TEditorState> = reactive({
         activeLayer: null,
-        activeTool: null,
-        selectionUpdates: 1
+        activeTool: null
     });
 
     constructor(public session: Session) {}
@@ -80,13 +79,10 @@ export class Editor {
                 new HistoryPlugin(this.session, this.container),
                 new DeletePlugin(this.session, this.container),
                 new SavePlugin(this.session, this.container),
-                new ImageDropPlugin(this.session, this.container)
+                new ImageDropPlugin(this.session, this.container),
+                new GroupPlugin(this.session, this.container)
             ]
         );
-    }
-
-    selectionUpdate(): void {
-        this.state.selectionUpdates++;
     }
 
     clear(): void {
@@ -108,7 +104,7 @@ export class Editor {
 
     handleEvent = (event: MouseEvent | KeyboardEvent | DragEvent) => {
         const {virtualScreen, state} = this.session;
-        const {display, scale, layers} = state;
+        const {scale} = state;
         if (event instanceof KeyboardEvent) {
             if (this.session.state.isPublic) {
                 return;

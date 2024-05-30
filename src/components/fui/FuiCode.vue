@@ -16,17 +16,14 @@ const aceOptions = {
     wrap: true
 };
 const session = useSession();
-const {updates} = toRefs(session.virtualScreen.state);
-const {layers} = toRefs(session.state);
-const {selectionUpdates} = toRefs(session.editor.state);
+const {updates, selectionUpdates} = toRefs(session.state);
 const content = shallowRef('');
 const aceRef = shallowRef(null);
 const hovered = ref(false);
 
-watch(
-    [updates, layers],
-    debounce(() => onUpdate(), 500)
-);
+onMounted(() => {
+    watch(updates, onUpdate, {immediate: true});
+});
 
 watch(
     selectionUpdates,
@@ -36,9 +33,9 @@ watch(
     {deep: true}
 );
 function selectRow() {
-    const selectedLayers = layers.value.filter((l) => l.selected);
-    if (selectedLayers.length == 1) {
-        const layer = selectedLayers[0];
+    const {selected} = session.layersManager;
+    if (selected.length == 1) {
+        const layer = selected[0];
         const row = layersMap[layer.uid]?.line;
         if (row) {
             const {column} = aceRef.value._editor.getCursorPosition();
@@ -65,15 +62,14 @@ function onChange() {
     const {row, column} = aceRef.value._editor.getCursorPosition();
     const uid = Object.keys(layersMap).find((key) => layersMap[key].line === row);
     if (uid) {
-        const layer = session.state.layers.find((l) => l.uid === uid);
-        session.state.layers.forEach((l) => (l.selected = false));
+        const layer = session.layersManager.getLayer(uid);
+        session.layersManager.clearSelection();
         session.virtualScreen.redraw();
-        layer.selected = true;
-        session.editor.selectionUpdate();
+        session.layersManager.selectLayer(layer);
     }
 }
 
-const debouncedChange = debounce(() => onChange(), 500);
+const debouncedChange = debounce(() => onChange(), 300);
 </script>
 <template>
     <div
