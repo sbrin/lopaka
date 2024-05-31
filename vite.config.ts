@@ -19,11 +19,6 @@ export default defineConfig({
             }
         }
     },
-    resolve: {
-        alias: {
-            vue: 'vue/dist/vue.esm-bundler.js'
-        }
-    },
     build: {
         assetsInlineLimit: 0,
         sourcemap: true,

@@ -76,4 +76,51 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
     padding: 0 0 8px 0;
     overflow-y: auto;
 }
+
+
+.layer {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    height: 24px;
+    padding: 2px 0 2px 8px;
+    margin-bottom: 1px;
+    border-radius: 4px;
+    justify-content: space-between;
+}
+
+.layer:hover {
+    background-color: var(--secondary-color);
+}
+
+.layer:hover .layer__remove {
+    display: block;
+}
+
+.layer__name {
+    max-width: 132px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.layer_ignored {
+    color: #999;
+}
+
+.layer_selected .layer__name:before {
+    display: inline-block;
+    content: '';
+    background: var(--success-color);
+    transform: translateY(-4px);
+    width: 4px;
+    height: 4px;
+    margin-right: 4px;
+}
+
+.layer__remove {
+    display: none;
+    color: var(--danger-color);
+    margin: 0 8px;
+    height: 32px;
+}
 </style>

@@ -102,7 +102,13 @@ const LABELS = {
     fill: 'Filled',
     color: 'Color',
     overlay: 'Overlay',
-    radius: 'Radius'
+    radius: 'Radius',
+    radiusX: 'RX',
+    radiusY: 'RY',
+    x: "X",
+    y: "Y",
+    w: "W",
+    h: "H",
 };
 </script>
 <template>
@@ -130,20 +136,32 @@ const LABELS = {
             <option>#FFFFFF</option>
         </datalist>
         <div class="title inspector__title">{{ activeLayer.name }}</div>
-        <div class="inspector-panel">
+        <div class="inspector-panel font-mono">
             <template v-for="(param, name) in params">
                 <div
-                    class="inspector-panel__param"
+                    class="flex pb-2"
                     v-if="param.type !== TModifierType.image"
                     :class="{
-                        'inspector-panel__param_row': [TModifierType.boolean].includes(param.type),
+                        'flex-col items-start': ![TModifierType.boolean, TModifierType.number].includes(param.type),
+                        'flex-row items-center': [TModifierType.boolean, TModifierType.number].includes(param.type),
                         'inspector-panel__param_wide': [TModifierType.color, TModifierType.string].includes(param.type)
                     }"
                 >
-                    <label class="fui-form-label" :for="`inspector_${param.type}_${name}`">
+                    <input
+                        v-if="param.type == TModifierType.boolean"
+                        :disabled="session.state.isPublic"
+                        class="checkbox checkbox-sm checkbox-primary mr-1"
+                        type="checkbox"
+                        :checked="param.getValue()"
+                        @change="onChange($event, param)"
+                        :readonly="!param.setValue"
+                        :id="`inspector_${param.type}_${name}`"
+                        :key="updates + '_' + name"
+                    />
+                    <label class="label label-text pr-2 cursor-pointer" :for="`inspector_${param.type}_${name}`">
                         {{ LABELS[name] ?? name }}
                     </label>
-                    <div v-if="param.type == TModifierType.number">
+                    <div v-if="param.type == TModifierType.number" class="w-20">
                         <input
                             :disabled="session.state.isPublic"
                             class="inspector__input fui-form-input"
@@ -151,6 +169,7 @@ const LABELS = {
                             :value="param.getValue()"
                             @change="onChange($event, param)"
                             :readonly="!param.setValue"
+                            :id="`inspector_${param.type}_${name}`"
                         />
                     </div>
                     <template v-else-if="param.type == TModifierType.string">
@@ -163,19 +182,6 @@ const LABELS = {
                             :readonly="!param.setValue"
                         />
                     </template>
-                    <div v-else-if="param.type == TModifierType.boolean" class="fui-form-checkbox">
-                        <input
-                            :disabled="session.state.isPublic"
-                            class="inspector__input fui-form-input"
-                            type="checkbox"
-                            :checked="param.getValue()"
-                            @change="onChange($event, param)"
-                            :readonly="!param.setValue"
-                            :id="`inspector_${param.type}_${name}`"
-                            :key="updates + '_' + name"
-                        />
-                    </div>
-
                     <div v-else-if="param.type == TModifierType.color">
                         <div class="color-palette" v-if="palette.length" :key="updates + '_' + name">
                             <div
@@ -248,7 +254,6 @@ const LABELS = {
 .inspector-panel__param {
     flex: 0 0 calc(50% - 4px);
     display: flex;
-    flex-direction: column;
     align-items: flex-start;
     margin-bottom: 8px;
     font-size: var(--input-font-size);
@@ -266,8 +271,6 @@ const LABELS = {
 
 .inspector__title {
     overflow: hidden;
-    margin-top: 8px;
-    width: 150px;
 }
 
 .inspector__input {
