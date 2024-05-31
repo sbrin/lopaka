@@ -48,7 +48,8 @@ each layer in layers
             | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @text:"!{layer.text}");
         when 'paint'
         when 'icon'
-            | @!{layer.uid};!{pad}u8g2.drawXBM(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]}, @image:!{layer.imageName});
+            - var func = settings.progmem ? 'drawXBMP' : 'drawXBM'
+            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]}, @image:!{layer.imageName});
         default 
             |
             | // Unknown layer type !{layer.type}
