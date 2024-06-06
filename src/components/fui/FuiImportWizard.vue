@@ -4,6 +4,7 @@ import {processImage, imageDataToImage, imageToImageData, applyColor, cropImage,
 import {useSession} from '../../core/session';
 import {Rect} from '../../core/rect';
 import {Point} from '../../core/point';
+import FuiButton from "./FuiButton.vue";
 const props = defineProps<{
     visible: boolean;
 }>();
@@ -209,170 +210,186 @@ defineExpose({
 </script>
 <template>
     <Teleport to="body">
-        <div class="fui-import-wizard-dialog" :class="{visible}">
-            <div class="fui-form-row fui-form-header">Image preview</div>
-            <div class="fui-form-row fui-import-wizard-canvas-wrapper" style="width: 400px; height: 300px">
-                <div class="canvasContainer grid" :style="{width: width * scale + 'px', height: height * scale + 'px'}">
-                    <canvas ref="canvasRef"></canvas>
-                    <div
-                        class="crop"
-                        @mousedown="startCrop"
-                        :style="{
-                            width: scale * layerSize.w + 'px',
-                            height: scale * layerSize.h + 'px',
-                            left: scale * layerSize.x + 'px',
-                            top: scale * layerSize.y + 'px'
-                        }"
-                    >
-                        <div class="crop-nw"></div>
-                        <div class="crop-ne"></div>
-                        <div class="crop-sw"></div>
-                        <div class="crop-se"></div>
+        <div class="modal  font-sans text-white" v-show="visible" :class="{ 'opacity-100': visible}">
+            <div class="modal-box mb-40 border border-primary max-w-none w-[56rem] pointer-events-auto">
+                <div class="grid grid-cols-[60%_auto] grid-rows-3 grid-rows-[auto_1fr_auto]">
+                    <div class="flex flex-row">
+                        <label class="label" for="image-name">
+                            Name:
+                            <input class="input input-sm input-bordered ml-2" type="text" v-model="imageName" id="image-name" />
+                        </label>
+                        <label class="label" for="image-zoom">Zoom:
+                            <select id="image-zoom" class="select select-bordered select-sm ml-2" v-model="scale">
+                                <option v-for="(p, idx) in scales" :key="idx" :value="p">{{ p * 100 }}%</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="row-span-2">
+                        <div class="flex form-control flex-row gap-4">
+                            <label class="label" for="image-width">
+                                Width:
+                                <input
+                                    class="input input-sm input-bordered w-20 ml-2"
+                                    type="number"
+                                    v-model="width"
+                                    id="image-width"
+                                />
+                            </label>
+                            
+                            <label class="label" for="image-height">
+                                Height:
+                                <input
+                                class="input input-sm input-bordered w-20 ml-2"
+                                type="number"
+                                min="1"
+                                v-model="height"
+                                id="image-height"
+                                />
+                            </label>
+                        </div>
+                        <div class="form-control flex flex-row gap-4">
+                            <FuiButton @click="resetSize">Reset size</FuiButton>
+                            <FuiButton @click="fitToScreen">Fit to screen</FuiButton>
+                        </div>
+                        <div class="form-control flex flex-row gap-4">
+                            <label class="label" for="layer-width">
+                                Crop W:
+                                <input
+                                    class="input input-sm input-bordered w-20 ml-2"
+                                    type="number"
+                                    v-model="layerSize.w"
+                                    id="layer-width"
+                                />
+                            </label>
+
+                            <label class="label" for="layer-height">
+                                Crop H:
+                                <input
+                                    class="input input-sm input-bordered w-20 ml-2"
+                                    type="number"
+                                    min="1"
+                                    v-model="layerSize.h"
+                                    id="layer-height"
+                                />
+                            </label>
+                        </div>
+                        <div class="form-control flex flex-row gap-4">
+                            <label class="label" for="layer-x">
+                                Crop X:
+                                <input
+                                    class="input input-sm input-bordered w-20 ml-2"
+                                    type="number"
+                                    v-model="layerSize.x"
+                                    id="layer-x"
+                                />
+                            </label>
+
+                            <label class="label" for="layer-y">
+                                Crop Y:
+                                <input
+                                    class="input input-sm input-bordered w-20 ml-2"
+                                    type="number"
+                                    v-model="layerSize.y"
+                                    id="layer-y"
+                                />
+                            </label>
+                        </div>
+
+                        <div class="form-control flex flex-row">
+                            <!-- resampling type select -->
+                            <label class="label w-full" for="image-resampling">
+                                <div class="w-1/3">Resampling</div>
+                                <select
+                                    id="image-resampling"
+                                    class="select select-sm select-bordered ml-2 w-2/3"
+                                    v-model="options.resampling"
+                                >
+                                    <option v-for="(p, idx) in resamplingTypes" :key="idx" :value="p">{{ p }}</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="form-control flex flex-row">
+                            <!-- brightness -->
+                            <label class="label w-full" for="image-brightness">
+                                <div class="w-1/3">Brightness</div>
+                                <input
+                                    class="range range-sm range-primary ml-2 w-2/3"
+                                    type="range"
+                                    min="-100"
+                                    max="100"
+                                    step="10"
+                                    v-model="options.brightness"
+                                    id="image-brightness"
+                                />
+                                <span class="ml-2 w-10">{{ options.brightness }}%</span>
+                            </label>
+                        </div>
+                        <div class="form-control flex flex-row">
+                            <!-- contrast -->
+                            <label class="label w-full" for="image-contrast">
+                                <div class="w-1/3">Contrast</div>
+                                <input
+                                    class="range range-sm range-primary ml-2 w-2/3"
+                                    type="range"
+                                    min="-100"
+                                    max="100"
+                                    step="10"
+                                    v-model="options.contrast"
+                                    id="image-contrast"
+                                />
+                                <span class="ml-2 w-10">{{ options.contrast }}%</span>
+                            </label>
+                        </div>
+                        <div class="form-control flex gap-0">
+                            <!-- grayscalte first -->
+                            <label class="cursor-pointer label">
+                                <span class="">Grayscale first</span> 
+                                <input type="checkbox" class="toggle toggle-primary" v-model="options.grayscale" />
+                            </label>
+                            <!-- dither -->
+                            <label class="cursor-pointer label">
+                                <span class="">Dithering</span> 
+                                <input type="checkbox" class="toggle toggle-primary" v-model="options.dither" />
+                            </label>
+                            <!-- invert palette -->
+                            <label class="cursor-pointer label">
+                                <span class="">Invert palette</span> 
+                                <input type="checkbox" class="toggle toggle-primary" v-model="options.invertPalette" />
+                            </label>
+                            <!-- invert -->
+                            <label class="cursor-pointer label">
+                                <span class="">Invert result</span> 
+                                <input type="checkbox" class="toggle toggle-primary" v-model="options.invert" />
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mr-4">
+                        <div class="fui-import-wizard-canvas-wrapper" style="width: 100%; height: 100%">
+                            <div class="canvasContainer fui-grid" :style="{width: width * scale + 'px', height: height * scale + 'px'}">
+                                <canvas ref="canvasRef"></canvas>
+                                <div
+                                    class="crop"
+                                    @mousedown="startCrop"
+                                    :style="{
+                                        width: scale * layerSize.w + 'px',
+                                        height: scale * layerSize.h + 'px',
+                                        left: scale * layerSize.x + 'px',
+                                        top: scale * layerSize.y + 'px'
+                                    }"
+                                >
+                                    <div class="crop-nw"></div>
+                                    <div class="crop-ne"></div>
+                                    <div class="crop-sw"></div>
+                                    <div class="crop-se"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-2 flex flex-row justify-between mt-4">
+                        <button class="button button_danger fui-display-custom-dialog__cancel" @click="cancel">Cancel</button>
+                        <button class="button fui-display-custom-dialog__save" @click="save">Import</button>
                     </div>
                 </div>
-            </div>
-            <div class="fui-form-row">
-                <!-- image name -->
-                <label class="fui-form-label fui-form-column" for="image-name">
-                    Name:
-                    <input class="fui-form-input" type="text" v-model="imageName" id="image-name" />
-                </label>
-                <label class="fui-form-label fui-form-column" for="image-zoom">Zoom:</label>
-                <select id="image-zoom" class="fui-select__select fui-form-input" v-model="scale">
-                    <option v-for="(p, idx) in scales" :key="idx" :value="p">{{ p * 100 }}%</option>
-                </select>
-            </div>
-
-            <div class="fui-form-row">
-                <label class="fui-form-label fui-form-column" for="image-width">
-                    Width:
-                    <input class="fui-form-input fui-form-input__size" type="number" v-model="width" id="image-width" />
-                </label>
-
-                <label class="fui-form-label fui-form-column" for="image-height">
-                    Height:
-                    <input
-                        class="fui-form-input fui-form-input__size"
-                        type="number"
-                        min="1"
-                        v-model="height"
-                        id="image-height"
-                    />
-                </label>
-            </div>
-
-            <div class="fui-form-row">
-                <label class="fui-form-label fui-form-column" for="layer-width">
-                    Layer width:
-                    <input
-                        class="fui-form-input fui-form-input__size"
-                        type="number"
-                        v-model="layerSize.w"
-                        id="layer-width"
-                    />
-                </label>
-
-                <label class="fui-form-label fui-form-column" for="layer-height">
-                    Layer height:
-                    <input
-                        class="fui-form-input fui-form-input__size"
-                        type="number"
-                        min="1"
-                        v-model="layerSize.h"
-                        id="layer-height"
-                    />
-                </label>
-
-                <label class="fui-form-label fui-form-column" for="layer-x">
-                    Layer X:
-                    <input
-                        class="fui-form-input fui-form-input__size"
-                        type="number"
-                        v-model="layerSize.x"
-                        id="layer-x"
-                    />
-                </label>
-
-                <label class="fui-form-label fui-form-column" for="layer-y">
-                    Layer Y:
-                    <input
-                        class="fui-form-input fui-form-input__size"
-                        type="number"
-                        v-model="layerSize.y"
-                        id="layer-y"
-                    />
-                </label>
-            </div>
-
-            <div class="fui-form-row">
-                <!-- resampling type select -->
-                <label class="fui-form-label fui-form-column" for="image-resampling">Resampling algorithm:</label>
-                <select id="image-resampling" class="fui-select__select fui-form-input" v-model="options.resampling">
-                    <option v-for="(p, idx) in resamplingTypes" :key="idx" :value="p">{{ p }}</option>
-                </select>
-            </div>
-            <div class="fui-form-row">
-                <!-- reset -->
-                <button class="button" style="margin-left: 8px" @click="resetSize">Reset size</button>
-                <button class="button" style="margin-left: 8px" @click="fitToScreen">Fit to screen</button>
-            </div>
-            <div class="fui-form-row">
-                <!-- brightness -->
-                <label class="fui-form-label fui-form-column" for="image-brightness">
-                    Brightness:
-                    <input
-                        class="fui-form-input fui-form-input__size"
-                        type="number"
-                        min="-100"
-                        max="100"
-                        v-model="options.brightness"
-                        id="image-brightness"
-                    />
-                </label>
-                <!-- contrast -->
-                <label class="fui-form-label fui-form-column" for="image-contrast">
-                    Contrast:
-                    <input
-                        class="fui-form-input fui-form-input__size"
-                        type="number"
-                        min="-100"
-                        max="100"
-                        v-model="options.contrast"
-                        id="image-contrast"
-                    />
-                </label>
-            </div>
-            <div class="fui-form-row">
-                <!-- grayscalte first -->
-                <label class="fui-form-label fui-form-column" for="image-grayscale">
-                    Grayscale before:
-                    <input class="fui-form-checkbox" type="checkbox" v-model="options.grayscale" id="image-grayscale" />
-                </label>
-                <!-- dither -->
-                <label class="fui-form-label fui-form-column" for="image-dithering">
-                    Dithering:
-                    <input class="fui-form-checkbox" type="checkbox" v-model="options.dither" id="image-dithering" />
-                </label>
-                <!-- invert palette -->
-                <label class="fui-form-label fui-form-column" for="image-invert-palette">
-                    Invert palette:
-                    <input
-                        class="fui-form-checkbox"
-                        type="checkbox"
-                        v-model="options.invertPalette"
-                        id="image-invert-palette"
-                    />
-                </label>
-                <!-- invert -->
-                <label class="fui-form-label fui-form-column" for="image-invert">
-                    Inverting:
-                    <input class="fui-form-checkbox" type="checkbox" v-model="options.invert" id="image-invert" />
-                </label>
-            </div>
-
-            <div class="buttons-bottom">
-                <button class="button button_danger fui-display-custom-dialog__cancel" @click="cancel">Cancel</button>
-                <button class="button fui-display-custom-dialog__save" @click="save">Import</button>
             </div>
         </div>
     </Teleport>
@@ -424,7 +441,7 @@ defineExpose({
     overflow: hidden;
     position: relative;
 }
-.grid {
+.fui-grid {
     position: relative;
     &::after {
         content: '';
