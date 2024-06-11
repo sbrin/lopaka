@@ -11,6 +11,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
     selectionElement: HTMLElement;
     firstPoint: Point = null;
     selectionRect: Rect = null;
+    grabMode: boolean = false;
 
     constructor(
         protected session: Session,
@@ -24,27 +25,34 @@ export class SelectPlugin extends AbstractEditorPlugin {
 
     onMouseDown(point: Point, event: MouseEvent): void {
         this.foreign = false;
+        this.grabMode = false;
         const {layers, scale, display} = this.session.state;
         const {activeTool} = this.session.editor.state;
         if (!activeTool) {
-            const hovered = layers.filter((l) => l.contains(point)).sort((a, b) => b.index - a.index);
-            if (hovered.length) {
-                // if there is a hovered layer
-                const upperLayer = hovered[0];
-                // add or remove from selection if ctrl or cmd is pressed
-                if (event.ctrlKey || event.metaKey) {
-                    upperLayer.selected = !upperLayer.selected;
-                } else if (!upperLayer.selected) {
-                    // if layer is not selected, select it and unselect others
-                    this.session.state.layers.forEach((l) => (l.selected = false));
-                    upperLayer.selected = true;
-                }
-            } else {
-                // if there is no hovered layer, start box selection
+            if (event.altKey) {
                 this.captured = true;
+                this.grabMode = true;
                 this.firstPoint = point.clone();
+            } else {
+                const hovered = layers.filter((l) => l.contains(point)).sort((a, b) => b.index - a.index);
+                if (hovered.length) {
+                    // if there is a hovered layer
+                    const upperLayer = hovered[0];
+                    // add or remove from selection if ctrl or cmd is pressed
+                    if (event.ctrlKey || event.metaKey) {
+                        upperLayer.selected = !upperLayer.selected;
+                    } else if (!upperLayer.selected) {
+                        // if layer is not selected, select it and unselect others
+                        this.session.state.layers.forEach((l) => (l.selected = false));
+                        upperLayer.selected = true;
+                    }
+                } else {
+                    // if there is no hovered layer, start box selection
+                    this.captured = true;
+                    this.firstPoint = point.clone();
+                }
+                this.session.editor.selectionUpdate();
             }
-            this.session.editor.selectionUpdate();
         }
     }
 
@@ -88,10 +96,15 @@ export class SelectPlugin extends AbstractEditorPlugin {
             this.selectionElement.style.display = 'none';
             const position = this.firstPoint.clone().min(point);
             const size = point.clone().subtract(this.firstPoint).abs();
-            if (size.x < 2 && size.y < 2) {
-                layers.filter((l) => l.selected).forEach((l) => (l.selected = false));
-                this.session.editor.selectionUpdate();
-                return;
+            if (this.grabMode) {
+                this.session.grab(position, size);
+            } else {
+                if (size.x < 2 && size.y < 2) {
+                    layers.filter((l) => l.selected).forEach((l) => (l.selected = false));
+                    this.session.editor.selectionUpdate();
+                    return;
+                }
+                layers.forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
             }
             layers.forEach((l) => (l.selected = this.intersect(l, position, size)));
         } else if (!this.foreign) {

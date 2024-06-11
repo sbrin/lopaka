@@ -19,6 +19,7 @@ import {TextLayer} from './layers/text.layer';
 import platforms from './platforms';
 import {Point} from './point';
 import {paramsToState} from './decorators/mapping';
+import {iconsList} from '../icons/icons';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -62,6 +63,7 @@ export class Session {
         layers: [],
         scale: new Point(4, 4),
         customImages: [],
+        icons: iconsList,
         isPublic: false
     });
 
@@ -110,6 +112,20 @@ export class Session {
         layer.selected = true;
         layer.draw();
         this.virtualScreen.redraw();
+    };
+    grab = (position: Point, size: Point) => {
+        const layer = new PaintLayer(this.getPlatformFeatures());
+        this.addLayer(layer);
+        const ctx = layer.getBuffer().getContext('2d');
+        ctx.drawImage(this.virtualScreen.canvas, position.x, position.y, size.x, size.y, 0, 0, size.x, size.y);
+        layer.recalculate();
+        layer.position = position.clone();
+        layer.applyColor();
+        layer.stopEdit();
+        layer.selected = true;
+        layer.draw();
+        this.virtualScreen.redraw();
+        return layer;
     };
     addLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
         const {display, scale, layers} = this.state;

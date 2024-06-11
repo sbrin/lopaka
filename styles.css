@@ -98,6 +98,7 @@ a {
     height: 32px;
     display: flex;
     justify-content: space-between;
+    gap: 8px;
 }
 
 .fui-settings {

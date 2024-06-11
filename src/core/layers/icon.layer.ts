@@ -1,5 +1,5 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {addAlphaChannelToImageData, inverImageDataWithAlpha} from '../../utils';
+import {addAlphaChannelToImageData} from '../../utils';
 import {Point} from '../point';
 import {AbstractImageLayer} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
