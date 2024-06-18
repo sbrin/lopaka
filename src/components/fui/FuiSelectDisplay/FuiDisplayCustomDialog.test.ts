@@ -6,16 +6,15 @@ describe('FuiDisplayCustomDialog', () => {
     it('renders a popup element', () => {
         const wrapper = mount(FuiDisplayCustomDialog, {
             customWidth: 123,
-            customHeight: 123,
+            customHeight: 123
         });
         expect(wrapper.find('.fui-display-custom-dialog').exists()).toBe(true);
         expect(wrapper.element).toMatchSnapshot();
     });
 
-
     it('emits a cancelPopup event when clicked cancel', async () => {
         const wrapper = mount(FuiDisplayCustomDialog);
-        const cancelButton = wrapper.find('.fui-display-custom-dialog__cancel');
+        const cancelButton = wrapper.find('.btn.btn-outline');
         expect(cancelButton.exists()).toBe(true);
 
         await cancelButton.trigger('click');
@@ -24,7 +23,7 @@ describe('FuiDisplayCustomDialog', () => {
 
     it('emits a setCustomDisplay event when clicked save', async () => {
         const wrapper = mount(FuiDisplayCustomDialog);
-        const saveButton = wrapper.find('.fui-display-custom-dialog__save');
+        const saveButton = wrapper.find('.btn.btn-success');
         expect(saveButton.exists()).toBe(true);
 
         await saveButton.trigger('click');

@@ -165,7 +165,7 @@ navigator.serial?.addEventListener('disconnect', flipperDisconnect);
 <template>
     <div class="grid grid-flow-col justify-start">
         <Sections />
-        <div class="fui-editor" v-show="platform && ['#editor', ''].includes(currentHash)">
+        <div class="fui-editor" v-if="platform">
             <div class="fui-editor__left">
                 <FuiLayers v-show="!isEmpty"></FuiLayers>
             </div>

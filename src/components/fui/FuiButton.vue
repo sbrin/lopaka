@@ -17,8 +17,8 @@ const classNames = computed(() => ({
 }));
 </script>
 <template>
-    <div class="btn btn-sm btn-primary font-sans uppercase leading-none" :class="classNames">
+    <button class="btn btn-sm btn-primary font-sans uppercase leading-none" :class="classNames">
         <slot></slot>
-    </div>
+    </button>
 </template>
 <style lang="css"></style>
