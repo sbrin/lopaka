@@ -40,7 +40,7 @@ const LABELS = {
 <template>
     <div class="code-settings" v-if="platform !== Uint32RawPlatform.id">
         <div class="title" v-if="Object.keys(templates).length > 1 || Object.keys(settings).length">Code settings:</div>
-        <div class="font-mono">
+        <div class="font-sans">
             <div class="fui-select label" v-if="Object.keys(templates).length > 1">
                 <label for="template" class="label-text">Code style:</label>
                 <select id="template" class="fui-select__select fui-form-input" v-model="template" @change="changeTemplate">

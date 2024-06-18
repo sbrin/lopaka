@@ -136,7 +136,7 @@ const LABELS = {
             <option>#FFFFFF</option>
         </datalist>
         <div class="title inspector__title">{{ activeLayer.name }}</div>
-        <div class="inspector-panel font-mono">
+        <div class="inspector-panel">
             <template v-for="(param, name) in params">
                 <div
                     class="flex pb-2"
@@ -158,7 +158,7 @@ const LABELS = {
                         :id="`inspector_${param.type}_${name}`"
                         :key="updates + '_' + name"
                     />
-                    <label class="label label-text pr-2 cursor-pointer" :for="`inspector_${param.type}_${name}`">
+                    <label class="label label-text pr-2 cursor-pointer font-mono" :for="`inspector_${param.type}_${name}`">
                         {{ LABELS[name] ?? name }}
                     </label>
                     <div v-if="param.type == TModifierType.number" class="w-20">
@@ -220,10 +220,9 @@ const LABELS = {
         </div>
         <template v-if="!session.state.isPublic">
             <div class="title inspector__title" v-if="actions.length">Image operations</div>
-            <div class="inspector-actions">
-                <div class="inspector-action-button" v-for="action in actions">
+            <div class="flex flex-row gap-2 flex-wrap">
+                <div class="font-lg" v-for="action in actions">
                     <FuiButton
-                        :disabled="session.state.isPublic"
                         @click="onAction(action)"
                         :title="action.title"
                         :isIcon="true"

@@ -26,10 +26,16 @@ Draw any graphics and use generated code in your Arduino, ESP32 or STM32project!
 * use custom images
 * auto-generate XBMP graphics
 * move, resize, edit elements
-* u8g2, AdafruitGFX, raw Uint32, FlipperZero export
 * generate the source code in C/C++
 * FlipperZero live preview
 * select zoom scale
+
+## Supported platforms
+* u8g2
+* AdafruitGFX
+* FlipperZero
+* Inkplate
+* raw Uint32 byte array
 
 
 

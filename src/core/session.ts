@@ -178,23 +178,24 @@ export class Session {
         localStorage.setItem('lopaka_scale', `${scale}`);
         isLogged && logEvent('select_scale', scale);
     };
-    setPlatform = async (name: string, isLogged?: boolean): Promise<void> => {
+    setPlatform = async (name: string, isLogged?: boolean, layers?): Promise<void> => {
         this.state.platform = name;
         const fonts = this.platforms[name].getFonts();
         this.lock();
         this.editor.clear();
-        const layersToload = JSON.parse(localStorage.getItem(`${name}_lopaka_layers`));
+        let layersToload =
+            window.top === window.self ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`)) : layers;
         return this.loadFontsForLayers(
             layersToload ? layersToload.filter((l) => l.type == 'string').map((l) => l.f) : [fonts[0].name]
         ).then(() => {
             this.editor.font = getFont(fonts[0].name);
             this.unlock();
+            loadLayers(layersToload ?? []);
             if (window.top === window.self) {
-                loadLayers(layersToload ?? []);
                 localStorage.setItem('lopaka_library', name);
+                isLogged && logEvent('select_library', name);
             }
             this.virtualScreen.redraw(false);
-            isLogged && logEvent('select_library', name);
         });
     };
 

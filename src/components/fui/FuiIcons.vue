@@ -107,7 +107,7 @@ function iconDragStart(e: DragEvent) {
     border-top: 0;
     margin: 0 0 8px 0;
     padding: 16px;
-    height: 256px;
+    height: 350px;
     color: var(--secondary-color);
 }
 

@@ -14,7 +14,7 @@ watch(selectedScale, (val) => {
 </script>
 <template>
     <div class="fui-select">
-        <label for="canvas-scale" class="fui-select__label">Scale:</label>
+        <label for="canvas-scale" class="fui-select__label pr-2">Scale:</label>
         <select id="canvas-scale" class="fui-select__select fui-form-input" v-model="selectedScale">
             <option v-for="(item, idx) in scales" :key="idx" :value="item">{{ item }}%</option>
         </select>

@@ -61,7 +61,7 @@ function resetFileInput() {
 }
 </script>
 <template>
-    <label class="button" :class="{button_active: active}">
+    <label class="btn btn-sm btn-outline btn-primary uppercase font-sans overflow-hidden">
         <FuiImportWizard
             v-if="type == 'image'"
             ref="wizardRef"
