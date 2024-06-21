@@ -44,12 +44,18 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
 }
 </script>
 <template>
-    <div class="layers">
-        <h2 class="title">
+    <div class="">
+        <div class="font-sans mt-1">
             Layers
             <slot></slot>
-        </h2>
-        <VueDraggable class="layers__list" v-model="layers" item-key="id" @start="drag = true" @end="drag = false">
+        </div>
+        <VueDraggable
+            class="layers__list text-primary"
+            v-model="layers"
+            item-key="id"
+            @start="drag = true"
+            @end="drag = false"
+        >
             <template #item="{element}">
                 <div class="layer" :class="classNames(element)" @click="setActive(element)">
                     <div class="layer__name">
@@ -68,7 +74,6 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
     </div>
 </template>
 <style lang="css" scoped>
-
 .layers__list {
     font-size: 24px;
     overflow: hidden;
@@ -76,7 +81,6 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
     padding: 0 0 8px 0;
     overflow-y: auto;
 }
-
 
 .layer {
     display: flex;

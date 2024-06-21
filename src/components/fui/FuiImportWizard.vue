@@ -4,7 +4,7 @@ import {processImage, imageDataToImage, imageToImageData, applyColor, cropImage,
 import {useSession} from '../../core/session';
 import {Rect} from '../../core/rect';
 import {Point} from '../../core/point';
-import FuiButton from "./FuiButton.vue";
+import FuiButton from './FuiButton.vue';
 const props = defineProps<{
     visible: boolean;
 }>();
@@ -210,15 +210,21 @@ defineExpose({
 </script>
 <template>
     <Teleport to="body">
-        <div class="modal  font-sans text-white" v-show="visible" :class="{ 'opacity-100': visible}">
+        <div class="modal font-sans text-white" v-show="visible" :class="{'opacity-100': visible}">
             <div class="modal-box mb-40 border border-primary max-w-none w-[56rem] pointer-events-auto">
                 <div class="grid grid-cols-[60%_auto] grid-rows-3 grid-rows-[auto_1fr_auto]">
                     <div class="flex flex-row">
                         <label class="label" for="image-name">
                             Name:
-                            <input class="input input-sm input-bordered ml-2" type="text" v-model="imageName" id="image-name" />
+                            <input
+                                class="input input-sm input-bordered ml-2"
+                                type="text"
+                                v-model="imageName"
+                                id="image-name"
+                            />
                         </label>
-                        <label class="label" for="image-zoom">Zoom:
+                        <label class="label" for="image-zoom">
+                            Zoom:
                             <select id="image-zoom" class="select select-bordered select-sm ml-2" v-model="scale">
                                 <option v-for="(p, idx) in scales" :key="idx" :value="p">{{ p * 100 }}%</option>
                             </select>
@@ -235,15 +241,15 @@ defineExpose({
                                     id="image-width"
                                 />
                             </label>
-                            
+
                             <label class="label" for="image-height">
                                 Height:
                                 <input
-                                class="input input-sm input-bordered w-20 ml-2"
-                                type="number"
-                                min="1"
-                                v-model="height"
-                                id="image-height"
+                                    class="input input-sm input-bordered w-20 ml-2"
+                                    type="number"
+                                    min="1"
+                                    v-model="height"
+                                    id="image-height"
                                 />
                             </label>
                         </div>
@@ -343,29 +349,32 @@ defineExpose({
                         <div class="form-control flex gap-0">
                             <!-- grayscalte first -->
                             <label class="cursor-pointer label">
-                                <span class="">Grayscale first</span> 
+                                <span class="">Grayscale first</span>
                                 <input type="checkbox" class="toggle toggle-primary" v-model="options.grayscale" />
                             </label>
                             <!-- dither -->
                             <label class="cursor-pointer label">
-                                <span class="">Dithering</span> 
+                                <span class="">Dithering</span>
                                 <input type="checkbox" class="toggle toggle-primary" v-model="options.dither" />
                             </label>
                             <!-- invert palette -->
                             <label class="cursor-pointer label">
-                                <span class="">Invert palette</span> 
+                                <span class="">Invert palette</span>
                                 <input type="checkbox" class="toggle toggle-primary" v-model="options.invertPalette" />
                             </label>
                             <!-- invert -->
                             <label class="cursor-pointer label">
-                                <span class="">Invert result</span> 
+                                <span class="">Invert result</span>
                                 <input type="checkbox" class="toggle toggle-primary" v-model="options.invert" />
                             </label>
                         </div>
                     </div>
                     <div class="mr-4">
                         <div class="fui-import-wizard-canvas-wrapper" style="width: 100%; height: 100%">
-                            <div class="canvasContainer fui-grid" :style="{width: width * scale + 'px', height: height * scale + 'px'}">
+                            <div
+                                class="canvasContainer fui-grid"
+                                :style="{width: width * scale + 'px', height: height * scale + 'px'}"
+                            >
                                 <canvas ref="canvasRef"></canvas>
                                 <div
                                     class="crop"
@@ -386,8 +395,8 @@ defineExpose({
                         </div>
                     </div>
                     <div class="col-span-2 flex flex-row justify-between mt-4">
-                        <button class="button button_danger fui-display-custom-dialog__cancel" @click="cancel">Cancel</button>
-                        <button class="button fui-display-custom-dialog__save" @click="save">Import</button>
+                        <FuiButton @click="cancel" :danger="true">Cancel</FuiButton>
+                        <FuiButton @click="save" :success="true">Import</FuiButton>
                     </div>
                 </div>
             </div>

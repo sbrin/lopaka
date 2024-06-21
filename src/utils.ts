@@ -306,8 +306,8 @@ export function postParentMessage(type, data) {
     }
 }
 
-export function logEvent(event_name: string, option?: string) {
-    window.gtag &&
+export function logEvent(event_name: string, option?: string | number) {
+    import.meta.env.PROD && window.gtag &&
         gtag('event', event_name, {
             app_name: 'lopaka',
             option: option

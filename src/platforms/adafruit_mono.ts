@@ -2,7 +2,7 @@ import {AdafruitPlatform} from './adafruit';
 
 export class AdafruitMonochromePlatform extends AdafruitPlatform {
     public static id = 'adafruit_gfx_mono';
-    protected name = 'Adafruit GFX Monochrome';
+    protected name = 'AdafruitGFX Mono';
     protected description = 'Adafruit GFX Monochrome';
 
     constructor() {
