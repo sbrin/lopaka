@@ -44,12 +44,18 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
 }
 </script>
 <template>
-    <div class="layers">
-        <h2 class="title">
+    <div class="">
+        <div class="font-sans mt-1">
             Layers
             <slot></slot>
-        </h2>
-        <VueDraggable class="layers__list" v-model="layers" item-key="id" @start="drag = true" @end="drag = false">
+        </div>
+        <VueDraggable
+            class="layers__list text-primary"
+            v-model="layers"
+            item-key="id"
+            @start="drag = true"
+            @end="drag = false"
+        >
             <template #item="{element}">
                 <div class="layer" :class="classNames(element)" @click="setActive(element)">
                     <div class="layer__name">
@@ -68,12 +74,57 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
     </div>
 </template>
 <style lang="css" scoped>
-
 .layers__list {
     font-size: 24px;
     overflow: hidden;
     margin: 0 16px 16px 0;
     padding: 0 0 8px 0;
     overflow-y: auto;
+}
+
+.layer {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    height: 24px;
+    padding: 2px 0 2px 8px;
+    margin-bottom: 1px;
+    border-radius: 4px;
+    justify-content: space-between;
+}
+
+.layer:hover {
+    background-color: var(--secondary-color);
+}
+
+.layer:hover .layer__remove {
+    display: block;
+}
+
+.layer__name {
+    max-width: 132px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.layer_ignored {
+    color: #999;
+}
+
+.layer_selected .layer__name:before {
+    display: inline-block;
+    content: '';
+    background: var(--success-color);
+    transform: translateY(-4px);
+    width: 4px;
+    height: 4px;
+    margin-right: 4px;
+}
+
+.layer__remove {
+    display: none;
+    color: var(--danger-color);
+    margin: 0 8px;
+    height: 32px;
 }
 </style>

@@ -11,7 +11,7 @@ watch(platform, (val) => {
 </script>
 <template>
     <div class="fui-select fui-platforms">
-        <label for="library" class="fui-select__label">Library:</label>
+        <label for="library" class="fui-select__label pr-2">Library:</label>
         <select id="library" class="fui-select__select fui-form-input" v-model="platform">
             <option v-for="(p, idx) in session.platforms" :key="idx" :value="idx">
                 {{ p.getName() }}

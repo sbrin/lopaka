@@ -32,14 +32,18 @@
     },
     "homepage": "https://github.com/sbrin/lopaka#readme",
     "devDependencies": {
+        "@tailwindcss/typography": "^0.5.13",
         "@vitejs/plugin-basic-ssl": "^1.0.1",
         "@vitejs/plugin-vue": "^4.3.4",
         "@vitest/coverage-v8": "^0.34.4",
         "@vitest/ui": "^0.34.4",
         "@vue/test-utils": "^2.4.1",
+        "autoprefixer": "^10.4.19",
+        "daisyui": "^4.11.1",
         "jsdom": "^22.1.0",
         "prettier": "^3.0.3",
         "probe-image-size": "^7.2.3",
+        "tailwindcss": "^3.4.3",
         "vite": "^4.4.9",
         "vitest": "^0.34.5"
     },

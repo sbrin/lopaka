@@ -9,17 +9,6 @@ import {Platform} from './platform';
 import cEspIdfTemplate from './templates/u8g2/c_esp_idf.pug';
 import defaultTemplate from './templates/u8g2/default.pug';
 
-// for backwards compatibility
-// TODO: remove after 15.04.2024
-const oldFontNames = {
-    f4x6_tr: '4x6',
-    '5x8_tr': '5x8',
-    haxrcorp4089_tr: 'haxcorp4089',
-    helvB08_tr: 'helvb08',
-    '6x10_tr': '6x10',
-    profont22_tr: 'profont22'
-};
-
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
     protected name = 'U8g2';
@@ -54,7 +43,7 @@ export class U8g2Platform extends Platform {
     }
 
     generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
-        const declarations: {type: string; data: any}[] = [];
+        const declarations: { type: string; data: any }[] = [];
         const xbmps = [];
         const xbmpsNames = [];
         const layerData = layers
@@ -82,7 +71,7 @@ export class U8g2Platform extends Platform {
                         props.imageName = varName;
                     }
                 } else if (layer instanceof TextLayer) {
-                    const fontName = `u8g2_font_${oldFontNames[layer.font.name] ?? layer.font.name}`;
+                    const fontName = `u8g2_font_${layer.font.name}`;
                     props.fontName = `${fontName}_tr`;
                 }
                 return props;

@@ -22,5 +22,7 @@ canvas_set_font(canvas, profont22);
 // Unknown layer type ellipse
 
 @rrsjcz4oz2ln6jx4y4;canvas_draw_xbm(canvas, 0, 0, 128, 64, image_1_bits);
+@njsoidnfijoinisn;canvas_draw_r_box(canvas, 10, 4, 12, 19, 3);
+@jnijisniijaojosd;canvas_draw_r_frame(canvas, 45, 20, 14, 12, 5);
 "
 `;

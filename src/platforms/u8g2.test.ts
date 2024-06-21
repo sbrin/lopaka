@@ -3,12 +3,12 @@ import {layersMock} from './layers.mock';
 import {U8g2Platform} from './u8g2';
 
 describe('U8g2 platform', () => {
-    it('generating source code: arduino', () => {
+    it('generating source code: Arduino (Cpp) Progmem', () => {
         const platform = new U8g2Platform();
         platform.setTemplate('arduino');
         expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
     });
-    it('generating source code: Arduino/Esp32 (Cpp)', () => {
+    it('generating source code: Arduino (Cpp)', () => {
         const platform = new U8g2Platform();
         platform.setTemplate('arduino');
         platform.getTemplates().arduino.settings.progmem = false;

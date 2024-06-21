@@ -10,8 +10,8 @@ import defaultTemplate from './templates/adafruit/default.pug';
 
 export class AdafruitPlatform extends Platform {
     public static id = 'adafruit_gfx';
-    protected name = 'Adafruit GFX';
-    protected description = 'Adafruit GFX';
+    protected name = 'AdafruitGFX Color';
+    protected description = 'Adafruit GFX Colored';
     protected fonts: TPlatformFont[] = [fontTypes['adafruit']];
     protected parser: AdafruitParser = new AdafruitParser();
 

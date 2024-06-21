@@ -19,6 +19,7 @@ import {TextLayer} from './layers/text.layer';
 import platforms from './platforms';
 import {Point} from './point';
 import {paramsToState} from './decorators/mapping';
+import {iconsList} from '../icons/icons';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -62,6 +63,7 @@ export class Session {
         layers: [],
         scale: new Point(4, 4),
         customImages: [],
+        icons: iconsList,
         isPublic: false
     });
 
@@ -110,6 +112,20 @@ export class Session {
         layer.selected = true;
         layer.draw();
         this.virtualScreen.redraw();
+    };
+    grab = (position: Point, size: Point) => {
+        const layer = new PaintLayer(this.getPlatformFeatures());
+        this.addLayer(layer);
+        const ctx = layer.getBuffer().getContext('2d');
+        ctx.drawImage(this.virtualScreen.canvas, position.x, position.y, size.x, size.y, 0, 0, size.x, size.y);
+        layer.recalculate();
+        layer.position = position.clone();
+        layer.applyColor();
+        layer.stopEdit();
+        layer.selected = true;
+        layer.draw();
+        this.virtualScreen.redraw();
+        return layer;
     };
     addLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
         const {display, scale, layers} = this.state;
@@ -162,23 +178,24 @@ export class Session {
         localStorage.setItem('lopaka_scale', `${scale}`);
         isLogged && logEvent('select_scale', scale);
     };
-    setPlatform = async (name: string, isLogged?: boolean): Promise<void> => {
+    setPlatform = async (name: string, isLogged?: boolean, layers?): Promise<void> => {
         this.state.platform = name;
         const fonts = this.platforms[name].getFonts();
         this.lock();
         this.editor.clear();
-        const layersToload = JSON.parse(localStorage.getItem(`${name}_lopaka_layers`));
+        let layersToload =
+            window.top === window.self ? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`)) : layers;
         return this.loadFontsForLayers(
             layersToload ? layersToload.filter((l) => l.type == 'string').map((l) => l.f) : [fonts[0].name]
         ).then(() => {
             this.editor.font = getFont(fonts[0].name);
             this.unlock();
+            loadLayers(layersToload ?? []);
             if (window.top === window.self) {
-                loadLayers(layersToload ?? []);
                 localStorage.setItem('lopaka_library', name);
+                isLogged && logEvent('select_library', name);
             }
             this.virtualScreen.redraw(false);
-            isLogged && logEvent('select_library', name);
         });
     };
 
@@ -320,8 +337,6 @@ export function saveLayers() {
     } else {
         localStorage.setItem(`${session.state.platform}_lopaka_layers`, packedSession);
     }
-    console.log('Saved session size', packedSession.length, 'bytes');
-    console.log('Saved session', packedSession);
 }
 
 export function useSession(id?: string) {

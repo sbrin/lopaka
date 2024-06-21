@@ -17,14 +17,19 @@ export class RectangleLayer extends AbstractLayer {
 
     @mapping('s', 'point') public size: Point = new Point();
 
+    @mapping('r') public radius: number = 0;
+
     @mapping('f') public fill: boolean = false;
+
+    get minLen(): number {
+        return this.radius * 2 + 2;
+    }
 
     modifiers: TLayerModifiers = {
         x: {
             getValue: () => this.position.x,
             setValue: (v: number) => {
                 this.position.x = v;
-
                 this.updateBounds();
                 this.draw();
             },
@@ -42,7 +47,7 @@ export class RectangleLayer extends AbstractLayer {
         w: {
             getValue: () => this.size.x,
             setValue: (v: number) => {
-                this.size.x = v;
+                this.size.x = Math.max(v, this.minLen);
                 this.updateBounds();
                 this.draw();
             },
@@ -51,8 +56,19 @@ export class RectangleLayer extends AbstractLayer {
         h: {
             getValue: () => this.size.y,
             setValue: (v: number) => {
-                this.size.y = v;
+                this.size.y = Math.max(v, this.minLen);
                 this.updateBounds();
+                this.draw();
+            },
+            type: TModifierType.number
+        },
+        radius: {
+            getValue: () => this.radius,
+            setValue: (v: number) => {
+                this.radius = Math.max(
+                    0,
+                    Math.min(v, Math.round(this.size.x / 2 - 1), Math.round(this.size.y / 2 - 1))
+                );
                 this.draw();
             },
             type: TModifierType.number
@@ -95,8 +111,16 @@ export class RectangleLayer extends AbstractLayer {
                     0
                 ),
             move: (offset: Point): void => {
-                this.position = this.editState.position.clone().subtract(0, offset.y);
-                this.size = new Point(this.editState.size.x - offset.x, this.editState.size.y + offset.y);
+                const size = new Point(this.editState.size.x - offset.x, this.editState.size.y + offset.y);
+                const position = this.editState.position.clone().subtract(0, offset.y);
+                if (size.x != this.size.x && size.x >= this.minLen) {
+                    this.position.x = position.x;
+                    this.size.x = size.x;
+                }
+                if (size.y != this.size.y && size.y >= this.minLen) {
+                    this.position.y = position.y;
+                    this.size.y = size.y;
+                }
             }
         },
         {
@@ -107,7 +131,7 @@ export class RectangleLayer extends AbstractLayer {
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
             move: (offset: Point): void => {
-                this.size = this.editState.size.clone().subtract(offset);
+                this.size = this.editState.size.clone().subtract(offset).max(new Point(this.minLen));
             }
         },
         {
@@ -120,8 +144,16 @@ export class RectangleLayer extends AbstractLayer {
                     0
                 ),
             move: (offset: Point): void => {
-                this.position = this.editState.position.clone().subtract(offset.x, 0);
-                this.size = this.editState.size.clone().add(offset.x, -offset.y);
+                const position = this.editState.position.clone().subtract(offset.x, 0);
+                const size = this.editState.size.clone().add(offset.x, -offset.y);
+                if (size.x != this.size.x && size.x >= this.minLen) {
+                    this.position.x = position.x;
+                    this.size.x = size.x;
+                }
+                if (size.y != this.size.y && size.y >= this.minLen) {
+                    this.position.y = position.y;
+                    this.size.y = size.y;
+                }
             }
         },
         {
@@ -129,8 +161,16 @@ export class RectangleLayer extends AbstractLayer {
             getRect: (): Rect =>
                 new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
             move: (offset: Point): void => {
-                this.position = this.editState.position.clone().subtract(offset);
-                this.size = this.editState.size.clone().add(offset);
+                const position = this.editState.position.clone().subtract(offset);
+                const size = this.editState.size.clone().add(offset);
+                if (size.x != this.size.x && size.x >= this.minLen) {
+                    this.position.x = position.x;
+                    this.size.x = size.x;
+                }
+                if (size.y != this.size.y && size.y >= this.minLen) {
+                    this.size.y = size.y;
+                    this.position.y = position.y;
+                }
             }
         }
     ];
@@ -195,7 +235,7 @@ export class RectangleLayer extends AbstractLayer {
         dc.clear();
         dc.ctx.fillStyle = this.color;
         dc.ctx.strokeStyle = this.color;
-        dc.rect(position, size, this.fill);
+        dc.pixelateRoundedRect(position, size, this.radius, this.fill);
     }
 
     onLoadState() {

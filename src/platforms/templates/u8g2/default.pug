@@ -32,8 +32,8 @@ each layer in layers
         when 'line'
             | @!{layer.uid};!{pad}u8g2.drawLine(@x1:!{layer.p1[0]}, @y1:!{layer.p1[1]}, @x2:!{layer.p2[0]}, @y2:!{layer.p2[1]});
         when 'rect'
-            - var func = layer.fill ? 'drawBox' : 'drawFrame'
-            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]});
+            - var func = 'draw' + (layer.radius? 'R': '') + (layer.fill ? 'Box' : 'Frame')
+            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]}!{layer.radius? `, @r:${layer.radius}`: ''});
         when 'circle'
             - var func = layer.fill ? 'drawDisc' : 'drawCircle'
             | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0] + layer.radius}, @y:!{layer.position[1] + layer.radius}, @r:!{layer.radius});
@@ -48,7 +48,8 @@ each layer in layers
             | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @text:"!{layer.text}");
         when 'paint'
         when 'icon'
-            | @!{layer.uid};!{pad}u8g2.drawXBM(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]}, @image:!{layer.imageName});
+            - var func = settings.progmem ? 'drawXBMP' : 'drawXBM'
+            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]}, @image:!{layer.imageName});
         default 
             |
             | // Unknown layer type !{layer.type}

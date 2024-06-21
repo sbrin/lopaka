@@ -39,26 +39,26 @@ const LABELS = {
 </script>
 <template>
     <div class="code-settings" v-if="platform !== Uint32RawPlatform.id">
-        <div class="title" v-if="Object.keys(templates).length > 1 || Object.keys(settings).length">Settings:</div>
-        <div class="fui-select" v-if="Object.keys(templates).length > 1">
-            <label for="template" class="fui-form-label">Code style:</label>
-            <select id="template" class="fui-select__select fui-form-input" v-model="template" @change="changeTemplate">
-                <option v-for="(item, idx) in Object.keys(templates)" :key="idx" :value="item">
-                    {{ templates[item].name }}
-                </option>
-            </select>
-        </div>
-        <div v-for="(value, key) in settings" class="code-settings-row">
-            <div class="fui-form-checkbox">
-                <input
+        <div class="title" v-if="Object.keys(templates).length > 1 || Object.keys(settings).length">Code settings:</div>
+        <div class="font-sans">
+            <div class="fui-select label" v-if="Object.keys(templates).length > 1">
+                <label for="template" class="label-text">Code style:</label>
+                <select id="template" class="fui-select__select fui-form-input" v-model="template" @change="changeTemplate">
+                    <option v-for="(item, idx) in Object.keys(templates)" :key="idx" :value="item">
+                        {{ templates[item].name }}
+                    </option>
+                </select>
+            </div>
+            <div v-for="(value, key) in settings" class="form-control">
+                <label class="label cursor-pointer justify-start">
+                    <input class="checkbox checkbox-sm checkbox-primary"
                     type="checkbox"
-                    :id="'settings_' + key"
-                    class="fui-form-input"
                     :checked="value"
                     @change="setSetting($event, key)"
-                />
+                    />
+                    <span class="label-text ml-2">{{ LABELS[key] ?? key }}</span>
+                </label>
             </div>
-            <label :for="'settings_' + key" class="fui-form-label">{{ LABELS[key] ?? key }}</label>
         </div>
     </div>
 </template>
