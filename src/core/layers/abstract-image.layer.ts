@@ -1,9 +1,9 @@
 import {TPlatformFeatures} from '../../platforms/platform';
 import {
+    applyColor,
     downloadImage,
     flipImageDataByX,
     flipImageDataByY,
-    hexToRgb,
     invertImageData,
     rotateImageData
 } from '../../utils';
@@ -95,7 +95,7 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             }
         },
         {
-            label: 'Download',
+            label: '↓',
             title: 'Download image',
             action: () => {
                 downloadImage(this.data, this.imageName ?? 'image_' + this.index);
@@ -104,15 +104,7 @@ export abstract class AbstractImageLayer extends AbstractLayer {
     ];
 
     applyColor() {
-        const color = hexToRgb(this.color);
-        this.data.data.forEach((v, i) => {
-            if (i % 4 === 3 && v !== 0) {
-                this.data.data[i - 3] = color.r;
-                this.data.data[i - 2] = color.g;
-                this.data.data[i - 1] = color.b;
-                return v;
-            }
-        });
+        this.data = applyColor(this.data, this.color);
     }
 
     recalculate() {

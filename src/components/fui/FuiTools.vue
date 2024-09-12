@@ -22,7 +22,7 @@ function isActive(name: string) {
 }
 </script>
 <template>
-    <div class="tools">
+    <div class="flex flex-row justify-center mt-4">
         <FuiButton class="tools__btn" @click="setActive(null, true)" :active="activeTool == null">select</FuiButton>
         <FuiButton
             v-for="(tool, idx) in tools"

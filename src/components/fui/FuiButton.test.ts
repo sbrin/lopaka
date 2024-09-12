@@ -9,7 +9,7 @@ describe('FuiButton', () => {
                 default: 'Test'
             }
         });
-        expect(wrapper.find('.button').exists()).toBe(true);
+        expect(wrapper.find('.btn.btn-primary').exists()).toBe(true);
         expect(wrapper.element).toMatchSnapshot();
     });
 

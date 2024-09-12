@@ -1,5 +1,5 @@
 import {TPlatformFeatures} from '../../platforms/platform';
-import {addAlphaChannelToImageData, inverImageDataWithAlpha} from '../../utils';
+import {addAlphaChannelToImageData} from '../../utils';
 import {Point} from '../point';
 import {AbstractImageLayer} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
@@ -39,13 +39,15 @@ export class IconLayer extends AbstractImageLayer {
             setValue: (v: HTMLImageElement) => {
                 this.imageName = v.dataset.name;
                 const [w, h] = [Number(v.dataset.w), Number(v.dataset.h)];
+                if (w && h) {
+                    this.size = new Point(w, h);
+                }
                 const buf = document.createElement('canvas');
                 const ctx = buf.getContext('2d');
-                buf.width = w;
-                buf.height = h;
+                buf.width = this.size.x;
+                buf.height = this.size.y;
                 ctx.drawImage(v, 0, 0);
-                this.data = addAlphaChannelToImageData(ctx.getImageData(0, 0, w, h), this.color);
-                this.size = new Point(w, h);
+                this.data = addAlphaChannelToImageData(ctx.getImageData(0, 0, this.size.x, this.size.y), this.color);
                 this.updateBounds();
                 this.applyColor();
                 this.draw();

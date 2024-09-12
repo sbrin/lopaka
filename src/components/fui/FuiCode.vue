@@ -97,7 +97,28 @@ const debouncedChange = debounce(() => onChange(), 500);
     </div>
     <!-- <textarea class="fui-code" v-model="content" readonly></textarea> -->
 </template>
-<style lang="css">
+<style lang="css" scoped>
+.fui-code {
+    background: var(--primary-color);
+    border: 2px solid var(--border-dark-color);
+    border-radius: 0 10px 10px 10px;
+    border-top: 0;
+    margin: 0 0 8px 0;
+    padding: 8px;
+    height: 350px;
+    color: var(--secondary-color);
+    text-transform: none;
+    overflow: auto;
+    white-space: pre;
+}
+
+.fui-code:focus {
+    outline: none;
+}
+
+.fui-code pre {
+    margin: 0;
+}
 .ace_cursor {
     opacity: 0 !important;
 }

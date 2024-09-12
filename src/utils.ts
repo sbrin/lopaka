@@ -1,5 +1,15 @@
 import {decode, encode} from 'base64-arraybuffer';
 import pako from 'pako';
+import {Rect} from './core/rect';
+import {UnwrapRef} from 'vue';
+
+type RGBColor = {
+    r: number;
+    g: number;
+    b: number;
+    a?: number;
+};
+
 function bitswap(b) {
     b = ((b & 0xf0) >> 4) | ((b & 0x0f) << 4);
     b = ((b & 0xcc) >> 2) | ((b & 0x33) << 2);
@@ -49,7 +59,7 @@ export async function loadImageDataAsync(src): Promise<ImageData> {
     return ctx.getImageData(0, 0, img.width, img.height);
 }
 
-export function hexToRgb(hexColor: string) {
+export function hexToRgb(hexColor: string): RGBColor {
     const hex = hexColor.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
@@ -82,18 +92,12 @@ export function packColor565(hexColor: string) {
 export function addAlphaChannelToImageData(data: ImageData, color: string) {
     const newData = new Uint8ClampedArray(data.width * data.height * 4);
     const rgb = hexToRgb(color);
-    const colors = new Map<string, number>();
+    // const colors = new Map<string, number>();
     let hasAlphaChannel = false;
     for (let i = 0; i < data.data.length; i += 4) {
         if (data.data[i + 3] == 0) {
             hasAlphaChannel = true;
-        } else {
-            const hexColor = rgbToHex(Array.from(data.data.slice(i, i + 3)));
-            if (colors.has(hexColor)) {
-                colors.set(hexColor, colors.get(hexColor) + 1);
-            } else {
-                colors.set(hexColor, 1);
-            }
+            break;
         }
     }
     if (hasAlphaChannel) {
@@ -111,12 +115,14 @@ export function addAlphaChannelToImageData(data: ImageData, color: string) {
             }
         }
     } else {
-        // get main color and set alpha for all other colors
-        const sortedColors = Array.from(colors).sort((a, b) => b[1] - a[1]);
-        const alphaColor = sortedColors[0][0];
+        // alpha channnel color is white by default, else just invert
+        const alphaColor = {r: 255, g: 255, b: 255};
         for (let i = 0; i < data.data.length; i += 4) {
-            const hexColor = rgbToHex(Array.from(data.data.slice(i, i + 3)));
-            if (hexColor != alphaColor && data.data[i + 3] > 175) {
+            // if color is closest to alphaColor or alpha is more than 50%
+            if (
+                data.data[i + 3] > 175 &&
+                !isAlphaColor(alphaColor, [data.data[i], data.data[i + 1], data.data[i + 2]])
+            ) {
                 newData[i] = rgb.r;
                 newData[i + 1] = rgb.g;
                 newData[i + 2] = rgb.b;
@@ -132,26 +138,8 @@ export function addAlphaChannelToImageData(data: ImageData, color: string) {
     return new ImageData(newData, data.width, data.height);
 }
 
-export function inverImageDataWithAlpha(imgData: ImageData) {
-    const data = imgData.data;
-    for (let i = 0; i < data.length; i += 4) {
-        let [r, g, b, a] = [data[i], data[i + 1], data[i + 2], data[i + 3]];
-        // if alpha more than 50%
-        if (r + g + b > 255 / 2 || a < 255 / 2) {
-            // transparent
-            a = 0;
-            r = g = b = 0;
-        } else {
-            // white pixels
-            r = g = b = 255;
-            a = 255;
-        }
-        data[i] = r;
-        data[i + 1] = g;
-        data[i + 2] = b;
-        data[i + 3] = a;
-    }
-    return imgData;
+function isAlphaColor(alpha: RGBColor, color: number[]) {
+    return Math.abs(alpha.r - color[0]) < 15 && Math.abs(alpha.g - color[1]) < 15 && Math.abs(alpha.b - color[2]) < 15;
 }
 
 export function imageToImageData(img: HTMLImageElement): ImageData {
@@ -159,6 +147,20 @@ export function imageToImageData(img: HTMLImageElement): ImageData {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
     return ctx.getImageData(0, 0, img.width, img.height);
+}
+
+export async function imageDataToImage(imgData: ImageData): Promise<HTMLImageElement> {
+    const canvas = document.createElement('canvas');
+    canvas.width = imgData.width;
+    canvas.height = imgData.height;
+    const ctx = canvas.getContext('2d');
+    ctx.putImageData(imgData, 0, 0);
+    const img = new Image();
+    img.src = canvas.toDataURL('image/png');
+    await new Promise((resolve) => {
+        img.onload = resolve;
+    });
+    return img;
 }
 
 export function imgDataToXBMP(
@@ -304,8 +306,8 @@ export function postParentMessage(type, data) {
     }
 }
 
-export function logEvent(event_name: string, option?: string) {
-    window.gtag &&
+export function logEvent(event_name: string, option?: string | number) {
+    import.meta.env.PROD && window.gtag &&
         gtag('event', event_name, {
             app_name: 'lopaka',
             option: option
@@ -413,6 +415,21 @@ export function invertImageData(data: ImageData, hexColor: string): ImageData {
     return new ImageData(newData, data.width, data.height);
 }
 
+export function applyColor(image: ImageData, hex: string) {
+    const color = hexToRgb(hex);
+    const newData = new Uint8ClampedArray(image.data.length);
+    image.data.forEach((v, i) => {
+        if (i % 4 === 3 && v !== 0) {
+            newData[i - 3] = color.r;
+            newData[i - 2] = color.g;
+            newData[i - 1] = color.b;
+            newData[i] = v;
+            return v;
+        }
+    });
+    return new ImageData(newData, image.width, image.height);
+}
+
 export function downloadImage(data: ImageData, name: string) {
     const a = document.createElement('a');
     const canvas = document.createElement('canvas');
@@ -423,4 +440,256 @@ export function downloadImage(data: ImageData, name: string) {
     a.href = canvas.toDataURL('image/png');
     a.download = name;
     a.click();
+}
+
+export function processImage(data: ImageData, options: any, color: string = '#FFFFFF') {
+    if (options.grayscale) {
+        data = grayscale(data);
+    }
+    if (options.brightness || options.contrast) {
+        data = imageBrightnessAndContrast(data, options.brightness, options.contrast);
+    }
+    switch (options.resampling) {
+        case 'nearest':
+            data = resampleNearest(data, options.width, options.height);
+            break;
+        case 'bilinear':
+            data = resampleBilinear(data, options.width, options.height);
+            break;
+        case 'lanczos':
+            data = resampleWithFilter(data, options.width, options.height, lanczosFilter);
+            break;
+        case 'gaussian':
+            data = resampleWithFilter(data, options.width, options.height, gaussianFilter);
+            break;
+        case 'mitchell':
+            data = resampleWithFilter(data, options.width, options.height, mitchellFilter);
+            break;
+        case 'mitchell-netravali':
+            data = resampleWithFilter(data, options.width, options.height, mitchellNetravaliFilter);
+            break;
+        case 'catmull-rom':
+            data = resampleWithFilter(data, options.width, options.height, catmullRomFilter);
+            break;
+        case 'bspline':
+            data = resampleWithFilter(data, options.width, options.height, bsplineFilter);
+            break;
+        default:
+            data = scaleImage(data, options.width, options.height);
+            break;
+    }
+    if (options.dither) {
+        data = floydSteinbergDithering(
+            data,
+            options.invertPalette ? options.palette.slice(0).reverse() : options.palette
+        );
+    }
+    if (options.alpha) {
+        data = addAlphaChannelToImageData(data, color);
+    }
+    if (!options.invert) {
+        data = invertImageData(data, color);
+    }
+    return data;
+}
+
+export function imageBrightnessAndContrast(data: ImageData, brightness: number, contrast: number) {
+    const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let i = 0; i < data.data.length; i += 4) {
+        newData[i] = factor * (data.data[i] - 128) + 128 + brightness;
+        newData[i + 1] = factor * (data.data[i + 1] - 128) + 128 + brightness;
+        newData[i + 2] = factor * (data.data[i + 2] - 128) + 128 + brightness;
+        newData[i + 3] = data.data[i + 3];
+    }
+    return new ImageData(newData, data.width, data.height);
+}
+
+export function grayscale(data: ImageData) {
+    const newData = new Uint8ClampedArray(data.data.length);
+    for (let i = 0; i < data.data.length; i += 4) {
+        const avg = (data.data[i] + data.data[i + 1] + data.data[i + 2]) / 3;
+        newData[i] = avg;
+        newData[i + 1] = avg;
+        newData[i + 2] = avg;
+        newData[i + 3] = data.data[i + 3];
+    }
+    return new ImageData(newData, data.width, data.height);
+}
+
+export function cropImage(data: ImageData, rect: UnwrapRef<Rect>) {
+    const newData = new Uint8ClampedArray(rect.w * rect.h * 4);
+    for (let y = rect.y; y < rect.y + rect.h; y++) {
+        for (let x = rect.x; x < rect.x + rect.w; x++) {
+            const index = (y * data.width + x) * 4;
+            const newIndex = ((y - rect.y) * rect.w + (x - rect.x)) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, rect.w, rect.h);
+}
+
+export function scaleImage(data: ImageData, width: number, height: number) {
+    const canvas = new OffscreenCanvas(data.width, data.height);
+    const ctx = canvas.getContext('2d');
+    ctx.putImageData(data, 0, 0);
+    const canvas2 = new OffscreenCanvas(width, height);
+    const ctx2 = canvas2.getContext('2d');
+    ctx2.imageSmoothingEnabled = false;
+    ctx2.drawImage(canvas, 0, 0, width, height);
+    return ctx2.getImageData(0, 0, width, height);
+}
+
+export function resampleBilinear(data: ImageData, width: number, height: number) {
+    // scaling with bilinear interpolation
+    const newData = new Uint8ClampedArray(width * height * 4);
+    const xRatio = data.width / width;
+    const yRatio = data.height / height;
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const px = x * xRatio;
+            const py = y * yRatio;
+            const x1 = Math.floor(px);
+            const x2 = Math.ceil(px);
+            const y1 = Math.floor(py);
+            const y2 = Math.ceil(py);
+            const dx = px - x1;
+            const dy = py - y1;
+            const index1 = (y1 * data.width + x1) * 4;
+            const index2 = (y1 * data.width + x2) * 4;
+            const index3 = (y2 * data.width + x1) * 4;
+            const index4 = (y2 * data.width + x2) * 4;
+            const newIndex = (y * width + x) * 4;
+            for (let j = 0; j < 4; j++) {
+                newData[newIndex + j] =
+                    data.data[index1 + j] * (1 - dx) * (1 - dy) +
+                    data.data[index2 + j] * dx * (1 - dy) +
+                    data.data[index3 + j] * (1 - dx) * dy +
+                    data.data[index4 + j] * dx * dy;
+            }
+        }
+    }
+    return new ImageData(newData, width, height);
+}
+
+export function resampleNearest(data: ImageData, width: number, height: number) {
+    // scaling with nearest neighbor algorithm
+    const newData = new Uint8ClampedArray(width * height * 4);
+    const xRatio = data.width / width;
+    const yRatio = data.height / height;
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const index = (Math.floor(y * yRatio) * data.width + Math.floor(x * xRatio)) * 4;
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, width, height);
+}
+
+export function resampleWithFilter(data: ImageData, width: number, height: number, filter: Function) {
+    const newData = new Uint8ClampedArray(width * height * 4);
+    const xRatio = data.width / width;
+    const yRatio = data.height / height;
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            let r = 0,
+                g = 0,
+                b = 0,
+                a = 0;
+            for (let j = Math.floor(y * yRatio); j < Math.ceil(y * yRatio + 1); j++) {
+                for (let i = Math.floor(x * xRatio); i < Math.ceil(x * xRatio + 1); i++) {
+                    if (i >= 0 && i < data.width && j >= 0 && j < data.height) {
+                        const index = (j * data.width + i) * 4;
+                        const dx = Math.abs(x * xRatio - i);
+                        const dy = Math.abs(y * yRatio - j);
+                        const weight = filter(dx) * filter(dy);
+                        r += data.data[index] * weight;
+                        g += data.data[index + 1] * weight;
+                        b += data.data[index + 2] * weight;
+                        a += data.data[index + 3] * weight;
+                    }
+                }
+            }
+            const newIndex = (y * width + x) * 4;
+            newData[newIndex] = r;
+            newData[newIndex + 1] = g;
+            newData[newIndex + 2] = b;
+            newData[newIndex + 3] = a;
+        }
+    }
+    return new ImageData(newData, width, height);
+}
+
+function mitchellFilter(x) {
+    return x < 1 ? (16 + x * x * (21 * x - 36)) / 18 : x < 2 ? (32 + x * (-60 + x * (36 - 7 * x))) / 18 : 0;
+}
+
+function catmullRomFilter(x) {
+    return x < 1 ? 0.5 * (2 + x * x * (-5 + 3 * x)) : x < 2 ? 0.5 * (4 + x * (-8 + x * (5 - x))) : 0;
+}
+function gaussianFilter(x) {
+    return Math.exp(-2 * x * x);
+}
+
+function mitchellNetravaliFilter(x) {
+    return x < 1 ? (21 + x * x * (30 * x - 36)) / 18 : x < 2 ? (39 + x * (-54 + x * (27 - 5 * x))) / 18 : 0;
+}
+
+function bsplineFilter(x) {
+    return x < 1 ? (4 + x * x * (-6 + 3 * x)) / 6 : x < 2 ? (8 + x * (-12 + x * (6 - x))) / 6 : 0;
+}
+
+function lanczosFilter(x) {
+    return x == 0 ? 1 : (Math.sin(Math.PI * x) * Math.sin((Math.PI * x) / 3)) / ((Math.PI * x * (Math.PI * x)) / 3);
+}
+
+export function floydSteinbergDithering(data: ImageData, palette: string[]) {
+    const newData = new Uint8ClampedArray(data.data.length);
+    const colors = palette.map((c) => hexToRgb(c));
+    for (let y = 0; y < data.height; y++) {
+        for (let x = 0; x < data.width; x++) {
+            const index = (y * data.width + x) * 4;
+            const [r, g, b] = Array.from(data.data.slice(index, index + 3));
+            let min = 255 * 3;
+            let index2 = 0;
+            for (let j = 0; j < colors.length; j++) {
+                const [r2, g2, b2] = Object.values(colors[j]);
+                const d = Math.pow(r - r2, 2) + Math.pow(g - g2, 2) + Math.pow(b - b2, 2);
+                if (d < min) {
+                    min = d;
+                    index2 = j;
+                }
+            }
+            const [r2, g2, b2] = Object.values(colors[index2]);
+            newData[index] = r2;
+            newData[index + 1] = g2;
+            newData[index + 2] = b2;
+            newData[index + 3] = data.data[index + 3];
+            const er = r - r2;
+            const eg = g - g2;
+            const eb = b - b2;
+            const d1 = (y * data.width + x + 1) * 4;
+            const d2 = ((y + 1) * data.width + x - 1) * 4;
+            const d3 = (y * data.width + x) * 4;
+            const d4 = ((y + 1) * data.width + x) * 4;
+            if (x < data.width - 1) {
+                data.data[d1] += (er * 7) / 16;
+                data.data[d1 + 1] += (eg * 7) / 16;
+                data.data[d1 + 2] += (eb * 7) / 16;
+            }
+            if (y < data.height - 1 && x > 0) {
+                data.data[d2] += (er * 3) / 16;
+                data.data[d2 + 1] += (eg * 3) / 16;
+                data.data[d2 + 2] += (eb * 3) / 16;
+            }
+        }
+    }
+    return new ImageData(newData, data.width, data.height);
 }

@@ -158,6 +158,28 @@ export const layersMock: AbstractLayer[] = [
         rx: 7,
         ry: 7,
         f: false
+    },
+    {
+        n: 'box_njsoidnfijoinisn',
+        t: 'rect',
+        c: '#00FF00',
+        r: 3,
+        f: true,
+        i: 15,
+        p: [10, 4],
+        u: 'njsoidnfijoinisn',
+        s: [12, 19]
+    },
+    {
+        n: 'box_jnijisniijaojosd',
+        t: 'rect',
+        c: '#00FF00',
+        r: 5,
+        f: false,
+        i: 16,
+        p: [45, 20],
+        u: 'jnijisniijaojosd',
+        s: [14, 12]
     }
 ].map((l) => {
     const type: ELayerType = l.t as any;

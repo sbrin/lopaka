@@ -6,8 +6,6 @@ exports[`Adafruit platform > generating source code 1`] = `
 @utlxpqvhdxnln6it5pw;display.fillRect(97, 2, 27, 11, 0x7E0);
 @eu6bpe0xpvvln6itc2e;display.fillRect(106, 19, 19, 18, 0x1F);
 display.setTextColor(0x0);
-display.setTextSize(1);
-display.setTextWrap(false);
 display.setCursor(3, 10);
 @s3m4u762qpln6jvm90;display.print(\\"Text\\");
 @b11j6xs5t46ln6jw96h;display.drawLine(2, 16, 68, 16, 0xFFFF);
@@ -24,5 +22,7 @@ display.setCursor(3, 10);
 // Unknown layer type ellipse
 
 @rrsjcz4oz2ln6jx4y4;display.drawBitmap(0, 0, image_paint_0_bits, 128, 64, 0xF800);
+@njsoidnfijoinisn;display.fillRoundRect(10, 4, 12, 19, 3, 0x7E0);
+@jnijisniijaojosd;display.drawRoundRect(45, 20, 14, 12, 5, 0x7E0);
 "
 `;
