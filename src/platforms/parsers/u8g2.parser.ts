@@ -71,7 +71,9 @@ export class U8g2Parser extends AbstractParser {
                     }
                     break;
                 case 'u8g2_DrawStr':
+                case 'u8g2_DrawUTF8':
                 case 'drawStr':
+                case 'drawUTF8':
                     {
                         const [x, y, text] = this.getArgs(call.args, defines, variables);
                         states.push({

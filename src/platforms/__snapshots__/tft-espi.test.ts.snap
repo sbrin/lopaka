@@ -6,7 +6,8 @@ exports[`TFT_eSPI platform > generating source code 1`] = `
 @utlxpqvhdxnln6it5pw;tft.fillRect(97, 2, 27, 11, 0x7E0);
 @eu6bpe0xpvvln6itc2e;tft.fillRect(106, 19, 19, 18, 0x1F);
 tft.setTextColor(0x0);
-@s3m4u762qpln6jvm90;tft.drawString(\\"Text\\", 3, 10);
+@s3m4u762qpln6jvm90;tft.drawString("Text", 3, 10);
+@ho3t7do;tft.drawString("Текст", 3, 10);
 @b11j6xs5t46ln6jw96h;tft.drawLine(2, 16, 68, 16, 0xFFFF);
 @6n8rac0nxpcln6jwdwr;tft.drawPixel(62, 4, 0x0);
 @ema2hee85mln6jweht;tft.drawPixel(67, 8, 0x0);
