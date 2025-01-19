@@ -64,6 +64,17 @@ export const layersMock: AbstractLayer[] = [
         f: 'profont22'
     },
     {
+        n: 'str_ho3t7do',
+        t: 'string',
+        c: '#000000',
+        i: 6,
+        p: [3, 11],
+        u: 'ho3t7do',
+        d: 'Текст',
+        s: [50, 8],
+        f: 'profont22'
+    },
+    {
         n: 'line_b11j6xs5t46ln6jw96h',
         t: 'line',
         c: '#FFFFFF',
