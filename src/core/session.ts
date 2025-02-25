@@ -21,6 +21,7 @@ import {iconsList} from '../icons/icons';
 import {Display} from '/src/core/displays';
 import {FontFormat} from '/src/draw/fonts/font';
 import {Project, ProjectScreen} from '../types';
+import {TFTeSPIPlatform} from '../platforms/tft-espi';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -309,7 +310,7 @@ export class Session {
         this.state.lock = false;
     };
     initSandbox = () => {
-        const platformLocal = localStorage.getItem('lopaka_library');
+        const platformLocal = localStorage.getItem('lopaka_library') ?? TFTeSPIPlatform.id;
         this.state.platform = platformLocal;
         this.preparePlatform(platformLocal ?? U8g2Platform.id);
         this.setDisplayCustom(localStorage.getItem('lopaka_display_custom') === 'true');
@@ -489,7 +490,7 @@ export function useSession(id?: string) {
         return sessions.get(currentSessionId);
     }
     const session = new Session();
-    const scaleLocal = JSON.parse(localStorage.getItem('lopaka_scale'));
+    const scaleLocal = JSON.parse(localStorage.getItem('lopaka_scale') ?? '300');
     session.setScale(scaleLocal);
     sessions.set(session.id, session);
     currentSessionId = session.id;
