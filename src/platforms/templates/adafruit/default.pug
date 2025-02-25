@@ -1,18 +1,31 @@
+if settings.include_fonts
+    each decl in declarations 
+        if decl.type == 'font'
+            | #include "!{decl.data.value}.h"
+            |
+    |
+    |
 each decl in declarations 
     if decl.type == 'bitmap'
         | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
         |
-    else 
-        | !{decl}
         |
 if settings.wrap
     | void draw(void) {
     |
-- var textColor = '#ffffff'
+- var textColor = defaultColor;
 - var textSize = '1'
 - var textWrap = true
 - var pad = settings.wrap ? '    ' : ''
+- var font = 'adafruit'
+- var stringLayersNumber = 0
+| !{pad}display.clearDisplay();
+|
+|
 each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.name}
+        |
     case layer.type
         when 'dot'
             | @!{layer.uid};!{pad}display.drawPixel(!{layer.position[0]}, !{layer.position[1]}, !{packColor(layer.color)});
@@ -25,6 +38,10 @@ each layer in layers
             - var func = layer.fill ? 'fillCircle' : 'drawCircle'
             | @!{layer.uid};!{pad}display.!{func}(!{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius}, !{packColor(layer.color)});
         when 'string'
+            if stringLayersNumber === 0
+                | !{pad}display.setTextColor(!{packColor(layer.color)});
+                |
+                - stringLayersNumber++
             if layer.color != textColor
                 - textColor = layer.color
                 | !{pad}display.setTextColor(!{packColor(layer.color)});
@@ -33,11 +50,19 @@ each layer in layers
                 - textSize = layer.scaleFactor
                 | !{pad}display.setTextSize(!{layer.scaleFactor});
                 |
-            //- if layer.wrap != textWrap
-            //-     - textWrap = layer.wrap
-            //-     | !{pad}display.setTextWrap(false);
-            //-     |
-            | !{pad}display.setCursor(!{layer.position[0]}, !{layer.position[1] - layer.bounds[3]});
+            if layer.wrap != textWrap
+                - textWrap = layer.wrap
+                | !{pad}display.setTextWrap(false);
+                |
+            if layer.font != font 
+                - font = layer.font
+                if font == 'adafruit'
+                    | !{pad}display.setFont();
+                    |
+                else
+                    | !{pad}display.setFont(&!{layer.font});
+                    |
+            | !{pad}display.setCursor(!{getTextPosition(layer).join(', ')});
             | @!{layer.uid};!{pad}display.print("!{layer.text}");
         when 'paint'
         when 'icon'
@@ -48,6 +73,9 @@ each layer in layers
             |
     |
     |
+    |
+| !{pad}display.display();
+|
 if settings.wrap
     | }
     |

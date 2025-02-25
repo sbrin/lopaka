@@ -5,7 +5,7 @@ export class ResizeIconsPlugin extends DrawPlugin {
     update(ctx: CanvasRenderingContext2D, point: Point) {
         const {scale, layers} = this.session.state;
         const {interfaceColors} = this.session.getPlatformFeatures();
-        const resizableLayers = layers.filter((l) => l.resizable && l.selected);
+        const resizableLayers = layers.filter((l) => l.resizable && l.selected && !l.locked);
         if (resizableLayers.length == 1) {
             ctx.save();
             ctx.beginPath();

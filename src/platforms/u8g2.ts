@@ -24,16 +24,18 @@ export class U8g2Platform extends Platform {
             template: defaultTemplate,
             settings: {
                 progmem: true,
-                wrap: false
-            }
+                wrap: false,
+                comments: false,
+            },
         },
         'esp-idf': {
             name: 'ESP-IDF (C)',
             template: cEspIdfTemplate,
             settings: {
-                wrap: false
-            }
-        }
+                wrap: false,
+                comments: false,
+            },
+        },
     };
 
     constructor() {
@@ -43,7 +45,7 @@ export class U8g2Platform extends Platform {
     }
 
     generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
-        const declarations: { type: string; data: any }[] = [];
+        const declarations: {type: string; data: any}[] = [];
         const xbmps = [];
         const xbmpsNames = [];
         const layerData = layers
@@ -55,7 +57,7 @@ export class U8g2Platform extends Platform {
                     if (xbmps.includes(XBMP)) {
                         props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
                     } else {
-                        const name = layer.imageName ? toCppVariableName(layer.imageName) : 'paint';
+                        const name = layer.name ? toCppVariableName(layer.name) : 'paint';
                         const nameRegexp = new RegExp(`${name}_?\d*`);
                         const countWithSameName = xbmpsNames.filter((n) => nameRegexp.test(n)).length;
                         const varName = `image_${name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')}_bits`;
@@ -63,15 +65,15 @@ export class U8g2Platform extends Platform {
                             type: 'bitmap',
                             data: {
                                 name: varName,
-                                value: XBMP
-                            }
+                                value: XBMP,
+                            },
                         });
                         xbmps.push(XBMP);
                         xbmpsNames.push(varName);
                         props.imageName = varName;
                     }
                 } else if (layer instanceof TextLayer) {
-                    const fontName = `u8g2_font_${layer.font.name}`;
+                    const fontName = `u8g2_font_${layer.font.title}`;
                     props.fontName = `${fontName}_tr`;
                 }
                 return props;
@@ -79,7 +81,7 @@ export class U8g2Platform extends Platform {
         const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
-            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings)
+            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
         });
         return source;
     }

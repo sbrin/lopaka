@@ -2,40 +2,48 @@ each decl in declarations
     if decl.type == 'bitmap'
         | static const uint8_t !{decl.data.name}[] = {!{decl.data.value}};
         |
+        |
     else 
         | !{decl}
         |
-| canvas_set_bitmap_mode(canvas, true);
 |
+|
+- var pad = settings.wrap ? '    ' : ''
 if settings.wrap
     | void draw(Canvas* canvas) {
+    | !{pad}canvas_set_bitmap_mode(canvas, true);
+    |
+    |
 - var font = ''
 each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.name}
+        |
     case layer.type
         when 'dot'
-            | @!{layer.uid};canvas_draw_dot(canvas, !{layer.position[0]}, !{layer.position[1]});
+            | @!{layer.uid};!{pad}canvas_draw_dot(canvas, !{layer.position[0]}, !{layer.position[1]});
         when 'line'
-            | @!{layer.uid};canvas_draw_line(canvas, !{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]});
+            | @!{layer.uid};!{pad}canvas_draw_line(canvas, !{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]});
         when 'rect'
-            - var func = `canvas_draw_${layer.radius? 'r_': ''}${layer.fill ? 'box' : 'frame'}`;
-            | @!{layer.uid};!{func}(canvas, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''});
+            - var func = `canvas_draw_${layer.radius? 'r': ''}${layer.fill ? 'box' : 'frame'}`;
+            | @!{layer.uid};!{pad}!{func}(canvas, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''});
         when 'circle'
             - var func = layer.fill ? 'canvas_draw_disc' : 'canvas_draw_circle'
-            | @!{layer.uid};!{func}(canvas, !{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius});
+            | @!{layer.uid};!{pad}!{func}(canvas, !{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius});
         when 'string'
             if layer.font != font
                 - font = layer.font
-                | canvas_set_font(canvas, !{layer.font});
+                | !{pad}canvas_set_font(canvas, !{layer.font});
                 |
-            | @!{layer.uid};canvas_draw_str(canvas, !{layer.position[0]}, !{layer.position[1]}, "!{layer.text}");
+            | @!{layer.uid};!{pad}canvas_draw_str(canvas, !{layer.position[0]}, !{layer.position[1]}, "!{layer.text}");
         when 'paint'
-            | @!{layer.uid};canvas_draw_xbm(canvas, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}, !{layer.imageName});
         when 'icon'
-            | @!{layer.uid};canvas_draw_icon(canvas, !{layer.position[0]}, !{layer.position[1]},  &I_!{layer.imageName});
+            | @!{layer.uid};!{pad}canvas_draw_xbm(canvas, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}, !{layer.imageName});
         default 
             |
             | // Unknown layer type !{layer.type}
             |
+    |
     |
     |
 if settings.wrap

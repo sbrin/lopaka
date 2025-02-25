@@ -1,18 +1,27 @@
+if settings.include_fonts
+    each decl in declarations 
+        if decl.type == 'font'
+            | #include "!{decl.data.value}.h"
+            |
+    |
+    |
 each decl in declarations 
     if decl.type == 'bitmap'
         | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
         |
-    else 
-        | !{decl}
         |
 if settings.wrap
+    | 
     | void draw(void) {
     |
-- var textColor = '#ffffff'
-- var textSize = '1'
+- var textColor = defaultColor;
+- var textSize = '0'
 - var textWrap = true
 - var pad = settings.wrap ? '    ' : ''
 each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.name}
+        |
     case layer.type
         when 'dot'
             | @!{layer.uid};!{pad}tft.drawPixel(!{layer.position[0]}, !{layer.position[1]}, !{packColor(layer.color)});
@@ -40,7 +49,15 @@ each layer in layers
             //-     - textWrap = layer.wrap
             //-     | !{pad}tft.setTextWrap(false);
             //-     |
-            | @!{layer.uid};!{pad}tft.drawString("!{layer.text}", !{layer.position[0]}, !{layer.position[1] - layer.bounds[3]});
+            if layer.font != font 
+                - font = layer.font
+                if font == 'adafruit'
+                    | !{pad}tft.setFreeFont();
+                    |
+                else
+                    | !{pad}tft.setFreeFont(&!{layer.font});
+                    |
+            | @!{layer.uid};!{pad}tft.drawString("!{layer.text}", !{getTextPosition(layer).join(', ')});
         when 'paint'
         when 'icon'
             | @!{layer.uid};!{pad}tft.drawBitmap(!{layer.position[0]}, !{layer.position[1]}, !{layer.imageName}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
@@ -48,6 +65,7 @@ each layer in layers
             |
             | // Unknown layer type !{layer.type}
             |
+    |
     |
     |
 if settings.wrap

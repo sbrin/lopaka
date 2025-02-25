@@ -1,0 +1,28 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`gfx-parser > parseGFX 1`] = `
+"▪▪▪▫▫▫▫▫
+▪▫▫▫▫▫▫▫
+▪▪▫▫▫▫▫▫
+▫▫▪▫▫▫▫▫
+▪▪▫▫▫▫▫▫
+"
+`;
+
+exports[`gfx-parser > parseGFX 2`] = `
+"▫▪▫▫▫▫▫▫
+▪▫▫▫▫▫▫▫
+▪▪▫▫▫▫▫▫
+▪▫▪▫▫▫▫▫
+▫▪▫▫▫▫▫▫
+"
+`;
+
+exports[`gfx-parser > parseGFX 3`] = `
+"▪▪▪▫▫▫▫▫
+▫▫▪▫▫▫▫▫
+▫▪▫▫▫▫▫▫
+▪▫▫▫▫▫▫▫
+▪▫▫▫▫▫▫▫
+"
+`;

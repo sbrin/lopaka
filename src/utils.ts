@@ -29,12 +29,12 @@ export async function readTextFileAsync(file): Promise<string> {
     });
 }
 
-export async function readFileAsync(file): Promise<string | ArrayBuffer> {
+export async function readFileAsync(file): Promise<string> {
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
 
         reader.onload = () => {
-            resolve(reader.result);
+            resolve(reader.result as string);
         };
         reader.onerror = reject;
         reader.readAsDataURL(file);
@@ -163,6 +163,12 @@ export async function imageDataToImage(imgData: ImageData): Promise<HTMLImageEle
     return img;
 }
 
+export function imageDataToFile(imgData: ImageData, fileName: string = 'image.png'): File {
+    const uint8Array = new Uint8Array(imgData.data.buffer);
+    const blob = new Blob([uint8Array], {type: 'image/png'});
+    return new File([blob], fileName, {type: 'image/png'});
+}
+
 export function imgDataToXBMP(
     imgData: ImageData,
     xStart: number,
@@ -172,7 +178,7 @@ export function imgDataToXBMP(
     swapBits: boolean = false
 ): string[] {
     if (!imgData) {
-        return;
+        return [];
     }
     const bytesPerRow = Math.ceil(width / 8);
     const xbmp = new Array(height * bytesPerRow).fill(0);
@@ -222,6 +228,9 @@ export function imgDataToUint32Array(imgData) {
 }
 
 export function xbmpToImgData(xbmp: string, width: number, height: number, swap: boolean = false): ImageData {
+    if (!xbmp) {
+        throw new Error('xbmpToImgData() xbmp parameter is undefined');
+    }
     const imgData = new ImageData(width, height);
     const bytesPerRow = Math.ceil(width / 8);
     let xbmpArray = xbmp.split(',').map((x) => parseInt(x));
@@ -277,7 +286,7 @@ export function toCppVariableName(str) {
         'do',
         'if',
         'static',
-        'while'
+        'while',
     ];
 
     // Replace non-alphanumeric characters with underscores
@@ -302,16 +311,28 @@ export function generateUID() {
 
 export function postParentMessage(type, data) {
     if (window.top !== window.self) {
-        window.top.postMessage({target: 'lopaka_app', type: type, payload: data}, '*');
+        window.top.postMessage(
+            {
+                target: 'lopaka_app',
+                type: type,
+                payload: data,
+            },
+            '*'
+        );
     }
 }
 
 export function logEvent(event_name: string, option?: string | number) {
-    import.meta.env.PROD && window.gtag &&
+    if (!(import.meta as any).env.PROD) return;
+    if (window.gtag) {
         gtag('event', event_name, {
             app_name: 'lopaka',
-            option: option
+            option: option,
         });
+    }
+    if (window.posthog) {
+        window.posthog.capture(event_name, {option});
+    }
 }
 
 export function throttle(func, limit = 5000) {
@@ -343,11 +364,32 @@ export function packImage(imageData: ImageData): string {
     return encode(deflate.result);
 }
 
-export function unpackImage(base64: string, width: number, height: number): ImageData {
-    const inflate = new pako.Inflate({level: 9});
-    const arr = new Uint8Array(decode(base64));
-    inflate.push(arr, true);
-    return new ImageData(new Uint8ClampedArray(inflate.result), width, height);
+export function unpackImage(base64: string, width: number, height: number): ImageData | null {
+    if (width > 0 && height > 0) {
+        const inflate = new pako.Inflate({level: 9});
+        const arr = new Uint8Array(decode(base64 ?? ''));
+        inflate.push(arr, true);
+        return new ImageData(new Uint8ClampedArray(inflate.result), width, height);
+    }
+    return new ImageData(1, 1);
+}
+function drawPoints(data, w, h, color) {
+    const canvas = new OffscreenCanvas(w, h);
+    const ctx = canvas.getContext('2d', {
+        alpha: true,
+        desynchronized: true,
+        willReadFrequently: true,
+    });
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    data.forEach((p) => {
+        ctx.rect(p[0], p[1], 1, 1);
+    });
+    ctx.fill();
+    ctx.restore();
+    return ctx;
 }
 
 export function flipImageDataByY(data: ImageData): ImageData {
@@ -447,12 +489,12 @@ export function processImage(data: ImageData, options: any, color: string = '#FF
         data = grayscale(data);
     }
     if (options.brightness || options.contrast) {
-        data = imageBrightnessAndContrast(data, options.brightness, options.contrast);
+        data = imageBrightnessAndContrast(data, parseInt(options.brightness), parseInt(options.contrast));
     }
     switch (options.resampling) {
-        case 'nearest':
-            data = resampleNearest(data, options.width, options.height);
-            break;
+        // case "nearest":
+        //     data = resampleNearest(data, options.width, options.height);
+        //     break;
         case 'bilinear':
             data = resampleBilinear(data, options.width, options.height);
             break;
@@ -494,7 +536,7 @@ export function processImage(data: ImageData, options: any, color: string = '#FF
 }
 
 export function imageBrightnessAndContrast(data: ImageData, brightness: number, contrast: number) {
-    const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+    const factor = (101 + contrast) / 50;
     const newData = new Uint8ClampedArray(data.data.length);
     for (let i = 0; i < data.data.length; i += 4) {
         newData[i] = factor * (data.data[i] - 128) + 128 + brightness;
@@ -692,4 +734,103 @@ export function floydSteinbergDithering(data: ImageData, palette: string[]) {
         }
     }
     return new ImageData(newData, data.width, data.height);
+}
+
+export function createEmptyImageDataURL(w: number, h: number): string {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const data = canvas.toDataURL();
+    canvas.remove();
+    return data;
+}
+
+export function downloadAsFile(filename: string, content: string | Blob, type: string): void {
+    const link = document.createElement('a');
+    link.download = filename;
+
+    if (typeof content === 'string') {
+        link.href = content;
+    } else {
+        link.href = URL.createObjectURL(content);
+    }
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    if (type === 'blob') {
+        URL.revokeObjectURL(link.href);
+    }
+}
+
+export function canvasToBMPFile(canvas, scaling = 1, bgColor): Blob {
+    const width = canvas.width * scaling;
+    const height = canvas.height * scaling;
+
+    // Create scaled canvas
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = width;
+    tempCanvas.height = height;
+    const ctx = tempCanvas.getContext('2d');
+
+    // Fill with background color and draw scaled image
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, width, height);
+    ctx.imageSmoothingEnabled = false;
+    ctx.scale(scaling, scaling);
+    ctx.drawImage(canvas, 0, 0);
+
+    // Get image data
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+
+    // BMP file header (14 bytes)
+    const fileHeaderSize = 14;
+    const dibHeaderSize = 40; // BITMAPINFOHEADER
+    const bitsPerPixel = 24;
+    const rowSize = Math.floor((bitsPerPixel * width + 31) / 32) * 4;
+    const paddingSize = rowSize - width * 3; // Calculate padding bytes per row
+    const imageSize = rowSize * height;
+    const fileSize = fileHeaderSize + dibHeaderSize + imageSize;
+
+    const buffer = new ArrayBuffer(fileSize);
+    const view = new DataView(buffer);
+
+    // BMP File Header
+    view.setUint8(0, 0x42); // 'B'
+    view.setUint8(1, 0x4d); // 'M'
+    view.setUint32(2, fileSize, true); // File size
+    view.setUint32(6, 0, true); // Reserved
+    view.setUint32(10, fileHeaderSize + dibHeaderSize, true); // Pixel data offset
+
+    // DIB Header (BITMAPINFOHEADER)
+    view.setUint32(14, dibHeaderSize, true); // Header size
+    view.setInt32(18, width, true); // Width
+    view.setInt32(22, -height, true); // Height (negative for top-to-bottom)
+    view.setUint16(26, 1, true); // Color planes
+    view.setUint16(28, bitsPerPixel, true); // Bits per pixel
+    view.setUint32(30, 0, true); // Compression (none)
+    view.setUint32(34, imageSize, true); // Image size
+    view.setInt32(38, 2835, true); // X pixels per meter
+    view.setInt32(42, 2835, true); // Y pixels per meter
+    view.setUint32(46, 0, true); // Colors in palette
+    view.setUint32(50, 0, true); // Important colors
+
+    // Pixel data
+    let offset = fileHeaderSize + dibHeaderSize;
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const pixelOffset = (y * width + x) * 4;
+            view.setUint8(offset++, data[pixelOffset + 2]); // Blue
+            view.setUint8(offset++, data[pixelOffset + 1]); // Green
+            view.setUint8(offset++, data[pixelOffset]); // Red
+        }
+        // Add padding bytes to ensure each row is aligned to 4 bytes
+        for (let p = 0; p < paddingSize; p++) {
+            view.setUint8(offset++, 0);
+        }
+    }
+
+    return new Blob([buffer], {type: 'image/bmp'});
 }

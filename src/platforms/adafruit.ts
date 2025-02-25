@@ -1,35 +1,24 @@
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
-import {Point} from '../core/point';
-import {fontTypes} from '../draw/fonts/fontTypes';
+import {fontTypes, gfxFonts} from '../draw/fonts/fontTypes';
 import {imgDataToXBMP, packedHexColor565, toCppVariableName} from '../utils';
 import {AdafruitParser} from './parsers/adafruit.parser';
 import {Platform} from './platform';
 import defaultTemplate from './templates/adafruit/default.pug';
+import {TextLayer} from '/src/core/layers/text.layer';
 
 export class AdafruitPlatform extends Platform {
     public static id = 'adafruit_gfx';
     protected name = 'AdafruitGFX Color';
     protected description = 'Adafruit GFX Colored';
-    protected fonts: TPlatformFont[] = [fontTypes['adafruit']];
+    protected fonts: TPlatformFont[] = [fontTypes['adafruit'], ...gfxFonts];
     protected parser: AdafruitParser = new AdafruitParser();
-
-    protected displays = [
-        {title: '2', size: new Point(202, 104)},
-        {title: '6COLOR', size: new Point(600, 448)},
-        {title: '4TEMPERA', size: new Point(600, 600)},
-        {title: '6', size: new Point(800, 600)},
-        {title: '5', size: new Point(960, 540)},
-        {title: '6PLUS', size: new Point(1024, 758)},
-        {title: '10', size: new Point(1200, 825)}
-    ];
 
     constructor() {
         super();
         this.features.hasCustomFontSize = true;
         this.features.hasRGBSupport = true;
-        // this.features.hasInvertedColors = true;
         this.features.defaultColor = '#FFFFFF';
     }
 
@@ -37,9 +26,11 @@ export class AdafruitPlatform extends Platform {
         Default: {
             template: defaultTemplate,
             settings: {
-                wrap: false
-            }
-        }
+                wrap: false,
+                include_fonts: false,
+                comments: false,
+            },
+        },
     };
 
     generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
@@ -55,21 +46,31 @@ export class AdafruitPlatform extends Platform {
                     if (xbmps.includes(XBMP)) {
                         props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
                     } else {
-                        const name = layer.imageName ? toCppVariableName(layer.imageName) : 'paint';
+                        const name = layer.name ? toCppVariableName(layer.name) : 'paint';
                         const nameRegexp = new RegExp(`${name}_?\d*`);
                         const countWithSameName = xbmpsNames.filter((n) => nameRegexp.test(n)).length;
-                        const varName = `image_${name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')}_bits`;
+                        const varName = `image_${
+                            name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')
+                        }_bits`;
                         declarations.push({
                             type: 'bitmap',
                             data: {
                                 name: varName,
-                                value: XBMP
-                            }
+                                value: XBMP,
+                            },
                         });
                         xbmps.push(XBMP);
                         xbmpsNames.push(varName);
                         props.imageName = varName;
                     }
+                } else if (layer instanceof TextLayer && layer.font.name !== 'adafruit') {
+                    declarations.push({
+                        type: 'font',
+                        data: {
+                            name: layer.font.name,
+                            value: layer.font.title,
+                        },
+                    });
                 }
                 return props;
             });
@@ -77,10 +78,20 @@ export class AdafruitPlatform extends Platform {
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
-            packColor: (color) => this.packColor(color)
+            packColor: (color) => this.packColor(color),
+            getTextPosition: (layer) => this.getTextPosition(layer),
+            defaultColor: this.features.defaultColor,
         });
         return source;
     }
+
+    protected getTextPosition(layer: any) {
+        if (layer.font === 'adafruit') {
+            return [layer.position[0], layer.position[1] - layer.bounds[3]];
+        }
+        return [layer.position[0], layer.position[1] - layer.scaleFactor];
+    }
+
     protected packColor(color: string): string {
         return packedHexColor565(color);
     }

@@ -9,6 +9,7 @@ each decl in declarations
 | u8g2_SetBitmapMode(&u8g2, 1);
 | u8g2_SetFontMode(&u8g2, 1);
 |
+|
 - var pad = settings.wrap ? '    ' : ''
 if settings.wrap
     | void draw(void) {
@@ -16,6 +17,9 @@ if settings.wrap
 - var font = ''
 - var drawColorMode = 1;
 each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.name}
+        |
     if layer.inverted 
         if drawColorMode != 2
             | !{pad}u8g2_SetDrawColor(&u8g2, 2);
@@ -57,6 +61,7 @@ each layer in layers
             |
             | // Unknown layer type !{layer.type}
             |
+    |
     |
     |
 if settings.wrap
