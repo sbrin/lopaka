@@ -41,9 +41,6 @@ dependencies:
   vue:
     specifier: ^3.3.4
     version: 3.5.13(typescript@5.7.3)
-  vue-router:
-    specifier: ^4.4.0
-    version: 4.5.0(vue@3.5.13)
   vue3-ace-editor:
     specifier: ^2.2.4
     version: 2.2.4(ace-builds@1.39.0)(vue@3.5.13)
@@ -1433,10 +1430,6 @@ packages:
     dependencies:
       '@vue/compiler-dom': 3.5.13
       '@vue/shared': 3.5.13
-
-  /@vue/devtools-api@6.6.4:
-    resolution: {integrity: sha512-sGhTPMuXqZ1rVOk32RylztWkfXTRhuS7vgAKv0zjqk8gbsHkJ7xfFf+jbySxt7tWObEJwyKaHMikV/WGDiQm8g==}
-    dev: false
 
   /@vue/devtools-api@7.7.2:
     resolution: {integrity: sha512-1syn558KhyN+chO5SjlZIwJ8bV/bQ1nOVTG66t2RbG66ZGekyiYNmRO7X9BJCXQqPsFHlnksqvPhce2qpzxFnA==}
@@ -3985,15 +3978,6 @@ packages:
   /vue-component-type-helpers@2.2.4:
     resolution: {integrity: sha512-F66p0XLbAu92BRz6kakHyAcaUSF7HWpWX/THCqL0TxySSj7z/nok5UUMohfNkkCm1pZtawsdzoJ4p1cjNqCx0Q==}
     dev: true
-
-  /vue-router@4.5.0(vue@3.5.13):
-    resolution: {integrity: sha512-HDuk+PuH5monfNuY+ct49mNmkCRK4xJAV9Ts4z9UFc4rzdDnxQLyCMGGc8pKhZhHTVzfanpNwB/lwqevcBwI4w==}
-    peerDependencies:
-      vue: ^3.2.0
-    dependencies:
-      '@vue/devtools-api': 6.6.4
-      vue: 3.5.13(typescript@5.7.3)
-    dev: false
 
   /vue3-ace-editor@2.2.4(ace-builds@1.39.0)(vue@3.5.13):
     resolution: {integrity: sha512-FZkEyfpbH068BwjhMyNROxfEI8135Sc+x8ouxkMdCNkuj/Tuw83VP/gStFQqZHqljyX9/VfMTCdTqtOnJZGN8g==}

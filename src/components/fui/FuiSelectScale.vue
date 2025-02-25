@@ -1,23 +1,83 @@
 <script lang="ts" setup>
-import {ref, toRefs, watch} from 'vue';
-import {Point} from '../../core/point';
+import {ref, toRefs, watch, onMounted, onUnmounted} from 'vue';
+import Icon from '/src/components/layout/Icon.vue';
 import {useSession} from '../../core/session';
 
+const scaleList = [25, 50, 100, 200, 300, 400, 800, 1500];
 const session = useSession();
 const {scale} = toRefs(session.state);
-const scales = ref([100, 200, 400, 500, 600, 800, 1000]);
-const selectedScale = ref(scale.value ? scale.value.x * 100 : 100);
+const selectedScale = ref(scale.value ? scaleList.findIndex((x) => x == scale.value.x * 100) : 2);
 
-watch(selectedScale, (val) => {
-    session.setScale(val, true);
+watch(selectedScale, (val, old) => {
+    session.setScale(scaleList[val], true);
+});
+
+const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.metaKey || event.ctrlKey) {
+        if (event.key === '=') {
+            event.preventDefault();
+            scaleUp();
+        }
+        if (event.key === '-') {
+            event.preventDefault();
+            scaleDown();
+        }
+    }
+};
+
+function scaleDown() {
+    selectedScale.value = Math.max(selectedScale.value - 1, 0);
+}
+
+function scaleUp() {
+    selectedScale.value = Math.min(selectedScale.value + 1, scaleList.length - 1);
+}
+
+onMounted(() => {
+    window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeyDown);
 });
 </script>
 <template>
-    <div class="fui-select">
-        <label for="canvas-scale" class="fui-select__label pr-2">Scale:</label>
-        <select id="canvas-scale" class="fui-select__select fui-form-input" v-model="selectedScale">
-            <option v-for="(item, idx) in scales" :key="idx" :value="item">{{ item }}%</option>
-        </select>
+    <div class="flex flex-row items-center mr-16">
+        <label
+            for="canvas-scale"
+            class="text-sm pr-1 pb-1"
+            @click="scaleDown"
+        >
+            <Icon
+                type="zoom-out"
+                sm
+            />
+        </label>
+        <div
+            class="tooltip tooltip-right"
+            :data-tip="`${scaleList[selectedScale]}%`"
+        >
+            <input
+                class="range range-xs w-32"
+                type="range"
+                min="0"
+                :max="scaleList.length - 1"
+                step="1"
+                v-model="selectedScale"
+                id="canvas-scale"
+                @dblclick="selectedScale = 2"
+            />
+        </div>
+        <label
+            for="canvas-scale"
+            class="text-sm pl-1 pb-1"
+            @click="scaleUp"
+        >
+            <Icon
+                type="zoom-in"
+                sm
+            />
+        </label>
     </div>
 </template>
 <style lang="css"></style>

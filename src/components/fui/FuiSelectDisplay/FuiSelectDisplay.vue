@@ -1,20 +1,22 @@
 <script lang="ts" setup>
-import {ref, toRefs, computed} from 'vue';
+import {computed, ref, toRefs} from 'vue';
 import {useSession} from '../../../core/session';
 import FuiPopup from '../FuiPopup.vue';
 import FuiDisplayCustomDialog from './FuiDisplayCustomDialog.vue';
+import {Display} from '/src/core/displays';
+import {InkplatePlatform} from '/src/platforms/inkplate';
 
 const session = useSession();
 const {setDisplay, saveDisplayCustom, getDisplays} = session;
 const {display, isDisplayCustom, platform} = toRefs(session.state);
-const displays = computed(() => getDisplays(platform.value));
 
-const selectedDisplay = ref(
-    isDisplayCustom.value ? 'custom' : displays.value.findIndex((d) => d.size.equals(display.value))
-);
 const showCustomDisplayPopup = ref(false);
 const customWidth = ref(display.value.x);
 const customHeight = ref(display.value.y);
+const displays = computed(() => getDisplays(platform.value));
+const selectedDisplay = ref(
+    isDisplayCustom.value ? 'custom' : displays.value.findIndex((d) => d.size.equals(display.value))
+);
 const lastDisplay = ref(selectedDisplay.value);
 
 function selectDisplay(event) {
@@ -23,7 +25,7 @@ function selectDisplay(event) {
     } else {
         selectedDisplay.value = event.target.value;
         lastDisplay.value = selectedDisplay.value;
-        setDisplay(displays[selectedDisplay.value], true);
+        setDisplay(displays.value[selectedDisplay.value].size, true);
     }
 }
 
@@ -39,9 +41,11 @@ function enablePopup() {
 
 function resetDisplay() {
     // after page refresh, if it was custom then reset to 128×64
-    const displayToSet = lastDisplay.value === 'custom' ? displays[23] : displays[lastDisplay.value];
-    selectedDisplay.value = 23;
-    setDisplay(displayToSet);
+    const defaultIndex = platform.value === InkplatePlatform.id ? 0 : 23;
+    const displayToSet: Display =
+        lastDisplay.value === 'custom' ? displays.value[defaultIndex] : displays.value[lastDisplay.value];
+    selectedDisplay.value = defaultIndex;
+    setDisplay(displayToSet.size);
     saveDisplayCustom(false);
 }
 
@@ -94,7 +98,7 @@ function setCustomDisplay() {
                 :key="idx"
                 :value="idx"
             >
-                {{ item.x }}×{{ item.y }}
+                {{ item.title }}
             </option>
         </select>
     </div>

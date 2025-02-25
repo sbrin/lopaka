@@ -1,20 +1,20 @@
 import {mount} from '@vue/test-utils';
 import {describe, expect, it} from 'vitest';
-import FuiButton from './FuiButton.vue';
+import Button from '/src/components/layout/Button.vue';
 
-describe('FuiButton', () => {
+describe('Button', () => {
     it('renders a button element', () => {
-        const wrapper = mount(FuiButton, {
+        const wrapper = mount(Button, {
             slots: {
-                default: 'Test'
-            }
+                default: 'Test',
+            },
         });
         expect(wrapper.find('.btn.btn-primary').exists()).toBe(true);
         expect(wrapper.element).toMatchSnapshot();
     });
 
     it('emits a click event when clicked', async () => {
-        const wrapper = mount(FuiButton);
+        const wrapper = mount(Button);
         await wrapper.trigger('click');
         expect(wrapper.emitted('click')).toBeTruthy();
     });

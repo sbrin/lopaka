@@ -4,7 +4,15 @@ import {getFont, loadFont} from '../draw/fonts';
 import {VirtualScreen} from '../draw/virtual-screen';
 import {Editor} from '../editor/editor';
 import {U8g2Platform} from '../platforms/u8g2';
-import {generateUID, loadImageDataAsync, logEvent, postParentMessage} from '../utils';
+import {
+    applyColor,
+    generateUID,
+    imageDataToImage,
+    imageToImageData,
+    loadImageDataAsync,
+    logEvent,
+    postParentMessage,
+} from '../utils';
 import displays, {Display} from './displays';
 import {ChangeHistory, TChange, THistoryEvent, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
@@ -32,6 +40,8 @@ type TSessionState = {
     lock: boolean;
     customImages: TLayerImageData[];
     isPublic: boolean;
+    customFonts: TPlatformFont[];
+    warnings: string[];
 };
 
 export class Session {
@@ -63,6 +73,8 @@ export class Session {
         customImages: [],
         icons: iconsList,
         isPublic: false,
+        customFonts: [],
+        warnings: [],
     });
 
     history: ChangeHistory = useHistory();
@@ -102,6 +114,37 @@ export class Session {
         layer.selected = true;
         layer.draw();
         this.virtualScreen.redraw();
+    };
+    lockLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
+        layer.locked = true;
+        if (saveHistory) {
+            this.history.push({
+                type: 'lock',
+                layer,
+                state: layer.state,
+            });
+            this.history.pushRedo({
+                type: 'lock',
+                layer,
+                state: layer.state,
+            });
+        }
+        this.virtualScreen.redraw();
+    };
+    unlockLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
+        layer.locked = false;
+        if (saveHistory) {
+            this.history.push({
+                type: 'unlock',
+                layer,
+                state: layer.state,
+            });
+            this.history.pushRedo({
+                type: 'unlock',
+                layer,
+                state: layer.state,
+            });
+        }
     };
     grab = (position: Point, size: Point) => {
         const layer = new PaintLayer(this.getPlatformFeatures());
@@ -160,6 +203,21 @@ export class Session {
         localStorage.setItem('lopaka_scale', `${scale}`);
         isLogged && logEvent('select_scale', scale);
     };
+    preparePlatform = async (name: string, isLogged?: boolean, layers?): Promise<void> => {
+        const fonts = this.platforms[name].getFonts();
+        this.lock();
+        this.editor.clear();
+        this.history.clear(false);
+        let layersToload = layers ?? JSON.parse(localStorage.getItem(`${name}_lopaka_layers`));
+        this.editor.font = getFont(fonts[0].name);
+        this.unlock();
+        await loadLayers(layersToload ?? []);
+        if (!layers) {
+            localStorage.setItem('lopaka_library', name);
+            isLogged && logEvent('select_library', name);
+        }
+        this.virtualScreen.redraw(false);
+    };
     setPlatform = async (name: string, isLogged?: boolean, layers?): Promise<void> => {
         this.state.platform = name;
         const fonts = this.platforms[name].getFonts();
@@ -202,14 +260,15 @@ export class Session {
         return this.platforms[platform].sourceMapParser.parse(code);
     };
 
-    importCode = async (code: string) => {
-        this.clearLayers();
+    importCode = async (code: string, append: boolean = false) => {
         const {platform} = this.state;
-        const {states} = this.platforms[platform].importSourceCode(code);
+        const {states, warnings} = this.platforms[platform].importSourceCode(code);
+        const fonts = [...this.platforms[platform].getFonts(), ...this.state.customFonts];
         for (const state of states) {
-            if (state.type == 'string') {
-                if (!this.platforms[platform].getFonts().find((f) => f.name == state.font)) {
-                    state.font = this.platforms[platform].getFonts()[0].name;
+            if (state.type == 'string' && state.font !== '') {
+                if (!fonts.find((font) => font.name == state.font)) {
+                    warnings.push(`Font ${state.font} was not found. Resetting to default.`);
+                    state.font = fonts[0].name;
                 }
             }
             if (state.type == 'icon' && state.iconSrc) {
@@ -220,11 +279,18 @@ export class Session {
                 delete state.iconSrc;
             }
         }
-        await loadLayers(states.map((state) => paramsToState(state, this.LayerClassMap)));
+
+        if (states.length > 0)
+            await loadLayers(
+                states.map((state) => paramsToState(state, this.LayerClassMap)),
+                append,
+                true
+            );
+        this.state.warnings = warnings;
     };
 
-    getPlatformFeatures(): TPlatformFeatures {
-        return this.platforms[this.state.platform]?.features;
+    getPlatformFeatures(platform?: string): TPlatformFeatures {
+        return this.platforms[platform ?? this.state.platform]?.features;
     }
     getDisplays = (platform?): Display[] => {
         return this.platforms[platform ?? this.state.platform]?.displays;
@@ -234,6 +300,17 @@ export class Session {
     };
     unlock = () => {
         this.state.lock = false;
+    };
+    initSandbox = () => {
+        const platformLocal = localStorage.getItem('lopaka_library');
+        this.state.platform = platformLocal;
+        this.preparePlatform(platformLocal ?? U8g2Platform.id);
+        this.setDisplayCustom(localStorage.getItem('lopaka_display_custom') === 'true');
+        const displayStored = localStorage.getItem('lopaka_display');
+        if (displayStored) {
+            const displayStoredArr = displayStored.split('×').map((n) => parseInt(n));
+            this.setDisplay(new Point(displayStoredArr[0], displayStoredArr[1]));
+        }
     };
     constructor() {
         this.history.subscribe((event: THistoryEvent, change: TChange) => {
@@ -299,21 +376,24 @@ export class Session {
     }
 }
 
-export async function loadLayers(states: any[]) {
+export async function loadLayers(states: any[], append: boolean = false, saveHistory: boolean = false) {
     const session = useSession();
-    session.state.layers = [];
-    return session.loadFontsForLayers(states.filter((s) => s.t == 'string').map((s) => s.f)).then(() => {
+    if (!append) {
+        session.state.layers = [];
+    }
+    const usedFonts = states.filter((s) => s.t == 'string').map((s) => s.f);
+    return session.loadFontsForLayers(usedFonts).then(() => {
         states.forEach((state) => {
             const layerClass = session.LayerClassMap[state.t];
             const layer = new layerClass(session.getPlatformFeatures());
             layer.state = state;
-            session.addLayer(layer);
+            session.addLayer(layer, saveHistory);
         });
-        session.virtualScreen.redraw(true);
+        session.virtualScreen.redraw();
     });
 }
 
-export function saveLayers() {
+export function saveLayers(screenId?: number) {
     const session = useSession();
     const packedSession = JSON.stringify(session.state.layers.map((l) => l.state));
     if (window.top !== window.self) {
@@ -322,6 +402,36 @@ export function saveLayers() {
     } else {
         localStorage.setItem(`${session.state.platform}_lopaka_layers`, packedSession);
     }
+}
+
+export async function addCustomImage(
+    name: string,
+    width: number,
+    height: number,
+    image: HTMLImageElement,
+    process?: boolean,
+    asset_id?: number
+) {
+    const session = useSession();
+    const {customImages} = session.state;
+
+    // check for duplicate names
+    const nameRegex = new RegExp(`^${name}(_\\d+)?$`);
+    const founded = customImages.filter((item) => nameRegex.test(item.name));
+    if (founded.length > 0) {
+        const last = founded[founded.length - 1];
+        const lastNumber = last.name.match(/_(\d+)$/);
+        const number = lastNumber ? parseInt(lastNumber[1]) + 1 : 1;
+        name = `${name}_${number}`;
+    }
+
+    // convert to monochrome
+    if (process) {
+        const imageData = imageToImageData(image);
+        const coloredImageData = applyColor(imageData, '#FFFFFF');
+        image = await imageDataToImage(coloredImageData);
+    }
+    customImages.push({name, width, height, image, isCustom: true, id: asset_id});
 }
 
 export function useSession(id?: string) {

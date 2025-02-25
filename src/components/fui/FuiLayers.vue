@@ -5,8 +5,21 @@ import {useSession} from '../../core/session';
 import {TextLayer} from '../../core/layers/text.layer';
 import {IconLayer} from '../../core/layers/icon.layer';
 import VueDraggable from 'vuedraggable';
+import Icon from '/src/components/layout/Icon.vue';
+import {PaintLayer} from '/src/core/layers/paint.layer';
+
+const props = defineProps<{
+    readonly?: boolean;
+}>();
+
 const session = useSession();
 const drag = ref(false);
+
+const disabled = computed(
+    () =>
+        session.editor.state.activeLayer?.getType() === 'paint' &&
+        !(session.editor.state.activeLayer as PaintLayer).data
+);
 
 const layers = computed({
     get: () => session.state.layers.slice().sort((a, b) => b.index - a.index),
@@ -17,18 +30,18 @@ const layers = computed({
         });
         session.state.layers = l.slice().sort((a, b) => a.index - b.index);
         session.virtualScreen.redraw();
-    }
+    },
 });
 
 function classNames(layer) {
     return {
-        layer_selected: layer.selected,
-        layer_ignored: layer.isOverlay
+        'bg-base-300': layer.selected,
+        'text-gray-500': layer.overlay,
     };
 }
 
 function setActive(layer: UnwrapRef<AbstractLayer>) {
-    layers.value.forEach((l) => (l.selected = false));
+    session.state.layers.forEach((l) => (l.selected = false));
     layer.selected = true;
     session.editor.selectionUpdate();
     session.virtualScreen.redraw();
@@ -40,91 +53,83 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
     } else if (layer instanceof IconLayer) {
         return `${layer.name}`;
     }
-    return `${layer.getType()}`;
+    return `${layer.name}`;
 }
 </script>
 <template>
-    <div class="">
-        <div class="font-sans mt-1">
-            Layers
-            <slot></slot>
-        </div>
+    <ul class="menu menu-xs w-[150px] p-0">
         <VueDraggable
-            class="layers__list text-primary"
+            class="layers-list max-w-full"
             v-model="layers"
             item-key="id"
             @start="drag = true"
             @end="drag = false"
+            :disabled="readonly || disabled"
         >
             <template #item="{element}">
-                <div class="layer" :class="classNames(element)" @click="setActive(element)">
-                    <div class="layer__name">
-                        {{ getLayerListItem(element) }}
-                    </div>
-                    <div
-                        v-if="!session.state.isPublic"
-                        class="layer__remove"
-                        @click.stop="session.removeLayer(element as any)"
+                <li
+                    class="layer"
+                    @click="!disabled && setActive(element)"
+                    v-show="element.type !== 'paint' || (element.type === 'paint' && (element as PaintLayer).data)"
+                >
+                    <a
+                        class="flex h-6 max-w-full pl-1 mb-[1px] rounded-none"
+                        :class="classNames(element)"
                     >
-                        ×
-                    </div>
-                </div>
+                        <Icon
+                            :type="element.type"
+                            sm
+                            class="text-gray-500 min-w-4"
+                        ></Icon>
+                        <div class="truncate grow">
+                            <span>{{ getLayerListItem(element) }}</span>
+                        </div>
+                        <div
+                            v-if="!readonly && element.locked"
+                            class="btn btn-xs btn-square btn-ghost layer-actions -mr-2"
+                            @click.stop="!disabled && session.unlockLayer(element as any)"
+                        >
+                            <Icon
+                                type="lock-closed"
+                                xs
+                            />
+                        </div>
+                        <div
+                            v-if="!readonly && !element.locked"
+                            class="btn btn-xs btn-square btn-ghost hidden layer-actions -mr-2"
+                            @click.stop="!disabled && session.lockLayer(element as any)"
+                        >
+                            <Icon
+                                type="lock-open"
+                                xs
+                            />
+                        </div>
+                    </a>
+                </li>
             </template>
         </VueDraggable>
-    </div>
+    </ul>
 </template>
 <style lang="css" scoped>
-.layers__list {
-    font-size: 24px;
-    overflow: hidden;
-    margin: 0 16px 16px 0;
-    padding: 0 0 8px 0;
-    overflow-y: auto;
+.sortable-chosen {
+    opacity: 0.5;
 }
 
-.layer {
+.sortable-ghost {
+    opacity: 1;
+    border: 1px dashed white;
+}
+
+.layer:hover .layer-actions {
     display: flex;
-    align-items: center;
-    cursor: pointer;
-    height: 24px;
-    padding: 2px 0 2px 8px;
-    margin-bottom: 1px;
-    border-radius: 4px;
-    justify-content: space-between;
-}
-
-.layer:hover {
-    background-color: var(--secondary-color);
-}
-
-.layer:hover .layer__remove {
-    display: block;
-}
-
-.layer__name {
-    max-width: 132px;
-    overflow: hidden;
-    white-space: nowrap;
 }
 
 .layer_ignored {
     color: #999;
 }
 
-.layer_selected .layer__name:before {
-    display: inline-block;
-    content: '';
-    background: var(--success-color);
-    transform: translateY(-4px);
-    width: 4px;
-    height: 4px;
-    margin-right: 4px;
-}
-
-.layer__remove {
-    display: none;
-    color: var(--danger-color);
-    margin: 0 8px;
-    height: 32px;
+.layers-list {
+    height: calc(100vh - 135px);
+    overflow-y: auto;
 }
 </style>
