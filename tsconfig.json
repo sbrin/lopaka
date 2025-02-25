@@ -1,29 +1,53 @@
 {
   "compilerOptions": {
-      "target": "es2020",
-      "module": "ES2020",
-      "declaration": false,
-      "noImplicitAny": false,
-      "noImplicitThis": false,
-      "noImplicitReturns": false,
-      "removeComments": true,
-      "noLib": false,
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": false,
-      "jsx": "preserve",
-      "outDir": "./",
-      "moduleResolution": "node",
-      "sourceMap": false,
-      "forceConsistentCasingInFileNames": true,
-      "esModuleInterop": true,
-      "allowSyntheticDefaultImports": true,
-      "skipLibCheck": true,
-      "allowJs": true,
-      "resolveJsonModule": true,
-      "lib": ["DOM", "ES2021"],
-      "baseUrl": "./",
-      "typeRoots": ["./node_modules/@types", "src/typings"]
+    "target": "es2022",
+    "module": "ES2022",
+    "declaration": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "noImplicitReturns": false,
+    "removeComments": true,
+    "noLib": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "jsx": "preserve",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "sourceMap": false,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "DOM",
+      "ES2021"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "/src/*": [
+        "src/*"
+      ]
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "src/typings"
+    ]
   },
-  "exclude": ["dist", "node_modules", "coverage"],
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "vite-plugins/**/*.ts"]
+  "exclude": [
+    "dist",
+    "node_modules",
+    "coverage"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "vite-plugins/**/*.ts",
+    "vite-env.d.ts"
+  ],
+  "vueCompilerOptions": {
+    "target": 3
+  }
 }

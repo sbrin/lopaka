@@ -9,26 +9,34 @@ module.exports = {
         themes: [
             {
                 lopaka: {
-                    primary: '#FF8200',
-                    neutral: '#441F07',
-                    'base-100': '#120800', // bg
+                    primary: '#FF8200', // orange
+                    'base-100': '#0a0a0a', // bg
                     'base-200': '#441F07', // default button
-                    'base-300': '#FF8200', // default tabs
-                    'base-content': '#f3f4f6',
-                    secondary: '#5f2f0d',
-                    accent: '#047857',
-                    info: '#00c9ff',
-                    success: '#a0d100',
+                    'base-300': '#333', // default tabs
+                    neutral: '#171717',
+                    secondary: '#202020',
+                    accent: '#00ff93',
+                    info: '#6dc8ff',
+                    success: '#cddc39',
                     warning: '#f59e0b',
                     error: '#dc2626',
                 },
-            }
+            },
         ],
     },
     theme: {
         fontFamily: {
-            'sans': 'Roboto, "PT Sans", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Open Sans"',
-            'mono': ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New','monospace'],
+            sans: 'Roboto, "PT Sans", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Open Sans"',
+            mono: [
+                'ui-monospace',
+                'SFMono-Regular',
+                'Menlo',
+                'Monaco',
+                'Consolas',
+                'Liberation Mono',
+                'Courier New',
+                'monospace',
+            ],
         },
-    }
+    },
 };

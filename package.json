@@ -1,61 +1,73 @@
 {
-    "name": "lopaka",
-    "version": "0.45",
-    "description": "Embedded graphics editor with code builder",
-    "main": "index.html",
-    "directories": {
-        "test": "tests"
-    },
-    "scripts": {
-        "dev": "vite",
-        "test": "vitest --mode test --run --coverage",
-        "test-dev": "vitest --mode test",
-        "build": "vite build"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/sbrin/lopaka.git"
-    },
-    "keywords": [
-        "embedded",
-        "editor",
-        "graphics",
-        "canvas",
-        "arduino",
-        "u8g2",
-        "flipperzero"
-    ],
-    "author": "sbrin",
-    "license": "SEE LICENSE IN LICENSE",
-    "bugs": {
-        "url": "https://github.com/sbrin/lopaka/issues"
-    },
-    "homepage": "https://github.com/sbrin/lopaka#readme",
-    "devDependencies": {
-        "@tailwindcss/typography": "^0.5.13",
-        "@vitejs/plugin-basic-ssl": "^1.0.1",
-        "@vitejs/plugin-vue": "^4.3.4",
-        "@vitest/coverage-v8": "^0.34.4",
-        "@vitest/ui": "^0.34.4",
-        "@vue/test-utils": "^2.4.1",
-        "autoprefixer": "^10.4.19",
-        "daisyui": "^4.11.1",
-        "jsdom": "^22.1.0",
-        "prettier": "^3.0.3",
-        "probe-image-size": "^7.2.3",
-        "tailwindcss": "^3.4.3",
-        "vite": "^4.4.9",
-        "vitest": "^0.34.5"
-    },
-    "dependencies": {
-        "@types/dom-serial": "^1.0.4",
-        "ace-builds": "^1.32.6",
-        "base64-arraybuffer": "^1.0.2",
-        "pako": "^2.1.0",
-        "pug": "^3.0.2",
-        "typescript": "^5.2.2",
-        "vue": "^3.3.4",
-        "vue3-ace-editor": "^2.2.4",
-        "vuedraggable": "^4.1.0"
-    }
+  "name": "lopaka",
+  "version": "0.45",
+  "description": "Embedded graphics editor with code builder",
+  "main": "index.html",
+  "type": "module",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest --mode test --run --coverage",
+    "test-dev": "vitest --mode test",
+    "build": "vitepress build pages && vite build",
+    "docs:dev": "vitepress dev pages",
+    "docs:build": "vitepress build pages",
+    "docs:preview": "vitepress preview pages"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbrin/lopaka.git"
+  },
+  "keywords": [
+    "embedded",
+    "editor",
+    "graphics",
+    "canvas",
+    "arduino",
+    "u8g2",
+    "flipperzero"
+  ],
+  "author": "sbrin",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/sbrin/lopaka/issues"
+  },
+  "homepage": "https://github.com/sbrin/lopaka#readme",
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.13",
+    "@vitejs/plugin-basic-ssl": "^1.0.1",
+    "@vitejs/plugin-vue": "^4.3.4",
+    "@vitest/coverage-v8": "^0.34.4",
+    "@vitest/ui": "^0.34.4",
+    "@vue/test-utils": "^2.4.1",
+    "autoprefixer": "^10.4.19",
+    "daisyui": "^4.11.1",
+    "jsdom": "^22.1.0",
+    "prettier": "^3.0.3",
+    "probe-image-size": "^7.2.3",
+    "tailwindcss": "^3.4.3",
+    "vite": "^4.4.9",
+    "vitepress": "^1.3.0",
+    "vitest": "^0.34.5"
+  },
+  "dependencies": {
+    "@heroicons/vue": "^2.1.5",
+    "@sentry/vue": "^8.26.0",
+    "@supabase/supabase-js": "^2.44.2",
+    "@types/dom-serial": "^1.0.4",
+    "ace-builds": "^1.32.6",
+    "base64-arraybuffer": "^1.0.2",
+    "pako": "^2.1.0",
+    "posthog-js": "^1.160.3",
+    "pug": "^3.0.2",
+    "truetype2gfx": "*",
+    "typescript": "^5.2.2",
+    "vue": "^3.3.4",
+    "vue-router": "^4.4.0",
+    "vue3-ace-editor": "^2.2.4",
+    "vuedraggable": "^4.1.0"
+  },
+  "packageManager": "pnpm@8.15.9+sha512.499434c9d8fdd1a2794ebf4552b3b25c0a633abcee5bb15e7b5de90f32f47b513aca98cd5cfd001c31f0db454bc3804edccd578501e4ca293a6816166bbd9f81"
 }
