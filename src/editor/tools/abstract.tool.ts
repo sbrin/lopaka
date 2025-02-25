@@ -5,10 +5,15 @@ import {Editor} from '../editor';
 export abstract class AbstractTool {
     // tool name
     protected name: string;
+    protected title: string;
 
     abstract createLayer(): AbstractLayer;
 
     constructor(protected editor: Editor) {}
+
+    getTitle(): string {
+        return this.title ?? this.name;
+    }
 
     getName(): string {
         return this.name;

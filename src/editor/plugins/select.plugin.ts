@@ -26,7 +26,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
     onMouseDown(point: Point, event: MouseEvent): void {
         this.foreign = false;
         this.grabMode = false;
-        const {layers, scale, display} = this.session.state;
+        const {layers} = this.session.state;
         const {activeTool} = this.session.editor.state;
         if (!activeTool) {
             if (event.altKey) {
@@ -34,15 +34,16 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.grabMode = true;
                 this.firstPoint = point.clone();
             } else {
-                const hovered = layers.filter((l) => l.contains(point)).sort((a, b) => b.index - a.index);
+                const hovered = layers.filter((l) => !l.locked && l.contains(point)).sort((a, b) => b.index - a.index);
                 if (hovered.length) {
                     // if there is a hovered layer
                     const upperLayer = hovered[0];
-                    // add or remove from selection if ctrl or cmd is pressed
-                    if (event.ctrlKey || event.metaKey) {
+                    if (event.shiftKey && !upperLayer.locked) {
+                        // add or remove from selection if shift is pressed
                         upperLayer.selected = !upperLayer.selected;
-                    } else if (!upperLayer.selected) {
-                        // if layer is not selected, select it and unselect others
+                    } else if (!upperLayer.selected && !upperLayer.locked) {
+                        // if upper layer is not selected, select it and unselect others
+                        // if upper is selected then it will move all
                         this.session.state.layers.forEach((l) => (l.selected = false));
                         upperLayer.selected = true;
                     }
@@ -69,7 +70,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 left: `${position.x}px`,
                 top: `${position.y}px`,
                 width: `${size.x}px`,
-                height: `${size.y}px`
+                height: `${size.y}px`,
             });
         }
     }
@@ -92,6 +93,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
     onMouseUp(point: Point, event: MouseEvent): void {
         const {layers, display, scale} = this.session.state;
         if (this.captured) {
+            // selection box logic
             this.captured = false;
             this.selectionElement.style.display = 'none';
             const position = this.firstPoint.clone().min(point);
@@ -104,12 +106,16 @@ export class SelectPlugin extends AbstractEditorPlugin {
                     this.session.editor.selectionUpdate();
                     return;
                 }
-                layers.forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
+                layers
+                    .filter((l) => !l.locked)
+                    .forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
             }
-            layers.forEach((l) => (l.selected = this.intersect(l, position, size)));
+            layers.filter((l) => !l.locked).forEach((l) => (l.selected = this.intersect(l, position, size)));
         } else if (!this.foreign) {
-            const selected = layers.filter((l) => l.selected);
+            // just a click
+            const selected = layers.filter((l) => l.selected && !l.locked);
             const hovered = layers.filter((l) => l.contains(point));
+            // if no layers are hovered, deselect all
             if (!hovered.length) {
                 selected.forEach((layer) => (layer.selected = false));
             }
@@ -125,7 +131,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
             layers.forEach((l) => (l.selected = false));
             this.session.virtualScreen.redraw(false);
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {
-            layers.forEach((l) => (l.selected = true));
+            layers.filter((l) => !l.locked).forEach((l) => (l.selected = true));
             this.session.virtualScreen.redraw(false);
         }
         this.session.editor.selectionUpdate();

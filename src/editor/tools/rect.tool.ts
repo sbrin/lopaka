@@ -4,6 +4,7 @@ import {AbstractTool} from './abstract.tool';
 
 export class RectTool extends AbstractTool {
     name = 'rect';
+    title = 'Rectangle';
 
     createLayer(): AbstractLayer {
         const {session} = this.editor;

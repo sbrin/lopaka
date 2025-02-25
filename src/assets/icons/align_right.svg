@@ -1,0 +1,5 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="-0.5" y="0.5" width="21" height="3" transform="matrix(-1 0 0 1 23 9)" fill="#FF8200" stroke="#FF8200" style="fill:#FF8200;fill:color(display-p3 1.0000 0.5098 0.0000);fill-opacity:1;stroke:#FF8200;stroke:color(display-p3 1.0000 0.5098 0.0000);stroke-opacity:1;"/>
+<rect x="-0.5" y="0.5" width="11" height="3" transform="matrix(-1 0 0 1 23 19)" fill="#FF8200" stroke="#FF8200" style="fill:#FF8200;fill:color(display-p3 1.0000 0.5098 0.0000);fill-opacity:1;stroke:#FF8200;stroke:color(display-p3 1.0000 0.5098 0.0000);stroke-opacity:1;"/>
+<path d="M29 3V29" stroke="#FF8200" style="stroke:#FF8200;stroke:color(display-p3 1.0000 0.5098 0.0000);stroke-opacity:1;"/>
+</svg>
