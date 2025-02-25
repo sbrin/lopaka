@@ -5,17 +5,22 @@ each decl in declarations
     else 
         | !{decl}
         |
-| u8g2.clearBuffer();
-| u8g2.setFontMode(1);
-| u8g2.setBitmapMode(1);
+|
 |
 - var pad = settings.wrap ? '    ' : ''
 if settings.wrap
     | void draw(void) {
     |
+| !{pad}u8g2.clearBuffer();
+| !{pad}u8g2.setFontMode(1);
+| !{pad}u8g2.setBitmapMode(1);
+|
 - var font = ''
 - var drawColorMode = 1;
 each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.name}
+        |
     if layer.inverted 
         if drawColorMode != 2
             | !{pad}u8g2.setDrawColor(2);
@@ -45,7 +50,11 @@ each layer in layers
                 - font = layer.font
                 | !{pad}u8g2.setFont(u8g2_font_!{layer.font}_tr);
                 |
-            | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @text:"!{layer.text}");
+            - let is_ascii = (s) => /^[\x00-\x7F]*$/.test(s)
+            if is_ascii(layer.text)
+                | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @text:"!{layer.text}");
+            else
+                | @!{layer.uid};!{pad}u8g2.drawUTF8(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @text:"!{layer.text}");
         when 'paint'
         when 'icon'
             - var func = settings.progmem ? 'drawXBMP' : 'drawXBM'
@@ -56,7 +65,9 @@ each layer in layers
             |
     |
     |
+    |
+| !{pad}u8g2.sendBuffer();
+|
 if settings.wrap
     | }
     |
-| u8g2.sendBuffer();

@@ -3,10 +3,12 @@ import {xbmpToImgData} from '../../utils';
 import {AbstractParser} from './abstract-parser';
 
 export class U8g2Parser extends AbstractParser {
-    importSourceCode(sourceCode: string): any[] {
-        const {defines, images, methods, variables} = this.parseSoorceCode(sourceCode);
+    importSourceCode(sourceCode: string) {
+        const {defines, images, methods, variables} = this.parseSourceCode(sourceCode);
+
         const states = [];
         let currentFont = '4x6';
+        const warnings = [];
         methods.forEach((call) => {
             if (call.functionName.includes('u8g2_')) {
                 call.args.shift();
@@ -26,12 +28,16 @@ export class U8g2Parser extends AbstractParser {
                     {
                         const [x, y, width, height, name] = this.getArgs(call.args, defines, variables);
                         let imageName = this.parseImageName(name);
+                        if (!images.get(imageName)) {
+                            warnings.push(`Bitmap array declaration for ${name} was not found. Skipping.`);
+                            break;
+                        }
                         states.push({
                             type: 'paint',
                             data: xbmpToImgData(images.get(imageName), width, height),
                             position: new Point(parseInt(x), parseInt(y)),
                             size: new Point(parseInt(width), parseInt(height)),
-                            imageName
+                            imageName,
                         });
                     }
                     break;
@@ -42,7 +48,7 @@ export class U8g2Parser extends AbstractParser {
                         states.push({
                             type: 'line',
                             p1: new Point(parseInt(x1), parseInt(y1)),
-                            p2: new Point(parseInt(x2), parseInt(y2))
+                            p2: new Point(parseInt(x2), parseInt(y2)),
                         });
                     }
                     break;
@@ -56,7 +62,7 @@ export class U8g2Parser extends AbstractParser {
                             type: 'rect',
                             position: new Point(parseInt(x), parseInt(y)),
                             size: new Point(parseInt(width), parseInt(height)),
-                            fill: call.functionName === 'drawBox'
+                            fill: call.functionName === 'drawBox',
                         });
                     }
                     break;
@@ -66,19 +72,21 @@ export class U8g2Parser extends AbstractParser {
                         const [x, y] = this.getArgs(call.args, defines, variables);
                         states.push({
                             type: 'dot',
-                            position: new Point(parseInt(x), parseInt(y))
+                            position: new Point(parseInt(x), parseInt(y)),
                         });
                     }
                     break;
                 case 'u8g2_DrawStr':
+                case 'u8g2_DrawUTF8':
                 case 'drawStr':
+                case 'drawUTF8':
                     {
                         const [x, y, text] = this.getArgs(call.args, defines, variables);
                         states.push({
                             type: 'string',
-                            text: text.replace(/"/g, ''),
+                            text: text ? text.replace(/"/g, '') : 'Text',
                             position: new Point(parseInt(x), parseInt(y)),
-                            font: currentFont
+                            font: currentFont,
                         });
                     }
                     break;
@@ -91,7 +99,7 @@ export class U8g2Parser extends AbstractParser {
                         type: 'circle',
                         position: new Point(parseInt(x) - parseInt(radius), parseInt(y) - parseInt(radius)),
                         radius: parseInt(radius),
-                        fill: call.functionName === 'drawDisc'
+                        fill: call.functionName === 'drawDisc',
                     });
                 }
                 case 'u8g2_DrawEllipse':
@@ -105,12 +113,12 @@ export class U8g2Parser extends AbstractParser {
                             position: new Point(parseInt(x) - parseInt(rx), parseInt(y) - parseInt(ry)),
                             rx: parseInt(rx),
                             ry: parseInt(ry),
-                            fill: call.functionName === 'drawFilledEllipse'
+                            fill: call.functionName === 'drawFilledEllipse',
                         });
                     }
                     break;
             }
         });
-        return states;
+        return {states, warnings};
     }
 }

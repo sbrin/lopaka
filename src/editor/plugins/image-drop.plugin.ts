@@ -1,15 +1,25 @@
-import {IconLayer} from '../../core/layers/icon.layer';
 import {Point} from '../../core/point';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
+import {PaintLayer} from '/src/core/layers/paint.layer';
 
 export class ImageDropPlugin extends AbstractEditorPlugin {
-    onDrop(point: Point, event: DragEvent): void {
-        const name = event.dataTransfer.getData('text/plain');
-        const url = event.dataTransfer.getData('text/uri');
+    async onDrop(point: Point, event: DragEvent): Promise<void> {
         this.session.state.layers.forEach((layer) => (layer.selected = false));
         if (event.dataTransfer.files.length > 0) {
-            // todo drop from desktop
+            let i = 0;
+
+            for (const file of Array.from(event.dataTransfer.files)) {
+                if (file.type.startsWith('image/')) {
+                    const url = URL.createObjectURL(file);
+                    const name = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                    const newPoint = point.clone().add(i * 4);
+                    this.addImageLayer(name, url, newPoint);
+                    i++;
+                }
+            }
         } else {
+            const name = event.dataTransfer.getData('text/plain');
+            const url = event.dataTransfer.getData('text/uri');
             this.addImageLayer(name, url, point);
         }
     }
@@ -18,8 +28,8 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
         const {virtualScreen} = this.session;
         this.session.state.layers.forEach((layer) => (layer.selected = false));
         const icon = new Image();
-        icon.src = url;
         icon.crossOrigin = 'anonymous';
+        icon.src = url;
         icon.dataset.name = name;
         const size = await new Promise<Point>((resolve, reject) => {
             icon.onload = () => {
@@ -27,7 +37,7 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
             };
             icon.onerror = reject;
         });
-        const newLayer = new IconLayer(this.session.getPlatformFeatures());
+        const newLayer = new PaintLayer(this.session.getPlatformFeatures());
         newLayer.name = name;
         newLayer.size = size;
         newLayer.position = point.clone().subtract(size.clone().divide(2));
@@ -36,5 +46,6 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
         newLayer.stopEdit();
         this.session.addLayer(newLayer);
         virtualScreen.redraw();
+        this.session.editor.setTool(null);
     }
 }

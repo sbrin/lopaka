@@ -1,36 +1,30 @@
 <script lang="ts" setup>
-import {computed, ref, toRefs} from 'vue';
+import {computed, defineProps, toRefs} from 'vue';
 import {useSession} from '../../core/session';
 import {iconsList} from '../../icons/icons';
 
+const props = defineProps<{
+    isSandbox: boolean;
+}>();
+
 const session = useSession();
 const {customImages} = toRefs(session.state);
-const emit = defineEmits(['cleanCustomIcons', 'prepareImages', 'iconClicked']);
-const iconsActive = ref('gaai');
+const emit = defineEmits(['cleanCustomIcons', 'iconClicked']);
 
-const icons = computed(() => iconsList[iconsActive.value].icons);
+const customImagesSorted = computed(() => {
+    return customImages.value.sort((a, b) => a.id - b.id);
+});
 
-function toggleIcons(val) {
-    if (iconsActive.value === val) {
-        iconsActive.value = val = 'none';
-    } else {
-        iconsActive.value = val;
-    }
+function removeImage(image) {
+    customImages.value = customImages.value.filter((img) => img.name !== image.name);
 }
 
-function cleanCustom() {
-    customImages.value = [];
-}
-
-function iconClick(e) {
-    const image =
-        icons.value.find((item) => item.name === e.target.dataset.name) ??
-        customImages.value.find((item) => item.name === e.target.dataset.name);
+function iconClick(e, item) {
     const data = {
-        name: e.target.dataset.name,
-        width: image.width,
-        height: image.height,
-        icon: e.target //image.image
+        name: item.name,
+        width: item.width,
+        height: item.height,
+        icon: e.target,
     };
     emit('iconClicked', data);
 }
@@ -43,118 +37,108 @@ function iconDragStart(e: DragEvent) {
 }
 </script>
 <template>
-    <div class="fui-icons">
-        <div v-if="customImages.length > 0" class="fui-iconset">
-            <div class="fui-icons__header">
-                <div>Custom</div>
-                <div
-                    class="fui-icons__button fui-icons__remove-custom"
-                    @click="cleanCustom"
-                    title="Remove all custom icons"
-                >
-                    ×
+    <div class="fui-icons p-2">
+        <div class="p-2 bg-neutral rounded rounded-md overflow-y-scroll h-full">
+            <details
+                open
+                v-if="customImages.length"
+            >
+                <summary class="fui-icons-custom cursor-pointer pb-2 text-white">Current Project</summary>
+                <div class="fui-iconset flex flex-row flex-wrap pb-4">
+                    <div
+                        class="relative image-custom"
+                        v-for="(item, index) in customImagesSorted"
+                        :key="index"
+                    >
+                        <img
+                            @dragstart="iconDragStart"
+                            @click="iconClick($event, item)"
+                            draggable="true"
+                            :key="index"
+                            :src="item.image.src"
+                            :data-name="item.name"
+                            :width="item.width * 2"
+                            :height="item.height * 2"
+                            :data-w="item.width"
+                            :data-h="item.height"
+                            :alt="item.name"
+                            :title="item.name"
+                            crossorigin="anonymous"
+                            class="object-contain p-4 box-content image-custom-inner max-h-16"
+                        />
+                        <div class="absolute -right-2 -top-2 hidden image-custom-remove">
+                            <span
+                                class="btn btn-circle btn-xs btn-round text-error"
+                                @click="removeImage(item)"
+                                title="Delete"
+                            >
+                                ×
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <img
-                v-for="(item, index) in customImages"
-                @dragstart="iconDragStart"
-                @click="iconClick"
-                draggable="true"
-                :key="index"
-                :src="item.image.src"
-                :data-name="item.name"
-                :width="item.width * 2"
-                :height="item.height * 2"
-                :data-w="item.width"
-                :data-h="item.height"
-                :alt="item.name"
-                :title="item.name"
-            />
-        </div>
-        <div v-for="(value, key) in iconsList" class="fui-iconset">
-            <div class="fui-icons__header" @click="toggleIcons(key)">
-                <div class="fui-icons__button fui-icons__toggle" title="Toggle">
-                    {{ key === iconsActive ? `-` : `+` }}
+            </details>
+            <details
+                v-for="(value, key) in iconsList"
+                class=""
+                open
+            >
+                <summary class="cursor-pointer pb-2 text-white">{{ value.title }}</summary>
+                <div class="fui-iconset flex flex-row flex-wrap">
+                    <div
+                        class=""
+                        v-for="(item, index) in iconsList[key].icons"
+                        :key="index"
+                    >
+                        <img
+                            @dragstart="iconDragStart"
+                            draggable="true"
+                            @click="iconClick($event, item)"
+                            :src="item.image"
+                            :data-name="item.name"
+                            :data-w="item.width"
+                            :data-h="item.height"
+                            :width="item.width * 2"
+                            :height="item.height * 2"
+                            :alt="item.name"
+                            :title="item.name"
+                            class="object-contain invert p-4 box-content hover:bg-gray-300"
+                        />
+                    </div>
                 </div>
-                <div>{{ value.title }}</div>
-            </div>
-            <template v-if="key === iconsActive">
-                <img
-                    v-for="(item, index) in icons"
-                    @dragstart="iconDragStart"
-                    @click="iconClick"
-                    draggable="true"
-                    :key="index"
-                    :src="item.image"
-                    :data-name="item.name"
-                    :data-w="item.width"
-                    :data-h="item.height"
-                    :width="item.width * 2"
-                    :height="item.height * 2"
-                    :alt="item.name"
-                    :title="item.name"
-                />
-            </template>
+            </details>
         </div>
     </div>
 </template>
 <style lang="css">
 .fui-icons {
-    overflow-y: auto;
     background: var(--primary-color);
     border: 2px solid var(--border-dark-color);
     border-radius: 0 10px 10px 10px;
     border-top: 0;
     margin: 0 0 8px 0;
-    padding: 16px;
     height: 350px;
-    color: var(--secondary-color);
 }
 
-.fui-iconset {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.fui-icons img {
+.fui-iconset img {
     cursor: pointer;
     image-rendering: pixelated;
     display: block;
-    margin: 8px;
-    border: 1px solid var(--border-color);
     max-width: 128px;
-    height: auto;
+    /* height: auto; */
 }
 
-.fui-icons__header {
-    cursor: pointer;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    height: 24px;
-    width: 100%;
+.image-custom:hover .image-custom-inner {
+    background-color: oklch(var(--s));
 }
-
-.fui-icons__header:hover .fui-icons__button {
+.image-custom:hover .image-custom-remove {
     display: block;
 }
 
-.fui-icons__remove-custom {
+.fui-icons-remove {
     display: none;
     cursor: pointer;
     color: var(--danger-color);
     margin: 0 8px;
-}
-
-.fui-icons__toggle {
-    margin: 0 8px 0 0;
-    padding: 0 3px 0 4px;
-    border: 1px solid var(--border-dark-color);
-    border-radius: 4px;
-    text-align: center;
-    height: 18px;
-    line-height: 18px;
 }
 </style>

@@ -30,8 +30,8 @@ export class PaintHighlightPlugin extends DrawPlugin {
                     ctx.moveTo(point.x, 0);
                     ctx.lineTo(point.x, display.y * scale.y);
                     ctx.strokeStyle = interfaceColors.selectionStrokeColor;
-                    ctx.setLineDash([5, 5]);
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([2, 4]);
                     ctx.stroke();
                     ctx.beginPath();
                     const lastPoint = this.paintEditorPlugin.lastPoint
@@ -41,6 +41,8 @@ export class PaintHighlightPlugin extends DrawPlugin {
                     ctx.moveTo(lastPoint.x, lastPoint.y);
                     ctx.lineTo(point.x, point.y);
                     ctx.strokeStyle = interfaceColors.selectionStrokeColor;
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
                     ctx.stroke();
                     ctx.restore();
                 }

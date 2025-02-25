@@ -14,8 +14,8 @@ export class MovePlugin extends AbstractEditorPlugin {
         if (event.metaKey || event.ctrlKey || event.shiftKey || activeTool || layers.find((l) => l.isEditing())) {
             return;
         }
-        const selected = layers.filter((l) => l.selected);
-        const hovered = layers.filter((l) => l.contains(point));
+        const selected = layers.filter((l) => l.selected && !l.locked);
+        const hovered = layers.filter((l) => l.contains(point) && !l.locked);
         if (selected.length && hovered.length) {
             this.captured = true;
             selected.forEach((layer) => layer.startEdit(EditMode.MOVING, point.clone()));
@@ -25,8 +25,8 @@ export class MovePlugin extends AbstractEditorPlugin {
     onMouseMove(point: Point, event: MouseEvent): void {
         if (this.captured) {
             const {layers} = this.session.state;
-            layers.filter((l) => l.selected).forEach((layer) => layer.edit(point.clone(), event));
-            this.session.virtualScreen.redraw();
+            layers.filter((l) => !l.locked && l.selected).forEach((layer) => layer.edit(point.clone(), event));
+            this.session.virtualScreen.redraw(false);
         }
     }
 
@@ -39,13 +39,14 @@ export class MovePlugin extends AbstractEditorPlugin {
                 .forEach((layer) => {
                     layer.stopEdit();
                 });
+            this.session.virtualScreen.redraw();
         }
     }
 
     onKeyDown(key: Keys, event: KeyboardEvent): void {
         if (key === Keys.ArrowDown || key === Keys.ArrowUp || key === Keys.ArrowLeft || key === Keys.ArrowRight) {
             const {layers} = this.session.state;
-            const selectedLayers = layers.filter((l) => l.selected);
+            const selectedLayers = layers.filter((l) => !l.locked && l.selected);
             if (selectedLayers.length === 0) return;
             const delta = new Point();
             const shift = event.shiftKey ? 10 : 1;

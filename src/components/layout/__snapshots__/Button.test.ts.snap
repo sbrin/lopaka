@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Button > renders a button element 1`] = `
+<div
+  class="tooltip tooltip-bottom capitalize no-animation"
+  data-v-3947d5d5=""
+>
+  <button
+    class="btn btn-sm font-sans uppercase leading-none btn-primary btn-outline"
+    data-v-3947d5d5=""
+  >
+    
+    Test
+    
+  </button>
+</div>
+`;

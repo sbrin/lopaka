@@ -1,5 +1,8 @@
-<script lang="ts" setup>
-import {defineProps} from 'vue';
+<script
+    lang="ts"
+    setup
+>
+import { defineProps } from 'vue';
 
 const props = defineProps<{
     active?: boolean;
@@ -17,14 +20,15 @@ const props = defineProps<{
     z-index: 100;
     position: fixed;
     left: 0;
-    top:0;
-    background-color: rgba(0,0,0,0.7);
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.7);
     width: 100%;
     height: 100%;
     display: flex;
     align-items: flex-start;
     justify-content: center;
 }
+
 .popup {
     margin-top: 20%;
     background: var(--bg-color);

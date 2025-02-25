@@ -27,7 +27,7 @@ export class TextLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         y: {
             getValue: () => this.position.y,
@@ -36,16 +36,7 @@ export class TextLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
-        },
-        fontSize: {
-            getValue: () => this.scaleFactor,
-            setValue: (v: string) => {
-                this.scaleFactor = Math.max(parseInt(v), 1);
-                this.updateBounds();
-                this.draw();
-            },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         font: {
             getValue: () => this.font?.name,
@@ -54,7 +45,7 @@ export class TextLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.font
+            type: TModifierType.font,
         },
         text: {
             getValue: () => this.text,
@@ -63,7 +54,16 @@ export class TextLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.string
+            type: TModifierType.string,
+        },
+        fontSize: {
+            getValue: () => this.scaleFactor,
+            setValue: (v: string) => {
+                this.scaleFactor = Math.max(parseInt(v), 1);
+                this.updateBounds();
+                this.draw();
+            },
+            type: TModifierType.number,
         },
         color: {
             getValue: () => this.color,
@@ -72,7 +72,7 @@ export class TextLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.color
+            type: TModifierType.color,
         },
         inverted: {
             getValue: () => this.inverted,
@@ -80,8 +80,8 @@ export class TextLayer extends AbstractLayer {
                 this.inverted = v;
                 this.draw();
             },
-            type: TModifierType.boolean
-        }
+            type: TModifierType.boolean,
+        },
     };
 
     constructor(
@@ -113,11 +113,14 @@ export class TextLayer extends AbstractLayer {
         this.editState = {
             firstPoint: point,
             position: this.position.clone(),
-            text: this.text
+            text: this.text,
         };
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
+        if (!this.editState) {
+            return;
+        }
         const {position, text, firstPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
@@ -138,6 +141,7 @@ export class TextLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
+        this.pushRedoHistory();
     }
 
     draw() {

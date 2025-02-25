@@ -9,6 +9,7 @@ each decl in declarations
 | u8g2_SetBitmapMode(&u8g2, 1);
 | u8g2_SetFontMode(&u8g2, 1);
 |
+|
 - var pad = settings.wrap ? '    ' : ''
 if settings.wrap
     | void draw(void) {
@@ -16,6 +17,9 @@ if settings.wrap
 - var font = ''
 - var drawColorMode = 1;
 each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.name}
+        |
     if layer.inverted 
         if drawColorMode != 2
             | !{pad}u8g2_SetDrawColor(&u8g2, 2);
@@ -45,7 +49,11 @@ each layer in layers
                 - font = layer.font
                 | !{pad}u8g2_SetFont(&u8g2, u8g2_font_!{layer.font}_tr);
                 |
-            | @!{layer.uid};!{pad}u8g2_DrawStr(&u8g2, !{layer.position[0]}, !{layer.position[1]}, "!{layer.text}");
+            - let is_ascii = (s) => /^[\x00-\x7F]*$/.test(s)
+            if is_ascii(layer.text)
+                | @!{layer.uid};!{pad}u8g2_DrawStr(&u8g2, !{layer.position[0]}, !{layer.position[1]}, "!{layer.text}");
+            else
+                | @!{layer.uid};!{pad}u8g2_DrawUTF8(&u8g2, !{layer.position[0]}, !{layer.position[1]}, "!{layer.text}");
         when 'paint'
         when 'icon'
             | @!{layer.uid};!{pad}u8g2_DrawXBM(&u8g2, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}, !{layer.imageName});
@@ -53,6 +61,7 @@ each layer in layers
             |
             | // Unknown layer type !{layer.type}
             |
+    |
     |
     |
 if settings.wrap

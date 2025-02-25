@@ -4,12 +4,14 @@ import {DrawContext} from '../draw-context';
 export enum FontFormat {
     FORMAT_5x7 = 0,
     FORMAT_BDF = 1,
-    FORMAT_TTF = 2
+    FORMAT_TTF = 2,
+    FORMAT_GFX = 3,
 }
 
 export abstract class Font {
     fontReady: Promise<void>;
     protected fontLoaded: boolean = false;
+    public title: string;
 
     constructor(
         protected source: TFontSource,
@@ -17,6 +19,7 @@ export abstract class Font {
         public format: FontFormat,
         protected options?: TFontSizes
     ) {
+        this.title = name.split('#').pop();
         this.fontReady = new Promise((resolve) => {
             this.loadFont().then(() => {
                 resolve();

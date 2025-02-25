@@ -31,6 +31,7 @@ export class AddPlugin extends AbstractEditorPlugin {
     onMouseMove(point: Point, event: MouseEvent): void {
         if (this.captured) {
             const {activeLayer} = this.session.editor.state;
+            if (!activeLayer) return;
             activeLayer.edit(point, event);
             this.session.virtualScreen.redraw(false);
         }
@@ -40,6 +41,7 @@ export class AddPlugin extends AbstractEditorPlugin {
         if (this.captured) {
             const {activeLayer, activeTool} = this.session.editor.state;
             this.captured = false;
+            if (!activeLayer) return;
             activeLayer.stopEdit();
             activeTool.onStopEdit(activeLayer as AbstractLayer, point, event);
             activeLayer.selected = true;

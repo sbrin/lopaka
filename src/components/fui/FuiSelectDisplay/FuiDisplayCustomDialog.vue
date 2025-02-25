@@ -2,7 +2,7 @@
 import {ref, toRefs} from 'vue';
 import {useSession} from '../../../core/session';
 import {Point} from '../../../core/point';
-import FuiButton from '../FuiButton.vue';
+import Button from '/src/components/layout/Button.vue';
 
 const session = useSession();
 const {setDisplay, saveDisplayCustom} = session;
@@ -28,7 +28,10 @@ function setCustomDisplay() {
     <div class="fui-display-custom-dialog">
         <div class="font-bold text-lg pb-4">Set display size</div>
         <div class="fui-form-row">
-            <label class="fui-form-label fui-form-column" for="displayCustomWidth">
+            <label
+                class="fui-form-label fui-form-column"
+                for="displayCustomWidth"
+            >
                 Width:
                 <input
                     class="fui-form-input fui-form-input__size"
@@ -37,7 +40,10 @@ function setCustomDisplay() {
                     id="displayCustomWidth"
                 />
             </label>
-            <label class="fui-form-label fui-form-column" for="displayCustomWidth">
+            <label
+                class="fui-form-label fui-form-column"
+                for="displayCustomWidth"
+            >
                 Height:
                 <input
                     class="fui-form-input fui-form-input__size"
@@ -49,8 +55,13 @@ function setCustomDisplay() {
             </label>
         </div>
         <div class="buttons-bottom">
-            <FuiButton @click="cancelPopup">Cancel</FuiButton>
-            <FuiButton @click="setCustomDisplay" :success="true">Save</FuiButton>
+            <Button @click="cancelPopup">Cancel</Button>
+            <Button
+                @click="setCustomDisplay"
+                :success="true"
+            >
+                Save
+            </Button>
         </div>
     </div>
 </template>

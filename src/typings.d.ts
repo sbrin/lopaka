@@ -7,6 +7,16 @@ declare module '*.png' {
     export default string;
 }
 
+declare module '*.svg' {
+    export default string;
+}
+
+declare module '*?component' {
+    import {DefineComponent} from 'vue';
+    const Component: DefineComponent;
+    export default Component;
+}
+
 declare type TPackImage = {
     name: string;
     width: number;
@@ -35,7 +45,7 @@ declare module '*.pug' {
 }
 
 declare module '*.bdf' {
-    const content: BDFFormat;
+    const content: FontFormat;
     export default content;
 }
 
@@ -45,7 +55,7 @@ declare type TFontSizes = {
     size: number;
 };
 
-declare type TFontSource = string | File | BDFFormat | Function<Promise<{default: BDFFormat}>>;
+declare type TFontSource = string | File | FontFormat | Function<Promise<{default: FontFormat}>>;
 
 declare type TPlatformFont = {
     name: string;
@@ -60,6 +70,7 @@ declare type TLayerImageData = {
     height: number;
     image: HTMLImageElement;
     isCustom?: boolean;
+    id?: number;
 };
 
 declare type TSourceCodeMap = Record<string, {line: number; params: Record<string, any>}>;
@@ -71,12 +82,12 @@ declare type TSourceCode = {
 
 interface Window {
     gtag: any;
+    posthog: any;
 }
 
 declare type ELayerType =
     | 'box'
     | 'line'
-    | 'dot'
     | 'circle'
     | 'disc'
     | 'string'
@@ -88,7 +99,7 @@ declare type ELayerType =
 
 declare function gtag(...args: any[]): void;
 
-declare type BDFGlyph = {
+declare type FontGlyph = {
     code?: number;
     char?: string;
     name?: string;
@@ -96,9 +107,10 @@ declare type BDFGlyph = {
     bounds?: number[];
     scalableSize?: number[];
     deviceSize?: number[];
+    xAdvance?: number;
 };
 
-declare type BDFMeta = {
+declare type FontMeta = {
     version?: string;
     name?: string;
     size?: {
@@ -115,7 +127,25 @@ declare type BDFMeta = {
     totalChars?: number;
 };
 
-declare type BDFFormat = {
-    meta: BDFMeta;
-    glyphs: Map<number, BDFGlyph>;
+declare type FontPack = {
+    meta: FontMeta;
+    glyphs: Map<number, FontGlyph>;
+};
+
+declare type GFXFont = {
+    name: string;
+    bitmaps: number[];
+    glyphs: GFXGlyph[];
+    first: number;
+    last: number;
+    yAdvance: number;
+};
+
+declare type GFXGlyph = {
+    bitmapOffset: number;
+    width: number;
+    height: number;
+    xAdvance: number;
+    xOffset: number;
+    yOffset: number;
 };

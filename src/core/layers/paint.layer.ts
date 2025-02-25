@@ -2,6 +2,7 @@ import {TPlatformFeatures} from '../../platforms/platform';
 import {Point} from '../point';
 import {AbstractImageLayer} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
+import {addAlphaChannelToImageData} from '/src/utils';
 
 export class PaintLayer extends AbstractImageLayer {
     protected type: ELayerType = 'paint';
@@ -15,7 +16,7 @@ export class PaintLayer extends AbstractImageLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         y: {
             getValue: () => this.position.y,
@@ -24,15 +25,35 @@ export class PaintLayer extends AbstractImageLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         w: {
             getValue: () => this.size.x,
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         h: {
             getValue: () => this.size.y,
-            type: TModifierType.number
+            type: TModifierType.number,
+        },
+        icon: {
+            getValue: () => this.data,
+            setValue: (v: HTMLImageElement) => {
+                this.imageName = v.dataset.name;
+                const [w, h] = [Number(v.dataset.w), Number(v.dataset.h)];
+                if (w && h) {
+                    this.size = new Point(w, h);
+                }
+                const buf = document.createElement('canvas');
+                const ctx = buf.getContext('2d');
+                buf.width = this.size.x;
+                buf.height = this.size.y;
+                ctx.drawImage(v, 0, 0);
+                this.data = addAlphaChannelToImageData(ctx.getImageData(0, 0, this.size.x, this.size.y), this.color);
+                this.updateBounds();
+                this.applyColor();
+                this.draw();
+            },
+            type: TModifierType.image,
         },
         color: {
             getValue: () => this.color,
@@ -41,7 +62,7 @@ export class PaintLayer extends AbstractImageLayer {
                 this.applyColor();
                 this.draw();
             },
-            type: TModifierType.color
+            type: TModifierType.color,
         },
         overlay: {
             getValue: () => this.overlay,
@@ -49,7 +70,7 @@ export class PaintLayer extends AbstractImageLayer {
                 this.overlay = v;
                 this.draw();
             },
-            type: TModifierType.boolean
+            type: TModifierType.boolean,
         },
         inverted: {
             getValue: () => this.inverted,
@@ -57,13 +78,13 @@ export class PaintLayer extends AbstractImageLayer {
                 this.inverted = v;
                 this.draw();
             },
-            type: TModifierType.boolean
-        }
+            type: TModifierType.boolean,
+        },
     };
 
     constructor(protected features: TPlatformFeatures) {
         super(features);
-        if (!this.features.hasRGBSupport) {
+        if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
             delete this.modifiers.color;
         }
         if (!this.features.hasInvertedColors) {
@@ -78,7 +99,7 @@ export class PaintLayer extends AbstractImageLayer {
         this.editState = {
             firstPoint: point,
             position: this.position?.clone() || new Point(),
-            size: this.size?.clone() || new Point()
+            size: this.size?.clone() || new Point(),
         };
         if (mode === EditMode.CREATING) {
             this.editState.position = point.clone();
@@ -86,8 +107,12 @@ export class PaintLayer extends AbstractImageLayer {
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
-        const {position, firstPoint} = this.editState;
+        if (!this.editState) {
+            return;
+        }
+
         const {ctx} = this.dc;
+        const {position, firstPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
                 const newPos = position.clone().add(point.clone().subtract(firstPoint)).round();
@@ -125,6 +150,7 @@ export class PaintLayer extends AbstractImageLayer {
         this.mode = EditMode.NONE;
         this.updateBounds();
         this.editState = null;
+        this.pushRedoHistory();
     }
 
     draw() {

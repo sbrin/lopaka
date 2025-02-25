@@ -22,6 +22,7 @@
     --success-color: #cddc39;
     --input-font-size: 18px;
     --main-width: 760px;
+    --color-grid: #fff;
 }
 
 h1,
@@ -32,10 +33,6 @@ h3 {
 
 body {
     font-family: Roboto, 'PT Sans', 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
-a {
-    color: var(--primary-color);
 }
 
 .fui-editor__center {

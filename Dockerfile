@@ -1,21 +1,22 @@
 # First stage: Node image to build the project
-FROM node:18 as build-stage
+FROM node:22 as build-stage
 
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and yarn.lock files to the working directory
-COPY package.json yarn.lock ./
+RUN npm install -g pnpm
+
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN yarn install
+RUN pnpm install
 
 # Copy the rest of your source code to the working directory
 COPY . .
 
 # Build the project
 ENV NODE_OPTIONS='--max-old-space-size=16384'
-RUN yarn build
+RUN pnpm build
 
 # Second stage: Start from the official Nginx image
 FROM nginx:alpine

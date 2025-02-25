@@ -12,7 +12,7 @@ export enum EditMode {
     CREATING,
     DRAWING,
     NONE,
-    EMPTY
+    EMPTY,
 }
 export enum TModifierType {
     'string',
@@ -20,7 +20,7 @@ export enum TModifierType {
     'boolean',
     'font',
     'image',
-    'color'
+    'color',
 }
 export type TModifierName =
     | 'x'
@@ -32,6 +32,7 @@ export type TModifierName =
     | 'radiusY'
     | 'fill'
     | 'text'
+    | 'fontSize'
     | 'font'
     | 'icon'
     | 'x1'
@@ -43,7 +44,8 @@ export type TModifierName =
     | 'overlay'
     | 'inverted'
     | 'color'
-    | 'fontSize';
+    | 'overlay'
+    | 'locked';
 
 export type TLayerModifier = {
     setValue?(value: any): void;
@@ -53,6 +55,7 @@ export type TLayerModifier = {
 
 export type TLayerAction = {
     label: string;
+    iconType?: string;
     title: string;
     action: () => void;
 };
@@ -75,8 +78,6 @@ export abstract class AbstractLayer {
     protected buffer: OffscreenCanvas = new OffscreenCanvas(0, 0);
     // DrawContext
     protected dc: DrawContext = new DrawContext(this.buffer);
-    // Is layer visible
-    protected isOverlay: boolean = false;
     // current layer state
     public get state() {
         return getState(this);
@@ -107,6 +108,10 @@ export abstract class AbstractLayer {
     @mapping('c') public color: string = '#000000';
     // ibnverted
     @mapping('in') public inverted: boolean = false;
+    // overlay
+    @mapping('ov') public overlay: boolean = false;
+    // locked
+    @mapping('lo') public locked: boolean = false;
     // is layer already added to the session
     public added: boolean = false;
     // is layer resizable
@@ -179,6 +184,10 @@ export abstract class AbstractLayer {
         return cloned;
     }
 
+    public setName(text: string) {
+        this.name = text;
+    }
+
     /**
      * Is layer in resizing mode
      * @param state
@@ -196,13 +205,21 @@ export abstract class AbstractLayer {
     }
 
     public pushHistory() {
-        if (this.mode === EditMode.EMPTY) {
+        if ([EditMode.EMPTY, EditMode.CREATING].includes(this.mode)) {
             return;
         }
         this.history.push({
             type: 'change',
             layer: this,
-            state: this.state
+            state: this.state,
+        });
+    }
+
+    public pushRedoHistory() {
+        this.history.pushRedo({
+            type: 'change',
+            layer: this,
+            state: this.state,
         });
     }
 
