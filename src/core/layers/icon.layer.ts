@@ -5,7 +5,7 @@ import {AbstractImageLayer} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
 
 export class IconLayer extends AbstractImageLayer {
-    protected type: ELayerType = 'icon';
+    public type: ELayerType = 'icon';
 
     modifiers: TLayerModifiers = {
         x: {
@@ -15,7 +15,7 @@ export class IconLayer extends AbstractImageLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         y: {
             getValue: () => this.position.y,
@@ -24,15 +24,15 @@ export class IconLayer extends AbstractImageLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         w: {
             getValue: () => this.size.x,
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         h: {
             getValue: () => this.size.y,
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         icon: {
             getValue: () => this.data,
@@ -52,7 +52,7 @@ export class IconLayer extends AbstractImageLayer {
                 this.applyColor();
                 this.draw();
             },
-            type: TModifierType.image
+            type: TModifierType.image,
         },
         color: {
             getValue: () => this.color,
@@ -61,7 +61,7 @@ export class IconLayer extends AbstractImageLayer {
                 this.applyColor();
                 this.draw();
             },
-            type: TModifierType.color
+            type: TModifierType.color,
         },
         overlay: {
             getValue: () => this.overlay,
@@ -69,7 +69,7 @@ export class IconLayer extends AbstractImageLayer {
                 this.overlay = v;
                 this.draw();
             },
-            type: TModifierType.boolean
+            type: TModifierType.boolean,
         },
         inverted: {
             getValue: () => this.inverted,
@@ -77,8 +77,8 @@ export class IconLayer extends AbstractImageLayer {
                 this.inverted = v;
                 this.draw();
             },
-            type: TModifierType.boolean
-        }
+            type: TModifierType.boolean,
+        },
     };
 
     startEdit(mode: EditMode, point: Point) {
@@ -87,7 +87,7 @@ export class IconLayer extends AbstractImageLayer {
         this.editState = {
             firstPoint: point,
             position: this.position.clone(),
-            size: this.size.clone()
+            size: this.size.clone(),
         };
     }
 
@@ -103,6 +103,9 @@ export class IconLayer extends AbstractImageLayer {
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
+        if (!this.editState) {
+            return;
+        }
         const {position, size, firstPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
@@ -124,5 +127,6 @@ export class IconLayer extends AbstractImageLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
+        this.pushRedoHistory();
     }
 }

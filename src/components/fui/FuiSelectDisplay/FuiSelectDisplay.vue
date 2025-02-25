@@ -1,14 +1,17 @@
 <script lang="ts" setup>
-import {ref, toRefs} from 'vue';
+import {ref, toRefs, computed} from 'vue';
 import {useSession} from '../../../core/session';
 import FuiPopup from '../FuiPopup.vue';
 import FuiDisplayCustomDialog from './FuiDisplayCustomDialog.vue';
 
 const session = useSession();
-const {displays, setDisplay, saveDisplayCustom} = session;
-const {display, isDisplayCustom} = toRefs(session.state);
+const {setDisplay, saveDisplayCustom, getDisplays} = session;
+const {display, isDisplayCustom, platform} = toRefs(session.state);
+const displays = computed(() => getDisplays(platform.value));
 
-const selectedDisplay = ref(isDisplayCustom.value ? 'custom' : displays.findIndex((d) => d.equals(display.value)));
+const selectedDisplay = ref(
+    isDisplayCustom.value ? 'custom' : displays.value.findIndex((d) => d.size.equals(display.value))
+);
 const showCustomDisplayPopup = ref(false);
 const customWidth = ref(display.value.x);
 const customHeight = ref(display.value.y);
@@ -49,10 +52,29 @@ function setCustomDisplay() {
 </script>
 <template>
     <div class="fui-displays fui-select">
-        <label for="display-size" class="fui-select__label">Display:</label>
-        <div v-if="isDisplayCustom" class="custom-value">
-            <span @click="enablePopup" class="link link-primary">Custom {{ display.x }}x{{ display.y }}</span>
-            <span @click="resetDisplay" class="text-lg text-error pl-1 cursor-pointer" title="Reset display">×</span>
+        <label
+            for="display-size"
+            class="fui-select__label"
+        >
+            Display:
+        </label>
+        <div
+            v-if="isDisplayCustom"
+            class="custom-value"
+        >
+            <span
+                @click="enablePopup"
+                class="link link-primary"
+            >
+                Custom {{ display.x }}x{{ display.y }}
+            </span>
+            <span
+                @click="resetDisplay"
+                class="text-lg text-error pl-1 cursor-pointer"
+                title="Reset display"
+            >
+                ×
+            </span>
         </div>
         <select
             v-else
@@ -61,8 +83,19 @@ function setCustomDisplay() {
             @change="selectDisplay"
             :value="selectedDisplay"
         >
-            <option key="custom" value="custom">Custom...</option>
-            <option v-for="(item, idx) in displays" :key="idx" :value="idx">{{ item.x }}×{{ item.y }}</option>
+            <option
+                key="custom"
+                value="custom"
+            >
+                Custom...
+            </option>
+            <option
+                v-for="(item, idx) in displays"
+                :key="idx"
+                :value="idx"
+            >
+                {{ item.x }}×{{ item.y }}
+            </option>
         </select>
     </div>
     <FuiPopup v-if="showCustomDisplayPopup">

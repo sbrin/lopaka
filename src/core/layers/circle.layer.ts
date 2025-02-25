@@ -28,7 +28,7 @@ export class CircleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         y: {
             getValue: () => this.position.y,
@@ -37,7 +37,7 @@ export class CircleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         radius: {
             getValue: () => this.radius,
@@ -46,7 +46,7 @@ export class CircleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         fill: {
             getValue: () => this.fill,
@@ -54,7 +54,7 @@ export class CircleLayer extends AbstractLayer {
                 this.fill = v;
                 this.draw();
             },
-            type: TModifierType.boolean
+            type: TModifierType.boolean,
         },
         color: {
             getValue: () => this.color,
@@ -63,7 +63,7 @@ export class CircleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.color
+            type: TModifierType.color,
         },
         inverted: {
             getValue: () => this.inverted,
@@ -71,8 +71,8 @@ export class CircleLayer extends AbstractLayer {
                 this.inverted = v;
                 this.draw();
             },
-            type: TModifierType.boolean
-        }
+            type: TModifierType.boolean,
+        },
     };
 
     constructor(protected features: TPlatformFeatures) {
@@ -99,7 +99,7 @@ export class CircleLayer extends AbstractLayer {
             move: (offset: Point): void => {
                 this.position.y = Math.floor(this.editState.position.y + Math.round(offset.x / 2) * 2);
                 this.radius = Math.floor(this.editState.radius - offset.x / 2);
-            }
+            },
         },
         {
             cursor: 'nwse-resize',
@@ -110,7 +110,7 @@ export class CircleLayer extends AbstractLayer {
                 ).subtract(1.5, 1.5, 0, 0),
             move: (offset: Point): void => {
                 this.radius = Math.round(this.editState.radius - offset.x / 2);
-            }
+            },
         },
         {
             cursor: 'nesw-resize',
@@ -124,7 +124,7 @@ export class CircleLayer extends AbstractLayer {
             move: (offset: Point): void => {
                 this.position.x = Math.ceil(this.editState.position.x - Math.round(offset.x / 2) * 2);
                 this.radius = Math.ceil(this.editState.radius + offset.x / 2);
-            }
+            },
         },
         {
             cursor: 'nwse-resize',
@@ -136,8 +136,8 @@ export class CircleLayer extends AbstractLayer {
                     .subtract(Math.round(offset.x / 2) * 2)
                     .ceil();
                 this.radius = Math.ceil(this.editState.radius + offset.x / 2);
-            }
-        }
+            },
+        },
     ];
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
@@ -153,11 +153,14 @@ export class CircleLayer extends AbstractLayer {
             firstPoint: point,
             position: this.position.clone(),
             radius: this.radius,
-            editPoint
+            editPoint,
         };
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
+        if (!this.editState) {
+            return;
+        }
         const {position, firstPoint, editPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
@@ -188,6 +191,7 @@ export class CircleLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
+        this.pushRedoHistory();
     }
 
     draw() {

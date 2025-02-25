@@ -33,7 +33,7 @@ export class RectangleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         y: {
             getValue: () => this.position.y,
@@ -42,7 +42,7 @@ export class RectangleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         w: {
             getValue: () => this.size.x,
@@ -51,7 +51,7 @@ export class RectangleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         h: {
             getValue: () => this.size.y,
@@ -60,7 +60,7 @@ export class RectangleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         radius: {
             getValue: () => this.radius,
@@ -71,7 +71,7 @@ export class RectangleLayer extends AbstractLayer {
                 );
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         fill: {
             getValue: () => this.fill,
@@ -79,7 +79,7 @@ export class RectangleLayer extends AbstractLayer {
                 this.fill = v;
                 this.draw();
             },
-            type: TModifierType.boolean
+            type: TModifierType.boolean,
         },
         color: {
             getValue: () => this.color,
@@ -88,7 +88,7 @@ export class RectangleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.color
+            type: TModifierType.color,
         },
         inverted: {
             getValue: () => this.inverted,
@@ -96,8 +96,8 @@ export class RectangleLayer extends AbstractLayer {
                 this.inverted = v;
                 this.draw();
             },
-            type: TModifierType.boolean
-        }
+            type: TModifierType.boolean,
+        },
     };
 
     editPoints: TLayerEditPoint[] = [
@@ -121,7 +121,7 @@ export class RectangleLayer extends AbstractLayer {
                     this.position.y = position.y;
                     this.size.y = size.y;
                 }
-            }
+            },
         },
         {
             cursor: 'nwse-resize',
@@ -132,7 +132,7 @@ export class RectangleLayer extends AbstractLayer {
                 ).subtract(1.5, 1.5, 0, 0),
             move: (offset: Point): void => {
                 this.size = this.editState.size.clone().subtract(offset).max(new Point(this.minLen));
-            }
+            },
         },
         {
             cursor: 'nesw-resize',
@@ -154,7 +154,7 @@ export class RectangleLayer extends AbstractLayer {
                     this.position.y = position.y;
                     this.size.y = size.y;
                 }
-            }
+            },
         },
         {
             cursor: 'nwse-resize',
@@ -171,8 +171,8 @@ export class RectangleLayer extends AbstractLayer {
                     this.size.y = size.y;
                     this.position.y = position.y;
                 }
-            }
-        }
+            },
+        },
     ];
 
     constructor(protected features: TPlatformFeatures) {
@@ -199,11 +199,14 @@ export class RectangleLayer extends AbstractLayer {
             firstPoint: point,
             editPoint,
             position: this.position.clone(),
-            size: this.size.clone()
+            size: this.size.clone(),
         };
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
+        if (!this.editState) {
+            return;
+        }
         const {position, editPoint, firstPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
@@ -228,6 +231,7 @@ export class RectangleLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
+        this.pushRedoHistory();
     }
 
     draw() {

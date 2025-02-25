@@ -5,11 +5,10 @@ import {VirtualScreen} from '../draw/virtual-screen';
 import {Editor} from '../editor/editor';
 import {U8g2Platform} from '../platforms/u8g2';
 import {generateUID, loadImageDataAsync, logEvent, postParentMessage} from '../utils';
-import displays from './displays';
+import displays, {Display} from './displays';
 import {ChangeHistory, TChange, THistoryEvent, useHistory} from './history';
 import {AbstractLayer} from './layers/abstract.layer';
 import {CircleLayer} from './layers/circle.layer';
-import {DotLayer} from './layers/dot.layer';
 import {EllipseLayer} from './layers/ellipse.layer';
 import {IconLayer} from './layers/icon.layer';
 import {LineLayer} from './layers/line.layer';
@@ -42,12 +41,11 @@ export class Session {
         rect: RectangleLayer,
         circle: CircleLayer,
         disc: CircleLayer,
-        dot: DotLayer,
         icon: IconLayer,
         line: LineLayer,
         string: TextLayer,
         paint: PaintLayer,
-        ellipse: EllipseLayer
+        ellipse: EllipseLayer,
     };
 
     id: string = generateUID();
@@ -64,7 +62,7 @@ export class Session {
         scale: new Point(4, 4),
         customImages: [],
         icons: iconsList,
-        isPublic: false
+        isPublic: false,
     });
 
     history: ChangeHistory = useHistory();
@@ -75,16 +73,12 @@ export class Session {
         ruler: true,
         smartRuler: true,
         highlight: true,
-        pointer: false
+        pointer: false,
     });
     removeLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
         this.state.layers = this.state.layers.filter((l) => l.uid !== layer.uid);
         if (saveHistory) {
-            this.history.push({
-                type: 'remove',
-                layer,
-                state: layer.state
-            });
+            this.history.push({type: 'remove', layer, state: layer.state});
         }
         this.virtualScreen.redraw();
     };
@@ -101,11 +95,7 @@ export class Session {
             ctx.globalCompositeOperation = 'source-over';
             this.removeLayer(l, false);
         });
-        this.history.push({
-            type: 'merge',
-            layer,
-            state: layers
-        });
+        this.history.push({type: 'merge', layer, state: layers});
         layer.recalculate();
         layer.applyColor();
         layer.stopEdit();
@@ -134,21 +124,13 @@ export class Session {
         layer.name = layer.name ?? 'Layer ' + (layers.length + 1);
         layers.unshift(layer);
         if (saveHistory) {
-            this.history.push({
-                type: 'add',
-                layer,
-                state: layer.state
-            });
+            this.history.push({type: 'add', layer, state: layer.state});
         }
         layer.draw();
     };
     clearLayers = () => {
         this.state.layers = [];
-        this.history.push({
-            type: 'clear',
-            layer: null,
-            state: []
-        });
+        this.history.push({type: 'clear', layer: null, state: []});
         this.virtualScreen.redraw();
     };
     setDisplay = (display: Point, isLogged?: boolean) => {
@@ -223,7 +205,7 @@ export class Session {
     importCode = async (code: string) => {
         this.clearLayers();
         const {platform} = this.state;
-        const states = this.platforms[platform].importSourceCode(code);
+        const {states} = this.platforms[platform].importSourceCode(code);
         for (const state of states) {
             if (state.type == 'string') {
                 if (!this.platforms[platform].getFonts().find((f) => f.name == state.font)) {
@@ -244,6 +226,9 @@ export class Session {
     getPlatformFeatures(): TPlatformFeatures {
         return this.platforms[this.state.platform]?.features;
     }
+    getDisplays = (platform?): Display[] => {
+        return this.platforms[platform ?? this.state.platform]?.displays;
+    };
     lock = () => {
         this.state.lock = true;
     };
