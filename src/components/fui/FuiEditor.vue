@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref, ShallowRef, toRefs, watch} from 'vue';
+import {Project, ProjectScreen} from '/src/types';
 import Button from '/src/components/layout/Button.vue';
 import FuiCanvas from '/src/components/fui/FuiCanvas.vue';
 import FuiCode from '/src/components/fui/FuiCode.vue';
@@ -20,7 +21,6 @@ import {FlipperPlatform} from '/src/platforms/flipper';
 import {debounce, logEvent} from '/src/utils';
 import {PaintLayer} from '/src/core/layers/paint.layer';
 import {Uint32RawPlatform} from '/src/platforms/uint32-raw';
-import {Project, ProjectScreen} from '/src/types';
 import ImportImageBtn from './importImage/ImportImageBtn.vue';
 
 const props = defineProps<{
@@ -33,7 +33,7 @@ const props = defineProps<{
     auth?: boolean;
 }>();
 
-const emit = defineEmits(['showModalPricing', 'update', 'openPresenter']);
+const emit = defineEmits(['showModalPricing', 'update', 'openPresenter', 'setInfoMessage', 'setErrorMessage']);
 
 const fuiCanvas = ref(null),
     activeTab = ref('code'),
@@ -42,11 +42,8 @@ const {virtualScreen, state, platforms} = session;
 const {platform, warnings} = toRefs(state);
 const {updates} = toRefs(session.virtualScreen.state);
 const flipper: ShallowRef<FlipperRPC> = ref(null);
-const infoMessage = ref();
-const errorMessage = ref();
 const uploading = ref(false);
 
-const isEmpty = computed(() => updates.value && session.state.layers.length === 0);
 const isFlipper = computed(() => platform.value === FlipperPlatform.id);
 const isSerialSupported = computed(() => window.navigator.serial !== undefined);
 const flipperPreviewBtnText = computed(() => (flipper.value ? 'Disconnect' : 'Live View'));
@@ -132,42 +129,16 @@ function updateScreenPreview(screen_id) {
 
 function copyCode() {
     navigator.clipboard.writeText(session.generateCode().code).then(() => {
-        infoMessage.value = 'Copied to clipboard';
+        emit('setInfoMessage', 'Copied to clipboard');
     });
-    setTimeout(() => {
-        infoMessage.value = null;
-    }, 2000);
     logEvent('button_copy');
-}
-
-function showModalPricing() {
-    emit('showModalPricing');
 }
 
 function toggleUploadProgress(value) {
     uploading.value = value;
 }
 
-function update() {
-    emit('update');
-}
-
-function setInfoMessage(msg) {
-    infoMessage.value = msg;
-    setTimeout(() => {
-        infoMessage.value = null;
-    }, 3000);
-}
-function setErrorMessage(msg) {
-    errorMessage.value = msg;
-    setTimeout(() => {
-        errorMessage.value = null;
-    }, 4000);
-}
-
 function setWarnings(warnings) {
-    console.log('setWarnings', warnings);
-
     warnings.forEach((warning, idx) => {
         console.log(warning);
 
@@ -185,18 +156,7 @@ function setWarnings(warnings) {
             <span>Uploading images. Please wait...</span>
             <div class="loading"></div>
         </div>
-        <div
-            class="alert alert-warning"
-            v-if="errorMessage"
-        >
-            <span>{{ errorMessage }}</span>
-        </div>
-        <div
-            class="alert alert-success"
-            v-if="infoMessage"
-        >
-            <span>{{ infoMessage }}</span>
-        </div>
+        <slot name="messages"></slot>
         <template v-if="warnings.length">
             <div
                 v-for="(warningMessage, idx) in warnings"
