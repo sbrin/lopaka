@@ -137,7 +137,7 @@ export function getLayerProperties(target: any): any {
                 // properties[fieldName] = target[fieldName];
                 break;
             case 'font':
-                properties[fieldName] = target[fieldName].name;
+                properties[fieldName] = target[fieldName].title ?? target[fieldName].name;
                 break;
             default:
                 // check if type is number

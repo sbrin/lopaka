@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {nextTick, onMounted, ref, shallowRef, toRefs, watch} from 'vue';
+import {nextTick, onMounted, onUnmounted, ref, shallowRef, toRefs, watch} from 'vue';
 import {VAceEditor} from 'vue3-ace-editor';
 import {useSession} from '../../core/session';
 import {debounce} from '../../utils';
@@ -13,8 +13,13 @@ const aceOptions = {
     enableLiveAutocompletion: true,
     tabSize: 4,
     useSoftTabs: true,
-    wrap: true
+    wrap: true,
 };
+
+const props = defineProps<{
+    readonly: boolean;
+}>();
+
 const session = useSession();
 const {updates} = toRefs(session.virtualScreen.state);
 const {layers} = toRefs(session.state);
@@ -41,14 +46,14 @@ function selectRow() {
         const layer = selectedLayers[0];
         const row = layersMap[layer.uid]?.line;
         if (row) {
-            const {column} = aceRef.value._editor.getCursorPosition();
+            const {column} = aceRef.value?._editor?.getCursorPosition() ?? {column: 0};
             aceRef.value._editor.gotoLine(row + 1, column, true);
         }
     }
 }
 function onUpdate() {
     const sourceCode = session.generateCode();
-    content.value = sourceCode.code;
+    content.value = sourceCode.code ?? '';
     layersMap = sourceCode.map;
     nextTick(() => {
         selectRow();
@@ -74,10 +79,26 @@ function onChange() {
 }
 
 const debouncedChange = debounce(() => onChange(), 500);
+
+function onPaste(e: ClipboardEvent) {
+    const text = e.clipboardData?.getData('text/plain');
+    if (text) {
+        session.importCode(text, true);
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('paste', onPaste);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('paste', onPaste);
+});
 </script>
 <template>
     <div
-        class="fui-code"
+        class="fui-code rounded-r-lg rounded-b-lg"
+        :class="{'rounded-lg': readonly}"
         style="position: relative"
         @mouseenter.self="hovered = true"
         @mouseleave.self="hovered = false"
@@ -95,13 +116,12 @@ const debouncedChange = debounce(() => onChange(), 500);
             @keyup.down="debouncedChange"
         ></VAceEditor>
     </div>
-    <!-- <textarea class="fui-code" v-model="content" readonly></textarea> -->
 </template>
 <style lang="css" scoped>
 .fui-code {
     background: var(--primary-color);
     border: 2px solid var(--border-dark-color);
-    border-radius: 0 10px 10px 10px;
+
     border-top: 0;
     margin: 0 0 8px 0;
     padding: 8px;
@@ -119,6 +139,7 @@ const debouncedChange = debounce(() => onChange(), 500);
 .fui-code pre {
     margin: 0;
 }
+
 .ace_cursor {
     opacity: 0 !important;
 }

@@ -1,6 +1,5 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
-import {DotLayer} from '../core/layers/dot.layer';
 import {EllipseLayer} from '../core/layers/ellipse.layer';
 import {IconLayer} from '../core/layers/icon.layer';
 import {LineLayer} from '../core/layers/line.layer';
@@ -13,12 +12,11 @@ const layerClassMap = {
     rect: RectangleLayer,
     circle: CircleLayer,
     disc: CircleLayer,
-    dot: DotLayer,
     icon: IconLayer,
     line: LineLayer,
     string: TextLayer,
     paint: PaintLayer,
-    ellipse: EllipseLayer
+    ellipse: EllipseLayer,
 };
 export const layersMock: AbstractLayer[] = [
     {
@@ -29,7 +27,7 @@ export const layersMock: AbstractLayer[] = [
         i: 0,
         p: [107, 46],
         u: 'veqtjp8jf9ln6isyfz',
-        s: [18, 15]
+        s: [18, 15],
     },
     {
         n: 'box_utlxpqvhdxnln6it5pw',
@@ -39,7 +37,7 @@ export const layersMock: AbstractLayer[] = [
         i: 1,
         p: [97, 2],
         u: 'utlxpqvhdxnln6it5pw',
-        s: [27, 11]
+        s: [27, 11],
     },
     {
         n: 'box_eu6bpe0xpvvln6itc2e',
@@ -50,7 +48,7 @@ export const layersMock: AbstractLayer[] = [
         p: [106, 19],
         u: 'eu6bpe0xpvvln6itc2e',
         s: [19, 18],
-        radius: 0
+        radius: 0,
     },
     {
         n: 'str_s3m4u762qpln6jvm90',
@@ -61,18 +59,21 @@ export const layersMock: AbstractLayer[] = [
         u: 's3m4u762qpln6jvm90',
         d: 'Text',
         s: [50, 8],
-        f: 'profont22'
+        f: 'profont22',
     },
     {
-        n: 'str_ho3t7do',
+        p: [30, 38],
+        d: 'ячсмитьбю',
+        z: 1,
+        f: '6x10',
         t: 'string',
-        c: '#000000',
-        i: 6,
-        p: [3, 11],
-        u: 'ho3t7do',
-        d: 'Текст',
-        s: [50, 8],
-        f: 'profont22'
+        u: '8c4v5zq',
+        n: 'Layer 1',
+        i: 1,
+        c: '#FFFFFF',
+        in: false,
+        ov: false,
+        lo: false,
     },
     {
         n: 'line_b11j6xs5t46ln6jw96h',
@@ -81,34 +82,7 @@ export const layersMock: AbstractLayer[] = [
         i: 8,
         p1: [2, 16],
         u: 'b11j6xs5t46ln6jw96h',
-        p2: [68, 16]
-    },
-    {
-        n: 'dot_6n8rac0nxpcln6jwdwr',
-        t: 'dot',
-        c: '#000000',
-        i: 9,
-        p: [62, 4],
-        u: '6n8rac0nxpcln6jwdwr',
-        s: [1, 1]
-    },
-    {
-        n: 'dot_ema2hee85mln6jweht',
-        t: 'dot',
-        c: '#000000',
-        i: 10,
-        p: [67, 8],
-        u: 'ema2hee85mln6jweht',
-        s: [1, 1]
-    },
-    {
-        n: 'dot_j1ol1lo5nkln6jwfmg',
-        t: 'dot',
-        c: '#000000',
-        i: 11,
-        p: [72, 12],
-        u: 'j1ol1lo5nkln6jwfmg',
-        s: [1, 1]
+        p2: [68, 16],
     },
     {
         n: 'circle_6uf3k6wj82ln6jwi73',
@@ -117,7 +91,7 @@ export const layersMock: AbstractLayer[] = [
         i: 12,
         p: [8, 29],
         u: '6uf3k6wj82ln6jwi73',
-        r: 12
+        r: 12,
     },
     {
         n: 'disc_aibkefmz3cln6jwlit',
@@ -127,7 +101,7 @@ export const layersMock: AbstractLayer[] = [
         i: 13,
         p: [14, 40],
         u: 'aibkefmz3cln6jwlit',
-        r: 3
+        r: 3,
     },
     {
         n: 'frame_g7pk1wfbqqkln6jwxby',
@@ -136,7 +110,7 @@ export const layersMock: AbstractLayer[] = [
         i: 14,
         p: [44, 29],
         u: 'g7pk1wfbqqkln6jwxby',
-        s: [44, 28]
+        s: [44, 28],
     },
     {
         n: 'draw_rrsjcz4oz2ln6jx4y4',
@@ -146,7 +120,7 @@ export const layersMock: AbstractLayer[] = [
         p: [0, 0],
         u: 'rrsjcz4oz2ln6jx4y4',
         s: [128, 64],
-        d: 'eNpjYECA/1gAAxZ5dDFcctjMZcADCMkPZTUAc/dPsQ=='
+        d: 'eNpjYECA/1gAAxZ5dDFcctjMZcADCMkPZTUAc/dPsQ==',
     },
     {
         n: 'ellipse_87y8hf8sh8dhf8d98sd',
@@ -157,7 +131,7 @@ export const layersMock: AbstractLayer[] = [
         u: '87y8hf8sh8dhf8d98sd',
         rx: 13,
         ry: 8,
-        f: true
+        f: true,
     },
     {
         n: 'ellipse_u9uidj9d90fu9sj9jj9',
@@ -168,7 +142,7 @@ export const layersMock: AbstractLayer[] = [
         u: 'u9uidj9d90fu9sj9jj9',
         rx: 7,
         ry: 7,
-        f: false
+        f: false,
     },
     {
         n: 'box_njsoidnfijoinisn',
@@ -179,7 +153,7 @@ export const layersMock: AbstractLayer[] = [
         i: 15,
         p: [10, 4],
         u: 'njsoidnfijoinisn',
-        s: [12, 19]
+        s: [12, 19],
     },
     {
         n: 'box_jnijisniijaojosd',
@@ -190,15 +164,15 @@ export const layersMock: AbstractLayer[] = [
         i: 16,
         p: [45, 20],
         u: 'jnijisniijaojosd',
-        s: [14, 12]
-    }
+        s: [14, 12],
+    },
 ].map((l) => {
     const type: ELayerType = l.t as any;
     const layer = new layerClassMap[type]({
         hasCustomFontSize: false,
         hasInvertedColors: false,
         hasRGBSupport: false,
-        defaultColor: '#000000'
+        defaultColor: '#000000',
     });
     layer.state = l;
     return layer;

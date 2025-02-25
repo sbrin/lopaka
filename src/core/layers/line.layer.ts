@@ -24,7 +24,7 @@ export class LineLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         y1: {
             getValue: () => this.p1.y,
@@ -33,7 +33,7 @@ export class LineLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         x2: {
             getValue: () => this.p2.x,
@@ -42,7 +42,7 @@ export class LineLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         y2: {
             getValue: () => this.p2.y,
@@ -51,7 +51,7 @@ export class LineLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         color: {
             getValue: () => this.color,
@@ -60,7 +60,7 @@ export class LineLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.color
+            type: TModifierType.color,
         },
         inverted: {
             getValue: () => this.inverted,
@@ -68,8 +68,8 @@ export class LineLayer extends AbstractLayer {
                 this.inverted = v;
                 this.draw();
             },
-            type: TModifierType.boolean
-        }
+            type: TModifierType.boolean,
+        },
     };
 
     constructor(protected features: TPlatformFeatures) {
@@ -89,15 +89,15 @@ export class LineLayer extends AbstractLayer {
             getRect: (): Rect => new Rect(this.p1, new Point(3)).subtract(1, 1, 0, 0),
             move: (offset: Point): void => {
                 this.p1 = this.editState.p1.clone().add(offset).round();
-            }
+            },
         },
         {
             cursor: 'move',
             getRect: (): Rect => new Rect(this.p2, new Point(3)).subtract(1, 1, 0, 0),
             move: (offset: Point): void => {
                 this.p2 = this.editState.p2.clone().add(offset).round();
-            }
-        }
+            },
+        },
     ];
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
@@ -107,11 +107,14 @@ export class LineLayer extends AbstractLayer {
             firstPoint: point,
             p1: this.p1?.clone() || point.clone(),
             p2: this.p2?.clone() || point.clone().add(1),
-            editPoint
+            editPoint,
         };
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
+        if (!this.editState) {
+            return;
+        }
         const {p1, p2, firstPoint, editPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
@@ -135,6 +138,7 @@ export class LineLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
+        this.pushRedoHistory();
     }
 
     draw() {

@@ -1,5 +1,5 @@
 import {UserConfig, defineConfig} from 'vitest/config';
-import buildConfig from './vite.config';
+import buildConfig from './vite.config.mjs';
 
 export default defineConfig(
     Object.assign(buildConfig as UserConfig, {
@@ -10,7 +10,7 @@ export default defineConfig(
             isolate: true,
             coverage: {
                 reporter: ['text', 'json-summary', 'json'],
-            }
-        }
+            },
+        },
     })
 );

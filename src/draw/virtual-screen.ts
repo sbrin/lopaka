@@ -38,7 +38,7 @@ export class VirtualScreen {
         this.screen = new OffscreenCanvas(display.value.x, display.value.y);
         this.ctx = this.screen.getContext('2d', {
             willReadFrequently: true,
-            alpha: true
+            alpha: true,
         });
         if (options.ruler) {
             this.plugins.push(new RulerPlugin(session));
@@ -57,7 +57,7 @@ export class VirtualScreen {
         this.scope = new EffectScope();
         this.scope.run(() => {
             this.state = reactive({
-                updates: 1
+                updates: 1,
             });
             watch([platform], () => {
                 this.redraw(false);
@@ -69,17 +69,17 @@ export class VirtualScreen {
         });
     }
 
-    setCanvas(canvas: HTMLCanvasElement) {
+    setCanvas(canvas: HTMLCanvasElement, isPlugins = true) {
         this.canvas = canvas;
         this.canvasContext = canvas.getContext('2d', {
             willReadFrequently: true,
-            alpha: true
+            alpha: true,
         });
-        if (this.plugins.length) {
+        if (this.plugins.length && isPlugins) {
             this.pluginLayer = document.createElement('canvas');
             this.pluginLayerContext = this.pluginLayer.getContext('2d', {
                 willReadFrequently: true,
-                alpha: true
+                alpha: true,
             });
             this.pluginLayerContext.imageSmoothingEnabled = true;
             this.canvas.parentElement.prepend(this.pluginLayer);
@@ -88,14 +88,14 @@ export class VirtualScreen {
                 position: 'absolute',
                 left: -DrawPlugin.offset.x + 'px',
                 top: -DrawPlugin.offset.y + 'px',
-                zIndex: 1
+                zIndex: 1,
             });
         }
         this.resize();
         this.redraw(false);
     }
 
-    updateMousePosition(position: Point, event: MouseEvent) {
+    updateMousePosition(position: Point, event: MouseEvent | TouchEvent) {
         if (this.pluginLayer) {
             requestAnimationFrame(() => {
                 const ctx = this.pluginLayerContext;
@@ -127,7 +127,7 @@ export class VirtualScreen {
             this.canvas.height = size.y;
             Object.assign(this.canvas.style, {
                 width: `${size.x * scale.x}px`,
-                height: `${size.y * scale.y}px`
+                height: `${size.y * scale.y}px`,
             });
         }
         if (this.pluginLayer) {
@@ -135,7 +135,7 @@ export class VirtualScreen {
             this.pluginLayer.height = (size.y * scale.y + DrawPlugin.offset.y * 2) * 2;
             Object.assign(this.pluginLayer.style, {
                 width: `${size.x * scale.x + DrawPlugin.offset.x * 2}px`,
-                height: `${size.y * scale.y + DrawPlugin.offset.y * 2}px`
+                height: `${size.y * scale.y + DrawPlugin.offset.y * 2}px`,
             });
         }
         layers.forEach((layer: AbstractLayer) => {

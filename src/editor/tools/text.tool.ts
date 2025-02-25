@@ -8,9 +8,12 @@ export class TextTool extends AbstractTool {
     name = 'string';
     createLayer(): AbstractLayer {
         const {session} = this.editor;
-        if (!this.editor.font) {
-            this.editor.font = getFont(session.platforms[session.state.platform].getFonts()[0].name);
-        }
+
+        const fonts = [...session.platforms[session.state.platform].getFonts(), ...session.state.customFonts];
+
+        const lastFontName = session.editor.lastFontName;
+        const selectedFont = lastFontName ? fonts.find((font) => font.name === lastFontName) || fonts[0] : fonts[0];
+        this.editor.font = getFont(selectedFont.name);
         return new TextLayer(session.getPlatformFeatures(), this.editor.font);
     }
     onStopEdit(layer: TextLayer, position: Point, originalEvent: MouseEvent): void {

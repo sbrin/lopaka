@@ -9,30 +9,37 @@ export class PaintPlugin extends AbstractEditorPlugin {
     captured: boolean = false;
 
     onMouseDown(point: Point, event: MouseEvent): void {
-        const {activeTool, activeLayer} = this.session.editor.state;
-        if (activeTool && activeTool.getName() === 'paint') {
+        const {activeTool} = this.session.editor.state;
+        if (activeTool?.getName() === 'paint') {
             this.captured = true;
-            if (!activeLayer) {
-                const selected = this.session.state.layers.filter((l) => l.selected && l instanceof PaintLayer);
-                if (selected.length == 1) {
-                    this.session.editor.state.activeLayer = selected[0];
-                } else {
-                    const layer = (this.session.editor.state.activeLayer = activeTool.createLayer());
-                    layer.selected = true;
-                    this.session.addLayer(layer);
-                    this.session.editor.state.activeLayer = layer;
-                }
-            }
-            const layer = this.session.editor.state.activeLayer;
-            layer.startEdit(EditMode.CREATING, point);
-            if (event.shiftKey) {
-                if (this.lastPoint) {
-                    layer.edit(this.lastPoint, event);
-                    layer.edit(point, event);
-                }
+            this.ensureActiveLayer();
+            this.startEditing(point, event);
+        }
+    }
+
+    private ensureActiveLayer(): void {
+        if (!this.session.editor.state.activeLayer) {
+            const selectedPaintLayers = this.session.state.layers.filter((l) => l.selected && l instanceof PaintLayer);
+            if (selectedPaintLayers.length === 1) {
+                this.session.editor.state.activeLayer = selectedPaintLayers[0];
             } else {
-                layer.edit(point.clone(), event);
+                const newLayer = this.session.editor.state.activeTool.createLayer();
+                newLayer.selected = true;
+                this.session.addLayer(newLayer);
+                this.session.editor.state.activeLayer = newLayer;
             }
+        }
+    }
+
+    private startEditing(point: Point, event: MouseEvent): void {
+        const layer = this.session.editor.state.activeLayer;
+        layer.startEdit(EditMode.CREATING, point);
+
+        if (event.shiftKey && this.lastPoint) {
+            layer.edit(this.lastPoint, event);
+            layer.edit(point, event);
+        } else {
+            layer.edit(point.clone(), event);
         }
         this.lastPoint = point.clone().floor();
         this.session.virtualScreen.redraw(false);
@@ -64,6 +71,14 @@ export class PaintPlugin extends AbstractEditorPlugin {
             this.session.virtualScreen.redraw();
             this.session.editor.state.activeTool = null;
             this.session.editor.state.activeLayer = null;
+        }
+    }
+
+    onMouseDoubleClick(point, event): void {
+        const selectedPaintLayers = this.session.state.layers.filter((l) => l.selected && l instanceof PaintLayer);
+        if (selectedPaintLayers.length) {
+            this.session.editor.state.activeLayer = selectedPaintLayers[0];
+            this.session.editor.setTool('paint');
         }
     }
 

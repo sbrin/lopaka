@@ -45,7 +45,7 @@ export class SmartRulerPlugin extends DrawPlugin {
                 ctx.fillText(`${Math.round(bounds.w + bounds.x)}`, p2.x, -12);
             }
             ctx.strokeStyle = lineColor;
-            ctx.setLineDash([2, 4]);
+            ctx.setLineDash([1, 4]);
             ctx.lineWidth = 1;
             ctx.stroke();
             ctx.restore();

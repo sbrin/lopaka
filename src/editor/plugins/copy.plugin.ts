@@ -34,7 +34,7 @@ export class CopyPlugin extends AbstractEditorPlugin {
                         l.modifiers.y2.setValue(l.modifiers.y2.getValue() + 2);
                     }
                     l.index = layers.length;
-                    l.name = 'Layer ' + (layers.length + 1);
+                    l.name = l.name + ' (copy)';
                     l.selected = true;
                     l.stopEdit();
                     this.session.addLayer(l);

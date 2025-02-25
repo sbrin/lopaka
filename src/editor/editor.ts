@@ -12,7 +12,6 @@ import {ImageDropPlugin} from './plugins/image-drop.plugin';
 import {MovePlugin} from './plugins/move.plugin';
 import {PaintPlugin} from './plugins/paint.plugin';
 import {ResizePlugin} from './plugins/resize.plugin';
-import {SavePlugin} from './plugins/save.plugin';
 import {SelectPlugin} from './plugins/select.plugin';
 import {AbstractTool} from './tools/abstract.tool';
 import {CircleTool} from './tools/circle.tool';
@@ -35,6 +34,7 @@ export class Editor {
     container: HTMLElement;
     // default font
     font: Font;
+    lastFontName: string;
 
     layer: AbstractLayer;
 
@@ -43,7 +43,7 @@ export class Editor {
     state: UnwrapRef<TEditorState> = reactive({
         activeLayer: null,
         activeTool: null,
-        selectionUpdates: 1
+        selectionUpdates: 1,
     });
 
     constructor(public session: Session) {}
@@ -55,7 +55,7 @@ export class Editor {
         circle: new CircleTool(this),
         ellipse: new EllipseTool(this),
         line: new LineTool(this),
-        dot: new DotTool(this)
+        // dot: new DotTool(this)
     };
 
     getSupportedTools(platform: string): {[key: string]: AbstractTool} {
@@ -69,20 +69,17 @@ export class Editor {
 
     setContainer(container: HTMLElement) {
         this.container = container;
-        this.plugins.push(
-            ...[
-                new PaintPlugin(this.session, this.container),
-                new AddPlugin(this.session, this.container),
-                new ResizePlugin(this.session, this.container),
-                new SelectPlugin(this.session, this.container),
-                new MovePlugin(this.session, this.container),
-                new CopyPlugin(this.session, this.container),
-                new HistoryPlugin(this.session, this.container),
-                new DeletePlugin(this.session, this.container),
-                new SavePlugin(this.session, this.container),
-                new ImageDropPlugin(this.session, this.container)
-            ]
-        );
+        this.plugins = [
+            new PaintPlugin(this.session, this.container),
+            new AddPlugin(this.session, this.container),
+            new ResizePlugin(this.session, this.container),
+            new SelectPlugin(this.session, this.container),
+            new MovePlugin(this.session, this.container),
+            new CopyPlugin(this.session, this.container),
+            new HistoryPlugin(this.session, this.container),
+            new DeletePlugin(this.session, this.container),
+            new ImageDropPlugin(this.session, this.container),
+        ];
     }
 
     selectionUpdate(): void {
@@ -106,37 +103,50 @@ export class Editor {
         }
     }
 
-    handleEvent = (event: MouseEvent | KeyboardEvent | DragEvent) => {
+    handleEvent = (event: MouseEvent | KeyboardEvent | DragEvent | TouchEvent) => {
         const {virtualScreen, state} = this.session;
         const {display, scale, layers} = state;
         if (event instanceof KeyboardEvent) {
-            if (this.session.state.isPublic) {
-                return;
-            }
-            if (event.target === document.body && Object.values(Keys).indexOf(event.code as Keys) != -1) {
+            if (
+                ((event.ctrlKey || event.metaKey) && event.code === Keys.KeyZ) ||
+                (event.target === document.body && Object.values(Keys).indexOf(event.code as Keys) != -1)
+            ) {
                 event.preventDefault();
                 this.onKeyDown(Keys[event.code], event);
             }
-        }
-
-        if (event instanceof DragEvent) {
+        } else if (event instanceof DragEvent) {
             this.onDrop(new Point(event.offsetX, event.offsetY).divide(scale).round(), event);
-        } else if (event instanceof MouseEvent) {
-            const screenPoint = new Point(event.offsetX, event.offsetY).clone();
+        } else {
+            let offsetX;
+            let offsetY;
+            if ((event as TouchEvent).touches) {
+                const touch = (event as TouchEvent).touches[0];
+                offsetX = touch.clientX - this.container.getBoundingClientRect().left;
+                offsetY = touch.clientY - this.container.getBoundingClientRect().top;
+            } else {
+                offsetX = (event as MouseEvent).offsetX;
+                offsetY = (event as MouseEvent).offsetY;
+            }
+            const screenPoint = new Point(offsetX, offsetY).clone();
             const point = screenPoint.clone().divide(scale).floor(); //.boundTo(new Rect(new Point(), display));
             let alienEvent: boolean = false;
+
             switch (event.type) {
                 case 'click':
                     this.onMouseClick(point, event);
                     break;
                 case 'mousedown':
+                case 'touchstart':
                     this.mouseDownCaptured = true;
                     this.onMouseDown(point, event);
                     break;
                 case 'mousemove':
-                    !this.session.state.isPublic && this.onMouseMove(point, event);
+                case 'touchmove':
+                    this.onMouseMove(point, event);
                     break;
                 case 'mouseup':
+                case 'touchend':
+                case 'touchcancel':
                     if (this.mouseDownCaptured) {
                         this.onMouseUp(point, event);
                         this.mouseDownCaptured = false;
@@ -148,7 +158,7 @@ export class Editor {
                     this.onMouseLeave(point, event);
                     break;
                 case 'dblclick':
-                    this.onMouseDoubleClick(point, event);
+                    this.onMouseDoubleClick(point, event as MouseEvent);
                     break;
             }
             if (!alienEvent) {
@@ -157,7 +167,7 @@ export class Editor {
         }
     };
 
-    private onMouseClick(point: Point, event: MouseEvent): void {
+    private onMouseClick(point: Point, event: MouseEvent | TouchEvent): void {
         for (let plugin of this.plugins) {
             plugin.onMouseClick(point, event);
             if (plugin.captured) {
@@ -165,7 +175,7 @@ export class Editor {
             }
         }
     }
-    private onMouseDown(point: Point, event: MouseEvent): void {
+    private onMouseDown(point: Point, event: MouseEvent | TouchEvent): void {
         (document.activeElement as HTMLElement).blur();
         for (let plugin of this.plugins) {
             plugin.onMouseDown(point, event);
@@ -174,7 +184,7 @@ export class Editor {
             }
         }
     }
-    private onMouseMove(point: Point, event: MouseEvent): void {
+    private onMouseMove(point: Point, event: MouseEvent | TouchEvent): void {
         for (let plugin of this.plugins) {
             plugin.onMouseMove(point, event);
             if (plugin.captured) {
@@ -182,7 +192,7 @@ export class Editor {
             }
         }
     }
-    private onMouseUp(point: Point, event: MouseEvent): void {
+    private onMouseUp(point: Point, event: MouseEvent | TouchEvent): void {
         for (let plugin of this.plugins) {
             plugin.onMouseUp(point, event);
             if (plugin.captured) {
@@ -190,7 +200,7 @@ export class Editor {
             }
         }
     }
-    private onMouseLeave(point: Point, event: MouseEvent): void {
+    private onMouseLeave(point: Point, event: MouseEvent | TouchEvent): void {
         for (let plugin of this.plugins) {
             plugin.onMouseLeave(point, event);
             if (plugin.captured) {

@@ -1,6 +1,7 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {AbstractParser} from './parsers/abstract-parser';
 import {SourceMapParser} from './parsers/source-map-parser';
+import displays, {Display} from '/src/core/displays';
 
 export type TPlatformFeatures = {
     hasCustomFontSize: boolean;
@@ -40,21 +41,33 @@ export abstract class Platform {
             selectColor: 'rgba(255, 255, 255, 0.9)',
             resizeIconColor: 'rgba(255, 255, 255, 0.6)',
             hoverColor: 'rgba(255, 255, 255, 0.5)',
-            rulerColor: '#ff8200',
-            rulerLineColor: '#955B2F',
-            selectionStrokeColor: 'rgba(255, 255, 255, 0.9)'
-        }
+            rulerColor: 'rgba(255, 255, 255, 0.5)',
+            rulerLineColor: 'rgba(255, 255, 255, 0.5)',
+            selectionStrokeColor: 'rgba(255, 255, 255, 0.5)',
+        },
     };
 
-    protected templates: any;
+    protected templates: {
+        [key: string]: {
+            template: any;
+            name?: string;
+            settings: {
+                progmem?: boolean;
+                wrap?: boolean;
+                include_fonts?: boolean;
+                comments?: boolean;
+            };
+        };
+    };
     protected currentTemplate: string = 'Default';
     protected settings = {};
     protected parser: AbstractParser;
+    public displays: Display[] = displays;
     public sourceMapParser: SourceMapParser = new SourceMapParser();
 
     abstract generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string;
 
-    importSourceCode(sourceCode: string): any[] {
+    importSourceCode(sourceCode: string): {states: any[]; warnings: string[]} {
         return this.parser.importSourceCode(sourceCode);
     }
 
@@ -84,5 +97,9 @@ export abstract class Platform {
 
     public getDescription(): string {
         return this.description;
+    }
+
+    public hasParser(): boolean {
+        return !!this.parser;
     }
 }

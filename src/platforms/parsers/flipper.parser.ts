@@ -15,10 +15,11 @@ export class FlipperParser extends AbstractParser {
         return {name, xbmp};
     }
 
-    importSourceCode(sourceCode: string): any[] {
-        const {defines, images, methods, variables} = this.parseSoorceCode(sourceCode);
+    importSourceCode(sourceCode: string) {
+        const {defines, images, methods, variables} = this.parseSourceCode(sourceCode);
         const states = [];
         let currentFont = 'FontPrimary';
+        const warnings = [];
         methods.forEach((call) => {
             switch (call.functionName) {
                 case 'canvas_set_font':
@@ -31,12 +32,15 @@ export class FlipperParser extends AbstractParser {
                     {
                         const [canvas, x, y, width, height, name] = this.getArgs(call.args, defines, variables);
                         let imageName = this.parseImageName(name);
+                        if (!images.get(imageName)) {
+                            warnings.push(`Bitmap array declaration for ${name} was not found. Skipping.`);
+                        }
                         states.push({
                             type: 'paint',
                             data: xbmpToImgData(images.get(imageName), width, height),
                             position: new Point(parseInt(x), parseInt(y)),
                             size: new Point(parseInt(width), parseInt(height)),
-                            imageName
+                            imageName,
                         });
                     }
                     break;
@@ -56,7 +60,7 @@ export class FlipperParser extends AbstractParser {
                             type: 'icon',
                             iconSrc,
                             position: new Point(parseInt(x), parseInt(y)),
-                            imageName: name
+                            imageName: name,
                         });
                     }
                     break;
@@ -66,7 +70,7 @@ export class FlipperParser extends AbstractParser {
                         states.push({
                             type: 'line',
                             p1: new Point(parseInt(x1), parseInt(y1)),
-                            p2: new Point(parseInt(x2), parseInt(y2))
+                            p2: new Point(parseInt(x2), parseInt(y2)),
                         });
                     }
                     break;
@@ -78,7 +82,20 @@ export class FlipperParser extends AbstractParser {
                             type: 'rect',
                             position: new Point(parseInt(x), parseInt(y)),
                             size: new Point(parseInt(width), parseInt(height)),
-                            fill: call.functionName === 'canvas_draw_box'
+                            fill: call.functionName === 'canvas_draw_box',
+                        });
+                    }
+                    break;
+                case 'canvas_draw_r_box':
+                case 'canvas_draw_r_frame':
+                    {
+                        const [canvas, x, y, width, height, radius] = this.getArgs(call.args, defines, variables);
+                        states.push({
+                            type: 'rect',
+                            position: new Point(parseInt(x), parseInt(y)),
+                            size: new Point(parseInt(width), parseInt(height)),
+                            fill: call.functionName === 'canvas_draw_r_box',
+                            radius: parseInt(radius),
                         });
                     }
                     break;
@@ -87,7 +104,7 @@ export class FlipperParser extends AbstractParser {
                         const [canvas, x, y] = this.getArgs(call.args, defines, variables);
                         states.push({
                             type: 'dot',
-                            position: new Point(parseInt(x), parseInt(y))
+                            position: new Point(parseInt(x), parseInt(y)),
                         });
                     }
                     break;
@@ -96,9 +113,9 @@ export class FlipperParser extends AbstractParser {
                         const [canvas, x, y, text] = this.getArgs(call.args, defines, variables);
                         states.push({
                             type: 'string',
-                            text: text.replace(/"/g, ''),
+                            text: text ? text.replace(/"/g, '') : 'Text',
                             position: new Point(parseInt(x), parseInt(y)),
-                            font: currentFont
+                            font: currentFont,
                         });
                     }
                     break;
@@ -110,12 +127,12 @@ export class FlipperParser extends AbstractParser {
                             type: 'circle',
                             position: new Point(parseInt(x) - parseInt(radius), parseInt(y) - parseInt(radius)),
                             radius: parseInt(radius),
-                            fill: call.functionName === 'canvas_draw_disc'
+                            fill: call.functionName === 'canvas_draw_disc',
                         });
                     }
                     break;
             }
         });
-        return states;
+        return {states, warnings};
     }
 }

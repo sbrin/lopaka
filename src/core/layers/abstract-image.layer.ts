@@ -5,7 +5,7 @@ import {
     flipImageDataByX,
     flipImageDataByY,
     invertImageData,
-    rotateImageData
+    rotateImageData,
 } from '../../utils';
 import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
@@ -13,12 +13,7 @@ import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerActions} from './abstract.layer';
 
 export abstract class AbstractImageLayer extends AbstractLayer {
-    protected type: ELayerType;
-    protected editState: {
-        firstPoint: Point;
-        position: Point;
-        size: Point;
-    } = null;
+    protected editState: {firstPoint: Point; position: Point; size: Point} = null;
 
     public get properties(): any {
         return {
@@ -32,7 +27,7 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             type: this.type,
             id: this.uid,
             imageName: this.imageName,
-            inverted: this.inverted
+            inverted: this.inverted,
         };
     }
 
@@ -41,8 +36,6 @@ export abstract class AbstractImageLayer extends AbstractLayer {
     @mapping('s', 'point') public size: Point = new Point();
 
     @mapping('d', 'image') public data: ImageData;
-
-    @mapping('o') public overlay: boolean;
 
     @mapping('nm') public imageName: string;
 
@@ -53,54 +46,60 @@ export abstract class AbstractImageLayer extends AbstractLayer {
     actions: TLayerActions = [
         {
             label: '⬌',
+            iconType: 'flip_h',
             title: 'Flip horizontally',
             action: () => {
                 this.data = flipImageDataByX(this.data);
                 this.draw();
-            }
+            },
         },
         {
             label: '⬍',
+            iconType: 'flip_v',
             title: 'Flip vertically',
             action: () => {
                 this.data = flipImageDataByY(this.data);
                 this.draw();
-            }
+            },
         },
         {
             label: '↻',
+            iconType: 'rotate',
             title: 'Rotate clockwise',
             action: () => {
                 this.data = rotateImageData(this.data);
                 this.size = new Point(this.data.width, this.data.height);
                 this.updateBounds();
                 this.draw();
-            }
+            },
         },
         {
             label: '◧',
+            iconType: 'invert',
             title: 'Invert colors',
             action: () => {
                 this.data = invertImageData(this.data, this.color);
                 this.draw();
-            }
+            },
         },
         {
             label: '⚀',
+            iconType: 'padding',
             title: 'Remove blank padding',
             action: () => {
                 this.recalculate();
                 this.updateBounds();
                 this.draw();
-            }
+            },
         },
         {
-            label: '↓',
+            label: 'Download',
             title: 'Download image',
             action: () => {
                 downloadImage(this.data, this.imageName ?? 'image_' + this.index);
-            }
-        }
+            },
+        },
+        {label: 'Save', title: 'Add to Project assets', action: () => {}},
     ];
 
     applyColor() {
@@ -113,20 +112,31 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         const data = dc.ctx.getImageData(0, 0, width, height);
         let min: Point = new Point(width, height);
         let max: Point = new Point(0, 0);
+        let hasContent = false;
+
         dc.ctx.beginPath();
         for (let i = 0; i < data.data.length; i += 4) {
             const x = (i / 4) % width;
             const y = Math.floor(i / 4 / width);
             if (data.data[i + 3] !== 0) {
+                hasContent = true;
                 min = min.min(new Point(x, y));
                 max = max.max(new Point(x, y));
             }
         }
+
+        if (!hasContent) {
+            // Handle empty image case
+            this.position = new Point(0, 0);
+            this.size = new Point(0, 0);
+            this.data = new ImageData(1, 1); // Create minimal valid ImageData
+            return;
+        }
+
         this.position = min.clone();
         this.size = max.clone().subtract(min).add(1);
         this.data = dc.ctx.getImageData(min.x, min.y, this.size.x, this.size.y);
     }
-
     draw() {
         const {dc, position, data, size} = this;
         dc.clear();

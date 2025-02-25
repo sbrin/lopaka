@@ -1,6 +1,7 @@
 import {AdafruitPlatform} from './adafruit';
 import {InkplateParser} from './parsers/inkplate.parser';
-import defaultTemplate from './templates/adafruit/inkplate.pug';
+import defaultTemplate from './templates/adafruit/default.pug';
+import {Point} from '/src/core/point';
 
 export class InkplatePlatform extends AdafruitPlatform {
     public static id = 'inkplate';
@@ -13,10 +14,23 @@ export class InkplatePlatform extends AdafruitPlatform {
         Default: {
             template: defaultTemplate,
             settings: {
-                wrap: false
-            }
-        }
+                wrap: false,
+                include_fonts: false,
+                comments: false,
+            },
+        },
     };
+
+    public displays = [
+        {title: '2 (202×104)', size: new Point(202, 104)},
+        {title: '6COLOR (600×448)', size: new Point(600, 448)},
+        {title: '4TEMPERA (600×600)', size: new Point(600, 600)},
+        {title: '6 (800×600)', size: new Point(800, 600)},
+        {title: '5 (960×540)', size: new Point(960, 540)},
+        {title: '5V2 (1280×720)', size: new Point(1280, 720)},
+        {title: '6PLUS (1024×758)', size: new Point(1024, 758)},
+        {title: '10 (1200×825)', size: new Point(1200, 825)},
+    ];
 
     constructor() {
         super();
@@ -29,11 +43,18 @@ export class InkplatePlatform extends AdafruitPlatform {
                 selectColor: 'rgba(0, 0, 0, 0.9)',
                 resizeIconColor: 'rgba(0, 0, 0, 0.6)',
                 hoverColor: 'rgba(0, 0, 0, 0.5)',
-                rulerColor: '#ff8200',
-                rulerLineColor: '#955B2F',
-                selectionStrokeColor: 'rgba(0, 0, 0, 0.9)'
-            }
+                rulerColor: '#999',
+                rulerLineColor: '#999',
+                selectionStrokeColor: 'rgba(0, 0, 0, 0.9)',
+            },
         });
+    }
+
+    protected getTextPosition(layer: any) {
+        if (layer.font === 'adafruit') {
+            return [layer.position[0], layer.position[1] - layer.bounds[3]];
+        }
+        return [layer.position[0], layer.position[1] - layer.scaleFactor];
     }
 
     protected packColor(color: string): string {

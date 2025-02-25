@@ -2,8 +2,9 @@
 import {computed, toRefs} from 'vue';
 import {useSession} from '../../core/session';
 import {AbstractTool} from '../../editor/tools/abstract.tool';
-import FuiButton from './FuiButton.vue';
+import Button from '/src/components/layout/Button.vue';
 import {logEvent} from '../../utils';
+import Icon from '/src/components/layout/Icon.vue';
 
 const emit = defineEmits(['toolClicked']);
 const session = useSession();
@@ -22,17 +23,39 @@ function isActive(name: string) {
 }
 </script>
 <template>
-    <div class="flex flex-row justify-center mt-4">
-        <FuiButton class="tools__btn" @click="setActive(null, true)" :active="activeTool == null">select</FuiButton>
-        <FuiButton
+    <div class="flex flex-row justify-center gap-1">
+        <div class="mr-2">
+            <Button
+                @click="setActive(null, true)"
+                filled
+                secondary
+                isIcon
+                :active="activeTool == null"
+                title="Select"
+            >
+                <Icon
+                    type="select"
+                    :primary="!!activeTool"
+                    :class="{'text-black': activeTool == null}"
+                ></Icon>
+            </Button>
+        </div>
+        <Button
             v-for="(tool, idx) in tools"
             :key="idx"
-            class="tools__btn"
+            isIcon
+            filled
+            secondary
             @click="setActive(tool, true)"
             :active="isActive(tool.getName())"
+            :title="tool.getTitle()"
         >
-            {{ tool.getName() }}
-        </FuiButton>
+            <Icon
+                :type="tool.getName()"
+                :primary="!isActive(tool.getName())"
+                :class="{'text-black': isActive(tool.getName())}"
+            ></Icon>
+        </Button>
     </div>
 </template>
 <style lang="css"></style>

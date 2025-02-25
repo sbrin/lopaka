@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {defineProps} from 'vue';
+import {logEvent} from '/src/utils';
 
 const props = defineProps<{
     activeTab: string;
@@ -10,6 +11,7 @@ const tabs = ['code', 'images'];
 
 function setActiveTab(tab) {
     emit('setActiveTab', tab);
+    logEvent('button_select_tab', tab);
 }
 </script>
 <template>

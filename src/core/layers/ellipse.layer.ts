@@ -27,7 +27,7 @@ export class EllipseLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         y: {
             getValue: () => this.position.y,
@@ -36,7 +36,7 @@ export class EllipseLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         radiusX: {
             getValue: () => this.rx,
@@ -45,7 +45,7 @@ export class EllipseLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         radiusY: {
             getValue: () => this.ry,
@@ -54,7 +54,7 @@ export class EllipseLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.number
+            type: TModifierType.number,
         },
         fill: {
             getValue: () => this.fill,
@@ -62,7 +62,7 @@ export class EllipseLayer extends AbstractLayer {
                 this.fill = v;
                 this.draw();
             },
-            type: TModifierType.boolean
+            type: TModifierType.boolean,
         },
         color: {
             getValue: () => this.color,
@@ -71,7 +71,7 @@ export class EllipseLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.color
+            type: TModifierType.color,
         },
         inverted: {
             getValue: () => this.inverted,
@@ -79,8 +79,8 @@ export class EllipseLayer extends AbstractLayer {
                 this.inverted = v;
                 this.draw();
             },
-            type: TModifierType.boolean
-        }
+            type: TModifierType.boolean,
+        },
     };
 
     constructor(protected features: TPlatformFeatures) {
@@ -112,7 +112,7 @@ export class EllipseLayer extends AbstractLayer {
                 }
                 this.rx = Math.max(1, Math.floor(this.editState.radiusX - dx));
                 this.ry = Math.max(1, Math.floor(this.editState.radiusY + dy));
-            }
+            },
         },
         {
             cursor: 'nwse-resize',
@@ -126,7 +126,7 @@ export class EllipseLayer extends AbstractLayer {
                 const dy = Math.round(offset.y / 2);
                 this.rx = Math.max(1, Math.round(this.editState.radiusX - dx));
                 this.ry = Math.max(1, Math.round(this.editState.radiusY - dy));
-            }
+            },
         },
         {
             cursor: 'nesw-resize',
@@ -145,7 +145,7 @@ export class EllipseLayer extends AbstractLayer {
                 }
                 this.rx = Math.max(1, Math.ceil(this.editState.radiusX + dx));
                 this.ry = Math.max(1, Math.ceil(this.editState.radiusY - dy));
-            }
+            },
         },
         {
             cursor: 'nwse-resize',
@@ -163,8 +163,8 @@ export class EllipseLayer extends AbstractLayer {
                 }
                 this.rx = Math.max(1, Math.ceil(this.editState.radiusX + dx));
                 this.ry = Math.max(1, Math.ceil(this.editState.radiusY + dy));
-            }
-        }
+            },
+        },
     ];
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
@@ -182,11 +182,14 @@ export class EllipseLayer extends AbstractLayer {
             position: this.position.clone(),
             radiusX: this.rx,
             radiusY: this.ry,
-            editPoint
+            editPoint,
         };
     }
 
     edit(point: Point, originalEvent: MouseEvent) {
+        if (!this.editState) {
+            return;
+        }
         const {position, firstPoint, editPoint} = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
@@ -216,6 +219,7 @@ export class EllipseLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
+        this.pushRedoHistory();
     }
 
     draw() {
