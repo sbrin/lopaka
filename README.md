@@ -68,7 +68,7 @@ yarn install
 yarn dev
 ```
 
-#### Produciton build
+#### Production build
 
 ```
 yarn build
