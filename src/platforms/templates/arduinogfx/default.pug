@@ -1,0 +1,90 @@
+if settings.include_fonts
+    each decl in declarations 
+        if decl.type == 'font'
+            | #include "!{decl.data.value}.h"
+            |
+    |
+    |
+each decl in declarations 
+    if decl.type == 'bitmap'
+        | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+        |
+        |
+if settings.wrap
+    | void draw(void) {
+    |
+- var textColor = defaultColor;
+- var textSize = '1'
+- var textWrap = true
+- var pad = settings.wrap ? '    ' : ''
+- var font = 'adafruit'
+- var stringLayersNumber = 0
+| !{pad}gfx->fillScreen(RGB565_BLACK);
+|
+|
+each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.name}
+        |
+    case layer.type
+        when 'dot'
+            | @!{layer.uid};!{pad}gfx->drawPixel(!{layer.position[0]}, !{layer.position[1]}, !{packColor(layer.color)});
+        when 'line'
+            | @!{layer.uid};!{pad}gfx->drawLine(!{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]}, !{packColor(layer.color)});
+        when 'rect'
+            - var func = (layer.fill ? 'fill' : 'draw') + (layer.radius? 'Round' : '') + 'Rect'
+            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''}, !{packColor(layer.color)});
+        when 'circle'
+            - var func = layer.fill ? 'fillCircle' : 'drawCircle'
+            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius}, !{packColor(layer.color)});
+        //- when 'arc'
+        //- void Arduino_GFX::drawArc(int16_t x, int16_t y, int16_t r1, int16_t r2, float start, float end, uint16_t color)
+            - var func = layer.fill ? 'fillArc' : 'drawArc'
+        //- when 'ellipse'
+        //- void Arduino_GFX::drawEllipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint16_t color)
+            - var func = layer.fill ? 'fillEllipse' : 'drawEllipse'
+        //- when 'triangle'
+        //- void Arduino_GFX::drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color)
+            - var func = layer.fill ? 'fillTriangle' : 'drawTriangle'
+        when 'string'
+            if stringLayersNumber === 0
+                | !{pad}gfx->setTextColor(!{packColor(layer.color)});
+                |
+                - stringLayersNumber++
+            if layer.color != textColor
+                - textColor = layer.color
+                | !{pad}gfx->setTextColor(!{packColor(layer.color)});
+                |
+            if layer.scaleFactor != textSize
+                - textSize = layer.scaleFactor
+                | !{pad}gfx->setTextSize(!{layer.scaleFactor});
+                |
+            if layer.wrap != textWrap
+                - textWrap = layer.wrap
+                | !{pad}gfx->setTextWrap(false);
+                |
+            if layer.font != font 
+                - font = layer.font
+                if font == 'adafruit'
+                    | !{pad}gfx->setFont();
+                    |
+                else
+                    | !{pad}gfx->setFont(&!{layer.font});
+                    |
+            | !{pad}gfx->setCursor(!{getTextPosition(layer).join(', ')});
+            | @!{layer.uid};!{pad}gfx->println("!{layer.text}");
+        when 'paint'
+        when 'icon'
+            | @!{layer.uid};!{pad}gfx->drawBitmap(!{layer.position[0]}, !{layer.position[1]}, !{layer.imageName}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
+        default 
+            |
+            | // Unknown layer type !{layer.type}
+            |
+    |
+    |
+    |
+| !{pad}
+|
+if settings.wrap
+    | }
+    |
