@@ -322,8 +322,32 @@ const LABELS = {
         />
 
         <datalist id="presetColors">
-            <!-- 16 colors -->
+            <option>#FFFFFF</option>
             <option>#000000</option>
+
+            <!-- Tailwind Colors -->
+            <option>#ef4444</option>
+            <option>#f97316</option>
+            <option>#f59e0b</option>
+            <option>#eab308</option>
+            <option>#84cc16</option>
+            <option>#22c55e</option>
+            <option>#10b981</option>
+            <option>#14b8a6</option>
+            <option>#06b6d4</option>
+            <option>#0ea5e9</option>
+            <option>#3b82f6</option>
+            <option>#6366f1</option>
+            <option>#8b5cf6</option>
+            <option>#a855f7</option>
+            <option>#d946ef</option>
+            <option>#ec4899</option>
+            <option>#f43f5e</option>
+            <option>#64748b</option>
+            <option>#71717a</option>
+            <option>#78716c</option>
+
+            <!-- 16 colors -->
             <option>#0000AA</option>
             <option>#00AA00</option>
             <option>#00AAAA</option>
@@ -338,7 +362,6 @@ const LABELS = {
             <option>#FF5555</option>
             <option>#FF55FF</option>
             <option>#FFFF55</option>
-            <option>#FFFFFF</option>
         </datalist>
     </div>
     <div
