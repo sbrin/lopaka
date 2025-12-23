@@ -92,9 +92,9 @@ For a full list of contributors, see the [contributors graph](https://github.com
 
 Users feedback is the most precious thing for us. Feel free to start a [Discussion](https://github.com/sbrin/lopaka/discussions), [submit an Issue](https://github.com/sbrin/lopaka/issues), or fill in the [Feedback form](https://airtable.com/apps27BkejrUF0DWT/shryaJaGovGUA03XA).
 
-Like, share and subscribe is the easiest way to endorse this project.
+**Like, share and subscribe is the easiest way to endorse this project.**
 
-Follow us on [Twitter](https://twitter.com/lopaka_app) and [Instagram](https://www.instagram.com/lopaka_app/)
+Follow us on [Twitter](https://twitter.com/lopaka_app) and [Instagram](https://www.instagram.com/lopaka_app/). Join our community in [Discord](https://discord.com/invite/7NhZG9AANb).
 
 If you're embedded engineer or GUI designer or just a person who loves to make Arduino projects — [send me an email](mailto:feedback@lopaka.app) and share all your thougts. I need to know what my audience pain points are to make Lopaka better.
 
