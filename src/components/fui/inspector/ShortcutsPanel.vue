@@ -82,6 +82,31 @@
                 <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
                 to draw a square
             </p>
+            <p>
+                Hold
+                <kbd class="kbd kbd-xs bg-base-300">ALT</kbd>
+                to draw from center point
+            </p>
+
+            <div class="text text-sm font-bold">Ellipse</div>
+            <p>
+                Hold
+                <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
+                to draw a circle
+            </p>
+            <p>
+                Hold
+                <kbd class="kbd kbd-xs bg-base-300">ALT</kbd>
+                to draw from center point
+            </p>
+
+            <div class="text text-sm font-bold">Line</div>
+            <p>
+                Hold
+                <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
+                to draw straight line
+            </p>
+
             <div class="text text-sm font-bold">Paint</div>
             <p>
                 Hold

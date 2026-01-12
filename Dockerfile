@@ -1,34 +1,35 @@
-# First stage: Node image to build the project
-FROM node:22 as build-stage
+FROM node:22.3.0-alpine AS build-stage
 
-# Set the working directory
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN corepack enable \
+    && corepack prepare pnpm@8.15.9 --activate
 
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
-RUN pnpm install
+# Install all deps (needed for build)
+RUN pnpm install --frozen-lockfile
 
-# Copy the rest of your source code to the working directory
 COPY . .
 
-# Build the project
-ENV NODE_OPTIONS='--max-old-space-size=16384'
-RUN pnpm build
+RUN NODE_OPTIONS="--max-old-space-size=16384" pnpm build
 
-# Second stage: Start from the official Nginx image
-FROM nginx:alpine
+# Remove dev dependencies after build
+RUN pnpm prune --prod
 
-# Remove any default files
+
+FROM nginx:alpine-slim
+
+
+# Remove default nginx assets
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy the build output from the first stage to Nginx's serve directory
+# Copy only build output
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-# Expose port 80
+# Remove source maps to save space
+RUN find /usr/share/nginx/html -name "*.map" -type f -delete
+
 EXPOSE 80
 
-# Start Nginx when the container has provisioned
 CMD ["nginx", "-g", "daemon off;"]
