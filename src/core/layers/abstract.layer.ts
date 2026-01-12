@@ -66,7 +66,7 @@ export type TLayerActions = TLayerAction[];
 export type TLayerEditPoint = {
     cursor: 'nwse-resize' | 'nesw-resize' | 'move';
     getRect(): Rect;
-    move(point: Point): void;
+    move(point: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void;
 };
 
 /**
