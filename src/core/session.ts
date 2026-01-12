@@ -258,7 +258,6 @@ export class Session {
         this.unlock();
         await loadLayers(layersToload ?? []);
 
-        // Load animation state if not loading from specific project layers (or if project includes usage)
         if (!layers) {
             try {
                 const animationData = localStorage.getItem(`${name}_lopaka_animation`);
@@ -266,7 +265,6 @@ export class Session {
                     const parsed = JSON.parse(animationData);
                     this.state.frames = parsed.frames || [];
                     this.state.animationSettings = {...this.state.animationSettings, ...parsed.settings};
-                    // console.log('Loaded animation state', this.state.frames.length, 'frames');
                 }
             } catch (e) {
                 console.warn('Failed to load animation state', e);
@@ -309,7 +307,6 @@ export class Session {
 
         let output = '';
 
-        output += `// ========== Animation Helper ==========\n`;
         output += `#define ANIMATION_FRAME_COUNT ${frames.length}\n`;
         output += `#define ANIMATION_FPS ${animationSettings.fps}\n`;
         output += `#define ANIMATION_FRAME_DELAY (1000 / ANIMATION_FPS)\n`;
@@ -335,15 +332,59 @@ export class Session {
                 }
             });
 
-            output += `// ========== Frame ${index + 1}: ${frame.title || 'Untitled'} ==========\n`;
+            output += `void frame${index + 1}() {\n`;
 
             const frameCode = platformObj.generateSourceCode(
                 frameLayers.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
                 this.virtualScreen.ctx
             );
 
-            output += frameCode + '\n\n';
+            let cleanCode = platformObj.sourceMapParser.parse(frameCode).code;
+
+            const lines = cleanCode.split('\n');
+            const drawFuncIndex = lines.findIndex((l) => l.trim().startsWith('void draw(void) {'));
+
+            if (drawFuncIndex !== -1) {
+                const preLines = lines.slice(0, drawFuncIndex);
+
+                const contentLines = lines.slice(drawFuncIndex + 1);
+                while (contentLines.length > 0 && contentLines[contentLines.length - 1].trim() === '}') {
+                    contentLines.pop();
+                    break;
+                }
+
+                cleanCode = [...preLines, ...contentLines.map((l) => l.replace(/^    /, ''))].join('\n');
+            }
+
+            output += cleanCode
+                .split('\n')
+                .map((line) => '  ' + line)
+                .join('\n');
+            output += '\n\n';
         });
+
+        output += `void playAnimation() {\n`;
+
+        const generateLoopSteps = (indices: number[]) => {
+            indices.forEach((i) => {
+                output += `  frame${i + 1}();\n`;
+                output += `  delay(ANIMATION_FRAME_DELAY);\n`;
+            });
+        };
+
+        const indices = [];
+        for (let i = 0; i < frames.length; i++) indices.push(i);
+
+        if (animationSettings.pingPong) {
+            generateLoopSteps(indices);
+            const backwardIndices = [];
+            for (let i = frames.length - 2; i > 0; i--) backwardIndices.push(i);
+            generateLoopSteps(backwardIndices);
+        } else {
+            generateLoopSteps(indices);
+        }
+
+        output += `}\n`;
 
         return {
             code: output,
