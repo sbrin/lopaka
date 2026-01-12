@@ -200,21 +200,28 @@ export class EllipseLayer extends AbstractLayer {
                 editPoint.move(firstPoint.clone().subtract(point));
                 break;
             case EditMode.CREATING:
-                const radius = point.clone().subtract(firstPoint).abs().divide(2).round().subtract(2);
-                this.rx = Math.max(radius.x, 0);
-                this.ry = Math.max(radius.y, 0);
-                // circle
+                let radiusOffset = point.clone().subtract(firstPoint).abs();
+                if (originalEvent.altKey) {
+                    radiusOffset = radiusOffset.subtract(2).max(new Point(0));
+                } else {
+                    radiusOffset = radiusOffset.divide(2).round().subtract(2).max(new Point(0));
+                }
+                this.rx = Math.max(radiusOffset.x, 0);
+                this.ry = Math.max(radiusOffset.y, 0);
                 if (originalEvent.shiftKey) {
                     const maxRadius = Math.max(this.rx, this.ry);
                     this.rx = maxRadius;
                     this.ry = maxRadius;
                 }
-                const signs = point.clone().subtract(firstPoint).xy.map(Math.sign);
-                // Use the updated radii for position calculation
-                const finalRadius = new Point(this.rx, this.ry);
-                this.position = firstPoint.min(
-                    firstPoint.clone().add(finalRadius.clone().multiply(2).add(1).multiply(signs)).floor()
-                );
+                if (originalEvent.altKey) {
+                    this.position = firstPoint.clone().subtract(this.rx, this.ry).round();
+                } else {
+                    const signs = point.clone().subtract(firstPoint).xy.map(Math.sign);
+                    const finalRadius = new Point(this.rx, this.ry);
+                    this.position = firstPoint.min(
+                        firstPoint.clone().add(finalRadius.clone().multiply(2).add(1).multiply(signs)).floor()
+                    );
+                }
                 break;
         }
         this.updateBounds();

@@ -216,21 +216,28 @@ export class RectangleLayer extends AbstractLayer {
                 editPoint.move(firstPoint.clone().subtract(point));
                 break;
             case EditMode.CREATING:
-                // Calculate size first
                 let newSize = point.clone().subtract(firstPoint).abs().max(new Point(1));
-                // Apply square constraint if shift is pressed
                 if (originalEvent.shiftKey) {
                     const maxDimension = Math.max(newSize.x, newSize.y);
                     newSize = new Point(maxDimension, maxDimension);
                 }
+                if (originalEvent.altKey) {
+                    newSize = newSize.multiply(2);
+                }
                 this.size = newSize;
-                // Calculate position based on final size and drag direction
-                const signs = point
-                    .clone()
-                    .subtract(firstPoint)
-                    .xy.map((v) => (v >= 0 ? 1 : -1));
-                const endPoint = firstPoint.clone().add(newSize.x * signs[0], newSize.y * signs[1]);
-                this.position = endPoint.min(firstPoint);
+                if (originalEvent.altKey) {
+                    this.position = firstPoint
+                        .clone()
+                        .subtract(newSize.x / 2, newSize.y / 2)
+                        .round();
+                } else {
+                    const signs = point
+                        .clone()
+                        .subtract(firstPoint)
+                        .xy.map((v) => (v >= 0 ? 1 : -1));
+                    const endPoint = firstPoint.clone().add(newSize.x * signs[0], newSize.y * signs[1]);
+                    this.position = endPoint.min(firstPoint);
+                }
                 break;
         }
         this.updateBounds();
