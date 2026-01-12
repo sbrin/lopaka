@@ -151,7 +151,6 @@ export class VirtualScreen {
         this.session.state.layers
             .sort((a, b) => a.index - b.index)
             .forEach((layer) => {
-                // skip all oberlays
                 if (layer.modifiers.overlay && layer.modifiers.overlay.getValue()) {
                     overlays.push(layer);
                     return;
@@ -162,10 +161,41 @@ export class VirtualScreen {
                 this.ctx.drawImage(layer.getBuffer(), 0, 0);
                 this.ctx.globalCompositeOperation = 'source-over';
             });
+
+        const {frames, currentFrameIndex, animationSettings} = this.session.state;
+        if (animationSettings.onionSkin && frames.length > 0 && !this.session.state.isPlaying) {
+            const startFrame = Math.max(0, currentFrameIndex - animationSettings.onionSkinFrames);
+
+            for (let i = startFrame; i < currentFrameIndex; i++) {
+                const prevFrame = frames[i];
+                if (!prevFrame) continue;
+
+                const distance = currentFrameIndex - i;
+                const opacity = animationSettings.onionSkinOpacity / distance;
+
+                this.ctx.globalAlpha = opacity;
+
+                prevFrame.layers.forEach((layerState) => {
+                    const LayerClass = this.session.LayerClassMap[layerState.t];
+                    if (LayerClass) {
+                        try {
+                            const layer = new LayerClass(this.session.getPlatformFeatures());
+                            layer.state = layerState;
+                            layer.resize(this.session.state.display, this.session.state.scale);
+                            layer.draw();
+                            this.ctx.drawImage(layer.getBuffer(), 0, 0);
+                        } catch (e) {
+                            console.warn('Failed to draw onion skin layer', e);
+                        }
+                    }
+                });
+
+                this.ctx.globalAlpha = 1.0;
+            }
+        }
         if (update) {
             this.state.updates++;
         }
-        // create data without alpha channel
         const data = this.ctx.getImageData(0, 0, this.screen.width, this.screen.height).data.map((v, i) => {
             if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;
             return v;
@@ -175,7 +205,38 @@ export class VirtualScreen {
             0,
             0
         );
-        // draw overlays
+
+        if (animationSettings.onionSkin && frames.length > 0 && !this.session.state.isPlaying) {
+            const startFrame = Math.max(0, currentFrameIndex - animationSettings.onionSkinFrames);
+
+            for (let i = startFrame; i < currentFrameIndex; i++) {
+                const prevFrame = frames[i];
+                if (!prevFrame) continue;
+
+                const distance = currentFrameIndex - i;
+                const opacity = animationSettings.onionSkinOpacity / distance;
+
+                this.canvasContext.globalAlpha = opacity;
+
+                prevFrame.layers.forEach((layerState) => {
+                    const LayerClass = this.session.LayerClassMap[layerState.t];
+                    if (LayerClass) {
+                        try {
+                            const layer = new LayerClass(this.session.getPlatformFeatures());
+                            layer.state = layerState;
+                            layer.resize(this.session.state.display, this.session.state.scale);
+                            layer.draw();
+                            this.canvasContext.drawImage(layer.getBuffer(), 0, 0);
+                        } catch (e) {
+                            console.warn('Failed to draw onion skin layer', e);
+                        }
+                    }
+                });
+
+                this.canvasContext.globalAlpha = 1.0;
+            }
+        }
+
         this.canvasContext.globalAlpha = 0.3;
         overlays.forEach((layer) => {
             this.canvasContext.drawImage(layer.getBuffer(), 0, 0);

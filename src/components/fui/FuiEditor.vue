@@ -22,6 +22,7 @@ import {debounce, logEvent} from '/src/utils';
 import {PaintLayer} from '/src/core/layers/paint.layer';
 import {Uint32RawPlatform} from '/src/platforms/uint32-raw';
 import ImportImageBtn from './importImage/ImportImageBtn.vue';
+import FuiTimeline from '/src/components/fui/FuiTimeline.vue';
 
 const props = defineProps<{
     project: Project | null;
@@ -220,7 +221,9 @@ function setWarnings(warnings) {
                         :readonly="readonly"
                     />
                 </div>
+                <FuiTimeline :readonly="readonly" />
             </div>
+
             <div class="fui-editor__main-right">
                 <Inspector
                     :readonly="readonly"

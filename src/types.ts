@@ -1,3 +1,19 @@
+export interface AnimationFrame {
+    id: number;
+    title?: string;
+    duration?: number; // ms, optional per-frame timing
+    layers: any[];
+}
+
+export interface AnimationSettings {
+    fps: number;
+    loop: boolean;
+    pingPong: boolean;
+    onionSkin: boolean;
+    onionSkinOpacity: number;
+    onionSkinFrames: number;
+}
+
 export interface Project {
     id: number;
     title: string;
@@ -19,4 +35,6 @@ export interface ProjectScreen {
     user_id?: string;
     img_preview?: string;
     layers?: any[];
+    frames?: AnimationFrame[];
+    animationSettings?: AnimationSettings;
 }

@@ -20,7 +20,7 @@ import {paramsToState} from './decorators/mapping';
 import {iconsList} from '../icons/icons';
 import {Display} from '/src/core/displays';
 import {FontFormat} from '/src/draw/fonts/font';
-import {Project, ProjectScreen} from '../types';
+import {AnimationFrame, AnimationSettings, Project, ProjectScreen} from '../types';
 import {TFTeSPIPlatform} from '../platforms/tft-espi';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
@@ -37,6 +37,10 @@ type TSessionState = {
     isPublic: boolean;
     customFonts: TPlatformFont[];
     warnings: string[];
+    frames: AnimationFrame[];
+    currentFrameIndex: number;
+    animationSettings: AnimationSettings;
+    isPlaying: boolean;
 };
 
 export class Session {
@@ -70,7 +74,21 @@ export class Session {
         isPublic: false,
         customFonts: [],
         warnings: [],
+        frames: [],
+        currentFrameIndex: 0,
+        animationSettings: {
+            fps: 12,
+            loop: true,
+            pingPong: false,
+            onionSkin: false,
+            onionSkinOpacity: 0.3,
+            onionSkinFrames: 1,
+        },
+        isPlaying: false,
     });
+
+    private animationTimer: number | null = null;
+    private animationDirection: number = 1;
 
     history: ChangeHistory = useHistory();
 
@@ -268,6 +286,52 @@ export class Session {
         return this.platforms[platform].sourceMapParser.parse(code);
     };
 
+    generateAnimationCode = (): string => {
+        const {platform, frames, animationSettings} = this.state;
+
+        if (frames.length === 0) {
+            return this.generateCode().code;
+        }
+
+        let output = '';
+        const platformObj = this.platforms[platform];
+
+        output += `// Animation: ${frames.length} frames at ${animationSettings.fps} FPS\n`;
+        output += `// Loop: ${animationSettings.loop}, Ping-Pong: ${animationSettings.pingPong}\n\n`;
+
+        frames.forEach((frame, index) => {
+            const frameLayers: AbstractLayer[] = [];
+            frame.layers.forEach((state) => {
+                const layerClass = this.LayerClassMap[state.t as ELayerType];
+                if (layerClass) {
+                    const layer = new layerClass(this.getPlatformFeatures());
+                    layer.state = state;
+                    layer.resize(this.state.display, this.state.scale);
+                    layer.draw();
+                    frameLayers.push(layer);
+                }
+            });
+
+            output += `// ========== Frame ${index + 1}: ${frame.title || 'Untitled'} ==========\n`;
+
+            const frameCode = platformObj.generateSourceCode(
+                frameLayers.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
+                this.virtualScreen.ctx
+            );
+
+            output += frameCode + '\n\n';
+        });
+
+        output += `// ========== Animation Helper ==========\n`;
+        output += `#define ANIMATION_FRAME_COUNT ${frames.length}\n`;
+        output += `#define ANIMATION_FPS ${animationSettings.fps}\n`;
+        output += `#define ANIMATION_FRAME_DELAY (1000 / ANIMATION_FPS)\n`;
+        output += `#define ANIMATION_LOOP ${animationSettings.loop ? 1 : 0}\n`;
+        output += `#define ANIMATION_PING_PONG ${animationSettings.pingPong ? 1 : 0}\n`;
+
+        return output;
+    };
+
     importCode = async (code: string, append: boolean = false) => {
         const {platform} = this.state;
         const {states, warnings} = this.platforms[platform].importSourceCode(code);
@@ -320,6 +384,170 @@ export class Session {
             this.setDisplay(new Point(displayStoredArr[0], displayStoredArr[1]));
         }
     };
+
+    saveCurrentFrame = () => {
+        const {frames, currentFrameIndex, layers} = this.state;
+        if (frames.length > 0 && frames[currentFrameIndex]) {
+            frames[currentFrameIndex].layers = layers.map((l) => l.state);
+        }
+    };
+
+    loadFrame = async (frameIndex: number) => {
+        const {frames} = this.state;
+        if (frames[frameIndex]) {
+            await loadLayers(frames[frameIndex].layers, false, false);
+        }
+    };
+
+    initializeFrames = () => {
+        if (this.state.frames.length === 0) {
+            this.state.frames = [
+                {
+                    id: 1,
+                    title: 'Frame 1',
+                    layers: this.state.layers.map((l) => l.state),
+                },
+            ];
+            this.state.currentFrameIndex = 0;
+        }
+    };
+
+    addFrame = (copyFromCurrent: boolean = true, insertAfterIndex?: number) => {
+        this.saveCurrentFrame();
+        const {frames} = this.state;
+        const newId = frames.length > 0 ? Math.max(...frames.map((f) => f.id)) + 1 : 1;
+        const insertIndex = insertAfterIndex !== undefined ? insertAfterIndex + 1 : frames.length;
+
+        const newFrame: AnimationFrame = {
+            id: newId,
+            title: `Frame ${newId}`,
+            layers:
+                copyFromCurrent && frames.length > 0
+                    ? JSON.parse(JSON.stringify(frames[this.state.currentFrameIndex]?.layers ?? []))
+                    : [],
+        };
+
+        frames.splice(insertIndex, 0, newFrame);
+        this.setCurrentFrame(insertIndex);
+    };
+
+    deleteFrame = (index: number) => {
+        const {frames} = this.state;
+        if (frames.length <= 1) {
+            return;
+        }
+        frames.splice(index, 1);
+        if (this.state.currentFrameIndex >= frames.length) {
+            this.setCurrentFrame(frames.length - 1);
+        } else if (this.state.currentFrameIndex === index) {
+            this.setCurrentFrame(Math.min(index, frames.length - 1));
+        }
+    };
+
+    duplicateFrame = (index: number) => {
+        const {frames} = this.state;
+        const sourcFrame = frames[index];
+        if (!sourcFrame) return;
+
+        const newId = Math.max(...frames.map((f) => f.id)) + 1;
+        const newFrame: AnimationFrame = {
+            id: newId,
+            title: `${sourcFrame.title} (copy)`,
+            layers: JSON.parse(JSON.stringify(sourcFrame.layers)),
+        };
+
+        frames.splice(index + 1, 0, newFrame);
+    };
+
+    setCurrentFrame = async (index: number) => {
+        if (index < 0 || index >= this.state.frames.length) return;
+
+        this.saveCurrentFrame();
+
+        this.state.currentFrameIndex = index;
+        await this.loadFrame(index);
+        this.virtualScreen.redraw();
+    };
+
+    getCurrentFrame = (): AnimationFrame | null => {
+        return this.state.frames[this.state.currentFrameIndex] ?? null;
+    };
+
+    playAnimation = () => {
+        if (this.state.frames.length <= 1) return;
+        if (this.animationTimer) return;
+
+        this.state.isPlaying = true;
+        this.animationDirection = 1;
+
+        const interval = 1000 / this.state.animationSettings.fps;
+        this.animationTimer = window.setInterval(() => {
+            this.advanceFrame();
+        }, interval);
+    };
+
+    pauseAnimation = () => {
+        if (this.animationTimer) {
+            clearInterval(this.animationTimer);
+            this.animationTimer = null;
+        }
+        this.state.isPlaying = false;
+    };
+
+    stopAnimation = () => {
+        this.pauseAnimation();
+        this.setCurrentFrame(0);
+    };
+
+    private advanceFrame = () => {
+        const {frames, currentFrameIndex, animationSettings} = this.state;
+        const {loop, pingPong} = animationSettings;
+
+        let nextIndex = currentFrameIndex + this.animationDirection;
+
+        if (pingPong) {
+            if (nextIndex >= frames.length) {
+                this.animationDirection = -1;
+                nextIndex = frames.length - 2;
+            } else if (nextIndex < 0) {
+                this.animationDirection = 1;
+                nextIndex = 1;
+            }
+        } else {
+            if (nextIndex >= frames.length) {
+                if (loop) {
+                    nextIndex = 0;
+                } else {
+                    this.pauseAnimation();
+                    return;
+                }
+            }
+        }
+
+        this.setCurrentFrame(Math.max(0, Math.min(nextIndex, frames.length - 1)));
+    };
+
+    setAnimationFps = (fps: number) => {
+        this.state.animationSettings.fps = Math.max(1, Math.min(60, fps));
+        if (this.state.isPlaying) {
+            this.pauseAnimation();
+            this.playAnimation();
+        }
+    };
+
+    toggleLoop = () => {
+        this.state.animationSettings.loop = !this.state.animationSettings.loop;
+    };
+
+    togglePingPong = () => {
+        this.state.animationSettings.pingPong = !this.state.animationSettings.pingPong;
+    };
+
+    toggleOnionSkin = () => {
+        this.state.animationSettings.onionSkin = !this.state.animationSettings.onionSkin;
+        this.virtualScreen.redraw();
+    };
+
     constructor() {
         this.history.subscribe((event: THistoryEvent, change: TChange) => {
             switch (event.type) {

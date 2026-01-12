@@ -6,6 +6,7 @@ import {Session} from '../core/session';
 import {Font} from '../draw/fonts/font';
 import {AbstractEditorPlugin} from './plugins/abstract-editor.plugin';
 import {AddPlugin} from './plugins/add.plugin';
+import {AnimationPlugin} from './plugins/animation.plugin';
 import {CopyPlugin} from './plugins/copy.plugin';
 import {DeletePlugin} from './plugins/delete.plugin';
 import {ImageDropPlugin} from './plugins/image-drop.plugin';
@@ -79,6 +80,7 @@ export class Editor {
             new HistoryPlugin(this.session, this.container),
             new DeletePlugin(this.session, this.container),
             new ImageDropPlugin(this.session, this.container),
+            new AnimationPlugin(this.session, this.container),
         ];
     }
 

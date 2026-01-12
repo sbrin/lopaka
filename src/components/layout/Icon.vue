@@ -45,6 +45,12 @@ import {
     MagnifyingGlassPlusIcon,
     MagnifyingGlassMinusIcon,
     ArrowUpOnSquareIcon,
+    PlayIcon,
+    PauseIcon,
+    StopIcon,
+    PlusIcon,
+    EyeIcon,
+    EyeSlashIcon,
 } from '@heroicons/vue/24/outline';
 import {StarIcon as StarSolidIcon, XMarkIcon} from '@heroicons/vue/24/solid';
 
@@ -106,6 +112,12 @@ const icons = {
     x: XMarkIcon,
     'zoom-in': MagnifyingGlassPlusIcon,
     'zoom-out': MagnifyingGlassMinusIcon,
+    play: PlayIcon,
+    pause: PauseIcon,
+    stop: StopIcon,
+    plus: PlusIcon,
+    eye: EyeIcon,
+    'eye-slash': EyeSlashIcon,
 };
 
 const classList = computed(() => ({
