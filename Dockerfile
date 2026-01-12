@@ -18,7 +18,7 @@ RUN NODE_OPTIONS="--max-old-space-size=16384" pnpm build
 RUN pnpm prune --prod
 
 
-FROM nginx:alpine
+FROM nginx:alpine-slim
 
 
 # Remove default nginx assets
@@ -26,6 +26,9 @@ RUN rm -rf /usr/share/nginx/html/*
 
 # Copy only build output
 COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+# Remove source maps to save space
+RUN find /usr/share/nginx/html -name "*.map" -type f -delete
 
 EXPOSE 80
 
