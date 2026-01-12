@@ -247,6 +247,101 @@ export class EllipseLayer extends AbstractLayer {
                 this.ry = Math.max(1, Math.ceil(newRy));
             },
         },
+
+        {
+            cursor: 'ns-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y), new Point(3)).subtract(
+                    1.5,
+                    1.5,
+                    0,
+                    0
+                ),
+            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                const dy = Math.round(offset.y / 2);
+                let newRy = Math.max(1, Math.round(this.editState.radiusY + dy));
+                let newRx = this.editState.radiusX;
+
+                if (modifiers?.shiftKey) {
+                    const aspectRatio = this.editState.radiusX / this.editState.radiusY;
+                    newRx = Math.round(newRy * aspectRatio);
+                }
+
+                this.rx = newRx;
+                this.ry = newRy;
+                this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
+                this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
+            },
+        },
+        {
+            cursor: 'ew-resize',
+            getRect: (): Rect =>
+                new Rect(
+                    new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h / 2),
+                    new Point(3)
+                ).subtract(1.5, 1.5, 0, 0),
+            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                const dx = Math.round(offset.x / 2);
+                let newRx = Math.max(1, Math.round(this.editState.radiusX - dx));
+                let newRy = this.editState.radiusY;
+
+                if (modifiers?.shiftKey) {
+                    const aspectRatio = this.editState.radiusX / this.editState.radiusY;
+                    newRy = Math.round(newRx / aspectRatio);
+                }
+
+                this.rx = newRx;
+                this.ry = newRy;
+                this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
+            },
+        },
+        {
+            cursor: 'ns-resize',
+            getRect: (): Rect =>
+                new Rect(
+                    new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y + this.bounds.h),
+                    new Point(3)
+                ).subtract(1.5, 1.5, 0, 0),
+            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                const dy = Math.round(offset.y / 2);
+                let newRy = Math.max(1, Math.round(this.editState.radiusY - dy));
+                let newRx = this.editState.radiusX;
+
+                if (modifiers?.shiftKey) {
+                    const aspectRatio = this.editState.radiusX / this.editState.radiusY;
+                    newRx = Math.round(newRy * aspectRatio);
+                }
+
+                this.rx = newRx;
+                this.ry = newRy;
+                this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
+            },
+        },
+        {
+            cursor: 'ew-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h / 2), new Point(3)).subtract(
+                    1.5,
+                    1.5,
+                    0,
+                    0
+                ),
+            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                const dx = Math.round(offset.x / 2);
+                let newRx = Math.max(1, Math.round(this.editState.radiusX + dx));
+                let newRy = this.editState.radiusY;
+
+                if (modifiers?.shiftKey) {
+                    const aspectRatio = this.editState.radiusX / this.editState.radiusY;
+                    newRy = Math.round(newRx / aspectRatio);
+                }
+
+                this.rx = newRx;
+                this.ry = newRy;
+                this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
+                this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
+            },
+        },
     ];
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {

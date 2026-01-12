@@ -245,6 +245,105 @@ export class RectangleLayer extends AbstractLayer {
                 this.size = newSize;
             },
         },
+
+        {
+            cursor: 'ns-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y), new Point(3)).subtract(
+                    1.5,
+                    1.5,
+                    0,
+                    0
+                ),
+            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                let newSize = this.editState.size.clone();
+                let newPosition = this.editState.position.clone();
+
+                newSize.y = Math.max(this.editState.size.y + offset.y, this.minLen);
+                newPosition.y = this.editState.position.y - offset.y;
+
+                if (modifiers?.shiftKey) {
+                    const aspectRatio = this.editState.size.x / this.editState.size.y;
+                    newSize.x = Math.round(newSize.y * aspectRatio);
+                    newPosition.x = this.editState.position.x + (this.editState.size.x - newSize.x) / 2;
+                }
+
+                this.position = newPosition.round();
+                this.size = newSize.round();
+            },
+        },
+        {
+            cursor: 'ew-resize',
+            getRect: (): Rect =>
+                new Rect(
+                    new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h / 2),
+                    new Point(3)
+                ).subtract(1.5, 1.5, 0, 0),
+            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                let newSize = this.editState.size.clone();
+                let newPosition = this.editState.position.clone();
+
+                newSize.x = Math.max(this.editState.size.x - offset.x, this.minLen);
+
+                if (modifiers?.shiftKey) {
+                    const aspectRatio = this.editState.size.x / this.editState.size.y;
+                    newSize.y = Math.round(newSize.x / aspectRatio);
+                    newPosition.y = this.editState.position.y + (this.editState.size.y - newSize.y) / 2;
+                }
+
+                this.position = newPosition.round();
+                this.size = newSize.round();
+            },
+        },
+        {
+            cursor: 'ns-resize',
+            getRect: (): Rect =>
+                new Rect(
+                    new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y + this.bounds.h),
+                    new Point(3)
+                ).subtract(1.5, 1.5, 0, 0),
+            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                let newSize = this.editState.size.clone();
+                let newPosition = this.editState.position.clone();
+
+                newSize.y = Math.max(this.editState.size.y - offset.y, this.minLen);
+
+                if (modifiers?.shiftKey) {
+                    const aspectRatio = this.editState.size.x / this.editState.size.y;
+                    newSize.x = Math.round(newSize.y * aspectRatio);
+                    newPosition.x = this.editState.position.x + (this.editState.size.x - newSize.x) / 2;
+                }
+
+                this.position = newPosition.round();
+                this.size = newSize.round();
+            },
+        },
+        {
+            cursor: 'ew-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h / 2), new Point(3)).subtract(
+                    1.5,
+                    1.5,
+                    0,
+                    0
+                ),
+            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                let newSize = this.editState.size.clone();
+                let newPosition = this.editState.position.clone();
+
+                newSize.x = Math.max(this.editState.size.x + offset.x, this.minLen);
+                newPosition.x = this.editState.position.x - offset.x;
+
+                if (modifiers?.shiftKey) {
+                    const aspectRatio = this.editState.size.x / this.editState.size.y;
+                    newSize.y = Math.round(newSize.x / aspectRatio);
+                    newPosition.y = this.editState.position.y + (this.editState.size.y - newSize.y) / 2;
+                }
+
+                this.position = newPosition.round();
+                this.size = newSize.round();
+            },
+        },
     ];
 
     constructor(protected features: TPlatformFeatures) {

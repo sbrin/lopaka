@@ -64,7 +64,7 @@ export type TLayerModifiers = Partial<{[key in TModifierName]: TLayerModifier}>;
 export type TLayerActions = TLayerAction[];
 
 export type TLayerEditPoint = {
-    cursor: 'nwse-resize' | 'nesw-resize' | 'move';
+    cursor: 'nwse-resize' | 'nesw-resize' | 'move' | 'ns-resize' | 'ew-resize';
     getRect(): Rect;
     move(point: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void;
 };
