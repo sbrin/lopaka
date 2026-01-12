@@ -203,12 +203,17 @@ export class EllipseLayer extends AbstractLayer {
                 const radius = point.clone().subtract(firstPoint).abs().divide(2).round().subtract(2);
                 this.rx = Math.max(radius.x, 0);
                 this.ry = Math.max(radius.y, 0);
+                // circle
+                if (originalEvent.shiftKey) {
+                    const maxRadius = Math.max(this.rx, this.ry);
+                    this.rx = maxRadius;
+                    this.ry = maxRadius;
+                }
                 const signs = point.clone().subtract(firstPoint).xy.map(Math.sign);
+                // Use the updated radii for position calculation
+                const finalRadius = new Point(this.rx, this.ry);
                 this.position = firstPoint.min(
-                    firstPoint
-                        .clone()
-                        .add(new Point(radius.clone().multiply(2).add(1)).multiply(signs))
-                        .floor()
+                    firstPoint.clone().add(finalRadius.clone().multiply(2).add(1).multiply(signs)).floor()
                 );
                 break;
         }

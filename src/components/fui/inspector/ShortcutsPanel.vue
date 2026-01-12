@@ -82,6 +82,12 @@
                 <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
                 to draw a square
             </p>
+            <div class="text text-sm font-bold">Ellipse</div>
+            <p>
+                Hold
+                <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
+                to draw a circle
+            </p>
             <div class="text text-sm font-bold">Paint</div>
             <p>
                 Hold
