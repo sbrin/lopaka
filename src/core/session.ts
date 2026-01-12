@@ -1,4 +1,4 @@
-import {reactive, UnwrapRef} from 'vue';
+import {reactive, UnwrapRef, watch} from 'vue';
 import {TPlatformFeatures} from 'src/platforms/platform';
 import {getFont, loadFont} from '../draw/fonts';
 import {VirtualScreen} from '../draw/virtual-screen';
@@ -257,7 +257,21 @@ export class Session {
         this.editor.font = getFont(fonts[0].name);
         this.unlock();
         await loadLayers(layersToload ?? []);
+
+        // Load animation state if not loading from specific project layers (or if project includes usage)
         if (!layers) {
+            try {
+                const animationData = localStorage.getItem(`${name}_lopaka_animation`);
+                if (animationData) {
+                    const parsed = JSON.parse(animationData);
+                    this.state.frames = parsed.frames || [];
+                    this.state.animationSettings = {...this.state.animationSettings, ...parsed.settings};
+                    // console.log('Loaded animation state', this.state.frames.length, 'frames');
+                }
+            } catch (e) {
+                console.warn('Failed to load animation state', e);
+            }
+
             localStorage.setItem('lopaka_library', name);
             isLogged && logEvent('select_library', name);
         }
@@ -626,6 +640,14 @@ export class Session {
                     break;
             }
         });
+
+        watch(
+            () => [this.state.frames, this.state.animationSettings],
+            () => {
+                saveAnimationState(this.state.platform);
+            },
+            {deep: true}
+        );
     }
 }
 
@@ -650,6 +672,16 @@ export function saveLayers(screen_id) {
     const session = useSession();
     const packedSession = session.state.layers.map((l) => l.state);
     localStorage.setItem(`${session.state.platform}_lopaka_layers`, JSON.stringify(packedSession));
+}
+
+export function saveAnimationState(platform: string) {
+    const session = useSession();
+    const {frames, animationSettings} = session.state;
+    const data = {
+        frames,
+        settings: animationSettings,
+    };
+    localStorage.setItem(`${platform}_lopaka_animation`, JSON.stringify(data));
 }
 
 export async function loadProject(project: Project, screen: ProjectScreen): Promise<ProjectScreen> {
