@@ -52,7 +52,7 @@ function selectRow() {
     }
 }
 function onUpdate() {
-    const sourceCode = session.generateCode();
+    const sourceCode = session.generateAnimationCode();
     content.value = sourceCode.code ?? '';
     layersMap = sourceCode.map;
     nextTick(() => {

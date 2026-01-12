@@ -286,14 +286,23 @@ export class Session {
         return this.platforms[platform].sourceMapParser.parse(code);
     };
 
-    generateAnimationCode = (): string => {
+    generateAnimationCode = (): {code: string; map: any} => {
         const {platform, frames, animationSettings} = this.state;
 
         if (frames.length === 0) {
-            return this.generateCode().code;
+            return this.generateCode();
         }
 
         let output = '';
+
+        output += `// ========== Animation Helper ==========\n`;
+        output += `#define ANIMATION_FRAME_COUNT ${frames.length}\n`;
+        output += `#define ANIMATION_FPS ${animationSettings.fps}\n`;
+        output += `#define ANIMATION_FRAME_DELAY (1000 / ANIMATION_FPS)\n`;
+        output += `#define ANIMATION_LOOP ${animationSettings.loop ? 1 : 0}\n`;
+        output += `#define ANIMATION_PING_PONG ${animationSettings.pingPong ? 1 : 0}\n`;
+        output += `\n`;
+
         const platformObj = this.platforms[platform];
 
         output += `// Animation: ${frames.length} frames at ${animationSettings.fps} FPS\n`;
@@ -322,14 +331,10 @@ export class Session {
             output += frameCode + '\n\n';
         });
 
-        output += `// ========== Animation Helper ==========\n`;
-        output += `#define ANIMATION_FRAME_COUNT ${frames.length}\n`;
-        output += `#define ANIMATION_FPS ${animationSettings.fps}\n`;
-        output += `#define ANIMATION_FRAME_DELAY (1000 / ANIMATION_FPS)\n`;
-        output += `#define ANIMATION_LOOP ${animationSettings.loop ? 1 : 0}\n`;
-        output += `#define ANIMATION_PING_PONG ${animationSettings.pingPong ? 1 : 0}\n`;
-
-        return output;
+        return {
+            code: output,
+            map: {},
+        };
     };
 
     importCode = async (code: string, append: boolean = false) => {
