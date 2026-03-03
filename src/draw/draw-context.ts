@@ -6,7 +6,7 @@ export class DrawContext {
         this.ctx = canvas.getContext('2d', {
             alpha: true,
             desynchronized: true,
-            willReadFrequently: true
+            willReadFrequently: true,
         });
     }
 
@@ -165,6 +165,59 @@ export class DrawContext {
             this.ctx.arc(position.x + radius, position.y + size.y - radius, radius, 0.5 * Math.PI, Math.PI);
             this.ctx.fill();
         }
+        return this;
+    }
+
+    pixelatePolygon(points: Point[], fill: boolean): DrawContext {
+        if (points.length < 2) return this;
+        this.ctx.beginPath();
+        if (fill) {
+            this.ctx.moveTo(points[0].x + 0.5, points[0].y + 0.5);
+            for (let i = 1; i < points.length; i++) {
+                this.ctx.lineTo(points[i].x + 0.5, points[i].y + 0.5);
+            }
+            this.ctx.closePath();
+            this.ctx.fill();
+        }
+        this.ctx.beginPath();
+        for (let i = 0; i < points.length; i++) {
+            const from = points[i];
+            const to = points[(i + 1) % points.length];
+            const a = from.clone().round();
+            const b = to.clone().round();
+            const dx = Math.abs(a.x - b.x);
+            const dy = Math.abs(a.y - b.y);
+            const sx = a.x < b.x ? 1 : -1;
+            const sy = a.y < b.y ? 1 : -1;
+            let err = dx - dy;
+            while (true) {
+                this.ctx.rect(a.x, a.y, 1, 1);
+                if (a.x === b.x && a.y === b.y) break;
+                const e2 = 2 * err;
+                if (e2 > -dy) {
+                    err -= dy;
+                    a.x += sx;
+                }
+                if (e2 < dx) {
+                    err += dx;
+                    a.y += sy;
+                }
+            }
+        }
+        this.ctx.fill();
+        if (!fill) {
+            this.ctx.save();
+            this.ctx.fillStyle = 'rgba(0,0,0,0)';
+            this.ctx.beginPath();
+            this.ctx.moveTo(points[0].x + 0.5, points[0].y + 0.5);
+            for (let i = 1; i < points.length; i++) {
+                this.ctx.lineTo(points[i].x + 0.5, points[i].y + 0.5);
+            }
+            this.ctx.closePath();
+            this.ctx.fill();
+            this.ctx.restore();
+        }
+        this.ctx.closePath();
         return this;
     }
 

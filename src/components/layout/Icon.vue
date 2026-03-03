@@ -45,6 +45,7 @@ import {
     MagnifyingGlassPlusIcon,
     MagnifyingGlassMinusIcon,
     ArrowUpOnSquareIcon,
+    StopIcon,
 } from '@heroicons/vue/24/outline';
 import {StarIcon as StarSolidIcon, XMarkIcon} from '@heroicons/vue/24/solid';
 
@@ -106,6 +107,7 @@ const icons = {
     x: XMarkIcon,
     'zoom-in': MagnifyingGlassPlusIcon,
     'zoom-out': MagnifyingGlassMinusIcon,
+    polygon: StopIcon,
 };
 
 const classList = computed(() => ({
