@@ -103,15 +103,30 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.session.grab(position, size);
             } else {
                 if (size.x < 2 && size.y < 2) {
-                    layers.filter((l) => l.selected).forEach((l) => (l.selected = false));
+                    layers
+                        .filter((l) => l.selected)
+                        .forEach((l) => {
+                            if (l instanceof PolygonLayer) l.exitVertexEditMode();
+                            l.selected = false;
+                        });
                     this.session.editor.selectionUpdate();
                     return;
                 }
                 layers
                     .filter((l) => !l.locked)
-                    .forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
+                    .forEach((l) => {
+                        const wasSelected = l.selected;
+                        l.selected = new Rect(position, size).intersect(l.bounds);
+                        if (wasSelected && !l.selected && l instanceof PolygonLayer) l.exitVertexEditMode();
+                    });
             }
-            layers.filter((l) => !l.locked).forEach((l) => (l.selected = this.intersect(l, position, size)));
+            layers
+                .filter((l) => !l.locked)
+                .forEach((l) => {
+                    const wasSelected = l.selected;
+                    l.selected = this.intersect(l, position, size);
+                    if (wasSelected && !l.selected && l instanceof PolygonLayer) l.exitVertexEditMode();
+                });
         } else if (!this.foreign) {
             // just a click
             const selected = layers.filter((l) => l.selected && !l.locked);
