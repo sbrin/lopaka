@@ -45,6 +45,13 @@ display.setCursor(3, 10);
 
 @jnijisniijaojosd;display.drawRoundRect(45, 20, 14, 12, 5, 0);
 
+@abc123polygon;display.drawLine(10, 10, 30, 10, 0);
+@abc123polygon;display.drawLine(30, 10, 40, 30, 0);
+@abc123polygon;display.drawLine(40, 30, 20, 40, 0);
+@abc123polygon;display.drawLine(20, 40, 5, 30, 0);
+@abc123polygon;display.drawLine(5, 30, 10, 10, 0);
+
+
 display.display();
 "
 `;

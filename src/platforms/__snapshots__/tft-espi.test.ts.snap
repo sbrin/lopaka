@@ -35,5 +35,12 @@ tft.setFreeFont(&profont22);
 
 @jnijisniijaojosd;tft.drawRoundRect(45, 20, 14, 12, 5, 0x7E0);
 
+@abc123polygon;tft.drawLine(10, 10, 30, 10, 0xF800);
+@abc123polygon;tft.drawLine(30, 10, 40, 30, 0xF800);
+@abc123polygon;tft.drawLine(40, 30, 20, 40, 0xF800);
+@abc123polygon;tft.drawLine(20, 40, 5, 30, 0xF800);
+@abc123polygon;tft.drawLine(5, 30, 10, 10, 0xF800);
+
+
 "
 `;

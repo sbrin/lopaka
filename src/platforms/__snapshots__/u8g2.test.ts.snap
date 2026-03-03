@@ -36,6 +36,13 @@ u8g2.setFont(u8g2_font_profont22_tr);
 
 @jnijisniijaojosd;u8g2.drawRFrame(@x:45, @y:20, @w:14, @h:12, @r:5);
 
+@abc123polygon;u8g2.drawLine(@x1:10, @y1:10, @x2:30, @y2:10);
+@abc123polygon;u8g2.drawLine(@x1:30, @y1:10, @x2:40, @y2:30);
+@abc123polygon;u8g2.drawLine(@x1:40, @y1:30, @x2:20, @y2:40);
+@abc123polygon;u8g2.drawLine(@x1:20, @y1:40, @x2:5, @y2:30);
+@abc123polygon;u8g2.drawLine(@x1:5, @y1:30, @x2:10, @y2:10);
+
+
 u8g2.sendBuffer();
 "
 `;
@@ -76,6 +83,13 @@ u8g2.setFont(u8g2_font_profont22_tr);
 
 @jnijisniijaojosd;u8g2.drawRFrame(@x:45, @y:20, @w:14, @h:12, @r:5);
 
+@abc123polygon;u8g2.drawLine(@x1:10, @y1:10, @x2:30, @y2:10);
+@abc123polygon;u8g2.drawLine(@x1:30, @y1:10, @x2:40, @y2:30);
+@abc123polygon;u8g2.drawLine(@x1:40, @y1:30, @x2:20, @y2:40);
+@abc123polygon;u8g2.drawLine(@x1:20, @y1:40, @x2:5, @y2:30);
+@abc123polygon;u8g2.drawLine(@x1:5, @y1:30, @x2:10, @y2:10);
+
+
 u8g2.sendBuffer();
 "
 `;
@@ -115,6 +129,13 @@ u8g2_SetFont(&u8g2, u8g2_font_profont22_tr);
 @njsoidnfijoinisn;u8g2_DrawRBox(&u8g2, 10, 4, 12, 19, 3);
 
 @jnijisniijaojosd;u8g2_DrawRFrame(&u8g2, 45, 20, 14, 12, 5);
+
+@abc123polygon;u8g2_DrawLine(&u8g2, 10, 10, 30, 10);
+@abc123polygon;u8g2_DrawLine(&u8g2, 30, 10, 40, 30);
+@abc123polygon;u8g2_DrawLine(&u8g2, 40, 30, 20, 40);
+@abc123polygon;u8g2_DrawLine(&u8g2, 20, 40, 5, 30);
+@abc123polygon;u8g2_DrawLine(&u8g2, 5, 30, 10, 10);
+
 
 u8g2_SendBuffer(&u8g2); "
 `;
