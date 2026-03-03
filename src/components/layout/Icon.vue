@@ -15,6 +15,7 @@ import AlignBottomIcon from '/src/assets/icons/align_bottom.svg?component';
 import AlignLeftIcon from '/src/assets/icons/align_left.svg?component';
 import AlignCenterHIcon from '/src/assets/icons/align_center_h.svg?component';
 import AlignRightIcon from '/src/assets/icons/align_right.svg?component';
+import PolygonIcon from '/src/assets/icons/Polygon.svg?component';
 
 import {
     CogIcon,
@@ -45,7 +46,6 @@ import {
     MagnifyingGlassPlusIcon,
     MagnifyingGlassMinusIcon,
     ArrowUpOnSquareIcon,
-    StopIcon,
 } from '@heroicons/vue/24/outline';
 import {StarIcon as StarSolidIcon, XMarkIcon} from '@heroicons/vue/24/solid';
 
@@ -107,7 +107,7 @@ const icons = {
     x: XMarkIcon,
     'zoom-in': MagnifyingGlassPlusIcon,
     'zoom-out': MagnifyingGlassMinusIcon,
-    polygon: StopIcon,
+    polygon: PolygonIcon,
 };
 
 const classList = computed(() => ({
