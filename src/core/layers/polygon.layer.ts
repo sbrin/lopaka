@@ -94,14 +94,105 @@ export class PolygonLayer extends AbstractLayer {
     }
 
     private rebuildEditPoints() {
-        this.editPoints = this.points.map((_, idx) => ({
-            cursor: 'move' as const,
-            getRect: (): Rect =>
-                new Rect(new Point(this.points[idx][0], this.points[idx][1]), new Point(3)).subtract(1, 1, 0, 0),
-            move: (offset: Point): void => {
-                this.points[idx] = [this.editState.points[idx][0] + offset.x, this.editState.points[idx][1] + offset.y];
+        this.editPoints = [
+            {
+                cursor: 'nesw-resize',
+                getRect: (): Rect =>
+                    new Rect(new Point(this.bounds.x + this.bounds.w, this.bounds.y), new Point(3)).subtract(
+                        1.5,
+                        1.5,
+                        0,
+                        0
+                    ),
+                move: (offset: Point): void => {
+                    this.scalePoints(offset, 'top-right');
+                },
             },
-        }));
+            {
+                cursor: 'nwse-resize',
+                getRect: (): Rect =>
+                    new Rect(
+                        new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
+                        new Point(3)
+                    ).subtract(1.5, 1.5, 0, 0),
+                move: (offset: Point): void => {
+                    this.scalePoints(offset, 'bottom-right');
+                },
+            },
+            {
+                cursor: 'nesw-resize',
+                getRect: (): Rect =>
+                    new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h), new Point(3)).subtract(
+                        1.5,
+                        1.5,
+                        0,
+                        0
+                    ),
+                move: (offset: Point): void => {
+                    this.scalePoints(offset, 'bottom-left');
+                },
+            },
+            {
+                cursor: 'nwse-resize',
+                getRect: (): Rect =>
+                    new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
+                move: (offset: Point): void => {
+                    this.scalePoints(offset, 'top-left');
+                },
+            },
+        ];
+    }
+
+    private scalePoints(offset: Point, corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right') {
+        if (!this.editState || this.editState.points.length < 2) return;
+        const origPts = this.editState.points;
+        let minX = Infinity,
+            minY = Infinity,
+            maxX = -Infinity,
+            maxY = -Infinity;
+        for (const p of origPts) {
+            if (p[0] < minX) minX = p[0];
+            if (p[1] < minY) minY = p[1];
+            if (p[0] > maxX) maxX = p[0];
+            if (p[1] > maxY) maxY = p[1];
+        }
+        const origW = maxX - minX || 1;
+        const origH = maxY - minY || 1;
+
+        let anchorX: number, anchorY: number, newW: number, newH: number;
+        switch (corner) {
+            case 'top-left':
+                anchorX = maxX;
+                anchorY = maxY;
+                newW = Math.max(origW - offset.x, 2);
+                newH = Math.max(origH - offset.y, 2);
+                break;
+            case 'top-right':
+                anchorX = minX;
+                anchorY = maxY;
+                newW = Math.max(origW + offset.x, 2);
+                newH = Math.max(origH - offset.y, 2);
+                break;
+            case 'bottom-left':
+                anchorX = maxX;
+                anchorY = minY;
+                newW = Math.max(origW - offset.x, 2);
+                newH = Math.max(origH + offset.y, 2);
+                break;
+            case 'bottom-right':
+                anchorX = minX;
+                anchorY = minY;
+                newW = Math.max(origW + offset.x, 2);
+                newH = Math.max(origH + offset.y, 2);
+                break;
+        }
+
+        const scaleX = newW / origW;
+        const scaleY = newH / origH;
+        this.points = origPts.map((p) => [
+            Math.round(anchorX + (p[0] - anchorX) * scaleX),
+            Math.round(anchorY + (p[1] - anchorY) * scaleY),
+        ]);
     }
 
     startEdit(mode: EditMode, point: Point, editPoint?: TLayerEditPoint) {
