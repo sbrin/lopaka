@@ -78,6 +78,8 @@ export class PolygonLayer extends AbstractLayer {
 
     editPoints: TLayerEditPoint[] = [];
 
+    public vertexEditMode: boolean = false;
+
     private toPoints(): Point[] {
         return this.points.map((p) => new Point(p[0], p[1]));
     }
@@ -93,7 +95,38 @@ export class PolygonLayer extends AbstractLayer {
         return new Point(minX, minY);
     }
 
+    toggleVertexEditMode() {
+        this.vertexEditMode = !this.vertexEditMode;
+        this.rebuildEditPoints();
+    }
+
+    exitVertexEditMode() {
+        if (this.vertexEditMode) {
+            this.vertexEditMode = false;
+            this.rebuildEditPoints();
+        }
+    }
+
     private rebuildEditPoints() {
+        if (this.vertexEditMode) {
+            this.rebuildVertexEditPoints();
+        } else {
+            this.rebuildBoundsEditPoints();
+        }
+    }
+
+    private rebuildVertexEditPoints() {
+        this.editPoints = this.points.map((_, idx) => ({
+            cursor: 'move' as const,
+            getRect: (): Rect =>
+                new Rect(new Point(this.points[idx][0], this.points[idx][1]), new Point(3)).subtract(1, 1, 0, 0),
+            move: (offset: Point): void => {
+                this.points[idx] = [this.editState.points[idx][0] + offset.x, this.editState.points[idx][1] + offset.y];
+            },
+        }));
+    }
+
+    private rebuildBoundsEditPoints() {
         this.editPoints = [
             {
                 cursor: 'nesw-resize',

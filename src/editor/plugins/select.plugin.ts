@@ -1,5 +1,6 @@
 import {Keys} from '../../core/keys.enum';
 import {AbstractLayer} from '../../core/layers/abstract.layer';
+import {PolygonLayer} from '../../core/layers/polygon.layer';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
 import {Session} from '../../core/session';
@@ -117,7 +118,10 @@ export class SelectPlugin extends AbstractEditorPlugin {
             const hovered = layers.filter((l) => l.contains(point));
             // if no layers are hovered, deselect all
             if (!hovered.length) {
-                selected.forEach((layer) => (layer.selected = false));
+                selected.forEach((layer) => {
+                    if (layer instanceof PolygonLayer) layer.exitVertexEditMode();
+                    layer.selected = false;
+                });
             }
         }
         this.foreign = true;
@@ -128,7 +132,10 @@ export class SelectPlugin extends AbstractEditorPlugin {
         const {layers} = this.session.state;
         if (this.session.editor.state.activeTool) return;
         if (key === Keys.Escape) {
-            layers.forEach((l) => (l.selected = false));
+            layers.forEach((l) => {
+                if (l instanceof PolygonLayer) l.exitVertexEditMode();
+                l.selected = false;
+            });
             this.session.virtualScreen.redraw(false);
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {
             layers.filter((l) => !l.locked).forEach((l) => (l.selected = true));
