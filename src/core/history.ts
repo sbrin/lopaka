@@ -1,7 +1,7 @@
 import {AbstractLayer} from './layers/abstract.layer';
 
 export type TChange = {
-    type: 'add' | 'remove' | 'change' | 'clear' | 'merge' | 'lock' | 'unlock';
+    type: 'add' | 'remove' | 'change' | 'clear' | 'merge' | 'lock' | 'unlock' | 'hide' | 'show';
     layer: AbstractLayer;
     state: any;
 };

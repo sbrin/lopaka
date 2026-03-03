@@ -112,6 +112,8 @@ export abstract class AbstractLayer {
     @mapping('ov') public overlay: boolean = false;
     // locked
     @mapping('lo') public locked: boolean = false;
+    // visible
+    @mapping('vi') public visible: boolean = true;
     // is layer already added to the session
     public added: boolean = false;
     // is layer resizable
