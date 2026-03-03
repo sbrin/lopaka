@@ -104,8 +104,8 @@ export class PolygonLayer extends AbstractLayer {
                         0,
                         0
                     ),
-                move: (offset: Point): void => {
-                    this.scalePoints(offset, 'top-right');
+                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                    this.scalePoints(offset, 'top-right', modifiers);
                 },
             },
             {
@@ -115,8 +115,8 @@ export class PolygonLayer extends AbstractLayer {
                         new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
                         new Point(3)
                     ).subtract(1.5, 1.5, 0, 0),
-                move: (offset: Point): void => {
-                    this.scalePoints(offset, 'bottom-right');
+                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                    this.scalePoints(offset, 'bottom-right', modifiers);
                 },
             },
             {
@@ -128,22 +128,26 @@ export class PolygonLayer extends AbstractLayer {
                         0,
                         0
                     ),
-                move: (offset: Point): void => {
-                    this.scalePoints(offset, 'bottom-left');
+                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                    this.scalePoints(offset, 'bottom-left', modifiers);
                 },
             },
             {
                 cursor: 'nwse-resize',
                 getRect: (): Rect =>
                     new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
-                move: (offset: Point): void => {
-                    this.scalePoints(offset, 'top-left');
+                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                    this.scalePoints(offset, 'top-left', modifiers);
                 },
             },
         ];
     }
 
-    private scalePoints(offset: Point, corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right') {
+    private scalePoints(
+        offset: Point,
+        corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right',
+        modifiers?: {shiftKey: boolean; altKey: boolean}
+    ) {
         if (!this.editState || this.editState.points.length < 2) return;
         const origPts = this.editState.points;
         let minX = Infinity,
@@ -158,6 +162,8 @@ export class PolygonLayer extends AbstractLayer {
         }
         const origW = maxX - minX || 1;
         const origH = maxY - minY || 1;
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
 
         let anchorX: number, anchorY: number, newW: number, newH: number;
         switch (corner) {
@@ -185,6 +191,25 @@ export class PolygonLayer extends AbstractLayer {
                 newW = Math.max(origW + offset.x, 2);
                 newH = Math.max(origH + offset.y, 2);
                 break;
+        }
+
+        // Shift: lock aspect ratio
+        if (modifiers?.shiftKey) {
+            const aspectRatio = origW / origH;
+            const maxDim = Math.max(newW, newH);
+            if (newW > newH) {
+                newW = Math.round(maxDim);
+                newH = Math.round(maxDim / aspectRatio);
+            } else {
+                newW = Math.round(maxDim * aspectRatio);
+                newH = Math.round(maxDim);
+            }
+        }
+
+        // Alt: resize from center
+        if (modifiers?.altKey) {
+            anchorX = centerX;
+            anchorY = centerY;
         }
 
         const scaleX = newW / origW;
@@ -227,7 +252,10 @@ export class PolygonLayer extends AbstractLayer {
                 this.points = points.map((p) => [Math.round(p[0] + dx), Math.round(p[1] + dy)]);
                 break;
             case EditMode.RESIZING:
-                editPoint.move(point.clone().subtract(firstPoint));
+                editPoint.move(point.clone().subtract(firstPoint), {
+                    shiftKey: originalEvent.shiftKey,
+                    altKey: originalEvent.altKey,
+                });
                 break;
             case EditMode.CREATING:
                 if (this.points.length > 0) {
