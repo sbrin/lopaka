@@ -61,6 +61,12 @@ each layer in layers
         when 'paint'
         when 'icon'
             | @!{layer.uid};!{pad}tft.drawBitmap(!{layer.position[0]}, !{layer.position[1]}, !{layer.imageName}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
+        when 'polygon'
+            - var pts = layer.points
+            - for (var pi = 0; pi < pts.length; pi++)
+                - var npi = (pi + 1) % pts.length
+                | @!{layer.uid};!{pad}tft.drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]}, !{packColor(layer.color)});
+                |
         default 
             |
             | // Unknown layer type !{layer.type}

@@ -59,6 +59,12 @@ each layer in layers
         when 'icon'
             - var func = settings.progmem ? 'drawXBMP' : 'drawXBM'
             | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]}, @image:!{layer.imageName});
+        when 'polygon'
+            - var pts = layer.points
+            - for (var pi = 0; pi < pts.length; pi++)
+                - var npi = (pi + 1) % pts.length
+                | @!{layer.uid};!{pad}u8g2.drawLine(@x1:!{pts[pi][0]}, @y1:!{pts[pi][1]}, @x2:!{pts[npi][0]}, @y2:!{pts[npi][1]});
+                |
         default 
             |
             | // Unknown layer type !{layer.type}
