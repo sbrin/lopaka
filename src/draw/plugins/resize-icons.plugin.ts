@@ -17,7 +17,7 @@ export class ResizeIconsPlugin extends DrawPlugin {
                 const r = editPoint.getRect().multiply(scale).round();
                 const c = r.getCenter();
                 ctx.moveTo(c.x + (isVertexMode ? 5 : 4), c.y);
-                ctx.arc(c.x, c.y, isVertexMode ? 8 : 8, 0, 8 * Math.PI);
+                ctx.arc(c.x, c.y, isVertexMode ? 5 : 4, 0, 2 * Math.PI);
             });
 
             if (isVertexMode) {
