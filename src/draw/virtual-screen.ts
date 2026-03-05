@@ -114,7 +114,9 @@ export class VirtualScreen {
 
     getLayersInPoint(position: Point): AbstractLayer[] {
         const point = position.clone().divide(this.session.state.scale).round();
-        return this.session.state.layers.filter((layer) => layer.contains(point)).sort((a, b) => b.index - a.index);
+        return this.session.state.layers
+            .filter((layer) => layer.visible && layer.contains(point))
+            .sort((a, b) => b.index - a.index);
     }
 
     public resize() {
@@ -151,6 +153,10 @@ export class VirtualScreen {
         this.session.state.layers
             .sort((a, b) => a.index - b.index)
             .forEach((layer) => {
+                // skip hidden layers
+                if (!layer.visible) {
+                    return;
+                }
                 // skip all oberlays
                 if (layer.modifiers.overlay && layer.modifiers.overlay.getValue()) {
                     overlays.push(layer);

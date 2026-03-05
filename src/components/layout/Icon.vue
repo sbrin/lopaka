@@ -21,6 +21,8 @@ import {
     CursorArrowRaysIcon,
     DocumentDuplicateIcon,
     EllipsisHorizontalIcon,
+    EyeIcon,
+    EyeSlashIcon,
     GlobeAltIcon,
     PaintBrushIcon,
     PhotoIcon,
@@ -106,6 +108,8 @@ const icons = {
     x: XMarkIcon,
     'zoom-in': MagnifyingGlassPlusIcon,
     'zoom-out': MagnifyingGlassMinusIcon,
+    eye: EyeIcon,
+    'eye-slash': EyeSlashIcon,
 };
 
 const classList = computed(() => ({
