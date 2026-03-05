@@ -14,6 +14,7 @@ import {LineLayer} from './layers/line.layer';
 import {PaintLayer} from './layers/paint.layer';
 import {RectangleLayer} from './layers/rectangle.layer';
 import {TextLayer} from './layers/text.layer';
+import {PolygonLayer} from './layers/polygon.layer';
 import platforms from './platforms';
 import {Point} from './point';
 import {paramsToState} from './decorators/mapping';
@@ -50,6 +51,7 @@ export class Session {
         string: TextLayer,
         paint: PaintLayer,
         ellipse: EllipseLayer,
+        polygon: PolygonLayer,
         // TODO: deprecated, use PaintLayer instead
         icon: IconLayer,
     };

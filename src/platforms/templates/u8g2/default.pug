@@ -5,6 +5,18 @@ each decl in declarations
     else 
         | !{decl}
         |
+each layer in layers
+    if layer.type == 'polygon'
+        - var pts = layer.points
+        |
+        | void draw_!{layer.name}(void) {
+        |
+        - for (var pi = 0; pi < pts.length; pi++)
+            - var npi = (pi + 1) % pts.length
+            |     u8g2.drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]});
+            |
+        | }
+        |
 |
 |
 - var pad = settings.wrap ? '    ' : ''
@@ -59,6 +71,8 @@ each layer in layers
         when 'icon'
             - var func = settings.progmem ? 'drawXBMP' : 'drawXBM'
             | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]}, @image:!{layer.imageName});
+        when 'polygon'
+            | @!{layer.uid};!{pad}draw_!{layer.name}();
         default 
             |
             | // Unknown layer type !{layer.type}

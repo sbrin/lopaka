@@ -95,7 +95,8 @@ declare type ELayerType =
     | 'frame'
     | 'paint'
     | 'rect'
-    | 'ellipse';
+    | 'ellipse'
+    | 'polygon';
 
 declare function gtag(...args: any[]): void;
 

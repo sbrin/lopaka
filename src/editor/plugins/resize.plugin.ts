@@ -1,4 +1,5 @@
 import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
+import {PolygonLayer} from '../../core/layers/polygon.layer';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
@@ -65,6 +66,20 @@ export class ResizePlugin extends AbstractEditorPlugin {
         if (this.captured) {
             this.captured = false;
             this.resizeLayer.stopEdit();
+        }
+    }
+
+    onMouseDoubleClick(point: Point, event: MouseEvent): void {
+        const {activeTool} = this.session.editor.state;
+        if (activeTool) return;
+        const {layers} = this.session.state;
+        const selectedPolygons = layers.filter(
+            (layer) => layer.selected && !layer.locked && layer instanceof PolygonLayer && layer.contains(point)
+        );
+        if (selectedPolygons.length === 1) {
+            const polygon = selectedPolygons[0] as PolygonLayer;
+            polygon.toggleVertexEditMode();
+            this.session.virtualScreen.redraw(false);
         }
     }
 }

@@ -10,6 +10,18 @@ each decl in declarations
         | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
         |
         |
+each layer in layers
+    if layer.type == 'polygon'
+        - var pts = layer.points
+        |
+        | void draw_!{layer.name}(void) {
+        |
+        - for (var pi = 0; pi < pts.length; pi++)
+            - var npi = (pi + 1) % pts.length
+            |     display.drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]}, !{packColor(layer.color)});
+            |
+        | }
+        |
 if settings.wrap
     | void draw(void) {
     |
@@ -67,6 +79,8 @@ each layer in layers
         when 'paint'
         when 'icon'
             | @!{layer.uid};!{pad}display.drawBitmap(!{layer.position[0]}, !{layer.position[1]}, !{layer.imageName}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
+        when 'polygon'
+            | @!{layer.uid};!{pad}draw_!{layer.name}();
         default 
             |
             | // Unknown layer type !{layer.type}

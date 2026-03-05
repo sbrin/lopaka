@@ -1,5 +1,6 @@
 import {Keys} from '../../core/keys.enum';
 import {AbstractLayer} from '../../core/layers/abstract.layer';
+import {PolygonLayer} from '../../core/layers/polygon.layer';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
 import {Session} from '../../core/session';
@@ -102,22 +103,40 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.session.grab(position, size);
             } else {
                 if (size.x < 2 && size.y < 2) {
-                    layers.filter((l) => l.selected).forEach((l) => (l.selected = false));
+                    layers
+                        .filter((l) => l.selected)
+                        .forEach((l) => {
+                            if (l instanceof PolygonLayer) l.exitVertexEditMode();
+                            l.selected = false;
+                        });
                     this.session.editor.selectionUpdate();
                     return;
                 }
                 layers
                     .filter((l) => !l.locked)
-                    .forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
+                    .forEach((l) => {
+                        const wasSelected = l.selected;
+                        l.selected = new Rect(position, size).intersect(l.bounds);
+                        if (wasSelected && !l.selected && l instanceof PolygonLayer) l.exitVertexEditMode();
+                    });
             }
-            layers.filter((l) => !l.locked).forEach((l) => (l.selected = this.intersect(l, position, size)));
+            layers
+                .filter((l) => !l.locked)
+                .forEach((l) => {
+                    const wasSelected = l.selected;
+                    l.selected = this.intersect(l, position, size);
+                    if (wasSelected && !l.selected && l instanceof PolygonLayer) l.exitVertexEditMode();
+                });
         } else if (!this.foreign) {
             // just a click
             const selected = layers.filter((l) => l.selected && !l.locked);
             const hovered = layers.filter((l) => l.contains(point));
             // if no layers are hovered, deselect all
             if (!hovered.length) {
-                selected.forEach((layer) => (layer.selected = false));
+                selected.forEach((layer) => {
+                    if (layer instanceof PolygonLayer) layer.exitVertexEditMode();
+                    layer.selected = false;
+                });
             }
         }
         this.foreign = true;
@@ -128,7 +147,10 @@ export class SelectPlugin extends AbstractEditorPlugin {
         const {layers} = this.session.state;
         if (this.session.editor.state.activeTool) return;
         if (key === Keys.Escape) {
-            layers.forEach((l) => (l.selected = false));
+            layers.forEach((l) => {
+                if (l instanceof PolygonLayer) l.exitVertexEditMode();
+                l.selected = false;
+            });
             this.session.virtualScreen.redraw(false);
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {
             layers.filter((l) => !l.locked).forEach((l) => (l.selected = true));

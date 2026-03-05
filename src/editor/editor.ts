@@ -21,6 +21,7 @@ import {LineTool} from './tools/line.tool';
 import {PaintTool} from './tools/paint.tool';
 import {RectTool} from './tools/rect.tool';
 import {TextTool} from './tools/text.tool';
+import {PolygonTool} from './tools/polygon.tool';
 import {HistoryPlugin} from './plugins/history.plugin';
 
 type TEditorState = {
@@ -55,6 +56,7 @@ export class Editor {
         circle: new CircleTool(this),
         ellipse: new EllipseTool(this),
         line: new LineTool(this),
+        polygon: new PolygonTool(this),
         // dot: new DotTool(this)
     };
 

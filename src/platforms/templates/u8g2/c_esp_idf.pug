@@ -5,6 +5,18 @@ each decl in declarations
     else 
         | !{decl}
         |
+each layer in layers
+    if layer.type == 'polygon'
+        - var pts = layer.points
+        |
+        | void draw_!{layer.name}(u8g2_t *u8g2) {
+        |
+        - for (var pi = 0; pi < pts.length; pi++)
+            - var npi = (pi + 1) % pts.length
+            |     u8g2_DrawLine(u8g2, !{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]});
+            |
+        | }
+        |
 | u8g2_ClearBuffer(&u8g2); 
 | u8g2_SetBitmapMode(&u8g2, 1);
 | u8g2_SetFontMode(&u8g2, 1);
@@ -57,6 +69,8 @@ each layer in layers
         when 'paint'
         when 'icon'
             | @!{layer.uid};!{pad}u8g2_DrawXBM(&u8g2, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}, !{layer.imageName});
+        when 'polygon'
+            | @!{layer.uid};!{pad}draw_!{layer.name}(&u8g2);
         default 
             |
             | // Unknown layer type !{layer.type}

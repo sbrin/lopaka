@@ -6,6 +6,18 @@ each decl in declarations
     else 
         | !{decl}
         |
+each layer in layers
+    if layer.type == 'polygon'
+        - var pts = layer.points
+        |
+        | void draw_!{layer.name}(Canvas* canvas) {
+        |
+        - for (var pi = 0; pi < pts.length; pi++)
+            - var npi = (pi + 1) % pts.length
+            |     canvas_draw_line(canvas, !{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]});
+            |
+        | }
+        |
 |
 |
 - var pad = settings.wrap ? '    ' : ''
@@ -39,6 +51,8 @@ each layer in layers
         when 'paint'
         when 'icon'
             | @!{layer.uid};!{pad}canvas_draw_xbm(canvas, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}, !{layer.imageName});
+        when 'polygon'
+            | @!{layer.uid};!{pad}draw_!{layer.name}(canvas);
         default 
             |
             | // Unknown layer type !{layer.type}

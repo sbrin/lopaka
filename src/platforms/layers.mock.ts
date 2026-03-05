@@ -6,6 +6,9 @@ import {LineLayer} from '../core/layers/line.layer';
 import {PaintLayer} from '../core/layers/paint.layer';
 import {RectangleLayer} from '../core/layers/rectangle.layer';
 import {TextLayer} from '../core/layers/text.layer';
+import {PolygonLayer} from '../core/layers/polygon.layer';
+import {getFont} from '../draw/fonts';
+import {TPlatformFeatures} from './platform';
 const layerClassMap = {
     box: RectangleLayer,
     frame: RectangleLayer,
@@ -17,7 +20,24 @@ const layerClassMap = {
     string: TextLayer,
     paint: PaintLayer,
     ellipse: EllipseLayer,
+    polygon: PolygonLayer,
 };
+
+const defaultFeatures: TPlatformFeatures = {
+    hasCustomFontSize: false,
+    hasInvertedColors: false,
+    hasRGBSupport: false,
+    defaultColor: '#000000',
+    interfaceColors: {
+        selectColor: '#000000',
+        resizeIconColor: '#000000',
+        hoverColor: '#000000',
+        rulerColor: '#000000',
+        rulerLineColor: '#000000',
+        selectionStrokeColor: '#000000',
+    },
+};
+
 export const layersMock: AbstractLayer[] = [
     {
         n: 'box_veqtjp8jf9ln6isyfz',
@@ -166,14 +186,27 @@ export const layersMock: AbstractLayer[] = [
         u: 'jnijisniijaojosd',
         s: [14, 12],
     },
+    {
+        n: 'polygon_abc123polygon',
+        t: 'polygon',
+        c: '#FF0000',
+        i: 17,
+        u: 'abc123polygon',
+        pts: [
+            [10, 10],
+            [30, 10],
+            [40, 30],
+            [20, 40],
+            [5, 30],
+        ],
+        f: false,
+    },
 ].map((l) => {
     const type: ELayerType = l.t as any;
-    const layer = new layerClassMap[type]({
-        hasCustomFontSize: false,
-        hasInvertedColors: false,
-        hasRGBSupport: false,
-        defaultColor: '#000000',
-    });
+    const layer =
+        type === 'string'
+            ? new TextLayer(defaultFeatures, getFont((l as any).f))
+            : new layerClassMap[type](defaultFeatures);
     layer.state = l;
     return layer;
 });
