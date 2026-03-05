@@ -12,27 +12,46 @@ export class ResizeIconsPlugin extends DrawPlugin {
             const layer = resizableLayers[0];
             const isVertexMode = layer instanceof PolygonLayer && layer.vertexEditMode;
 
-            ctx.beginPath();
-            layer.editPoints.forEach((editPoint) => {
-                const r = editPoint.getRect().multiply(scale).round();
-                const c = r.getCenter();
-                ctx.moveTo(c.x + (isVertexMode ? 5 : 4), c.y);
-                ctx.arc(c.x, c.y, isVertexMode ? 5 : 4, 0, 2 * Math.PI);
-            });
-
             if (isVertexMode) {
-                ctx.fillStyle = interfaceColors.resizeIconColor;
-                ctx.fill();
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2;
-                ctx.stroke();
+                this.drawPolygonVertexMarkers(ctx, layer, scale, interfaceColors);
             } else {
-                ctx.strokeStyle = interfaceColors.resizeIconColor;
-                ctx.lineWidth = 1;
-                ctx.stroke();
+                this.drawResizeMarkers(ctx, layer, scale, interfaceColors);
             }
 
             ctx.restore();
         }
+    }
+
+    private drawPolygonVertexMarkers(
+        ctx: CanvasRenderingContext2D,
+        layer: PolygonLayer,
+        scale: Point,
+        interfaceColors: any
+    ) {
+        ctx.beginPath();
+        layer.editPoints.forEach((editPoint) => {
+            const r = editPoint.getRect().multiply(scale).round();
+            const c = r.getCenter();
+            ctx.moveTo(c.x + 8, c.y);
+            ctx.arc(c.x, c.y, 8, 0, 2 * Math.PI);
+        });
+        ctx.fillStyle = interfaceColors.resizeIconColor;
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    private drawResizeMarkers(ctx: CanvasRenderingContext2D, layer: any, scale: Point, interfaceColors: any) {
+        ctx.beginPath();
+        layer.editPoints.forEach((editPoint) => {
+            const r = editPoint.getRect().multiply(scale).round();
+            const c = r.getCenter();
+            ctx.moveTo(c.x + 4, c.y);
+            ctx.arc(c.x, c.y, 4, 0, 2 * Math.PI);
+        });
+        ctx.strokeStyle = interfaceColors.resizeIconColor;
+        ctx.lineWidth = 1;
+        ctx.stroke();
     }
 }
