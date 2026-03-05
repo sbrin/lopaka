@@ -37,6 +37,7 @@ function classNames(layer) {
     return {
         'bg-base-300': layer.selected,
         'text-gray-500': layer.overlay,
+        'opacity-40': !layer.visible,
     };
 }
 
@@ -83,6 +84,26 @@ function getLayerListItem(layer: UnwrapRef<AbstractLayer>) {
                         ></Icon>
                         <div class="truncate grow">
                             <span>{{ getLayerListItem(element) }}</span>
+                        </div>
+                        <div
+                            v-if="!readonly && !element.visible"
+                            class="btn btn-xs btn-square btn-ghost layer-actions -mr-1"
+                            @click.stop="!disabled && session.showLayer(element as any)"
+                        >
+                            <Icon
+                                type="eye-slash"
+                                xs
+                            />
+                        </div>
+                        <div
+                            v-if="!readonly && element.visible"
+                            class="btn btn-xs btn-square btn-ghost hidden layer-actions -mr-1"
+                            @click.stop="!disabled && session.hideLayer(element as any)"
+                        >
+                            <Icon
+                                type="eye"
+                                xs
+                            />
                         </div>
                         <div
                             v-if="!readonly && element.locked"

@@ -161,6 +161,39 @@ export class Session {
             });
         }
     };
+    hideLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
+        layer.visible = false;
+        layer.selected = false;
+        if (saveHistory) {
+            this.history.push({
+                type: 'hide',
+                layer,
+                state: layer.state,
+            });
+            this.history.pushRedo({
+                type: 'hide',
+                layer,
+                state: layer.state,
+            });
+        }
+        this.virtualScreen.redraw();
+    };
+    showLayer = (layer: AbstractLayer, saveHistory: boolean = true) => {
+        layer.visible = true;
+        if (saveHistory) {
+            this.history.push({
+                type: 'show',
+                layer,
+                state: layer.state,
+            });
+            this.history.pushRedo({
+                type: 'show',
+                layer,
+                state: layer.state,
+            });
+        }
+        this.virtualScreen.redraw();
+    };
     grab = (position: Point, size: Point) => {
         const layer = new PaintLayer(this.getPlatformFeatures());
         this.addLayer(layer);
@@ -264,7 +297,9 @@ export class Session {
     generateCode = (): TSourceCode => {
         const {platform, layers} = this.state;
         const code = this.platforms[platform].generateSourceCode(
-            layers.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
+            layers.filter(
+                (layer) => layer.visible && (!layer.modifiers.overlay || !layer.modifiers.overlay.getValue())
+            ),
             this.virtualScreen.ctx
         );
         return this.platforms[platform].sourceMapParser.parse(code);
@@ -349,6 +384,12 @@ export class Session {
                         case 'unlock':
                             this.lockLayer(change.layer, false);
                             break;
+                        case 'hide':
+                            this.showLayer(change.layer, false);
+                            break;
+                        case 'show':
+                            this.hideLayer(change.layer, false);
+                            break;
                         case 'clear':
                             change.state.forEach((l) => {
                                 const type: ELayerType = l.t;
@@ -386,6 +427,12 @@ export class Session {
                             break;
                         case 'unlock':
                             this.unlockLayer(change.layer, false);
+                            break;
+                        case 'hide':
+                            this.hideLayer(change.layer, false);
+                            break;
+                        case 'show':
+                            this.showLayer(change.layer, false);
                             break;
                         case 'clear':
                             this.state.layers = [];
