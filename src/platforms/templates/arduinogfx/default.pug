@@ -10,6 +10,18 @@ each decl in declarations
         | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
         |
         |
+each layer in layers
+    if layer.type == 'polygon'
+        - var pts = layer.points
+        |
+        | void draw_!{layer.name}(void) {
+        |
+        - for (var pi = 0; pi < pts.length; pi++)
+            - var npi = (pi + 1) % pts.length
+            |     gfx->drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]}, !{packColor(layer.color)});
+            |
+        | }
+        |
 if settings.wrap
     | void draw(void) {
     |
@@ -77,11 +89,7 @@ each layer in layers
         when 'icon'
             | @!{layer.uid};!{pad}gfx->drawBitmap(!{layer.position[0]}, !{layer.position[1]}, !{layer.imageName}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
         when 'polygon'
-            - var pts = layer.points
-            - for (var pi = 0; pi < pts.length; pi++)
-                - var npi = (pi + 1) % pts.length
-                | @!{layer.uid};!{pad}gfx->drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]}, !{packColor(layer.color)});
-                |
+            | @!{layer.uid};!{pad}draw_!{layer.name}();
         default 
             |
             | // Unknown layer type !{layer.type}
