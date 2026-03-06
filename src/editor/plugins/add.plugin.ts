@@ -1,4 +1,5 @@
 import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
+import {Keys} from '../../core/keys.enum';
 import {Point} from '../../core/point';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
@@ -75,6 +76,28 @@ export class AddPlugin extends AbstractEditorPlugin {
                 activeLayer.stopEdit();
                 activeLayer.draw();
                 activeLayer.selected = true;
+                state.activeLayer = null;
+                state.activeTool = null;
+                this.session.virtualScreen.redraw();
+            }
+        }
+    }
+
+    onKeyDown(key: Keys, event: KeyboardEvent): void {
+        if (key === Keys.Escape && this.multiClickActive) {
+            const {state} = this.session.editor;
+            const {activeLayer, activeTool} = state;
+            this.multiClickActive = false;
+            this.captured = false;
+            if (activeLayer && activeTool) {
+                activeTool.onStopEdit(activeLayer as AbstractLayer, null, null);
+                activeLayer.stopEdit();
+                activeLayer.draw();
+                if ((activeLayer as any).points?.length >= 3) {
+                    activeLayer.selected = true;
+                } else {
+                    this.session.removeLayer(activeLayer as AbstractLayer);
+                }
                 state.activeLayer = null;
                 state.activeTool = null;
                 this.session.virtualScreen.redraw();
