@@ -3,10 +3,17 @@ import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
+import {getFont} from '../../draw/fonts';
+import {Font} from '../../draw/fonts/font';
 import {AbstractDrawingRenderer} from '../../draw/renderers';
+import {
+    LVGL_BUTTON_DEFAULT_BG_COLOR,
+    LVGL_BUTTON_DEFAULT_TEXT_COLOR,
+    LVGL_BUTTON_DEFAULT_RADIUS,
+} from '../../platforms/lvgl/constants';
 
-export class RectangleLayer extends AbstractLayer {
-    protected type: ELayerType = 'rect';
+export class ButtonLayer extends AbstractLayer {
+    protected type: ELayerType = 'button';
     protected editState: {
         firstPoint: Point;
         position: Point;
@@ -15,15 +22,37 @@ export class RectangleLayer extends AbstractLayer {
     } = null;
 
     @mapping('p', 'point') public position: Point = new Point();
-
     @mapping('s', 'point') public size: Point = new Point();
-
-    @mapping('r') public radius: number = 0;
-
-    @mapping('f') public fill: boolean = false;
+    @mapping('r') public radius: number = LVGL_BUTTON_DEFAULT_RADIUS;
+    @mapping('d') public text: string = 'Button';
+    @mapping('f', 'font') public font: Font;
+    @mapping('c') public color: string = LVGL_BUTTON_DEFAULT_TEXT_COLOR; // text color
+    @mapping('bc') public backgroundColor: string = LVGL_BUTTON_DEFAULT_BG_COLOR;
 
     get minLen(): number {
         return this.radius * 2 + 2;
+    }
+
+    constructor(
+        protected features: TPlatformFeatures,
+        renderer?: AbstractDrawingRenderer,
+        font?: Font
+    ) {
+        super(features, renderer);
+
+        this.size = new Point(80, 30); // Default button size
+
+        if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
+            delete this.modifiers.color;
+        }
+        if (!this.features.hasRoundCorners) {
+            delete this.modifiers.radius;
+        }
+        this.color = this.features.defaultButtonTextColor;
+        this.backgroundColor = this.features.defaultButtonColor;
+        if (font) {
+            this.font = font;
+        }
     }
 
     modifiers: TLayerModifiers = {
@@ -94,19 +123,23 @@ export class RectangleLayer extends AbstractLayer {
             },
             type: TModifierType.number,
         },
-        fill: {
-            getValue: () => this.fill,
-            setValue: (v: boolean) => {
-                this.fill = v;
+        text: {
+            getValue: () => this.text,
+            setValue: (v: string) => {
+                this.text = v;
+                this.updateBounds();
                 this.draw();
             },
-            type: TModifierType.boolean,
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
+            type: TModifierType.string,
         },
         color: {
             getValue: () => this.color,
             setValue: (v: string) => {
                 this.color = v;
-                this.updateBounds();
                 this.draw();
             },
             getVariable: (name: string) => this.variables[name] ?? false,
@@ -115,13 +148,26 @@ export class RectangleLayer extends AbstractLayer {
             },
             type: TModifierType.color,
         },
-        inverted: {
-            getValue: () => this.inverted,
-            setValue: (v: boolean) => {
-                this.inverted = v;
+        backgroundColor: {
+            getValue: () => this.backgroundColor,
+            setValue: (v: string) => {
+                this.backgroundColor = v;
                 this.draw();
             },
-            type: TModifierType.boolean,
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
+            type: TModifierType.color,
+        },
+        font: {
+            getValue: () => this.font?.name,
+            setValue: (v: string) => {
+                this.font = getFont(v);
+                this.updateBounds();
+                this.draw();
+            },
+            type: TModifierType.font,
         },
     };
 
@@ -135,7 +181,7 @@ export class RectangleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point): void => {
                 const size = new Point(this.editState.size.x - offset.x, this.editState.size.y + offset.y);
                 const position = this.editState.position.clone().subtract(0, offset.y);
                 if (size.x != this.size.x && size.x >= this.minLen) {
@@ -146,15 +192,6 @@ export class RectangleLayer extends AbstractLayer {
                     this.position.y = position.y;
                     this.size.y = size.y;
                 }
-                if (event?.shiftKey) {
-                    const left = this.position.x;
-                    const bottom = this.position.y + this.size.y;
-                    const uniformSize = Math.max(this.minLen, Math.max(this.size.x, this.size.y));
-                    this.size.x = uniformSize;
-                    this.size.y = uniformSize;
-                    this.position.x = left;
-                    this.position.y = bottom - this.size.y;
-                }
             },
         },
         {
@@ -164,17 +201,8 @@ export class RectangleLayer extends AbstractLayer {
                     new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point): void => {
                 this.size = this.editState.size.clone().subtract(offset).max(new Point(this.minLen));
-                if (event?.shiftKey) {
-                    const left = this.position.x;
-                    const top = this.position.y;
-                    const uniformSize = Math.max(this.minLen, Math.max(this.size.x, this.size.y));
-                    this.size.x = uniformSize;
-                    this.size.y = uniformSize;
-                    this.position.x = left;
-                    this.position.y = top;
-                }
             },
         },
         {
@@ -186,7 +214,7 @@ export class RectangleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point): void => {
                 const position = this.editState.position.clone().subtract(offset.x, 0);
                 const size = this.editState.size.clone().add(offset.x, -offset.y);
                 if (size.x != this.size.x && size.x >= this.minLen) {
@@ -197,22 +225,13 @@ export class RectangleLayer extends AbstractLayer {
                     this.position.y = position.y;
                     this.size.y = size.y;
                 }
-                if (event?.shiftKey) {
-                    const top = this.position.y;
-                    const right = this.position.x + this.size.x;
-                    const uniformSize = Math.max(this.minLen, Math.max(this.size.x, this.size.y));
-                    this.size.x = uniformSize;
-                    this.size.y = uniformSize;
-                    this.position.y = top;
-                    this.position.x = right - this.size.x;
-                }
             },
         },
         {
             cursor: 'nwse-resize',
             getRect: (): Rect =>
                 new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point): void => {
                 const position = this.editState.position.clone().subtract(offset);
                 const size = this.editState.size.clone().add(offset);
                 if (size.x != this.size.x && size.x >= this.minLen) {
@@ -223,42 +242,15 @@ export class RectangleLayer extends AbstractLayer {
                     this.size.y = size.y;
                     this.position.y = position.y;
                 }
-                if (event?.shiftKey) {
-                    const right = this.position.x + this.size.x;
-                    const bottom = this.position.y + this.size.y;
-                    const uniformSize = Math.max(this.minLen, Math.max(this.size.x, this.size.y));
-                    this.size.x = uniformSize;
-                    this.size.y = uniformSize;
-                    this.position.x = right - this.size.x;
-                    this.position.y = bottom - this.size.y;
-                }
             },
         },
     ];
-
-    constructor(
-        protected features: TPlatformFeatures,
-        renderer?: AbstractDrawingRenderer
-    ) {
-        super(features, renderer);
-        if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
-            delete this.modifiers.color;
-        }
-        if (!this.features.hasInvertedColors) {
-            delete this.modifiers.inverted;
-        }
-        if (!this.features.hasRoundCorners) {
-            delete this.modifiers.radius;
-        }
-        this.color = this.features.defaultColor;
-    }
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
         this.pushHistory();
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
-            this.size = new Point(1);
             this.updateBounds();
             this.draw();
         }
@@ -280,15 +272,9 @@ export class RectangleLayer extends AbstractLayer {
                 this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
                 break;
             case EditMode.RESIZING:
-                editPoint.move(firstPoint.clone().subtract(point), originalEvent);
+                editPoint.move(firstPoint.clone().subtract(point));
                 break;
             case EditMode.CREATING:
-                this.position = point.clone().min(firstPoint);
-                this.size = point.clone().subtract(firstPoint).abs().max(new Point(1));
-                // square
-                if (originalEvent.shiftKey) {
-                    this.size = new Point(Math.max(this.size.x, this.size.y)).max(new Point(1));
-                }
                 break;
         }
         this.updateBounds();
@@ -298,15 +284,18 @@ export class RectangleLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.pushRedoHistory();
     }
 
     draw() {
-        if (this.radius > 0) {
-            this.renderer.drawRoundedRect(this.position, this.size, this.radius, this.fill, this.color);
-        } else {
-            this.renderer.drawRect(this.position, this.size, this.fill, this.color);
-        }
+        this.renderer.drawButton(
+            this.position,
+            this.size,
+            this.radius,
+            this.backgroundColor,
+            this.text,
+            this.color,
+            this.font
+        );
     }
 
     onLoadState() {
@@ -315,10 +304,21 @@ export class RectangleLayer extends AbstractLayer {
     }
 
     updateBounds(): void {
-        this.bounds = new Rect(this.position, this.size);
+        // For buttons, we need to ensure the bounds account for the text size
+        const {dc, font, text, size} = this;
+        if (font && text) {
+            const textSize = font.getSize(dc, text, 1);
+            // Ensure the button is at least as wide as the text plus some padding
+            const minWidth = Math.max(size.x, textSize.x + 20);
+            const minHeight = Math.max(size.y, textSize.y + 10);
+            this.bounds = new Rect(this.position, new Point(minWidth, minHeight));
+        } else {
+            this.bounds = new Rect(this.position, this.size);
+        }
     }
 
     public contains(point: Point): boolean {
-        return this.bounds.contains(point);
+        const localPoint = point.clone().subtract(this.position);
+        return localPoint.x >= 0 && localPoint.x < this.size.x && localPoint.y >= 0 && localPoint.y < this.size.y;
     }
 }

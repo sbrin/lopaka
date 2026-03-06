@@ -4,9 +4,15 @@ import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
 import {AbstractDrawingRenderer} from '../../draw/renderers';
+import {
+    LVGL_PANEL_DEFAULT_BG_COLOR,
+    LVGL_PANEL_DEFAULT_BORDER_COLOR,
+    LVGL_PANEL_DEFAULT_BORDER_WIDTH,
+    LVGL_PANEL_DEFAULT_RADIUS,
+} from '../../platforms/lvgl/constants';
 
-export class RectangleLayer extends AbstractLayer {
-    protected type: ELayerType = 'rect';
+export class PanelLayer extends AbstractLayer {
+    protected type: ELayerType = 'panel';
     protected editState: {
         firstPoint: Point;
         position: Point;
@@ -18,9 +24,14 @@ export class RectangleLayer extends AbstractLayer {
 
     @mapping('s', 'point') public size: Point = new Point();
 
-    @mapping('r') public radius: number = 0;
+    @mapping('r') public radius: number = LVGL_PANEL_DEFAULT_RADIUS;
 
-    @mapping('f') public fill: boolean = false;
+    @mapping('bc') public backgroundColor: string = LVGL_PANEL_DEFAULT_BG_COLOR;
+
+    // Use the LVGL default background color for panel borders.
+    @mapping('bdc') public borderColor: string = LVGL_PANEL_DEFAULT_BORDER_COLOR;
+
+    @mapping('bdw') public borderWidth: number = LVGL_PANEL_DEFAULT_BORDER_WIDTH;
 
     get minLen(): number {
         return this.radius * 2 + 2;
@@ -94,19 +105,22 @@ export class RectangleLayer extends AbstractLayer {
             },
             type: TModifierType.number,
         },
-        fill: {
-            getValue: () => this.fill,
-            setValue: (v: boolean) => {
-                this.fill = v;
+        borderWidth: {
+            getValue: () => this.borderWidth,
+            setValue: (v: number) => {
+                this.borderWidth = Math.max(0, v);
                 this.draw();
             },
-            type: TModifierType.boolean,
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
+            type: TModifierType.number,
         },
-        color: {
-            getValue: () => this.color,
+        backgroundColor: {
+            getValue: () => this.backgroundColor,
             setValue: (v: string) => {
-                this.color = v;
-                this.updateBounds();
+                this.backgroundColor = v;
                 this.draw();
             },
             getVariable: (name: string) => this.variables[name] ?? false,
@@ -115,13 +129,17 @@ export class RectangleLayer extends AbstractLayer {
             },
             type: TModifierType.color,
         },
-        inverted: {
-            getValue: () => this.inverted,
-            setValue: (v: boolean) => {
-                this.inverted = v;
+        borderColor: {
+            getValue: () => this.borderColor,
+            setValue: (v: string) => {
+                this.borderColor = v;
                 this.draw();
             },
-            type: TModifierType.boolean,
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
+            type: TModifierType.color,
         },
     };
 
@@ -241,16 +259,15 @@ export class RectangleLayer extends AbstractLayer {
         renderer?: AbstractDrawingRenderer
     ) {
         super(features, renderer);
+
+        this.size = new Point(100, 60);
+
         if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
-            delete this.modifiers.color;
-        }
-        if (!this.features.hasInvertedColors) {
-            delete this.modifiers.inverted;
+            delete this.modifiers.borderColor;
         }
         if (!this.features.hasRoundCorners) {
             delete this.modifiers.radius;
         }
-        this.color = this.features.defaultColor;
     }
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
@@ -258,7 +275,6 @@ export class RectangleLayer extends AbstractLayer {
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
-            this.size = new Point(1);
             this.updateBounds();
             this.draw();
         }
@@ -302,11 +318,14 @@ export class RectangleLayer extends AbstractLayer {
     }
 
     draw() {
-        if (this.radius > 0) {
-            this.renderer.drawRoundedRect(this.position, this.size, this.radius, this.fill, this.color);
-        } else {
-            this.renderer.drawRect(this.position, this.size, this.fill, this.color);
-        }
+        this.renderer.drawPanel(
+            this.position,
+            this.size,
+            this.radius,
+            this.backgroundColor,
+            this.borderColor,
+            this.borderWidth
+        );
     }
 
     onLoadState() {
@@ -320,5 +339,9 @@ export class RectangleLayer extends AbstractLayer {
 
     public contains(point: Point): boolean {
         return this.bounds.contains(point);
+    }
+
+    getIcon() {
+        return 'rect';
     }
 }

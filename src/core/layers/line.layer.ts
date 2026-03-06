@@ -3,6 +3,7 @@ import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractDrawingRenderer} from '../../draw/renderers';
 
 export class LineLayer extends AbstractLayer {
     protected type: ELayerType = 'line';
@@ -24,6 +25,10 @@ export class LineLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
         y1: {
@@ -32,6 +37,10 @@ export class LineLayer extends AbstractLayer {
                 this.p1.y = v;
                 this.updateBounds();
                 this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
             },
             type: TModifierType.number,
         },
@@ -42,6 +51,10 @@ export class LineLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
         y2: {
@@ -51,6 +64,10 @@ export class LineLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
         color: {
@@ -59,6 +76,10 @@ export class LineLayer extends AbstractLayer {
                 this.color = v;
                 this.updateBounds();
                 this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
             },
             type: TModifierType.color,
         },
@@ -72,8 +93,11 @@ export class LineLayer extends AbstractLayer {
         },
     };
 
-    constructor(protected features: TPlatformFeatures) {
-        super(features);
+    constructor(
+        protected features: TPlatformFeatures,
+        renderer?: AbstractDrawingRenderer
+    ) {
+        super(features, renderer);
         if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
             delete this.modifiers.color;
         }
@@ -87,14 +111,14 @@ export class LineLayer extends AbstractLayer {
         {
             cursor: 'move',
             getRect: (): Rect => new Rect(this.p1, new Point(3)).subtract(1, 1, 0, 0),
-            move: (offset: Point): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 this.p1 = this.editState.p1.clone().add(offset).round();
             },
         },
         {
             cursor: 'move',
             getRect: (): Rect => new Rect(this.p2, new Point(3)).subtract(1, 1, 0, 0),
-            move: (offset: Point): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 this.p2 = this.editState.p2.clone().add(offset).round();
             },
         },
@@ -111,7 +135,7 @@ export class LineLayer extends AbstractLayer {
         };
     }
 
-    edit(point: Point, originalEvent: MouseEvent) {
+    edit(point: Point, originalEvent: MouseEvent | TouchEvent) {
         if (!this.editState) {
             return;
         }
@@ -122,32 +146,13 @@ export class LineLayer extends AbstractLayer {
                 this.p2 = p2.clone().add(point.clone().subtract(firstPoint)).round();
                 break;
             case EditMode.RESIZING:
-                editPoint.move(point.clone().subtract(firstPoint));
+                editPoint.move(point.clone().subtract(firstPoint), originalEvent);
                 // this.size = size.clone().add(point.clone().subtract(firstPoint)).round();
                 // todo
                 break;
             case EditMode.CREATING:
                 this.p1 = firstPoint.clone();
-                let endpoint = point.clone();
-
-                if (originalEvent.shiftKey) {
-                    const dx = endpoint.x - firstPoint.x;
-                    const dy = endpoint.y - firstPoint.y;
-                    const absDx = Math.abs(dx);
-                    const absDy = Math.abs(dy);
-
-                    if (absDx > absDy * 2) {
-                        endpoint.y = firstPoint.y;
-                    } else if (absDy > absDx * 2) {
-                        endpoint.x = firstPoint.x;
-                    } else {
-                        const minDist = Math.min(absDx, absDy);
-                        endpoint.x = firstPoint.x + (dx >= 0 ? minDist : -minDist);
-                        endpoint.y = firstPoint.y + (dy >= 0 ? minDist : -minDist);
-                    }
-                }
-
-                this.p2 = endpoint;
+                this.p2 = point.clone();
                 break;
         }
         this.updateBounds();
@@ -161,11 +166,7 @@ export class LineLayer extends AbstractLayer {
     }
 
     draw() {
-        const {dc, p1, p2} = this;
-        dc.clear();
-        dc.ctx.fillStyle = this.color;
-        dc.ctx.strokeStyle = this.color;
-        dc.pixelateLine(p1, p2, 1);
+        this.renderer.drawLine(this.p1, this.p2, this.color);
     }
 
     onLoadState() {

@@ -3,7 +3,9 @@ import {addAlphaChannelToImageData} from '../../utils';
 import {Point} from '../point';
 import {AbstractImageLayer} from './abstract-image.layer';
 import {EditMode, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractDrawingRenderer} from '../../draw/renderers';
 
+// icons are deprecated, use paint layer instead
 export class IconLayer extends AbstractImageLayer {
     public type: ELayerType = 'icon';
 
@@ -15,6 +17,10 @@ export class IconLayer extends AbstractImageLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
         y: {
@@ -24,15 +30,21 @@ export class IconLayer extends AbstractImageLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
         w: {
             getValue: () => this.size.x,
             type: TModifierType.number,
+            fixed: true,
         },
         h: {
             getValue: () => this.size.y,
             type: TModifierType.number,
+            fixed: true,
         },
         icon: {
             getValue: () => this.data,
@@ -60,6 +72,10 @@ export class IconLayer extends AbstractImageLayer {
                 this.color = v;
                 this.applyColor();
                 this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
             },
             type: TModifierType.color,
         },
@@ -91,8 +107,11 @@ export class IconLayer extends AbstractImageLayer {
         };
     }
 
-    constructor(protected features: TPlatformFeatures) {
-        super(features);
+    constructor(
+        protected features: TPlatformFeatures,
+        renderer?: AbstractDrawingRenderer
+    ) {
+        super(features, renderer);
         if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
             delete this.modifiers.color;
         }
@@ -102,7 +121,7 @@ export class IconLayer extends AbstractImageLayer {
         this.color = this.features.defaultColor;
     }
 
-    edit(point: Point, originalEvent: MouseEvent) {
+    edit(point: Point, originalEvent: MouseEvent | TouchEvent) {
         if (!this.editState) {
             return;
         }

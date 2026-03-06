@@ -1,9 +1,23 @@
 import {AbstractLayer} from './layers/abstract.layer';
 
+export type TChangeType =
+    | 'add'
+    | 'remove'
+    | 'change'
+    | 'clear'
+    | 'merge'
+    | 'lock'
+    | 'unlock'
+    | 'show'
+    | 'hide'
+    | 'group'
+    | 'begin'
+    | 'end';
+
 export type TChange = {
-    type: 'add' | 'remove' | 'change' | 'clear' | 'merge' | 'lock' | 'unlock' | 'hide' | 'show';
-    layer: AbstractLayer;
-    state: any;
+    type: TChangeType;
+    layer?: AbstractLayer;
+    state?: any;
 };
 
 export type THistoryEvent = {
@@ -12,11 +26,23 @@ export type THistoryEvent = {
 
 export type THistoryListener = (event: THistoryEvent, change: TChange) => void;
 
+// Keeps paired undo/redo states for a single change
+type TRedoPair = {
+    undo: TChange;
+    redo: TChange;
+};
+
+// Wraps a batch of redo pairs so grouped actions stay together
+type TRedoBatch = {
+    isBatch: boolean;
+    changes: TRedoPair[];
+};
+
 export class ChangeHistory {
     history: TChange[] = [];
     listeners: Function[] = [];
     redoHistory: TChange[] = [];
-    redoStack: TChange[] = [];
+    redoStack: TRedoBatch[] = [];
 
     constructor() {}
 
@@ -38,23 +64,78 @@ export class ChangeHistory {
         this.redoStack = [];
     }
 
+    public batchStart() {
+        this.push({type: 'end'});
+    }
+
+    public batchEnd() {
+        this.push({type: 'begin'});
+    }
+
     public undo() {
-        if (this.history.length) {
-            const change = this.history.pop();
-            this.emit({type: 'undo'}, change);
+        // Exit early when nothing can be undone
+        if (!this.history.length) {
+            return;
         }
-        if (this.redoHistory.length) {
-            const change = this.redoHistory.pop();
-            this.redoStack.push(change);
+        // Accumulate undo/redo pairs for the action being undone
+        const batch: TRedoPair[] = [];
+        let isBatch = false;
+        let change = this.history.pop();
+        if (!change) {
+            return;
+        }
+        if (change.type === 'begin') {
+            isBatch = true;
+            while (this.history.length) {
+                const next = this.history.pop();
+                if (!next) {
+                    break;
+                }
+                if (next.type === 'end') {
+                    break;
+                }
+                this.emit({type: 'undo'}, next);
+                const redoState = this.redoHistory.pop();
+                if (redoState) {
+                    batch.push({undo: next, redo: redoState});
+                }
+            }
+        } else {
+            this.emit({type: 'undo'}, change);
+            const redoState = this.redoHistory.pop();
+            if (redoState) {
+                batch.push({undo: change, redo: redoState});
+            }
+        }
+        if (batch.length) {
+            this.redoStack.push({
+                isBatch: isBatch || batch.length > 1,
+                changes: batch,
+            });
         }
     }
 
     public redo() {
-        if (this.redoStack.length) {
-            const change = this.redoStack.pop();
-            this.history.push(change);
-            this.redoHistory.push(change);
-            this.emit({type: 'redo'}, change);
+        // Exit early when redo history is empty
+        if (!this.redoStack.length) {
+            return;
+        }
+        // Restore the last undone batch as a single redo action
+        const batch = this.redoStack.pop();
+        if (!batch || !batch.changes.length) {
+            return;
+        }
+        if (batch.isBatch) {
+            this.history.push({type: 'end'});
+        }
+        for (let i = batch.changes.length - 1; i >= 0; i--) {
+            const entry = batch.changes[i];
+            this.history.push(entry.undo);
+            this.redoHistory.push(entry.redo);
+            this.emit({type: 'redo'}, entry.redo);
+        }
+        if (batch.isBatch) {
+            this.history.push({type: 'begin'});
         }
     }
 

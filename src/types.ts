@@ -9,6 +9,7 @@ export interface Project {
     private?: boolean;
     stars_count?: number;
     is_starred?: boolean;
+    color_bg?: string;
 }
 
 export interface ProjectScreen {

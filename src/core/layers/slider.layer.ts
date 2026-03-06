@@ -1,12 +1,13 @@
 import {TPlatformFeatures} from '../../platforms/platform';
 import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
-import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
 import {AbstractDrawingRenderer} from '../../draw/renderers';
+import {Rect} from '../rect';
+import {LVGL_SLIDER_DEFAULT_COLOR} from '../../platforms/lvgl/constants';
 
-export class RectangleLayer extends AbstractLayer {
-    protected type: ELayerType = 'rect';
+export class SliderLayer extends AbstractLayer {
+    protected type: ELayerType = 'slider';
     protected editState: {
         firstPoint: Point;
         position: Point;
@@ -15,15 +16,17 @@ export class RectangleLayer extends AbstractLayer {
     } = null;
 
     @mapping('p', 'point') public position: Point = new Point();
-
     @mapping('s', 'point') public size: Point = new Point();
 
-    @mapping('r') public radius: number = 0;
+    // Use LVGL defaults for slider colors.
+    @mapping('c') public color: string = LVGL_SLIDER_DEFAULT_COLOR;
 
-    @mapping('f') public fill: boolean = false;
-
-    get minLen(): number {
-        return this.radius * 2 + 2;
+    constructor(
+        protected features: TPlatformFeatures,
+        renderer?: AbstractDrawingRenderer
+    ) {
+        super(features, renderer);
+        this.size = new Point(120, 10);
     }
 
     modifiers: TLayerModifiers = {
@@ -56,7 +59,7 @@ export class RectangleLayer extends AbstractLayer {
         w: {
             getValue: () => this.size.x,
             setValue: (v: number) => {
-                this.size.x = Math.max(v, this.minLen);
+                this.size.x = Math.max(v, 1);
                 this.updateBounds();
                 this.draw();
             },
@@ -69,7 +72,7 @@ export class RectangleLayer extends AbstractLayer {
         h: {
             getValue: () => this.size.y,
             setValue: (v: number) => {
-                this.size.y = Math.max(v, this.minLen);
+                this.size.y = Math.max(v, 1);
                 this.updateBounds();
                 this.draw();
             },
@@ -78,35 +81,11 @@ export class RectangleLayer extends AbstractLayer {
                 this.variables[name] = enabled;
             },
             type: TModifierType.number,
-        },
-        radius: {
-            getValue: () => this.radius,
-            setValue: (v: number) => {
-                this.radius = Math.max(
-                    0,
-                    Math.min(v, Math.round(this.size.x / 2 - 1), Math.round(this.size.y / 2 - 1))
-                );
-                this.draw();
-            },
-            getVariable: (name: string) => this.variables[name] ?? false,
-            setVariable: (name: string, enabled: boolean) => {
-                this.variables[name] = enabled;
-            },
-            type: TModifierType.number,
-        },
-        fill: {
-            getValue: () => this.fill,
-            setValue: (v: boolean) => {
-                this.fill = v;
-                this.draw();
-            },
-            type: TModifierType.boolean,
         },
         color: {
             getValue: () => this.color,
             setValue: (v: string) => {
                 this.color = v;
-                this.updateBounds();
                 this.draw();
             },
             getVariable: (name: string) => this.variables[name] ?? false,
@@ -114,14 +93,6 @@ export class RectangleLayer extends AbstractLayer {
                 this.variables[name] = enabled;
             },
             type: TModifierType.color,
-        },
-        inverted: {
-            getValue: () => this.inverted,
-            setValue: (v: boolean) => {
-                this.inverted = v;
-                this.draw();
-            },
-            type: TModifierType.boolean,
         },
     };
 
@@ -135,25 +106,16 @@ export class RectangleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point): void => {
                 const size = new Point(this.editState.size.x - offset.x, this.editState.size.y + offset.y);
                 const position = this.editState.position.clone().subtract(0, offset.y);
-                if (size.x != this.size.x && size.x >= this.minLen) {
+                if (size.x != this.size.x && size.x >= 1) {
                     this.position.x = position.x;
                     this.size.x = size.x;
                 }
-                if (size.y != this.size.y && size.y >= this.minLen) {
+                if (size.y != this.size.y && size.y >= 1) {
                     this.position.y = position.y;
                     this.size.y = size.y;
-                }
-                if (event?.shiftKey) {
-                    const left = this.position.x;
-                    const bottom = this.position.y + this.size.y;
-                    const uniformSize = Math.max(this.minLen, Math.max(this.size.x, this.size.y));
-                    this.size.x = uniformSize;
-                    this.size.y = uniformSize;
-                    this.position.x = left;
-                    this.position.y = bottom - this.size.y;
                 }
             },
         },
@@ -164,17 +126,8 @@ export class RectangleLayer extends AbstractLayer {
                     new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, event?: MouseEvent): void => {
-                this.size = this.editState.size.clone().subtract(offset).max(new Point(this.minLen));
-                if (event?.shiftKey) {
-                    const left = this.position.x;
-                    const top = this.position.y;
-                    const uniformSize = Math.max(this.minLen, Math.max(this.size.x, this.size.y));
-                    this.size.x = uniformSize;
-                    this.size.y = uniformSize;
-                    this.position.x = left;
-                    this.position.y = top;
-                }
+            move: (offset: Point): void => {
+                this.size = this.editState.size.clone().subtract(offset).max(new Point(1, 1));
             },
         },
         {
@@ -186,25 +139,16 @@ export class RectangleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point): void => {
                 const position = this.editState.position.clone().subtract(offset.x, 0);
                 const size = this.editState.size.clone().add(offset.x, -offset.y);
-                if (size.x != this.size.x && size.x >= this.minLen) {
+                if (size.x != this.size.x && size.x >= 1) {
                     this.position.x = position.x;
                     this.size.x = size.x;
                 }
-                if (size.y != this.size.y && size.y >= this.minLen) {
+                if (size.y != this.size.y && size.y >= 1) {
                     this.position.y = position.y;
                     this.size.y = size.y;
-                }
-                if (event?.shiftKey) {
-                    const top = this.position.y;
-                    const right = this.position.x + this.size.x;
-                    const uniformSize = Math.max(this.minLen, Math.max(this.size.x, this.size.y));
-                    this.size.x = uniformSize;
-                    this.size.y = uniformSize;
-                    this.position.y = top;
-                    this.position.x = right - this.size.x;
                 }
             },
         },
@@ -212,53 +156,26 @@ export class RectangleLayer extends AbstractLayer {
             cursor: 'nwse-resize',
             getRect: (): Rect =>
                 new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point): void => {
                 const position = this.editState.position.clone().subtract(offset);
                 const size = this.editState.size.clone().add(offset);
-                if (size.x != this.size.x && size.x >= this.minLen) {
+                if (size.x != this.size.x && size.x >= 1) {
                     this.position.x = position.x;
                     this.size.x = size.x;
                 }
-                if (size.y != this.size.y && size.y >= this.minLen) {
+                if (size.y != this.size.y && size.y >= 1) {
                     this.size.y = size.y;
                     this.position.y = position.y;
-                }
-                if (event?.shiftKey) {
-                    const right = this.position.x + this.size.x;
-                    const bottom = this.position.y + this.size.y;
-                    const uniformSize = Math.max(this.minLen, Math.max(this.size.x, this.size.y));
-                    this.size.x = uniformSize;
-                    this.size.y = uniformSize;
-                    this.position.x = right - this.size.x;
-                    this.position.y = bottom - this.size.y;
                 }
             },
         },
     ];
-
-    constructor(
-        protected features: TPlatformFeatures,
-        renderer?: AbstractDrawingRenderer
-    ) {
-        super(features, renderer);
-        if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
-            delete this.modifiers.color;
-        }
-        if (!this.features.hasInvertedColors) {
-            delete this.modifiers.inverted;
-        }
-        if (!this.features.hasRoundCorners) {
-            delete this.modifiers.radius;
-        }
-        this.color = this.features.defaultColor;
-    }
 
     startEdit(mode: EditMode, point: Point, editPoint: TLayerEditPoint) {
         this.pushHistory();
         this.mode = mode;
         if (mode == EditMode.CREATING) {
             this.position = point.clone();
-            this.size = new Point(1);
             this.updateBounds();
             this.draw();
         }
@@ -280,15 +197,9 @@ export class RectangleLayer extends AbstractLayer {
                 this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
                 break;
             case EditMode.RESIZING:
-                editPoint.move(firstPoint.clone().subtract(point), originalEvent);
+                editPoint.move(firstPoint.clone().subtract(point));
                 break;
             case EditMode.CREATING:
-                this.position = point.clone().min(firstPoint);
-                this.size = point.clone().subtract(firstPoint).abs().max(new Point(1));
-                // square
-                if (originalEvent.shiftKey) {
-                    this.size = new Point(Math.max(this.size.x, this.size.y)).max(new Point(1));
-                }
                 break;
         }
         this.updateBounds();
@@ -298,14 +209,16 @@ export class RectangleLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
-        this.pushRedoHistory();
     }
 
     draw() {
-        if (this.radius > 0) {
-            this.renderer.drawRoundedRect(this.position, this.size, this.radius, this.fill, this.color);
-        } else {
-            this.renderer.drawRect(this.position, this.size, this.fill, this.color);
+        if (this.renderer.drawSlider) {
+            this.renderer.drawSlider(
+                this.position,
+                this.size,
+                50,
+                this.color
+            );
         }
     }
 
@@ -319,6 +232,13 @@ export class RectangleLayer extends AbstractLayer {
     }
 
     public contains(point: Point): boolean {
-        return this.bounds.contains(point);
+        const localPoint = point.clone().subtract(this.position);
+        // Add a small buffer (2px) to make selection easier
+        return (
+            localPoint.x >= -2 &&
+            localPoint.x < this.size.x + 2 &&
+            localPoint.y >= -2 &&
+            localPoint.y < this.size.y + 2
+        );
     }
 }
