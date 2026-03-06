@@ -119,7 +119,7 @@ export class PolygonLayer extends AbstractLayer {
         this.editPoints = this.points.map((_, idx) => ({
             cursor: 'move' as const,
             getRect: (): Rect =>
-                new Rect(new Point(this.points[idx][0], this.points[idx][1]), new Point(3)).subtract(1, 1, 0, 0),
+                new Rect(new Point(this.points[idx][0], this.points[idx][1]), new Point(7)).subtract(3, 3, 0, 0),
             move: (offset: Point): void => {
                 this.points[idx] = [this.editState.points[idx][0] + offset.x, this.editState.points[idx][1] + offset.y];
             },
