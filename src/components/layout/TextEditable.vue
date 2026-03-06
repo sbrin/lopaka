@@ -1,5 +1,8 @@
-<script lang="ts" setup>
-import {nextTick, ref} from 'vue';
+<script
+    lang="ts"
+    setup
+>
+import { nextTick, ref } from 'vue';
 import Icon from '/src/components/layout/Icon.vue';
 
 const props = defineProps<{
@@ -13,7 +16,7 @@ const textInput = ref(null);
 const isEditing = ref(false);
 const newText = ref('');
 
-function edit() {
+function edit(e) {
     if (props.readonly) return;
     newText.value = props.text;
     isEditing.value = true;
@@ -40,34 +43,39 @@ async function save() {
             ref="textInput"
             type="text"
             :class="props.class"
-            class="input input-xs input-ghost max-w-full min-w-full"
-            :style="{width: newText.length + 2 + 'ch'}"
+            class="input input-xs input-ghost max-w-full min-w-full cursor-text"
+            :style="{ width: newText.length + 2 + 'ch' }"
             v-model="newText"
             @blur="save"
             @keydown.esc="isEditing = false"
             @keydown.enter="isEditing = false"
             :readonly="readonly"
+            @click.prevent.stop=""
         />
         <div
             v-show="!isEditing"
-            class="truncate pr-4 min-h-6"
+            class="truncate pr-4 min-h-8"
             style="white-space: pre"
-            @click="edit"
         >
             {{ text || ' ' }}
         </div>
         <Icon
+            @click.prevent.stop="edit"
             v-show="!isEditing && !readonly"
             type="edit"
             sm
-            class="text-editable__icon hidden absolute text-gray-500 right-0 bottom-[0.3em] pointer-events-none"
+            class="text-editable__icon hidden absolute text-gray-500 right-0 bottom-[0.3em] cursor-pointer mr-1"
         />
     </div>
 </template>
-<style lang="css" scoped>
+<style
+    lang="css"
+    scoped
+>
 .text-editable:hover .text-editable__icon {
     display: inline-block;
 }
+
 .text-input {
     display: none;
 }

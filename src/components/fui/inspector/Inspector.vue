@@ -320,26 +320,6 @@ const LABELS = {
             :actions="actions"
             :activeLayer="activeLayer"
         />
-
-        <datalist id="presetColors">
-            <!-- 16 colors -->
-            <option>#000000</option>
-            <option>#0000AA</option>
-            <option>#00AA00</option>
-            <option>#00AAAA</option>
-            <option>#AA0000</option>
-            <option>#AA00AA</option>
-            <option>#AA5500</option>
-            <option>#AAAAAA</option>
-            <option>#555555</option>
-            <option>#5555FF</option>
-            <option>#55FF55</option>
-            <option>#55FFFF</option>
-            <option>#FF5555</option>
-            <option>#FF55FF</option>
-            <option>#FFFF55</option>
-            <option>#FFFFFF</option>
-        </datalist>
     </div>
     <div
         v-if="(activeLayer && !['icon', 'paint'].includes(activeLayer.getType())) || layerToMerge"

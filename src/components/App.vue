@@ -71,4 +71,43 @@ function setErrorMessage(msg) {
             <template #title></template>
         </FuiEditor>
     </div>
+    <datalist id="presetColors">
+        <!-- 32 colors -->
+        <!-- Grayscale -->
+        <option>#FFFFFF</option>
+        <option>#EEEEEE</option>
+        <option>#BDBDBD</option>
+        <option>#757575</option>
+        <option>#424242</option>
+        <option>#000000</option>
+
+        <!-- Material UI Colors -->
+        <option label="Red">#F44336</option>
+        <option label="Pink">#E91E63</option>
+        <option label="Purple">#9C27B0</option>
+        <option label="Deep Purple">#673AB7</option>
+        <option label="Indigo">#3F51B5</option>
+        <option label="Blue">#2196F3</option>
+        <option label="Light Blue">#03A9F4</option>
+        <option label="Cyan">#00BCD4</option>
+        <option label="Teal">#009688</option>
+        <option label="Green">#4CAF50</option>
+        <option label="Light Green">#8BC34A</option>
+        <option label="Lime">#CDDC39</option>
+        <option label="Yellow">#FFEB3B</option>
+        <option label="Amber">#FFC107</option>
+        <option label="Orange">#FF8200</option>
+        <option label="Deep Orange">#FF5722</option>
+        <option label="Brown">#795548</option>
+        <option label="Blue Grey">#607D8B</option>
+    </datalist>
 </template>
+<style lang="css">
+body {
+    visibility: visible !important;
+}
+
+.pixelated {
+    image-rendering: pixelated;
+}
+</style>
