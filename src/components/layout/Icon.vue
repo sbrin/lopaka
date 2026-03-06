@@ -22,7 +22,7 @@ import AlignBottomIcon from '/src/assets/icons/align_bottom.svg?component';
 import AlignLeftIcon from '/src/assets/icons/align_left.svg?component';
 import AlignCenterHIcon from '/src/assets/icons/align_center_h.svg?component';
 import AlignRightIcon from '/src/assets/icons/align_right.svg?component';
-import RectangleIcon from '/src/assets/icons/rectangle.svg?component';
+import RectangleIcon from '/src/assets/icons/Rectangle.svg?component';
 import VarIcon from '/src/assets/icons/var.svg?component';
 import ButtonIcon from '/src/assets/icons/button.svg?component';
 import SwitchIcon from '/src/assets/icons/switch.svg?component';
