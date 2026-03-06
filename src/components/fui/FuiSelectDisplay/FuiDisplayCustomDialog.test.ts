@@ -1,8 +1,23 @@
 import {mount} from '@vue/test-utils';
-import {describe, expect, it} from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 import FuiDisplayCustomDialog from './FuiDisplayCustomDialog.vue';
 
+// Mock session to avoid localStorage dependencies
+vi.mock('../../../core/session', () => ({
+    useSession: () => ({
+        state: {
+            display: {x: 128, y: 64},
+        },
+        setDisplay: vi.fn(),
+        saveDisplayCustom: vi.fn(),
+    }),
+}));
+
 describe('FuiDisplayCustomDialog', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
     it('renders a popup element', () => {
         const wrapper = mount(FuiDisplayCustomDialog, {
             customWidth: 123,

@@ -34,14 +34,27 @@ describe('PaintLayer image import', () => {
 
         vi.spyOn(document, 'createElement').mockImplementation((...args: Parameters<typeof document.createElement>) => {
             if (args[0] === 'canvas') {
-                return {
-                    width: 0,
-                    height: 0,
+                const canvas: any = {
+                    _width: 0,
+                    _height: 0,
+                    get width() {
+                        return this._width;
+                    },
+                    set width(v: number) {
+                        this._width = v;
+                    },
+                    get height() {
+                        return this._height;
+                    },
+                    set height(v: number) {
+                        this._height = v;
+                    },
                     getContext: () => ({
                         drawImage: vi.fn(),
                         getImageData,
                     }),
-                } as unknown as HTMLCanvasElement;
+                };
+                return canvas as unknown as HTMLCanvasElement;
             }
 
             return originalCreateElement(...args);
