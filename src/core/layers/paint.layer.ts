@@ -90,7 +90,10 @@ export class PaintLayer extends AbstractImageLayer {
             getValue: () => this.data,
             setValue: (v: HTMLImageElement) => {
                 this.imageName = v.dataset.name;
-                const datasetColorMode = v.dataset.colorMode === 'rgb' ? 'rgb' : 'monochrome';
+                // Only update colorMode if explicitly specified in dataset, otherwise preserve existing
+                const datasetColorMode = v.dataset.colorMode
+                    ? (v.dataset.colorMode === 'rgb' ? 'rgb' : 'monochrome')
+                    : this.colorMode;
                 this.colorMode = datasetColorMode;
                 if (datasetColorMode === 'rgb') {
                     delete this.modifiers.color;
@@ -101,6 +104,9 @@ export class PaintLayer extends AbstractImageLayer {
                 const [w, h] = [Number(v.dataset.w), Number(v.dataset.h)];
                 if (w && h) {
                     this.size = new Point(w, h);
+                } else {
+                    // Use intrinsic image dimensions when metadata is missing
+                    this.size = new Point(v.naturalWidth || 1, v.naturalHeight || 1);
                 }
                 const buf = document.createElement('canvas');
                 const ctx = buf.getContext('2d');

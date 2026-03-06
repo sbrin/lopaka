@@ -55,6 +55,7 @@ exports[`FuiDisplayCustomDialog > renders a popup element 1`] = `
       <button
         class="btn font-sans uppercase leading-none btn-primary btn-outline btn-sm"
         data-v-3947d5d5=""
+        tabindex="-1"
       >
         
         Cancel
@@ -69,6 +70,7 @@ exports[`FuiDisplayCustomDialog > renders a popup element 1`] = `
       <button
         class="btn font-sans uppercase leading-none btn-primary btn-outline btn-success btn-sm"
         data-v-3947d5d5=""
+        tabindex="-1"
       >
         
          Save 
