@@ -19,10 +19,11 @@ import ImageOperations from '/src/components/fui/inspector/ImageOperations.vue';
 import AlignButtons from './AlignButtons.vue';
 import SwitchInputVariable from '/src/components/fui/inspector/SwitchInputVariable.vue';
 import { alignLayer, alignMultipleLayers } from './alignLayers';
-import { ProjectScreen } from '/src/types';
+import { Project, ProjectScreen } from '/src/types';
 import { ButtonLayer } from '/src/core/layers/button.layer';
 import { CheckboxLayer } from '/src/core/layers/checkbox.layer';
 import { shouldShowInspectorParam } from './inspector-params';
+import { logEvent } from '/src/utils';
 
 const props = defineProps<{
     readonly?: boolean;

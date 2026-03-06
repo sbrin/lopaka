@@ -285,6 +285,7 @@ export class Session {
             localStorage.setItem('lopaka_library', name);
             isLogged && logEvent('select_library', name);
         }
+        this.virtualScreen.redraw();
     };
 
     setBrushColor = (color: string) => {
@@ -372,7 +373,7 @@ export class Session {
     unlock = () => {
         this.state.lock = false;
     };
-    initSandbox = () => {
+    initSandbox = async () => {
         // Scope clipboard to sandbox context so project copy data is not reused.
         syncProjectClipboard(null);
         const platformLocal = localStorage.getItem('lopaka_library');
@@ -381,7 +382,7 @@ export class Session {
         if (local_color_bg) {
             this.platforms[this.state.platform].features.screenBgColor = local_color_bg;
         }
-        this.preparePlatform(platformLocal ?? TFTeSPIPlatform.id);
+        await this.preparePlatform(platformLocal ?? TFTeSPIPlatform.id);
         this.setDisplayCustom(localStorage.getItem('lopaka_display_custom') === 'true');
         const displayStored = localStorage.getItem('lopaka_display');
         if (displayStored) {
@@ -438,10 +439,7 @@ export function saveLayers(screen_id, snapshot: SaveLayersSnapshot = {}) {
     const session = useSession();
     // Prefer captured payload when provided to avoid saving mixed screen state after async switches.
     const packedSession = snapshot.layers ?? session.layersManager.layers.map((l) => l.state);
-    if (!screen_id) {
-        // Persist sandbox state locally when no server-side screen id exists.
-        localStorage.setItem(`${session.state.platform}_lopaka_layers`, JSON.stringify(packedSession));
-    }
+    localStorage.setItem(`${session.state.platform}_lopaka_layers`, JSON.stringify(packedSession));
     return Promise.resolve();
 }
 

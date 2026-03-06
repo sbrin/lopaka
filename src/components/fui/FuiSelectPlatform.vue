@@ -1,12 +1,15 @@
-<script lang="ts" setup>
-import {toRefs, watch} from 'vue';
-import {useSession} from '../../core/session';
+<script
+    lang="ts"
+    setup
+>
+import { toRefs, watch } from 'vue';
+import { useSession } from '../../core/session';
 
 const session = useSession();
-const {preparePlatform} = session;
-const {platform} = toRefs(session.state);
-watch(platform, (val) => {
-    preparePlatform(val, true);
+const { preparePlatform } = session;
+const { platform } = toRefs(session.state);
+watch(platform, async (val) => {
+    await preparePlatform(val, true);
 });
 </script>
 <template>
@@ -26,9 +29,7 @@ watch(platform, (val) => {
                 v-for="(p, idx) in session.platforms"
                 :key="idx"
             >
-                <option
-                    :value="idx"
-                >
+                <option :value="idx">
                     {{ p.getName() }}
                 </option>
             </template>

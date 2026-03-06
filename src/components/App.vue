@@ -1,12 +1,15 @@
-<script lang="ts" setup>
-import {onMounted, ref, toRefs} from 'vue';
-import {useSession} from '/src/core/session';
+<script
+    lang="ts"
+    setup
+>
+import { onMounted, ref, toRefs } from 'vue';
+import { useSession } from '/src/core/session';
 import FuiEditor from '/src/components/fui/FuiEditor.vue';
-import {Project, ProjectScreen} from '/src/types';
-import FuiLayers from './fui/FuiLayers.vue';
+import { Project, ProjectScreen } from '/src/types';
+import FuiLayers from './fui/layers/FuiLayers.vue';
 
 const session = useSession();
-const {setIsPublic} = session;
+const { setIsPublic } = session;
 const currenProject = ref({} as Project);
 const currentScreen = ref({} as ProjectScreen);
 const isScreenLoaded = ref(false);
@@ -21,7 +24,16 @@ onMounted(async () => {
     session.state.customFonts = [];
     isScreenLoaded.value = false;
     isScreenLoaded.value = true;
-    session.initSandbox();
+    currenProject.value = {
+        id: 0,
+        title: '',
+        screens: [{ id: 0 }],
+        platform: session.state.platform,
+        screen_x: session.state.display.x,
+        screen_y: session.state.display.y,
+        private: true,
+    };
+    await session.initSandbox();
     isScreenLoaded.value = true;
     setIsPublic(false);
 });
@@ -47,7 +59,6 @@ function setErrorMessage(msg) {
             :screen="currentScreen"
             :isScreenLoaded="isScreenLoaded"
             :isScreenNotFound="isScreenNotFound"
-            :isSandbox="true"
             @setErrorMessage="setErrorMessage"
             @setInfoMessage="setInfoMessage"
         >

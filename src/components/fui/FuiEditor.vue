@@ -1,6 +1,9 @@
-<script setup lang="ts">
-import {computed, onBeforeUnmount, onMounted, ref, ShallowRef, toRefs, watch} from 'vue';
-import {Project, ProjectScreen} from '/src/types';
+<script
+    setup
+    lang="ts"
+>
+import { computed, onBeforeUnmount, onMounted, ref, ShallowRef, toRefs, watch } from 'vue';
+import { Project, ProjectScreen } from '/src/types';
 import Button from '/src/components/layout/Button.vue';
 import FuiCanvas from '/src/components/fui/FuiCanvas.vue';
 import FuiCode from '/src/components/fui/FuiCode.vue';
@@ -17,20 +20,17 @@ import Icon from '/src/components/layout/Icon.vue';
 import FuiSelectColors from './FuiSelectColors.vue';
 import ImportImageWizard from './importImage/ImportImageWizard.vue';
 
-import {Point} from '/src/core/point';
-import {saveLayers, useSession} from '/src/core/session';
-import {FlipperRPC} from '/src/flipper-rpc';
-import {FlipperPlatform} from '/src/platforms/flipper';
-import {logEvent} from '/src/utils';
-import {PaintLayer} from '/src/core/layers/paint.layer';
-import {Uint32RawPlatform} from '/src/platforms/uint32-raw';
-import {FreestylePlatform} from '/src/platforms/freestyle';
-import {U8g2Platform} from '/src/platforms/u8g2';
-import {uploadAsset} from '/src/api/assets';
-import {addCustomImage} from '/src/core/session';
-import router from '/src/router';
-import {createScreenAutosave} from '/src/core/screen-autosave';
-import {shouldScheduleFuiEditorAutosave} from '/src/components/fui/FuiEditorAutosave';
+import { Point } from '/src/core/point';
+import { saveLayers, useSession } from '/src/core/session';
+import { FlipperRPC } from '/src/flipper-rpc';
+import { FlipperPlatform } from '/src/platforms/flipper';
+import { logEvent } from '/src/utils';
+import { PaintLayer } from '/src/core/layers/paint.layer';
+import { Uint32RawPlatform } from '/src/platforms/uint32-raw';
+import { FreestylePlatform } from '/src/platforms/freestyle';
+import { U8g2Platform } from '/src/platforms/u8g2';
+import { addCustomImage } from '/src/core/session';
+import { createScreenAutosave } from '/src/core/screen-autosave';
 
 const props = defineProps<{
     project: Project | null;
@@ -38,19 +38,17 @@ const props = defineProps<{
     readonly?: boolean;
     isScreenNotFound: boolean;
     isScreenLoaded: boolean;
-    isSandbox?: boolean;
-    auth?: boolean;
 }>();
 
 const emit = defineEmits(['openPresenter', 'setInfoMessage', 'setErrorMessage']);
 
 const session = useSession();
-const {virtualScreen, state, platforms} = session;
-const {platform, warnings} = toRefs(state);
-const {immidiateUpdates} = toRefs(session.state);
+const { virtualScreen, state, platforms } = session;
+const { platform, warnings } = toRefs(state);
+const { immidiateUpdates } = toRefs(session.state);
 const flipper: ShallowRef<FlipperRPC> = ref(null);
 const uploading = ref(false);
-const {activeTool, activeLayer} = toRefs(session.editor.state);
+const { activeTool, activeLayer } = toRefs(session.editor.state);
 
 const isFlipper = computed(() => platform.value === FlipperPlatform.id);
 const isSerialSupported = computed(() => window.navigator.serial !== undefined);
@@ -79,17 +77,6 @@ const shouldShowBrushControls = computed(() => {
 const screenAutosave = createScreenAutosave(1000);
 
 watch(immidiateUpdates, (newValue, oldValue) => {
-    // Gate autosave to editable, loaded screens to avoid writing transient empty layers.
-    if (
-        !shouldScheduleFuiEditorAutosave({
-            oldImmediateUpdates: oldValue,
-            screenId: props.screen?.id,
-            isScreenLoaded: Boolean(props.isScreenLoaded),
-            readonly: Boolean(props.readonly),
-        })
-    ) {
-        return;
-    }
     // Capture the current id so delayed writes cannot target another screen.
     const capturedScreenId = props.screen.id;
     // Capture layers immediately so delayed tasks do not read another screen state later.
@@ -105,7 +92,7 @@ watch(immidiateUpdates, (newValue, oldValue) => {
                 sendFlipperImage();
             }
             // Persist the captured snapshot for the exact screen that changed.
-            saveLayers(screenId, {layers: capturedLayers, imagePreview: capturedPreview});
+            saveLayers(screenId, { layers: capturedLayers, imagePreview: capturedPreview });
             // Refresh only the matching screen thumbnail with the captured preview.
             updateScreenPreview(screenId, capturedPreview);
         },
@@ -120,10 +107,6 @@ watch(
         }
     }
 );
-watch(immidiateUpdates, (newValue, oldValue) => {
-    if (oldValue <= 1) return;
-    props.project.screens = [...props.project.screens];
-});
 
 watch(warnings, () => {
     setWarnings(session.state.warnings);
@@ -142,33 +125,10 @@ onBeforeUnmount(() => {
 
 // Handle wizard save from session
 async function handleWizardSave(processedImagesArr) {
-    const route = router.currentRoute.value;
-    const isSandbox = route.path === '/sandbox';
-    const project_id = isSandbox ? 0 : parseInt(route.params.project_id as string);
-
     try {
-        if (isSandbox) {
-            for (const [name, width, height, image, colorMode] of processedImagesArr) {
-                addCustomImage(name, width, height, image, false, undefined, colorMode);
-            }
-        } else {
-            const uploadPromises = processedImagesArr.map(async ([name, width, height, image, colorMode]) => {
-                const file = await fetch(image.src)
-                    .then((res) => res.blob())
-                    .then((blob) => new File([blob], name, {type: 'image/png'}));
-                const asset = await uploadAsset(
-                    file,
-                    props.project?.id || project_id,
-                    'image',
-                    session.state.auth.user.id,
-                    {colorMode}
-                );
-                addCustomImage(name, width, height, image, false, asset.id, colorMode);
-            });
-
-            await Promise.all(uploadPromises);
+        for (const [name, width, height, image, colorMode] of processedImagesArr) {
+            addCustomImage(name, width, height, image, false, undefined, colorMode);
         }
-
         session.closeImageWizard();
     } catch (error) {
         console.error('Error saving images:', error);
@@ -292,10 +252,7 @@ function onMouseClick() {
         </div>
         <div class="fui-editor__top pb-1">
             <slot name="title"></slot>
-            <div
-                class="flex flex-row text-sm mb-2 justify-center"
-                v-if="!auth && !readonly"
-            >
+            <div class="flex flex-row text-sm mb-2 justify-center">
                 <FuiSelectPlatform></FuiSelectPlatform>
                 <FuiSelectDisplay></FuiSelectDisplay>
                 <FuiSelectColors
