@@ -146,13 +146,34 @@ export class LineLayer extends AbstractLayer {
                 this.p2 = p2.clone().add(point.clone().subtract(firstPoint)).round();
                 break;
             case EditMode.RESIZING:
-                editPoint.move(point.clone().subtract(firstPoint), originalEvent);
-                // this.size = size.clone().add(point.clone().subtract(firstPoint)).round();
-                // todo
+                editPoint.move(point.clone().subtract(firstPoint), originalEvent as MouseEvent);
                 break;
             case EditMode.CREATING:
                 this.p1 = firstPoint.clone();
-                this.p2 = point.clone();
+                let endpoint = point.clone();
+                const mouseEvent = originalEvent as MouseEvent;
+
+                if (mouseEvent?.shiftKey) {
+                    const dx = endpoint.x - firstPoint.x;
+                    const dy = endpoint.y - firstPoint.y;
+                    const absDx = Math.abs(dx);
+                    const absDy = Math.abs(dy);
+
+                    if (absDx > absDy * 2) {
+                        // Mostly horizontal - snap to horizontal
+                        endpoint.y = firstPoint.y;
+                    } else if (absDy > absDx * 2) {
+                        // Mostly vertical - snap to vertical
+                        endpoint.x = firstPoint.x;
+                    } else {
+                        // Diagonal - snap to 45°
+                        const minDist = Math.min(absDx, absDy);
+                        endpoint.x = firstPoint.x + (dx >= 0 ? minDist : -minDist);
+                        endpoint.y = firstPoint.y + (dy >= 0 ? minDist : -minDist);
+                    }
+                }
+
+                this.p2 = endpoint;
                 break;
         }
         this.updateBounds();
