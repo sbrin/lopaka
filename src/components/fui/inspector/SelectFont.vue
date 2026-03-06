@@ -1,7 +1,10 @@
-<script setup lang="ts">
-import {computed, ref, toRefs} from 'vue';
-import {logEvent} from '/src/utils';
-import {addCustomFont, useSession} from '/src/core/session';
+<script
+    setup
+    lang="ts"
+>
+import { computed, ref, toRefs } from 'vue';
+import { logEvent } from '/src/utils';
+import { addCustomFont, useSession } from '/src/core/session';
 import Icon from '/src/components/layout/Icon.vue';
 import bdf2gfx from '/src/draw/fonts/bdf2gfx';
 import SelectFontWizard from './SelectFontWizard.vue';
@@ -15,8 +18,8 @@ const props = defineProps<{
 }>();
 
 const session = useSession();
-const {state} = session;
-const {platform, customFonts} = toRefs(state);
+const { state } = session;
+const { platform, customFonts } = toRefs(state);
 
 const fontTypes = computed(() => {
     if (!platform.value) return null;
@@ -51,7 +54,7 @@ function onClick(font: TPlatformFont) {
     fontsBtn.value.blur();
     logEvent('select_font', font.name);
     emit('change', {
-        target: {value: font.name, title: font.title},
+        target: { value: font.name, title: font.title },
     });
 }
 
@@ -159,14 +162,14 @@ function closeWizard() {
         ref="fontsBtn"
         :disabled="disabled"
         class="select select-sm select-bordered relative"
-        :class="{'cursor-not-allowed': disabled}"
+        :class="{ 'cursor-not-allowed': disabled }"
         @click.self="showFontsMenu"
         @blur="hideFontsMenu"
     >
         <div class="truncate pointer-events-none w-[128px] text-left flex">
-            {{ fontsList.find((font) => font.name === fontValue)?.title }}
+            {{fontsList.find((font) => font.name === fontValue)?.title}}
         </div>
-        <div class="overflow-hidden w-48 right-[100%] -top-2 absolute z-10 rounded-box">
+        <div class="overflow-hidden w-48 right-[100%] -top-2 absolute z-20 rounded-box">
             <ul
                 ref="fontsMenu"
                 class="menu menu-xs max-h-[75vh] overflow-x-hidden overflow-y-auto box-content bg-secondary block hidden"
@@ -193,7 +196,7 @@ function closeWizard() {
                     </li>
                     <div class="divider h-1 py-0 my-1"></div>
                 </template>
-                <template v-if="customFonts.length">
+<template v-if="customFonts.length">
                     <TransitionGroup name="highlight">
                         <li
                             v-for="font in customFonts"
@@ -239,7 +242,7 @@ function closeWizard() {
                     :key="font.name"
                 >
                     <a
-                        :class="{'bg-neutral text-primary': fontValue === font.name}"
+                        :class="{ 'bg-neutral text-primary': fontValue === font.name }"
                         @click="onClick(font)"
                     >
                         {{ font.title }}
@@ -249,7 +252,10 @@ function closeWizard() {
         </div>
     </button>
 </template>
-<style lang="css" scoped>
+<style
+    lang="css"
+    scoped
+>
 .custom-font-item:hover .custom-font-icon {
     display: inline;
 }
@@ -270,6 +276,7 @@ function closeWizard() {
     from {
         background-color: rgba(255, 255, 255, 0.5);
     }
+
     to {
         background-color: rgba(255, 255, 255, 0);
     }

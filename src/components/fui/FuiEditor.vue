@@ -128,6 +128,9 @@ async function handleWizardSave(processedImagesArr) {
     try {
         for (const [name, width, height, image, colorMode] of processedImagesArr) {
             addCustomImage(name, width, height, image, false, undefined, colorMode);
+            handleIconSelect({
+                name, width, height, icon: image, colorMode
+            })
         }
         session.closeImageWizard();
     } catch (error) {
@@ -144,9 +147,13 @@ function handleIconSelect(data) {
     session.layersManager.clearSelection();
     const newLayer = new PaintLayer(session.getPlatformFeatures(), session.createRenderer(), data.colorMode);
     newLayer.name = data.name;
-    session.layersManager.selectLayer(newLayer);
-    newLayer.modifiers.icon.setValue(data.icon);
     newLayer.size = new Point(data.width, data.height);
+    session.layersManager.selectLayer(newLayer);
+    data.icon.dataset.name ||= data.name;
+    data.icon.dataset.colorMode ||= data.colorMode;
+    data.icon.dataset.w ||= `${data.width}`;
+    data.icon.dataset.h ||= `${data.height}`;
+    newLayer.modifiers.icon.setValue(data.icon);
     const display = session.state.display;
     newLayer.position = new Point(
         Math.floor(display.x / 2 - data.width / 2),
