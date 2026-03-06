@@ -107,6 +107,16 @@ export class PolygonLayer extends AbstractLayer {
         return new Point(minX, minY);
     }
 
+    // Position getter for compatibility with platform code
+    get position(): Point {
+        return this.getBoundsOrigin();
+    }
+
+    // Size getter for compatibility with platform code
+    get size(): Point {
+        return new Point(this.bounds.w, this.bounds.h);
+    }
+
     toggleVertexEditMode() {
         this.vertexEditMode = !this.vertexEditMode;
         this.rebuildEditPoints();

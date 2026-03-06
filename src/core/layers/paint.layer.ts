@@ -90,24 +90,28 @@ export class PaintLayer extends AbstractImageLayer {
             getValue: () => this.data,
             setValue: (v: HTMLImageElement) => {
                 this.imageName = v.dataset.name;
-                const datasetColorMode = v.dataset.colorMode === 'rgb' ? 'rgb' : 'monochrome';
-                this.colorMode = datasetColorMode;
-                if (datasetColorMode === 'rgb') {
+                // Use dataset dimensions if available, otherwise fall back to intrinsic image dimensions
+                const w = Number(v.dataset.w) || v.naturalWidth || 0;
+                const h = Number(v.dataset.h) || v.naturalHeight || 0;
+                if (w && h) {
+                    this.size = new Point(w, h);
+                }
+                // Only update colorMode if explicitly set in dataset, otherwise keep current
+                if (v.dataset.colorMode) {
+                    this.colorMode = v.dataset.colorMode === 'rgb' ? 'rgb' : 'monochrome';
+                }
+                if (this.colorMode === 'rgb') {
                     delete this.modifiers.color;
                 } else if (!this.modifiers.color) {
                     this.modifiers.color = this.buildColorModifier();
                     this.color = this.features.defaultColor;
-                }
-                const [w, h] = [Number(v.dataset.w), Number(v.dataset.h)];
-                if (w && h) {
-                    this.size = new Point(w, h);
                 }
                 const buf = document.createElement('canvas');
                 const ctx = buf.getContext('2d');
                 buf.width = this.size.x;
                 buf.height = this.size.y;
                 ctx.drawImage(v, 0, 0);
-                if (datasetColorMode === 'rgb') {
+                if (this.colorMode === 'rgb') {
                     this.data = ctx.getImageData(0, 0, this.size.x, this.size.y);
                     this.rgbSnapshot = this.cloneImageData(this.data);
                 } else {

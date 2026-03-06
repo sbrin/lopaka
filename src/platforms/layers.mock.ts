@@ -9,6 +9,37 @@ import {TextLayer} from '../core/layers/text.layer';
 import {PolygonLayer} from '../core/layers/polygon.layer';
 import {getFont} from '../draw/fonts';
 import {TPlatformFeatures} from './platform';
+import {AbstractDrawingRenderer} from '../draw/renderers';
+
+// Create a mock renderer for tests to avoid issues with DrawContext
+const createMockRenderer = (): AbstractDrawingRenderer => {
+    const renderer = {
+        setDrawContext: () => {},
+        clear: () => {},
+        drawRect: () => {},
+        drawRoundedRect: () => {},
+        drawCircle: () => {},
+        drawEllipse: () => {},
+        drawLine: () => {},
+        drawTriangle: () => {},
+        drawPolygon: () => {},
+        drawIcon: () => {},
+        drawText: () => {},
+        drawCheckbox: () => {},
+        drawImage: () => {},
+        drawPanel: () => {},
+        drawButton: () => {},
+        drawSlider: () => {},
+        drawSwitch: () => {},
+        setColor: () => {},
+        dc: {
+            ctx: {},
+            clear: () => {},
+        },
+    };
+    return renderer as unknown as AbstractDrawingRenderer;
+};
+
 const layerClassMap = {
     box: RectangleLayer,
     frame: RectangleLayer,
@@ -203,10 +234,11 @@ export const layersMock: AbstractLayer[] = [
     },
 ].map((l) => {
     const type: ELayerType = l.t as any;
+    const mockRenderer = createMockRenderer();
     const layer =
         type === 'string'
-            ? new TextLayer(defaultFeatures, getFont((l as any).f))
-            : new layerClassMap[type](defaultFeatures);
+            ? new TextLayer(defaultFeatures, mockRenderer, getFont((l as any).f))
+            : new layerClassMap[type](defaultFeatures, mockRenderer);
     layer.state = l;
     return layer;
 });

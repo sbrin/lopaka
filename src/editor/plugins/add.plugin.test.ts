@@ -453,6 +453,7 @@ describe('AddPlugin', () => {
             createLayer: () => textLayer,
             onStartEdit: vi.fn(),
             onStopEdit: vi.fn(),
+            isMultiClick: () => false,
         } as unknown as RectTool;
 
         session.editor.state.activeTool = textTool;
@@ -483,6 +484,7 @@ describe('AddPlugin', () => {
             createLayer: () => textAreaLayer,
             onStartEdit: vi.fn(),
             onStopEdit: vi.fn(),
+            isMultiClick: () => false,
         } as unknown as RectTool;
 
         session.editor.state.activeTool = textAreaTool;
