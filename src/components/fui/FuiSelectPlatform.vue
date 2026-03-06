@@ -1,12 +1,15 @@
-<script lang="ts" setup>
-import {toRefs, watch} from 'vue';
-import {useSession} from '../../core/session';
+<script
+    lang="ts"
+    setup
+>
+import { toRefs, watch } from 'vue';
+import { useSession } from '../../core/session';
 
 const session = useSession();
-const {preparePlatform} = session;
-const {platform} = toRefs(session.state);
-watch(platform, (val) => {
-    preparePlatform(val, true);
+const { preparePlatform } = session;
+const { platform } = toRefs(session.state);
+watch(platform, async (val) => {
+    await preparePlatform(val, true);
 });
 </script>
 <template>
@@ -22,13 +25,14 @@ watch(platform, (val) => {
             class="fui-select__select fui-form-input"
             v-model="platform"
         >
-            <option
+            <template
                 v-for="(p, idx) in session.platforms"
                 :key="idx"
-                :value="idx"
             >
-                {{ p.getName() }}
-            </option>
+                <option :value="idx">
+                    {{ p.getName() }}
+                </option>
+            </template>
         </select>
     </div>
 </template>

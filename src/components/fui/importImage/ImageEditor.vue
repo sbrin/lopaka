@@ -1,15 +1,25 @@
 <script lang="ts" setup>
 import {computed, nextTick, reactive, ref, toRefs, watch} from 'vue';
-import {processImage, imageDataToImage, imageToImageData, applyColor, cropImage, debounce} from '/src/utils';
+import {
+    processImage,
+    imageDataToImage,
+    imageToImageData,
+    applyColor,
+    cropImage,
+    cropImageRGB,
+    debounce,
+} from '/src/utils';
 import {useSession} from '/src/core/session';
 import {Rect} from '/src/core/rect';
 import {Point} from '/src/core/point';
 import Button from '/src/components/layout/Button.vue';
 const props = defineProps<{
     single: boolean;
+    colorMode: 'rgb' | 'monochrome';
+    canUseRgb?: boolean;
 }>();
 
-const emit = defineEmits(['onClose', 'onSave']);
+const emit = defineEmits(['onClose', 'onSave', 'update:colorMode']);
 const {display} = toRefs(useSession().state);
 const canvasRef = ref(null);
 const imageName = ref('');
@@ -18,7 +28,7 @@ const options = reactive({
     invert: true,
     grayscale: false,
     invertPalette: false,
-    resampling: 'nearest',
+    resampling: 'bilinear',
     width: 0,
     height: 0,
     brightness: 0,
@@ -35,18 +45,9 @@ const height = ref(0);
 const layerSize = ref(new Rect());
 
 const scale = ref(2);
-const resamplingTypes = [
-    'none',
-    'nearest',
-    'bilinear',
-    'spline',
-    'lanczos',
-    'gaussian',
-    'mitchell',
-    'mitchell-netravali',
-    'catmull-rom',
-];
-let image;
+const byteArraySize = ref({xbmp: 0, rgb565: 0});
+const resamplingTypes = ['none', 'nearest', 'bilinear', 'spline', 'lanczos', 'gaussian', 'mitchell'];
+let image: HTMLImageElement | null = null;
 
 watch(width, (val: number, oldVal: number) => {
     if (oldVal && val && proportion.value && val !== oldVal && val < 1000) {
@@ -80,41 +81,85 @@ const gridDisplay = computed(() => {
     return scale.value >= 4 ? 'block' : 'none';
 });
 
-const debouncedPreview = debounce(() => {
-    preview(image);
-}, 250);
+const refreshPreview = () => {
+    if (image) {
+        preview(image);
+    }
+};
 
-watch(options, () => {
-    debouncedPreview();
+const supportsRgb = computed(() => Boolean(props.canUseRgb));
+const isRgbMode = computed(() => props.colorMode === 'rgb');
+const colorModeProxy = computed({
+    get: () => props.colorMode,
+    set: (value: 'rgb' | 'monochrome') => {
+        if (!supportsRgb.value) {
+            return;
+        }
+        emit('update:colorMode', value);
+    },
 });
 
+const debouncedPreview = debounce(refreshPreview, 250);
+
 watch(
-    scale,
-    debounce(() => preview(image), 500)
+    options,
+    () => {
+        debouncedPreview();
+    },
+    {deep: true}
 );
 
-function setOptions(sourceImage: HTMLImageElement) {
-    options.proportion = sourceImage.width / sourceImage.height;
-    if (display.value.x > display.value.y) {
-        options.height = Math.min(display.value.y, sourceImage.height);
-        options.width = Math.round(options.height * options.proportion);
-    } else {
-        options.width = Math.min(display.value.x, sourceImage.width);
-        options.height = Math.round(options.width / options.proportion);
+watch(scale, debounce(refreshPreview, 500));
+
+watch(
+    () => props.colorMode,
+    () => {
+        refreshPreview();
     }
-    layerSize.value.w = options.width;
-    layerSize.value.h = options.height;
+);
+
+function applySize(newWidth: number, newHeight: number) {
+    const targetWidth = Math.max(1, Math.round(newWidth));
+    const targetHeight = Math.max(1, Math.round(newHeight));
+
+    options.width = targetWidth;
+    options.height = targetHeight;
+    options.proportion = targetWidth / targetHeight;
+
+    width.value = targetWidth;
+    height.value = targetHeight;
+
+    layerSize.value.w = targetWidth;
+    layerSize.value.h = targetHeight;
     layerSize.value.x = 0;
     layerSize.value.y = 0;
-    width.value = options.width;
-    height.value = options.height;
+
+    if (image) {
+        preview(image);
+        byteArraySize.value = calculateByteArraySize(image);
+    }
+}
+
+function setOptions(sourceImage: HTMLImageElement) {
+    const proportion = sourceImage.width / sourceImage.height;
+    let targetWidth = sourceImage.width;
+    let targetHeight = sourceImage.height;
+
+    if (display.value.x > display.value.y) {
+        targetHeight = Math.min(display.value.y, sourceImage.height);
+        targetWidth = Math.round(targetHeight * proportion);
+    } else {
+        targetWidth = Math.min(display.value.x, sourceImage.width);
+        targetHeight = Math.round(targetWidth / proportion);
+    }
+
+    applySize(targetWidth, targetHeight);
 }
 
 function setImage(name: string, sourceImage: HTMLImageElement) {
     image = sourceImage;
     imageName.value = name;
     setOptions(sourceImage);
-    preview(sourceImage);
 }
 
 function startCrop(event: MouseEvent) {
@@ -159,6 +204,7 @@ function startCrop(event: MouseEvent) {
     const mouseUp = () => {
         window.removeEventListener('mousemove', mouseMove);
         window.removeEventListener('mouseup', mouseUp);
+        byteArraySize.value = calculateByteArraySize(image);
     };
     window.addEventListener('mousemove', mouseMove);
     window.addEventListener('mouseup', mouseUp);
@@ -174,27 +220,22 @@ function preview(sourceImage) {
     canvas.style.height = options.height * scale.value + 'px';
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const imageData = imageToImageData(sourceImage);
-    ctx.putImageData(processImage(imageData, options), 0, 0);
+    ctx.putImageData(processImage(imageData, options, props.colorMode), 0, 0);
 }
 
 function fitToScreen() {
-    if (display.value.x > display.value.y) {
-        height.value = Math.min(display.value.y, image.height);
-    } else {
-        width.value = Math.min(display.value.x, image.width);
-    }
-    layerSize.value.h = height.value;
-    layerSize.value.w = width.value;
+    if (!image) return;
+    const fitRatio = Math.min(display.value.x / image.width, display.value.y / image.height, 1);
+
+    const targetWidth = image.width * fitRatio;
+    const targetHeight = image.height * fitRatio;
+
+    applySize(targetWidth, targetHeight);
 }
 
 function resetSize() {
-    width.value = image.width;
-    height.value = image.height;
-    layerSize.value.w = image.width;
-    layerSize.value.h = image.height;
-    layerSize.value.x = 0;
-    layerSize.value.y = 0;
-    preview(image);
+    if (!image) return;
+    applySize(image.width, image.height);
 }
 
 function resetContrast() {
@@ -203,6 +244,29 @@ function resetContrast() {
 
 function resetBrightness() {
     options.brightness = 0;
+}
+
+function calculateByteArraySize(imageSrc): {xbmp: number; rgb565: number} {
+    // Get the cropped dimensions
+    const cropWidth = layerSize.value.w;
+    const cropHeight = layerSize.value.h;
+
+    // Calculate bytes for different formats:
+
+    // XBMP format: 1 bit per pixel, packed into bytes (8 pixels per byte)
+    const xbmpBytes = Math.ceil((cropWidth * cropHeight) / 8);
+
+    // RGB565 format: 16 bits (2 bytes) per pixel
+    const rgb565Bytes = cropWidth * cropHeight * 2;
+
+    return {
+        xbmp: xbmpBytes,
+        rgb565: rgb565Bytes,
+    };
+}
+
+function formatNumberWithSpaces(num: number): string {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
 function normalizeNumbers(event) {
@@ -219,10 +283,18 @@ async function process(sourceImage) {
         setOptions(sourceImage);
     }
     const imageData = imageToImageData(sourceImage);
-    const imageDataProcessed = applyColor(
-        cropImage(processImage(imageData, options), layerSize.value.clone().round()),
-        '#FFFFFF'
-    );
+    const processedImageData = processImage(imageData, options, props.colorMode);
+    const croppedRect = layerSize.value.clone().round();
+
+    // Use appropriate crop function based on color mode
+    const croppedImageData =
+        props.colorMode === 'rgb'
+            ? cropImageRGB(processedImageData, croppedRect)
+            : cropImage(processedImageData, croppedRect);
+
+    // Only apply color conversion for monochrome mode
+    const imageDataProcessed = props.colorMode === 'rgb' ? croppedImageData : applyColor(croppedImageData, '#FFFFFF');
+
     const img = await imageDataToImage(imageDataProcessed);
     return [img, imageDataProcessed.width, imageDataProcessed.height];
 }
@@ -234,7 +306,7 @@ defineExpose({
 </script>
 <template>
     <div class="flex-1 max-w-[60%]">
-        <div class="flex flex-row">
+        <div class="flex flex-row flex-wrap items-center gap-4">
             <label
                 class="label"
                 for="image-name"
@@ -275,6 +347,22 @@ defineExpose({
                 </div>
             </label>
         </div>
+        <div class="">
+            <label
+                v-if="supportsRgb"
+                class="label cursor-pointer flex justify-start gap-2"
+            >
+                <span :class="{'text-gray-500': isRgbMode}">Monochrome</span>
+                <input
+                    type="checkbox"
+                    class="toggle toggle-sm toggle-primary"
+                    v-model="colorModeProxy"
+                    true-value="rgb"
+                    false-value="monochrome"
+                />
+                <span :class="{'text-gray-500': !isRgbMode}">RGB</span>
+            </label>
+        </div>
         <div class="max-w-[500px] overflow-auto h-[500px] flex justify-center items-center">
             <div
                 class="canvasContainer fui-grid"
@@ -301,6 +389,23 @@ defineExpose({
         </div>
     </div>
     <div class="row-span-2">
+        <!-- Image memory usage information -->
+        <div class="form-control mt-4">
+            <div class="text-sm font-medium text-gray-700 mb-2">
+                <span
+                    class="font-mono"
+                    v-if="colorMode === 'monochrome'"
+                >
+                    {{ formatNumberWithSpaces(byteArraySize.xbmp) }} bytes
+                </span>
+                <span
+                    class="font-mono"
+                    v-if="colorMode === 'rgb'"
+                >
+                    {{ formatNumberWithSpaces(byteArraySize.rgb565) }} bytes
+                </span>
+            </div>
+        </div>
         <template v-if="single">
             <div class="flex form-control flex-row gap-4">
                 <label
@@ -469,7 +574,10 @@ defineExpose({
                 />
             </label>
             <!-- dither -->
-            <label class="cursor-pointer label">
+            <label
+                v-if="!isRgbMode"
+                class="cursor-pointer label"
+            >
                 <span class="">Dithering</span>
                 <input
                     type="checkbox"
@@ -478,7 +586,10 @@ defineExpose({
                 />
             </label>
             <!-- invert palette -->
-            <label class="cursor-pointer label">
+            <label
+                v-if="!isRgbMode"
+                class="cursor-pointer label"
+            >
                 <span class="">Invert palette</span>
                 <input
                     type="checkbox"

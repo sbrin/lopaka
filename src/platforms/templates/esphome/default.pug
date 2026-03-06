@@ -1,0 +1,79 @@
+if settings.include_fonts && declarations.some(decl => decl.type == 'font')
+    | font:
+    |
+    each decl in declarations 
+        if decl.type == 'font' && decl.data.format == '2'
+            |   - file: "gfonts://!{decl.data.value.replace('_', '+')}"
+            |     id: !{decl.data.name}
+            |     size: !{decl.data.size}
+            |
+        if decl.type == 'font' && decl.data.format == '1'
+            |   # You may need to download this font and put it into esphome folder
+            |   - file: "fonts/!{decl.data.value}.bdf"
+            |     id: !{decl.data.name}
+            |
+    |
+    |
+if settings.include_images && declarations.some(decl => decl.type == 'bitmap')
+    | # You may need to download images and put them into esphome folder
+    | image:
+    |
+    each decl in declarations 
+        if decl.type == 'bitmap'
+            |   - file: "images/!{decl.data.value}.png"
+            |     id: !{decl.data.name}
+            |     resize: !{decl.data.size}
+            |     type: BINARY
+            |
+    |
+    |
+- var screenBgColor = parseInt(screenBgColor.substr(1, 2), 16) + ',' + parseInt(screenBgColor.substr(3, 2), 16) + ',' + parseInt(screenBgColor.substr(5, 2), 16)
+- var pad = settings.wrap ? '      ' : ''
+if settings.wrap
+    | display:
+    |     lambda: |-
+    |
+- var font = ''
+if settings.declare_vars
+    each decl in declarations 
+        if decl.type == 'var'
+            if decl.data.type === 5
+                | !{pad}auto !{decl.data.name} = !{decl.data.value};
+            else
+                | !{pad}!{decl.data.type === 0 ? 'const char*' : 'int'} !{decl.data.name} = "!{decl.data.value}";
+            |
+            |
+    |
+    |
+each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.name}
+        |
+    case layer.type
+        when 'line'
+            | @!{layer.uid};!{pad}it.line(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2}, !{layer.color});
+        when 'rect'
+            - var func = layer.fill ? 'filled_rectangle' : 'rectangle'
+            | @!{layer.uid};!{pad}it.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}, !{layer.color});
+        when 'circle'
+            - var func = layer.fill ? 'filled_circle' : 'circle'
+            | @!{layer.uid};!{pad}it.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.radius}, !{layer.color});
+        when 'triangle'
+            - var func = layer.fill ? 'filled_triangle' : 'triangle'
+            | @!{layer.uid};!{pad}it.!{func}(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2}, @x3:!{layer.x3}, @y3:!{layer.y3}, !{layer.color});
+        when 'string'
+            if layer.isTextVariable
+                | @!{layer.uid};!{pad}it.print(!{layer.x}, !{layer.y}, id(!{layer.fontName}), !{layer.color}, @text:!{layer.text});
+            else
+                | @!{layer.uid};!{pad}it.print(!{layer.x}, !{layer.y}, id(!{layer.fontName}), !{layer.color}, @text:"!{layer.text}");
+        when 'paint'
+        when 'icon'
+            | @!{layer.uid};!{pad}it.image(@x:!{layer.x}, @y:!{layer.y}, @image:id(!{layer.imageName}), !{layer.color});
+        default 
+            |
+            | // Unknown layer type !{layer.type}
+            |
+    |
+    |
+    |
+|

@@ -1,9 +1,9 @@
-import {Keys} from '../../core/keys.enum';
-import {AbstractLayer} from '../../core/layers/abstract.layer';
-import {Point} from '../../core/point';
-import {Rect} from '../../core/rect';
-import {Session} from '../../core/session';
-import {AbstractEditorPlugin} from './abstract-editor.plugin';
+import { Keys } from '../../core/keys.enum';
+import { AbstractLayer, EditMode } from '../../core/layers/abstract.layer';
+import { Point } from '../../core/point';
+import { Rect } from '../../core/rect';
+import { Session } from '../../core/session';
+import { AbstractEditorPlugin } from './abstract-editor.plugin';
 
 export class SelectPlugin extends AbstractEditorPlugin {
     captured: boolean = false;
@@ -12,6 +12,8 @@ export class SelectPlugin extends AbstractEditorPlugin {
     firstPoint: Point = null;
     selectionRect: Rect = null;
     grabMode: boolean = false;
+    selected: boolean = false; // layer is selected with double click; then you can move it alone without a group
+    lastLayerId: string = ''; // is used to reset selected state if clicked to other layer
 
     constructor(
         protected session: Session,
@@ -23,44 +25,73 @@ export class SelectPlugin extends AbstractEditorPlugin {
         this.container.appendChild(this.selectionElement);
     }
 
-    onMouseDown(point: Point, event: MouseEvent): void {
+    onMouseDown(point: Point, event: MouseEvent | TouchEvent): void {
         this.foreign = false;
         this.grabMode = false;
-        const {layers} = this.session.state;
-        const {activeTool} = this.session.editor.state;
+        const { layersManager } = this.session;
+        const { activeTool } = this.session.editor.state;
         if (!activeTool) {
-            if (event.altKey) {
-                this.captured = true;
-                this.grabMode = true;
-                this.firstPoint = point.clone();
-            } else {
-                const hovered = layers.filter((l) => !l.locked && l.contains(point)).sort((a, b) => b.index - a.index);
-                if (hovered.length) {
-                    // if there is a hovered layer
-                    const upperLayer = hovered[0];
-                    if (event.shiftKey && !upperLayer.locked) {
-                        // add or remove from selection if shift is pressed
-                        upperLayer.selected = !upperLayer.selected;
-                    } else if (!upperLayer.selected && !upperLayer.locked) {
-                        // if upper layer is not selected, select it and unselect others
-                        // if upper is selected then it will move all
-                        this.session.state.layers.forEach((l) => (l.selected = false));
-                        upperLayer.selected = true;
-                    }
-                } else {
-                    // if there is no hovered layer, start box selection
-                    this.captured = true;
-                    this.firstPoint = point.clone();
+            const hovered = layersManager.contains(point).reverse();
+            if (hovered.length) {
+                // if there is a hovered layer
+                const upperLayer = hovered[0];
+                if (this.lastLayerId !== upperLayer.uid) {
+                    this.selected = false;
                 }
-                this.session.editor.selectionUpdate();
+                // add or remove from selection if shift is pressed
+                if (event.shiftKey) {
+                    if (upperLayer.selected) {
+                        if (upperLayer.group) {
+                            layersManager.eachLayer((l) => {
+                                if (l.group && l.group === upperLayer.group) {
+                                    layersManager.selectLayer(l);
+                                }
+                            });
+                        } else {
+                            layersManager.unselectLayer(upperLayer);
+                        }
+                    } else {
+                        if (upperLayer.group) {
+                            layersManager.eachLayer((l) => {
+                                if (l.group && l.group === upperLayer.group) {
+                                    layersManager.selectLayer(l);
+                                }
+                            });
+                        } else {
+                            layersManager.selectLayer(upperLayer);
+                        }
+                    }
+                } else if (!upperLayer.selected) {
+                    // if layer is not selected, select it and unselect others
+                    layersManager.clearSelection();
+                    layersManager.selectLayer(upperLayer);
+                }
+                if (!this.selected && upperLayer.group && !event.altKey) {
+                    const groupLayers = layersManager.getLayersInGroup(upperLayer.group);
+                    const isMultipleSelected = layersManager.selected.length > groupLayers.length;
+                    if (!isMultipleSelected) {
+                        layersManager.clearSelection();
+                        layersManager.eachLayer((l) => {
+                            if (l.group && l.group === upperLayer.group) {
+                                layersManager.selectLayer(l);
+                            }
+                        });
+                    }
+                }
+            } else {
+                // if there is no hovered layer, start box selection
+                this.captured = true;
+                this.selected = false;
+                this.firstPoint = point.clone();
             }
+            this.session.editor.selectionUpdate();
         }
     }
 
-    onMouseMove(point: Point, event: MouseEvent): void {
+    onMouseMove(point: Point, event: MouseEvent | TouchEvent): void {
         if (this.captured) {
-            const {scale} = this.session.state;
-            const {interfaceColors} = this.session.getPlatformFeatures();
+            const { scale } = this.session.state;
+            const { interfaceColors } = this.session.getPlatformFeatures();
             const screenPoint = point.clone().multiply(scale);
             const position = this.firstPoint.clone().multiply(scale).min(screenPoint);
             const size = point.clone().subtract(this.firstPoint).abs().multiply(scale);
@@ -90,10 +121,11 @@ export class SelectPlugin extends AbstractEditorPlugin {
         return false;
     }
 
-    onMouseUp(point: Point, event: MouseEvent): void {
-        const {layers, display, scale} = this.session.state;
+    onMouseUp(point: Point, event: MouseEvent | TouchEvent): void {
+        const { layersManager } = this.session;
         if (this.captured) {
             // selection box logic
+            let shouldSelect = false;
             this.captured = false;
             this.selectionElement.style.display = 'none';
             const position = this.firstPoint.clone().min(point);
@@ -102,38 +134,77 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.session.grab(position, size);
             } else {
                 if (size.x < 2 && size.y < 2) {
-                    layers.filter((l) => l.selected).forEach((l) => (l.selected = false));
-                    this.session.editor.selectionUpdate();
+                    layersManager.clearSelection();
                     return;
                 }
-                layers
-                    .filter((l) => !l.locked)
-                    .forEach((l) => (l.selected = new Rect(position, size).intersect(l.bounds)));
+                shouldSelect = true;
             }
-            layers.filter((l) => !l.locked).forEach((l) => (l.selected = this.intersect(l, position, size)));
+            layersManager.eachEditableLayer((l) => {
+                if (shouldSelect) {
+                    l.selected = new Rect(position, size).intersect(l.bounds);
+                }
+
+                if (this.intersect(l, position, size)) {
+                    layersManager.selectLayer(l);
+                } else {
+                    layersManager.unselectLayer(l);
+                }
+                if (l.selected && l.group) {
+                    layersManager.eachLayer((ll) => {
+                        if (ll.group && ll.group === l.group) {
+                            layersManager.selectLayer(ll);
+                        }
+                    });
+                }
+            });
         } else if (!this.foreign) {
-            // just a click
-            const selected = layers.filter((l) => l.selected && !l.locked);
-            const hovered = layers.filter((l) => l.contains(point));
-            // if no layers are hovered, deselect all
+            const hovered = layersManager.contains(point);
             if (!hovered.length) {
-                selected.forEach((layer) => (layer.selected = false));
+                layersManager.clearSelection();
             }
         }
         this.foreign = true;
-        this.session.editor.selectionUpdate();
     }
 
     onKeyDown(key: Keys, event: KeyboardEvent): void {
-        const {layers} = this.session.state;
+        const { layersManager } = this.session;
+        this.selected = false;
         if (this.session.editor.state.activeTool) return;
         if (key === Keys.Escape) {
-            layers.forEach((l) => (l.selected = false));
-            this.session.virtualScreen.redraw(false);
+            layersManager.clearSelection();
+            this.session.virtualScreen.redraw();
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {
-            layers.filter((l) => !l.locked).forEach((l) => (l.selected = true));
+            layersManager.clearSelection();
+            layersManager.eachEditableLayer((l) => layersManager.selectLayer(l));
             this.session.virtualScreen.redraw(false);
         }
-        this.session.editor.selectionUpdate();
+    }
+
+    /**
+     * Handles double-click events on the canvas to initiate text editing mode.
+     *
+     * System Flow:
+     * 1. Detects if user double-clicked on a selected text layer
+     * 2. Sets the text layer as the active layer in the editor state
+     * 3. Triggers selection update to refresh the Inspector UI
+     * 4. Calls triggerTextEdit() to increment the textEditMode counter
+     * 5. Inspector component reacts to textEditMode state change via Vue's reactivity
+     * 6. Inspector automatically focuses and selects text in the text input field
+     *
+     * This approach uses reactive state management instead of direct DOM manipulation.
+     */
+    onMouseDoubleClick(point: Point, event: MouseEvent): void {
+        const { layersManager } = this.session;
+        if (layersManager.selected.length) {
+            const hovered = layersManager.contains(point).reverse();
+            const upperLayer = hovered[0];
+            if (hovered.length) {
+                layersManager.clearSelection();
+                layersManager.selectLayer(upperLayer);
+                this.selected = true;
+                this.lastLayerId = upperLayer.uid;
+            }
+            this.session.editor.triggerTextEdit();
+        }
     }
 }

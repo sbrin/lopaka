@@ -3,13 +3,13 @@ import {AbstractEditorPlugin} from './abstract-editor.plugin';
 
 export class DeletePlugin extends AbstractEditorPlugin {
     onKeyDown(key: Keys, event: KeyboardEvent): void {
-        const {layers} = this.session.state;
+        const {layersManager} = this.session;
         if (key === Keys.Delete || key === Keys.Backspace) {
-            const selected = layers.filter((layer) => layer.selected);
+            const selected = layersManager.selected;
             if (selected.length) {
-                selected.forEach((l) => this.session.removeLayer(l));
+                // Funnel deletions through the layers manager so undo groups them
+                this.session.layersManager.removeLayers(selected);
             }
         }
-        this.session.virtualScreen.redraw();
     }
 }

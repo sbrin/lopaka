@@ -3,6 +3,7 @@ import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractDrawingRenderer} from '../../draw/renderers';
 
 export class RectangleLayer extends AbstractLayer {
     protected type: ELayerType = 'rect';
@@ -33,6 +34,10 @@ export class RectangleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
         y: {
@@ -41,6 +46,10 @@ export class RectangleLayer extends AbstractLayer {
                 this.position.y = v;
                 this.updateBounds();
                 this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
             },
             type: TModifierType.number,
         },
@@ -51,6 +60,10 @@ export class RectangleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
         h: {
@@ -59,6 +72,10 @@ export class RectangleLayer extends AbstractLayer {
                 this.size.y = Math.max(v, this.minLen);
                 this.updateBounds();
                 this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
             },
             type: TModifierType.number,
         },
@@ -70,6 +87,10 @@ export class RectangleLayer extends AbstractLayer {
                     Math.min(v, Math.round(this.size.x / 2 - 1), Math.round(this.size.y / 2 - 1))
                 );
                 this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
             },
             type: TModifierType.number,
         },
@@ -88,6 +109,10 @@ export class RectangleLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.color,
         },
         inverted: {
@@ -101,6 +126,7 @@ export class RectangleLayer extends AbstractLayer {
     };
 
     editPoints: TLayerEditPoint[] = [
+        // Corner handles
         {
             cursor: 'nesw-resize',
             getRect: (): Rect =>
@@ -110,13 +136,13 @@ export class RectangleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 let newSize = new Point(this.editState.size.x - offset.x, this.editState.size.y + offset.y).max(
                     new Point(this.minLen)
                 );
                 let newPosition = this.editState.position.clone().subtract(0, offset.y);
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.size.x / this.editState.size.y;
                     const maxDimension = Math.max(newSize.x, newSize.y);
                     if (newSize.x > newSize.y) {
@@ -127,7 +153,7 @@ export class RectangleLayer extends AbstractLayer {
                     newPosition.y = this.editState.position.y + this.editState.size.y - newSize.y;
                 }
 
-                if (modifiers?.altKey) {
+                if (event?.altKey) {
                     const center = this.editState.position
                         .clone()
                         .add(this.editState.size.x / 2, this.editState.size.y / 2);
@@ -148,10 +174,10 @@ export class RectangleLayer extends AbstractLayer {
                     new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 let newSize = this.editState.size.clone().subtract(offset).max(new Point(this.minLen));
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.size.x / this.editState.size.y;
                     const maxDimension = Math.max(newSize.x, newSize.y);
                     if (newSize.x > newSize.y) {
@@ -161,7 +187,7 @@ export class RectangleLayer extends AbstractLayer {
                     }
                 }
 
-                if (modifiers?.altKey) {
+                if (event?.altKey) {
                     const center = this.editState.position
                         .clone()
                         .add(this.editState.size.x / 2, this.editState.size.y / 2);
@@ -183,11 +209,11 @@ export class RectangleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 let newSize = this.editState.size.clone().add(offset.x, -offset.y).max(new Point(this.minLen));
                 let newPosition = this.editState.position.clone().subtract(offset.x, 0);
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.size.x / this.editState.size.y;
                     const maxDimension = Math.max(newSize.x, newSize.y);
                     if (newSize.x > newSize.y) {
@@ -198,7 +224,7 @@ export class RectangleLayer extends AbstractLayer {
                     newPosition.x = this.editState.position.x + this.editState.size.x - newSize.x;
                 }
 
-                if (modifiers?.altKey) {
+                if (event?.altKey) {
                     const center = this.editState.position
                         .clone()
                         .add(this.editState.size.x / 2, this.editState.size.y / 2);
@@ -216,11 +242,11 @@ export class RectangleLayer extends AbstractLayer {
             cursor: 'nwse-resize',
             getRect: (): Rect =>
                 new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 let newSize = this.editState.size.clone().add(offset).max(new Point(this.minLen));
                 let newPosition = this.editState.position.clone().subtract(offset);
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.size.x / this.editState.size.y;
                     const maxDimension = Math.max(newSize.x, newSize.y);
                     if (newSize.x > newSize.y) {
@@ -231,7 +257,7 @@ export class RectangleLayer extends AbstractLayer {
                     newPosition = this.editState.position.clone().add(this.editState.size).subtract(newSize);
                 }
 
-                if (modifiers?.altKey) {
+                if (event?.altKey) {
                     const center = this.editState.position
                         .clone()
                         .add(this.editState.size.x / 2, this.editState.size.y / 2);
@@ -245,7 +271,7 @@ export class RectangleLayer extends AbstractLayer {
                 this.size = newSize;
             },
         },
-
+        // Edge handles
         {
             cursor: 'ns-resize',
             getRect: (): Rect =>
@@ -255,14 +281,14 @@ export class RectangleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 let newSize = this.editState.size.clone();
                 let newPosition = this.editState.position.clone();
 
                 newSize.y = Math.max(this.editState.size.y + offset.y, this.minLen);
                 newPosition.y = this.editState.position.y - offset.y;
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.size.x / this.editState.size.y;
                     newSize.x = Math.round(newSize.y * aspectRatio);
                     newPosition.x = this.editState.position.x + (this.editState.size.x - newSize.x) / 2;
@@ -279,13 +305,13 @@ export class RectangleLayer extends AbstractLayer {
                     new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h / 2),
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 let newSize = this.editState.size.clone();
                 let newPosition = this.editState.position.clone();
 
                 newSize.x = Math.max(this.editState.size.x - offset.x, this.minLen);
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.size.x / this.editState.size.y;
                     newSize.y = Math.round(newSize.x / aspectRatio);
                     newPosition.y = this.editState.position.y + (this.editState.size.y - newSize.y) / 2;
@@ -302,13 +328,13 @@ export class RectangleLayer extends AbstractLayer {
                     new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y + this.bounds.h),
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 let newSize = this.editState.size.clone();
                 let newPosition = this.editState.position.clone();
 
                 newSize.y = Math.max(this.editState.size.y - offset.y, this.minLen);
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.size.x / this.editState.size.y;
                     newSize.x = Math.round(newSize.y * aspectRatio);
                     newPosition.x = this.editState.position.x + (this.editState.size.x - newSize.x) / 2;
@@ -327,14 +353,14 @@ export class RectangleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 let newSize = this.editState.size.clone();
                 let newPosition = this.editState.position.clone();
 
                 newSize.x = Math.max(this.editState.size.x + offset.x, this.minLen);
                 newPosition.x = this.editState.position.x - offset.x;
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.size.x / this.editState.size.y;
                     newSize.y = Math.round(newSize.x / aspectRatio);
                     newPosition.y = this.editState.position.y + (this.editState.size.y - newSize.y) / 2;
@@ -346,13 +372,19 @@ export class RectangleLayer extends AbstractLayer {
         },
     ];
 
-    constructor(protected features: TPlatformFeatures) {
-        super(features);
+    constructor(
+        protected features: TPlatformFeatures,
+        renderer?: AbstractDrawingRenderer
+    ) {
+        super(features, renderer);
         if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
             delete this.modifiers.color;
         }
         if (!this.features.hasInvertedColors) {
             delete this.modifiers.inverted;
+        }
+        if (!this.features.hasRoundCorners) {
+            delete this.modifiers.radius;
         }
         this.color = this.features.defaultColor;
     }
@@ -374,32 +406,30 @@ export class RectangleLayer extends AbstractLayer {
         };
     }
 
-    edit(point: Point, originalEvent: MouseEvent) {
+    edit(point: Point, originalEvent: MouseEvent | TouchEvent) {
         if (!this.editState) {
             return;
         }
         const {position, editPoint, firstPoint} = this.editState;
+        const mouseEvent = originalEvent as MouseEvent;
         switch (this.mode) {
             case EditMode.MOVING:
                 this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
                 break;
             case EditMode.RESIZING:
-                editPoint.move(firstPoint.clone().subtract(point), {
-                    shiftKey: originalEvent.shiftKey,
-                    altKey: originalEvent.altKey,
-                });
+                editPoint.move(firstPoint.clone().subtract(point), mouseEvent);
                 break;
             case EditMode.CREATING:
                 let newSize = point.clone().subtract(firstPoint).abs().max(new Point(1));
-                if (originalEvent.shiftKey) {
+                if (mouseEvent?.shiftKey) {
                     const maxDimension = Math.max(newSize.x, newSize.y);
                     newSize = new Point(maxDimension, maxDimension);
                 }
-                if (originalEvent.altKey) {
+                if (mouseEvent?.altKey) {
                     newSize = newSize.multiply(2);
                 }
                 this.size = newSize;
-                if (originalEvent.altKey) {
+                if (mouseEvent?.altKey) {
                     this.position = firstPoint
                         .clone()
                         .subtract(newSize.x / 2, newSize.y / 2)
@@ -425,11 +455,11 @@ export class RectangleLayer extends AbstractLayer {
     }
 
     draw() {
-        const {dc, position, size} = this;
-        dc.clear();
-        dc.ctx.fillStyle = this.color;
-        dc.ctx.strokeStyle = this.color;
-        dc.pixelateRoundedRect(position, size, this.radius, this.fill);
+        if (this.radius > 0) {
+            this.renderer.drawRoundedRect(this.position, this.size, this.radius, this.fill, this.color);
+        } else {
+            this.renderer.drawRect(this.position, this.size, this.fill, this.color);
+        }
     }
 
     onLoadState() {
@@ -439,5 +469,9 @@ export class RectangleLayer extends AbstractLayer {
 
     updateBounds(): void {
         this.bounds = new Rect(this.position, this.size);
+    }
+
+    public contains(point: Point): boolean {
+        return this.bounds.contains(point);
     }
 }

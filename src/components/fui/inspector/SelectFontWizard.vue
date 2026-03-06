@@ -1,10 +1,13 @@
-<script lang="ts" setup>
-import {onMounted, ref} from 'vue';
-import {truetype2gfx, createGFXFont} from 'truetype2gfx';
-import {GFXFont} from '/src/draw/fonts/gfx.font';
+<script
+    lang="ts"
+    setup
+>
+import { onMounted, ref } from 'vue';
+import { truetype2gfx, createGFXFont } from 'truetype2gfx';
+import { GFXFont } from '/src/draw/fonts/gfx.font';
 import Button from '../../layout/Button.vue';
 import SelectFontPreview from './SelectFontPreview.vue';
-import {debounce} from '/src/utils';
+import { debounce } from '/src/utils';
 
 const props = defineProps<{
     font_src: File;
@@ -24,7 +27,7 @@ const cancel = () => {
 
 const importFont = () => {
     const gfxFont = createGFXFont(fontPack.value);
-    const fontFile = new File([gfxFont.content], gfxFont.name + '.h', {type: 'text/plain'});
+    const fontFile = new File([gfxFont.content], gfxFont.name + '.h', { type: 'text/plain' });
     emit('import', fontFile);
 };
 
@@ -36,7 +39,7 @@ const loadFont = debounce(async () => {
     if (props.font_src) {
         isReady.value = false;
         fontPack.value = await truetype2gfx(props.font_src, pixelHeight.value);
-        font.value = new GFXFont(fontPack.value, fontPack.value.name, null);
+        font.value = new GFXFont(fontPack.value, fontPack.value.meta.name, null);
         isReady.value = true;
     }
 }, 500);
@@ -44,8 +47,17 @@ const loadFont = debounce(async () => {
 
 <template>
     <Teleport to="body">
-        <div class="modal font-sans text-white opacity-100 pointer-events-auto">
-            <div class="modal-box mb-20 border border-primary min-w-[1000px] pointer-events-auto opacity-100">
+        <div
+            class="modal font-sans text-white opacity-100 pointer-events-auto"
+            @mousedown.self="cancel"
+        >
+            <div class="modal-box mb-20 border border-base-300 min-w-[1000px] pointer-events-auto opacity-100">
+                <button
+                    class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 cursor-pointer"
+                    @click="cancel"
+                >
+                    ✕
+                </button>
                 <div class="flex justify-between items-center">
                     <div class="text-xl">Font Preview: {{ font ? font.fontData.meta.name : '' }}</div>
                     <div class="form-control justify-center">

@@ -7,7 +7,7 @@ import {DrawPlugin} from './draw.plugin';
 export class PaintHighlightPlugin extends DrawPlugin {
     paintEditorPlugin: PaintPlugin;
 
-    public update(ctx: CanvasRenderingContext2D, point: Point, event: MouseEvent): void {
+    public update(ctx: CanvasRenderingContext2D, point: Point, _event: MouseEvent): void {
         if (!this.paintEditorPlugin) {
             this.paintEditorPlugin = this.session.editor.plugins.find(
                 (p: AbstractEditorPlugin) => p instanceof PaintPlugin
@@ -15,9 +15,11 @@ export class PaintHighlightPlugin extends DrawPlugin {
         }
         const {display, scale} = this.session.state;
         const {interfaceColors} = this.session.getPlatformFeatures();
+        // Read Shift from editor state so helper overlays react without pointer movement.
+        const isShiftPressed = this.session.editor.state.shiftPressed;
         if (point) {
             if (
-                event.shiftKey &&
+                isShiftPressed &&
                 this.session.editor.state.activeLayer &&
                 this.session.editor.state.activeLayer instanceof PaintLayer &&
                 this.paintEditorPlugin.lastPoint

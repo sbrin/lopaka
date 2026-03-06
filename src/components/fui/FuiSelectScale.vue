@@ -1,15 +1,16 @@
 <script lang="ts" setup>
-import {ref, toRefs, watch, onMounted, onUnmounted} from 'vue';
+import {computed, onMounted, onUnmounted} from 'vue';
 import Icon from '/src/components/layout/Icon.vue';
 import {useSession} from '../../core/session';
+import {SCALE_LIST} from '/src/const';
 
-const scaleList = [25, 50, 100, 200, 300, 400, 800, 1500];
 const session = useSession();
-const {scale} = toRefs(session.state);
-const selectedScale = ref(scale.value ? scaleList.findIndex((x) => x == scale.value.x * 100) : 2);
 
-watch(selectedScale, (val, old) => {
-    session.setScale(scaleList[val], true);
+const selectedScale = computed({
+    get: () => session.state.scaleIndex,
+    set: (val: number) => {
+        session.setScale(SCALE_LIST[val], true);
+    },
 });
 
 const handleKeyDown = (event: KeyboardEvent) => {
@@ -26,11 +27,11 @@ const handleKeyDown = (event: KeyboardEvent) => {
 };
 
 function scaleDown() {
-    selectedScale.value = Math.max(selectedScale.value - 1, 0);
+    session.scaleDown();
 }
 
 function scaleUp() {
-    selectedScale.value = Math.min(selectedScale.value + 1, scaleList.length - 1);
+    session.scaleUp();
 }
 
 onMounted(() => {
@@ -55,13 +56,13 @@ onUnmounted(() => {
         </label>
         <div
             class="tooltip tooltip-right"
-            :data-tip="`${scaleList[selectedScale]}%`"
+            :data-tip="`${SCALE_LIST[selectedScale]}%`"
         >
             <input
                 class="range range-xs w-32"
                 type="range"
                 min="0"
-                :max="scaleList.length - 1"
+                :max="SCALE_LIST.length - 1"
                 step="1"
                 v-model="selectedScale"
                 id="canvas-scale"

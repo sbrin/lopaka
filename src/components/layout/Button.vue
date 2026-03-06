@@ -1,5 +1,8 @@
-<script lang="ts" setup>
-import {computed, defineProps} from 'vue';
+<script
+    lang="ts"
+    setup
+>
+import { computed } from 'vue';
 
 const props = defineProps<{
     active?: boolean;
@@ -11,6 +14,8 @@ const props = defineProps<{
     variant?: string;
     title?: string;
     disabled?: boolean;
+    xs?: boolean;
+    noFocus?: boolean;
 }>();
 
 const classNames = computed(() => ({
@@ -20,24 +25,31 @@ const classNames = computed(() => ({
     'btn-success': props.success,
     'btn-square text-2xl align-top': props.isIcon,
     [`btn-${props.variant}`]: props.variant,
+    'btn-sm': !props.xs,
+    'btn-xs': props.xs,
 }));
 </script>
 <template>
     <div
         class="tooltip tooltip-bottom capitalize no-animation"
-        :class="{'pointer-events-none': disabled}"
+        :class="{ 'pointer-events-none': disabled }"
         :data-tip="title"
     >
         <button
-            class="btn btn-sm font-sans uppercase leading-none"
+            class="btn font-sans uppercase leading-none"
             :class="classNames"
             :disabled="disabled"
+            tabindex="-1"
+            @mousedown.prevent="() => { }"
         >
             <slot></slot>
         </button>
     </div>
 </template>
-<style lang="css" scoped>
+<style
+    lang="css"
+    scoped
+>
 .tooltip-bottom:before {
     z-index: 10;
 }

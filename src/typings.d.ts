@@ -50,8 +50,8 @@ declare module '*.bdf' {
 }
 
 declare type TFontSizes = {
-    textCharHeight: number;
-    textCharWidth: number;
+    textCharHeight?: number;
+    textCharWidth?: number;
     size: number;
 };
 
@@ -71,6 +71,7 @@ declare type TLayerImageData = {
     image: HTMLImageElement;
     isCustom?: boolean;
     id?: number;
+    colorMode?: string;
 };
 
 declare type TSourceCodeMap = Record<string, {line: number; params: Record<string, any>}>;
@@ -83,6 +84,7 @@ declare type TSourceCode = {
 interface Window {
     gtag: any;
     posthog: any;
+    adsbygoogle: any;
 }
 
 declare type ELayerType =
@@ -95,7 +97,14 @@ declare type ELayerType =
     | 'frame'
     | 'paint'
     | 'rect'
-    | 'ellipse';
+    | 'triangle'
+    | 'ellipse'
+    | 'button'
+    | 'switch'
+    | 'panel'
+    | 'slider'
+    | 'checkbox'
+    | 'textarea';
 
 declare function gtag(...args: any[]): void;
 
@@ -149,3 +158,5 @@ declare type GFXGlyph = {
     xOffset: number;
     yOffset: number;
 };
+
+declare const LOCAL_MODE: boolean;

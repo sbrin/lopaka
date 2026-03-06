@@ -14,8 +14,10 @@ export enum Keys {
     Meta = 'Meta',
     KeyC = 'KeyC',
     KeyV = 'KeyV',
+    KeyX = 'KeyX',
     KeyA = 'KeyA',
     KeyS = 'KeyS',
     KeyZ = 'KeyZ',
-    KeyY = 'KeyY'
+    KeyY = 'KeyY',
+    KeyG = 'KeyG',
 }

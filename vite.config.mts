@@ -41,7 +41,9 @@ export default defineConfig({
             },
         },
     },
-    define: {},
+    define: {
+        LOCAL_MODE: !!process.env.LOCAL_MODE,
+    },
     server: {
         https: true,
         port: 3000,

@@ -43,7 +43,7 @@ const emit = defineEmits(['align']);
             v-for="(tool, idx) in tools"
             :key="idx"
             isIcon
-            variant="secondary border-secondary"
+            variant="primary border-secondary"
             @click="$emit('align', tool.type)"
             :title="tool.title"
         >

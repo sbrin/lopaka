@@ -5,13 +5,29 @@ if settings.include_fonts
             |
     |
     |
-each decl in declarations 
-    if decl.type == 'bitmap'
-        | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
-        |
-        |
+if settings.include_images
+    each decl in declarations
+        if decl.type == 'bitmap'
+            | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+            |
+            |
+        if decl.type == 'bitmap565'
+            | static const uint16_t PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+            |
+            |
+if settings.declare_vars
+    each decl in declarations 
+        if decl.type == 'var'
+            if decl.data.type === 0
+                | const char* !{decl.data.name} = "!{decl.data.value}";
+                |
+            else
+                | int !{decl.data.name} = !{decl.data.value};
+                |
+    |
+    |
 if settings.wrap
-    | void draw(void) {
+    | void draw!{screenTitle}(void) {
     |
 - var textColor = defaultColor;
 - var textSize = '1'
@@ -19,7 +35,9 @@ if settings.wrap
 - var pad = settings.wrap ? '    ' : ''
 - var font = 'adafruit'
 - var stringLayersNumber = 0
-| !{pad}gfx->fillScreen(RGB565_BLACK);
+if settings.clear_screen
+    | !{pad}gfx->!{clear_screen_method};
+    |
 |
 |
 each layer in layers 
@@ -28,32 +46,30 @@ each layer in layers
         |
     case layer.type
         when 'dot'
-            | @!{layer.uid};!{pad}gfx->drawPixel(!{layer.position[0]}, !{layer.position[1]}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}gfx->drawPixel(!{layer.x}, !{layer.y}, !{layer.color});
         when 'line'
-            | @!{layer.uid};!{pad}gfx->drawLine(!{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}gfx->drawLine(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.color});
         when 'rect'
             - var func = (layer.fill ? 'fill' : 'draw') + (layer.radius? 'Round' : '') + 'Rect'
-            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}!{layer.radius? `, ${layer.radius}`: ''}, !{layer.color});
         when 'circle'
             - var func = layer.fill ? 'fillCircle' : 'drawCircle'
-            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius}, !{packColor(layer.color)});
-        //- when 'arc'
-        //- void Arduino_GFX::drawArc(int16_t x, int16_t y, int16_t r1, int16_t r2, float start, float end, uint16_t color)
-            - var func = layer.fill ? 'fillArc' : 'drawArc'
-        //- when 'ellipse'
-        //- void Arduino_GFX::drawEllipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint16_t color)
+            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.x + layer.radius}, !{layer.y + layer.radius}, !{layer.radius}, !{layer.color});
+        when 'ellipse'
             - var func = layer.fill ? 'fillEllipse' : 'drawEllipse'
-        //- when 'triangle'
-        //- void Arduino_GFX::drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color)
+            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.x}, !{layer.y}, !{layer.rx}, !{layer.ry}, !{layer.color});
+        when 'triangle'
             - var func = layer.fill ? 'fillTriangle' : 'drawTriangle'
+            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.x3}, !{layer.y3}, !{layer.color});
         when 'string'
             if stringLayersNumber === 0
-                | !{pad}gfx->setTextColor(!{packColor(layer.color)});
+                - textColor = layer.color
+                | !{pad}gfx->setTextColor(!{layer.color});
                 |
                 - stringLayersNumber++
-            if layer.color != textColor
+            else if layer.color != textColor
                 - textColor = layer.color
-                | !{pad}gfx->setTextColor(!{packColor(layer.color)});
+                | !{pad}gfx->setTextColor(!{layer.color});
                 |
             if layer.scaleFactor != textSize
                 - textSize = layer.scaleFactor
@@ -71,11 +87,18 @@ each layer in layers
                 else
                     | !{pad}gfx->setFont(&!{layer.font});
                     |
-            | !{pad}gfx->setCursor(!{getTextPosition(layer).join(', ')});
-            | @!{layer.uid};!{pad}gfx->println("!{layer.text}");
+            | !{pad}gfx->setCursor(!{layer.x}, !{layer.y});
+            |
+            if layer.isTextVariable
+                | @!{layer.uid};!{pad}gfx->print(!{layer.text});
+            else
+                | @!{layer.uid};!{pad}gfx->println("!{layer.text}");
         when 'paint'
         when 'icon'
-            | @!{layer.uid};!{pad}gfx->drawBitmap(!{layer.position[0]}, !{layer.position[1]}, !{layer.imageName}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
+            if layer.colorMode === 'rgb'
+                | @!{layer.uid};!{pad}gfx->draw16bitRGBBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h});
+            else
+                | @!{layer.uid};!{pad}gfx->drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{layer.color});
         default 
             |
             | // Unknown layer type !{layer.type}
@@ -83,7 +106,6 @@ each layer in layers
     |
     |
     |
-| !{pad}
 |
 if settings.wrap
     | }

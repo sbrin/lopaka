@@ -117,6 +117,19 @@ export class U8g2Parser extends AbstractParser {
                         });
                     }
                     break;
+                case 'u8g2_DrawTriangle':
+                case 'drawTriangle':
+                    {
+                        const [x1, y1, x2, y2, x3, y3] = this.getArgs(call.args, defines, variables);
+                        states.push({
+                            type: 'triangle',
+                            p1: new Point(parseInt(x1), parseInt(y1)),
+                            p2: new Point(parseInt(x2), parseInt(y2)),
+                            p3: new Point(parseInt(x3), parseInt(y3)),
+                            fill: false,
+                        });
+                    }
+                    break;
             }
         });
         return {states, warnings};
