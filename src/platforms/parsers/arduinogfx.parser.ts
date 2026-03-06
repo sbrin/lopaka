@@ -1,9 +1,14 @@
 import {Point} from '../../core/point';
-import {unpackedHexColor565, xbmpToImgData} from '../../utils';
+import {rgb565ToImageData, unpackedHexColor565, xbmpToImgData} from '../../utils';
 import {AbstractParser} from './abstract-parser';
 
 export class ArduinoGFXParser extends AbstractParser {
+    // Accept Arduino_GFX bitmap declarations for both monochrome (8-bit) and RGB565 (16-bit) assets.
+    protected xbmpRegex =
+        /(?:static\s+)?(?:const\s+)?(?:(?:unsigned\s+)?char|uint8_t|uint16_t)\s+(?:PROGMEM\s+)?([a-zA-Z0-9_]+)\s*\[\]\s*(?:PROGMEM)?\s*=\s*\{([^}]+)\};/gm;
+
     importSourceCode(sourceCode: string): {states: any[]; warnings: string[]} {
+        // Parse the sketch up front so we can resolve references while walking draw calls.
         const {defines, images, methods, variables} = this.parseSourceCode(sourceCode);
         const states = [];
         let textSize = 1;
@@ -12,12 +17,14 @@ export class ArduinoGFXParser extends AbstractParser {
         let cursorPos = new Point(0, 0);
         let font = 'adafruit';
         const warnings = [];
+
         methods.forEach((call) => {
             switch (call.functionName) {
                 case 'setFont':
                     {
                         const [fontName] = this.getArgs(call.args, defines, variables);
-                        font = fontName.replace('&', '');
+                        // Guard against calls that reset the font with no argument.
+                        font = fontName ? fontName.replace('&', '') : 'adafruit';
                     }
                     break;
                 case 'setTextColor':
@@ -45,6 +52,7 @@ export class ArduinoGFXParser extends AbstractParser {
                         cursorPos.y = parseInt(y);
                     }
                     break;
+                case 'println':
                 case 'print':
                     {
                         const [text] = this.getArgs(call.args, defines, variables);
@@ -56,23 +64,44 @@ export class ArduinoGFXParser extends AbstractParser {
                             font,
                             color: this.getColor(textColor),
                             scaleFactor: textSize,
+                            wrap: textWrap,
                         });
                     }
                     break;
                 case 'drawBitmap':
                     {
                         const [x, y, name, width, height, color] = this.getArgs(call.args, defines, variables);
-                        let imageName = this.parseImageName(name);
-                        if (!images.get(imageName)) {
+                        const imageName = this.parseImageName(name);
+                        const bitmap = images.get(imageName);
+                        if (!bitmap) {
                             warnings.push(`Bitmap array declaration for ${name} was not found. Skipping.`);
                         }
                         states.push({
                             type: 'paint',
-                            data: xbmpToImgData(images.get(imageName), width, height, true),
+                            data: bitmap ? xbmpToImgData(bitmap, width, height, true) : undefined,
                             position: new Point(parseInt(x), parseInt(y)),
                             size: new Point(parseInt(width), parseInt(height)),
                             color: this.getColor(color),
                             imageName,
+                            colorMode: 'monochrome',
+                        });
+                    }
+                    break;
+                case 'draw16bitRGBBitmap':
+                    {
+                        const [x, y, name, width, height] = this.getArgs(call.args, defines, variables);
+                        const imageName = this.parseImageName(name);
+                        const bitmap = images.get(imageName);
+                        if (!bitmap) {
+                            warnings.push(`Bitmap array declaration for ${name} was not found. Skipping.`);
+                        }
+                        states.push({
+                            type: 'paint',
+                            data: bitmap ? rgb565ToImageData(bitmap, parseInt(width), parseInt(height)) : undefined,
+                            position: new Point(parseInt(x), parseInt(y)),
+                            size: new Point(parseInt(width), parseInt(height)),
+                            imageName,
+                            colorMode: 'rgb',
                         });
                     }
                     break;
@@ -150,9 +179,39 @@ export class ArduinoGFXParser extends AbstractParser {
                         });
                     }
                     break;
+                case 'drawTriangle':
+                case 'fillTriangle':
+                    {
+                        const [x0, y0, x1, y1, x2, y2, color] = this.getArgs(call.args, defines, variables);
+                        states.push({
+                            type: 'triangle',
+                            p1: new Point(parseInt(x0), parseInt(y0)),
+                            p2: new Point(parseInt(x1), parseInt(y1)),
+                            p3: new Point(parseInt(x2), parseInt(y2)),
+                            fill: call.functionName === 'fillTriangle',
+                            color: this.getColor(color),
+                        });
+                    }
+                    break;
             }
         });
+
         return {states, warnings};
+    }
+
+    // Normalize regex captures from Arduino_GFX bitmap declarations.
+    protected getXbmpFromMatch(match: RegExpExecArray): {name; xbmp} {
+        const name = match[1];
+        const xbmp = match[2]
+            .split(',')
+            .map((value) => value.trim())
+            .join(',');
+        return {name, xbmp};
+    }
+
+    // Allow both auto-generated image names (image_*_bits / image_*_pixels) and raw identifiers.
+    protected parseImageName(name: string): string {
+        return name.replace(/^(?:image_)?(.+?)(?:_(?:bits|pixels))?$/, '$1');
     }
 
     protected getColor(color: string): string {

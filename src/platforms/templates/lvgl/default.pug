@@ -1,0 +1,206 @@
+if settings.include_images
+    each decl in declarations
+        if decl.type == 'bitmap'
+            | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+            |
+        if decl.type == 'bitmap565'
+            | static const uint16_t PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+            |
+if settings.declare_vars
+    each decl in declarations 
+        if decl.type == 'var'
+            //- Use const char* for string vars, numeric for everything else (including colors).
+            if decl.data.type === 0
+                | const char* !{decl.data.name} = "!{decl.data.value}";
+                |
+            else
+                | int !{decl.data.name} = !{decl.data.value};
+                |
+if settings.wrap
+    | void draw!{screenTitle}(void) {
+- var textColor = defaultColor;
+- var textSize = '1'
+- var textWrap = true
+- var pad = settings.wrap ? '    ' : ''
+if settings.clear_screen && clear_screen_method
+    |
+    | !{pad}!{clear_screen_method};
+    |
+|
+|
+each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.type}: !{layer.name}
+        |
+    case layer.type
+        when 'rect'
+            - var func = (layer.fill ? 'fill' : 'draw') + (layer.radius? 'Round' : '') + 'Rect'
+            | @!{layer.uid};!{pad}display.!{func}(!{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''}, !{layer.color});
+        when 'panel'
+            - var var_name = 'panel_' + toCppVariableName(layer.name)
+            | @!{layer.uid};!{pad}lv_obj_t * !{var_name} = lv_obj_create(lv_screen_active());
+            | !{pad}lv_obj_set_pos(!{var_name}, !{layer.x}, !{layer.y});
+            | !{pad}lv_obj_set_size(!{var_name}, !{layer.w}, !{layer.h});
+            |
+            if layer.backgroundColor && layer.backgroundColor != defaultPanelBgColor
+                | !{pad}lv_obj_set_style_bg_color(!{var_name}, lv_color_hex(!{layer.backgroundColor}), LV_PART_MAIN);
+                |
+            if layer.borderWidth && layer.borderWidth != defaultPanelBorderWidth
+                | !{pad}lv_obj_set_style_border_width(!{var_name}, !{layer.borderWidth}, LV_PART_MAIN);
+                |
+            if layer.borderColor && layer.borderColor != defaultPanelBorderColor
+                | !{pad}lv_obj_set_style_border_color(!{var_name}, lv_color_hex(!{layer.borderColor}), LV_PART_MAIN);
+                |
+            if layer.radius != null && layer.radius != defaultPanelRadius
+                | !{pad}lv_obj_set_style_radius(!{var_name}, !{layer.radius}, LV_PART_MAIN);
+                |
+        when 'textarea'
+            //- Text area widget using the LVGL textarea control.
+            - var var_name = 'textarea_' + toCppVariableName(layer.name)
+            | !{pad}lv_obj_t * !{var_name} = lv_textarea_create(lv_screen_active());
+            |
+            if layer.isTextVariable
+                | @!{layer.uid};!{pad}lv_textarea_set_text(!{var_name}, !{layer.text});
+                |
+            else
+                | @!{layer.uid};!{pad}lv_textarea_set_text(!{var_name}, "!{layer.text}");
+                |
+            | !{pad}lv_obj_set_pos(!{var_name}, !{layer.x}, !{layer.y});
+            | !{pad}lv_obj_set_size(!{var_name}, !{layer.w}, !{layer.h});
+            |
+            if layer.backgroundColor && layer.backgroundColor != defaultTextareaBgColor
+                | !{pad}lv_obj_set_style_bg_color(!{var_name}, lv_color_hex(!{layer.backgroundColor}), LV_PART_MAIN);
+                |
+            if layer.borderWidth && layer.borderWidth != defaultTextareaBorderWidth
+                | !{pad}lv_obj_set_style_border_width(!{var_name}, !{layer.borderWidth}, LV_PART_MAIN);
+                |
+            if layer.borderColor && layer.borderColor != defaultTextareaBorderColor
+                | !{pad}lv_obj_set_style_border_color(!{var_name}, lv_color_hex(!{layer.borderColor}), LV_PART_MAIN);
+                |
+            if layer.radius != null && layer.radius != defaultTextareaRadius
+                | !{pad}lv_obj_set_style_radius(!{var_name}, !{layer.radius}, LV_PART_MAIN);
+                |
+            if layer.color != defaultTextareaTextColor
+                | !{pad}lv_obj_set_style_text_color(!{var_name}, lv_color_hex(!{layer.color}), LV_PART_MAIN);
+                |
+            |
+        when 'string'
+            - var var_name = 'label_' +toCppVariableName(layer.name)
+            | !{pad}lv_obj_t * !{var_name} = lv_label_create(lv_screen_active());
+            |
+            if layer.color != defaultColor
+                | !{pad}lv_obj_set_style_text_color(!{var_name}, lv_color_hex(!{layer.color}), LV_PART_MAIN);
+                |
+            | !{pad}lv_obj_set_pos(!{var_name}, !{layer.x}, !{layer.y});
+            |
+            if layer.isTextVariable
+                | @!{layer.uid};!{pad}lv_label_set_text(!{var_name}, !{layer.text});
+                |
+            else
+                | @!{layer.uid};!{pad}lv_label_set_text(!{var_name}, "!{layer.text}");
+                |
+            |
+        when 'button'
+            - var var_name = 'button_' + toCppVariableName(layer.name)
+            | @!{layer.uid};!{pad}lv_obj_t * !{var_name} = lv_button_create(lv_screen_active());
+            | !{pad}lv_obj_set_pos(!{var_name}, !{layer.x}, !{layer.y});
+            | !{pad}lv_obj_set_size(!{var_name}, !{layer.w}, !{layer.h});
+            |
+            if layer.radius != defaultButtonRadius
+                | !{pad}lv_obj_set_style_radius(!{var_name}, !{layer.radius}, LV_PART_MAIN);
+                |
+            if layer.backgroundColor != defaultButtonColor
+                | !{pad}lv_obj_set_style_bg_color(!{var_name}, lv_color_hex(!{layer.backgroundColor}), LV_PART_MAIN);
+                |
+            if layer.color != defaultButtonTextColor
+                | !{pad}lv_obj_set_style_text_color(!{var_name}, lv_color_hex(!{layer.color}), LV_PART_MAIN);
+                |
+            | !{pad}lv_obj_t * !{var_name}_label = lv_label_create(!{var_name});
+            |
+            if layer.isTextVariable
+                | !{pad}lv_label_set_text(!{var_name}_label, !{layer.text});
+                |
+            else
+                | !{pad}lv_label_set_text(!{var_name}_label, "!{layer.text}");
+                |
+            | !{pad}lv_obj_center(!{var_name}_label);
+            |
+        when 'checkbox'
+            //- Checkbox widget with indicator and label.
+            - var var_name = 'checkbox_' + toCppVariableName(layer.name)
+            | @!{layer.uid};!{pad}lv_obj_t * !{var_name} = lv_checkbox_create(lv_screen_active());
+            | !{pad}lv_obj_set_pos(!{var_name}, !{layer.x}, !{layer.y});
+            |
+            if layer.isTextVariable
+                | !{pad}lv_checkbox_set_text(!{var_name}, !{layer.text});
+                |
+            else
+                | !{pad}lv_checkbox_set_text(!{var_name}, "!{layer.text}");
+                |
+            if layer.checked
+                | !{pad}lv_obj_add_state(!{var_name}, LV_STATE_CHECKED);
+                |
+            if layer.color && layer.color != defaultCheckboxTextColor
+                | !{pad}lv_obj_set_style_text_color(!{var_name}, lv_color_hex(!{layer.color}), LV_PART_MAIN);
+                |
+            if layer.borderColor && layer.borderColor != defaultCheckboxBorderColor
+                //- Use the checkbox border color for border and checked fill.
+                | !{pad}lv_obj_set_style_border_color(!{var_name}, lv_color_hex(!{layer.borderColor}), LV_PART_INDICATOR);
+                | !{pad}lv_obj_set_style_bg_color(!{var_name}, lv_color_hex(!{layer.borderColor}), LV_PART_INDICATOR | LV_STATE_CHECKED);
+                |
+            if layer.backgroundColor && layer.backgroundColor != defaultCheckboxBgColor
+                | !{pad}lv_obj_set_style_bg_color(!{var_name}, lv_color_hex(!{layer.backgroundColor}), LV_PART_INDICATOR);
+                //- Match preview: draw the checkmark with background color when checked.
+                | !{pad}lv_obj_set_style_text_color(!{var_name}, lv_color_hex(!{layer.backgroundColor}), LV_PART_INDICATOR | LV_STATE_CHECKED);
+                |
+            if checkboxRadius && checkboxRadius > 0
+                | !{pad}lv_obj_set_style_radius(!{var_name}, !{checkboxRadius}, LV_PART_INDICATOR);
+                |
+        when 'paint'
+        when 'icon'
+            - var var_name = 'image_' + toCppVariableName(layer.name)
+            | @!{layer.uid};!{pad}LV_IMAGE_DECLARE(!{layer.imageName});
+            | !{pad}lv_obj_t * !{var_name} = lv_image_create(lv_screen_active());
+            | !{pad}lv_image_set_src(!{var_name}, &!{layer.imageName});
+            //- Use variable-aware image placement and sizing.
+            | !{pad}lv_obj_set_pos(!{var_name}, !{layer.x}, !{layer.y});
+            | !{pad}lv_obj_set_size(!{var_name}, !{layer.w}, !{layer.h});
+            |
+        when 'switch'
+            - var var_name = 'switch_' + toCppVariableName(layer.name)
+            | @!{layer.uid};!{pad}lv_obj_t * !{var_name} = lv_switch_create(lv_screen_active());
+            | !{pad}lv_obj_set_pos(!{var_name}, !{layer.x}, !{layer.y});
+            | !{pad}lv_obj_set_size(!{var_name}, !{layer.w}, !{layer.h});
+            |
+            if layer.checked
+                | !{pad}lv_obj_add_state(!{var_name}, LV_STATE_CHECKED);
+                |
+            if layer.color && layer.color != defaultSwitchColor
+                | !{pad}lv_obj_set_style_bg_color(!{var_name}, lv_color_hex(!{layer.color}), LV_PART_INDICATOR | LV_STATE_CHECKED);
+                |
+            if layer.backgroundColor && layer.backgroundColor != defaultSwitchBgColor
+                | !{pad}lv_obj_set_style_bg_color(!{var_name}, lv_color_hex(!{layer.backgroundColor}), LV_PART_MAIN);
+                |
+            |
+        when 'slider'
+            - var var_name = 'slider_' + toCppVariableName(layer.name)
+            | @!{layer.uid};!{pad}lv_obj_t * !{var_name} = lv_slider_create(lv_screen_active());
+            | !{pad}lv_slider_set_value(!{var_name}, 50, LV_ANIM_OFF);
+            | !{pad}lv_obj_set_pos(!{var_name}, !{layer.x}, !{layer.y});
+            | !{pad}lv_obj_set_size(!{var_name}, !{layer.w}, !{layer.h});
+            |
+            if layer.color && layer.color != defaultSliderColor
+                | !{pad}lv_obj_set_style_bg_color(!{var_name}, lv_color_hex(!{layer.color}), LV_PART_INDICATOR);
+                | !{pad}lv_obj_set_style_bg_color(!{var_name}, lv_color_hex(!{layer.color}), LV_PART_KNOB);
+                | !{pad}lv_obj_set_style_bg_color(!{var_name}, lv_color_hex(!{layer.color}), LV_PART_MAIN);
+                |
+            |
+        default 
+            |
+            | // Unknown layer type !{layer.type}
+            |
+    |
+    |
+if settings.wrap
+    | }
+    |

@@ -16,7 +16,8 @@ export class TFTeSPIParser extends AbstractParser {
                 case 'setFreeFont':
                     {
                         const [fontName] = this.getArgs(call.args, defines, variables);
-                        font = fontName.replace('&', '');
+                        // Fall back to the default font when no font argument is provided.
+                        font = fontName ? fontName.replace('&', '') : 'adafruit';
                     }
                     break;
                 case 'setTextColor':
@@ -149,9 +150,22 @@ export class TFTeSPIParser extends AbstractParser {
                         });
                     }
                     break;
+                case 'drawTriangle':
+                case 'fillTriangle':
+                    {
+                        const [x0, y0, x1, y1, x2, y2, color] = this.getArgs(call.args, defines, variables);
+                        states.push({
+                            type: 'triangle',
+                            p1: new Point(parseInt(x0), parseInt(y0)),
+                            p2: new Point(parseInt(x1), parseInt(y1)),
+                            p3: new Point(parseInt(x2), parseInt(y2)),
+                            fill: call.functionName === 'fillTriangle',
+                            color: this.getColor(color),
+                        });
+                    }
+                    break;
             }
         });
-        console.log(warnings);
 
         return {states, warnings};
     }

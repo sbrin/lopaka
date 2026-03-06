@@ -19,6 +19,10 @@ export abstract class AbstractTool {
         return this.name;
     }
 
+    getIcon(): string {
+        return this.name;
+    }
+
     isSupported(platform: string): boolean {
         return true;
     }
@@ -29,12 +33,12 @@ export abstract class AbstractTool {
         // do nothing
     }
 
-    onStopEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent): void {
+    onStopEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): void {
         this.editor.state.activeLayer = null;
         this.editor.state.activeTool = null;
     }
 
-    onStartEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent): void {
+    onStartEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): void {
         // do nothing
     }
 }

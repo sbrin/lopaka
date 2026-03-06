@@ -25,7 +25,10 @@ export class U8g2Platform extends Platform {
             settings: {
                 progmem: true,
                 wrap: false,
+                declare_vars: true,
+                include_images: true,
                 comments: false,
+                clear_screen: true,
             },
         },
         'esp-idf': {
@@ -33,7 +36,10 @@ export class U8g2Platform extends Platform {
             template: cEspIdfTemplate,
             settings: {
                 wrap: false,
+                declare_vars: true,
+                include_images: true,
                 comments: false,
+                clear_screen: true,
             },
         },
     };
@@ -42,9 +48,10 @@ export class U8g2Platform extends Platform {
         super();
         this.features.hasInvertedColors = true;
         this.features.defaultColor = '#FFFFFF';
+        this.features.screenBgColor = '#000000';
     }
 
-    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
+    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
         const declarations: {type: string; data: any}[] = [];
         const xbmps = [];
         const xbmpsNames = [];
@@ -76,13 +83,23 @@ export class U8g2Platform extends Platform {
                     const fontName = `u8g2_font_${layer.font.title}`;
                     props.fontName = `${fontName}_tr`;
                 }
+                this.processLayerModifiers(layer, props);
+                this.processVarDeclarations(layer, props, declarations);
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
+            screenTitle: screenTitle ? toCppVariableName(screenTitle) : '',
         });
         return source;
+    }
+    packColor(color: string): string {
+        if (color === '#000000' || color === '0xFFFF') return '0';
+        return '1';
+    }
+    getTextPosition(layer: TextLayer) {
+        return [layer.position[0], layer.position[1]];
     }
 }
