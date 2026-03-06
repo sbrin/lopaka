@@ -68,6 +68,14 @@ class TrackingRenderer extends AbstractDrawingRenderer {
     drawCheckbox(): void {
         // no-op for testing
     }
+
+    drawTriangle(): void {
+        // no-op for testing
+    }
+
+    drawPolygon(): void {
+        // no-op for testing
+    }
 }
 
 const features: TPlatformFeatures = {

@@ -41,4 +41,12 @@ export abstract class AbstractTool {
     onStartEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): void {
         // do nothing
     }
+
+    /**
+     * Return true if this tool uses multi-click creation (e.g. polygon).
+     * Multi-click tools add points on each click and finish on double-click.
+     */
+    isMultiClick(): boolean {
+        return false;
+    }
 }

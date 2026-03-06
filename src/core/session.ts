@@ -21,6 +21,7 @@ import { PanelLayer } from './layers/panel.layer';
 import { SliderLayer } from './layers/slider.layer';
 import { CheckboxLayer } from './layers/checkbox.layer';
 import { TextAreaLayer } from './layers/text-area.layer';
+import { PolygonLayer } from './layers/polygon.layer';
 import platforms from './platforms';
 import { Point } from './point';
 import { paramsToState } from './decorators/mapping';
@@ -73,6 +74,7 @@ export class Session {
         paint: PaintLayer,
         ellipse: EllipseLayer,
         button: ButtonLayer,
+        polygon: PolygonLayer,
         // TODO: deprecated, use PaintLayer instead
         icon: IconLayer,
         switch: SwitchLayer,

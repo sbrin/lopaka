@@ -102,6 +102,28 @@
                 <kbd class="kbd kbd-xs bg-base-300">RIGHT CLICK</kbd>
                 — eraser
             </p>
+
+            <div class="text text-sm font-bold">Polygon</div>
+            <p>
+                <kbd class="kbd kbd-xs bg-base-300">CLICK</kbd>
+                to place vertices,
+                <kbd class="kbd kbd-xs bg-base-300">DBL CLICK</kbd>
+                to finish
+            </p>
+            <p>
+                <kbd class="kbd kbd-xs bg-base-300">DBL CLICK</kbd>
+                selected — edit vertices
+            </p>
+            <p>
+                Hold
+                <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
+                — lock aspect ratio
+            </p>
+            <p>
+                Hold
+                <kbd class="kbd kbd-xs bg-base-300">ALT</kbd>
+                — resize from center
+            </p>
         </div>
     </div>
 </template>

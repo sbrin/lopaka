@@ -1,5 +1,6 @@
 import { Keys } from '../../core/keys.enum';
 import { AbstractLayer, EditMode } from '../../core/layers/abstract.layer';
+import { PolygonLayer } from '../../core/layers/polygon.layer';
 import { Point } from '../../core/point';
 import { Rect } from '../../core/rect';
 import { Session } from '../../core/session';
@@ -134,12 +135,17 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.session.grab(position, size);
             } else {
                 if (size.x < 2 && size.y < 2) {
+                    // Exit vertex edit mode for polygon layers before clearing selection
+                    layersManager.selected.forEach((l) => {
+                        if (l instanceof PolygonLayer) l.exitVertexEditMode();
+                    });
                     layersManager.clearSelection();
                     return;
                 }
                 shouldSelect = true;
             }
             layersManager.eachEditableLayer((l) => {
+                const wasSelected = l.selected;
                 if (shouldSelect) {
                     l.selected = new Rect(position, size).intersect(l.bounds);
                 }
@@ -148,6 +154,8 @@ export class SelectPlugin extends AbstractEditorPlugin {
                     layersManager.selectLayer(l);
                 } else {
                     layersManager.unselectLayer(l);
+                    // Exit vertex edit mode when deselecting polygon layers
+                    if (wasSelected && l instanceof PolygonLayer) l.exitVertexEditMode();
                 }
                 if (l.selected && l.group) {
                     layersManager.eachLayer((ll) => {
@@ -160,6 +168,10 @@ export class SelectPlugin extends AbstractEditorPlugin {
         } else if (!this.foreign) {
             const hovered = layersManager.contains(point);
             if (!hovered.length) {
+                // Exit vertex edit mode for polygon layers before clearing selection
+                layersManager.selected.forEach((l) => {
+                    if (l instanceof PolygonLayer) l.exitVertexEditMode();
+                });
                 layersManager.clearSelection();
             }
         }
@@ -171,6 +183,10 @@ export class SelectPlugin extends AbstractEditorPlugin {
         this.selected = false;
         if (this.session.editor.state.activeTool) return;
         if (key === Keys.Escape) {
+            // Exit vertex edit mode for polygon layers before clearing selection
+            layersManager.selected.forEach((l) => {
+                if (l instanceof PolygonLayer) l.exitVertexEditMode();
+            });
             layersManager.clearSelection();
             this.session.virtualScreen.redraw();
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {

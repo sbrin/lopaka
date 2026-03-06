@@ -4,16 +4,23 @@ import {AbstractEditorPlugin} from './abstract-editor.plugin';
 import {TextLayer} from '/src/core/layers/text.layer';
 import {TextAreaLayer} from '/src/core/layers/text-area.layer';
 
-/**
- * Add layer plugin
- */
 export class AddPlugin extends AbstractEditorPlugin {
     firstPoint: Point;
     captured: boolean = false;
+    multiClickActive: boolean = false;
 
     onMouseDown(point: Point, event: MouseEvent | TouchEvent): void {
         const {state} = this.session.editor;
         const {layersManager} = this.session;
+
+        if (this.multiClickActive && state.activeLayer && state.activeTool) {
+            this.captured = true;
+            state.activeLayer.startEdit(EditMode.CREATING, point);
+            state.activeTool.onStartEdit(state.activeLayer as AbstractLayer, point, event);
+            this.session.virtualScreen.redraw(false);
+            return;
+        }
+
         // Ignore creation when no creation-capable tool is active.
         if (!state.activeTool) {
             return;
@@ -42,7 +49,7 @@ export class AddPlugin extends AbstractEditorPlugin {
     }
 
     onMouseMove(point: Point, event: MouseEvent | TouchEvent): void {
-        if (this.captured) {
+        if (this.captured || this.multiClickActive) {
             const {activeLayer} = this.session.editor.state;
             if (!activeLayer) return;
             activeLayer.edit(point, event);
@@ -64,6 +71,14 @@ export class AddPlugin extends AbstractEditorPlugin {
             const {activeLayer, activeTool} = this.session.editor.state;
             this.captured = false;
             if (!activeLayer) return;
+
+            if (activeTool?.isMultiClick()) {
+                activeLayer.stopEdit();
+                this.multiClickActive = true;
+                this.session.virtualScreen.redraw(false);
+                return;
+            }
+
             activeLayer.stopEdit();
             activeTool.onStopEdit(activeLayer as AbstractLayer, point, event);
             this.session.layersManager.selectLayer(activeLayer as AbstractLayer);
@@ -74,5 +89,28 @@ export class AddPlugin extends AbstractEditorPlugin {
                 this.session.editor.triggerTextEdit();
             }
         }
+    }
+
+    onMouseDoubleClick(point: Point, event: MouseEvent): void {
+        if (this.multiClickActive) {
+            const {state} = this.session.editor;
+            const {activeLayer, activeTool} = state;
+            this.multiClickActive = false;
+            this.captured = false;
+            if (activeLayer && activeTool) {
+                activeTool.onStopEdit(activeLayer as AbstractLayer, point, event);
+                activeLayer.stopEdit();
+                activeLayer.draw();
+                activeLayer.selected = true;
+                state.activeLayer = null;
+                state.activeTool = null;
+                this.session.virtualScreen.redraw();
+            }
+        }
+    }
+
+    onClear(): void {
+        this.multiClickActive = false;
+        this.captured = false;
     }
 }

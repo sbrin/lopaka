@@ -104,6 +104,27 @@ export class SmoothDrawingRenderer extends AbstractDrawingRenderer {
         }
     }
 
+    drawPolygon(points: Point[], fill: boolean, color: string): void {
+        this.clear();
+        const ctx = this.drawContext.ctx;
+        this.setColor(color);
+
+        if (points.length < 2) return;
+
+        ctx.beginPath();
+        ctx.moveTo(points[0].x + 0.5, points[0].y + 0.5);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x + 0.5, points[i].y + 0.5);
+        }
+        ctx.closePath();
+
+        if (fill) {
+            ctx.fill();
+        } else {
+            ctx.stroke();
+        }
+    }
+
     drawImage(imageData: ImageData, position: Point): void {
         this.clear();
         this.drawContext.ctx.putImageData(imageData, position.x, position.y);

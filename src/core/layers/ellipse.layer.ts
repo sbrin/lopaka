@@ -152,7 +152,7 @@ export class EllipseLayer extends AbstractLayer {
                     this.position = center.clone().subtract(newRx, newRy).round();
                 } else {
                     if (Math.floor(this.editState.radiusY + dy) >= 1) {
-                        this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
+                        this.position.y = this.editState.position.y - (newRy - this.editState.radiusY) * 2;
                     }
                 }
 
@@ -226,7 +226,7 @@ export class EllipseLayer extends AbstractLayer {
                     this.position = center.clone().subtract(newRx, newRy).round();
                 } else {
                     if (Math.ceil(this.editState.radiusX + dx) >= 1) {
-                        this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
+                        this.position.x = this.editState.position.x - (newRx - this.editState.radiusX) * 2;
                     }
                 }
 
@@ -261,10 +261,10 @@ export class EllipseLayer extends AbstractLayer {
                     this.position = center.clone().subtract(newRx, newRy).round();
                 } else {
                     if (Math.ceil(this.editState.radiusX + dx) >= 1) {
-                        this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
+                        this.position.x = this.editState.position.x - (newRx - this.editState.radiusX) * 2;
                     }
                     if (Math.ceil(this.editState.radiusY + dy) >= 1) {
-                        this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
+                        this.position.y = this.editState.position.y - (newRy - this.editState.radiusY) * 2;
                     }
                 }
 
@@ -294,7 +294,7 @@ export class EllipseLayer extends AbstractLayer {
 
                 this.rx = newRx;
                 this.ry = newRy;
-                this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
+                this.position.y = this.editState.position.y - (newRy - this.editState.radiusY) * 2;
                 this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
             },
         },
@@ -363,7 +363,7 @@ export class EllipseLayer extends AbstractLayer {
 
                 this.rx = newRx;
                 this.ry = newRy;
-                this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
+                this.position.x = this.editState.position.x - (newRx - this.editState.radiusX) * 2;
                 this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
             },
         },

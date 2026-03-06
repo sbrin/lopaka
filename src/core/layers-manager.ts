@@ -21,6 +21,7 @@ import { SliderLayer } from '/src/core/layers/slider.layer';
 import { CheckboxLayer } from '/src/core/layers/checkbox.layer';
 import { LVGLPlatform } from '/src/platforms/lvgl';
 import { TextAreaLayer } from '/src/core/layers/text-area.layer';
+import { PolygonLayer } from '/src/core/layers/polygon.layer';
 
 // Describes drag/drop reorder intent for either single layers or groups
 export type LayerReorderEntry =
@@ -53,6 +54,7 @@ export class LayersManager {
         slider: SliderLayer,
         checkbox: CheckboxLayer,
         textarea: TextAreaLayer,
+        polygon: PolygonLayer,
     };
 
     get layers() {

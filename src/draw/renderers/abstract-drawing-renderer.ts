@@ -184,6 +184,14 @@ export abstract class AbstractDrawingRenderer {
     ): void;
 
     /**
+     * Draw or fill a polygon
+     * @param points - Array of polygon vertices
+     * @param fill - Whether to fill the polygon
+     * @param color - Color to use
+     */
+    abstract drawPolygon(points: Point[], fill: boolean, color: string): void;
+
+    /**
      * Set the rendering color and style
      * @param color - Color to set
      */

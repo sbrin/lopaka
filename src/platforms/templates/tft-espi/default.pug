@@ -1,5 +1,5 @@
 if settings.include_fonts
-    each decl in declarations 
+    each decl in declarations
         if decl.type == 'font'
             | #include "!{decl.data.value}.h"
             |
@@ -14,7 +14,7 @@ if settings.include_images
             | static const uint16_t PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
             |
 if settings.declare_vars
-    each decl in declarations 
+    each decl in declarations
         if decl.type == 'var'
             if decl.data.type === 0
                 | const char* !{decl.data.name} = "!{decl.data.value}";
@@ -25,7 +25,18 @@ if settings.declare_vars
 |
 |
 - const hasRgbBitmap = layers.some((layer) => ['paint', 'icon'].includes(layer.type) && layer.colorMode === 'rgb');
-
+each layer in layers
+    if layer.type == 'polygon'
+        - var pts = layer.points
+        |
+        | void draw_!{layer.name}(void) {
+        |
+        - for (var pi = 0; pi < pts.length; pi++)
+            - var npi = (pi + 1) % pts.length
+            |     tft.drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]}, !{packColor(layer.color)});
+            |
+        | }
+        |
 if settings.wrap
     |
     | void draw!{screenTitle}(void) {
@@ -89,6 +100,8 @@ each layer in layers
                 | @!{layer.uid};!{pad}tft.pushImage(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
             else
                 | @!{layer.uid};!{pad}tft.drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{layer.color});
+        when 'polygon'
+            | @!{layer.uid};!{pad}draw_!{layer.name}();
         default 
             |
             | // Unknown layer type !{layer.type}

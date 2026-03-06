@@ -29,6 +29,7 @@ import SwitchIcon from '/src/assets/icons/switch.svg?component';
 import SliderIcon from '/src/assets/icons/slider.svg?component';
 import CheckBoxIcon from '/src/assets/icons/checkbox.svg?component';
 import TextAreaIcon from '/src/assets/icons/textarea.svg?component';
+import PolygonIcon from '/src/assets/icons/Polygon.svg?component';
 import {
     CogIcon,
     CursorArrowRaysIcon,
@@ -149,6 +150,7 @@ const icons = {
     checkbox: CheckBoxIcon,
     plus: PlusIcon,
     textarea: TextAreaIcon,
+    polygon: PolygonIcon,
 };
 
 const classList = computed(() => ({

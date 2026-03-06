@@ -104,7 +104,8 @@ declare type ELayerType =
     | 'panel'
     | 'slider'
     | 'checkbox'
-    | 'textarea';
+    | 'textarea'
+    | 'polygon';
 
 declare function gtag(...args: any[]): void;
 
