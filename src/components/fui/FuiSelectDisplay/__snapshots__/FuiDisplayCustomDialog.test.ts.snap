@@ -53,7 +53,7 @@ exports[`FuiDisplayCustomDialog > renders a popup element 1`] = `
       data-v-519941f7=""
     >
       <button
-        class="btn btn-sm font-sans uppercase leading-none btn-primary btn-outline"
+        class="btn font-sans uppercase leading-none btn-primary btn-outline btn-sm"
         data-v-3947d5d5=""
       >
         
@@ -67,7 +67,7 @@ exports[`FuiDisplayCustomDialog > renders a popup element 1`] = `
       data-v-519941f7=""
     >
       <button
-        class="btn btn-sm font-sans uppercase leading-none btn-primary btn-outline btn-success"
+        class="btn font-sans uppercase leading-none btn-primary btn-outline btn-success btn-sm"
         data-v-3947d5d5=""
       >
         

@@ -1,14 +1,17 @@
-<script lang="ts" setup>
-import {computed, defineProps, toRefs} from 'vue';
-import {useSession} from '../../core/session';
-import {iconsList} from '../../icons/icons';
+<script
+    lang="ts"
+    setup
+>
+import { computed, toRefs } from 'vue';
+import { useSession } from '../../core/session';
+import { iconsList } from '../../icons/icons';
 
 const props = defineProps<{
     isSandbox: boolean;
 }>();
 
 const session = useSession();
-const {customImages} = toRefs(session.state);
+const { customImages } = toRefs(session.state);
 const emit = defineEmits(['cleanCustomIcons', 'iconClicked']);
 
 const customImagesSorted = computed(() => {
@@ -25,6 +28,7 @@ function iconClick(e, item) {
         width: item.width,
         height: item.height,
         icon: e.target,
+        colorMode: item.colorMode,
     };
     emit('iconClicked', data);
 }
@@ -57,6 +61,7 @@ function iconDragStart(e: DragEvent) {
                             :key="index"
                             :src="item.image.src"
                             :data-name="item.name"
+                            :data-color-mode="item.colorMode"
                             :width="item.width * 2"
                             :height="item.height * 2"
                             :data-w="item.width"
@@ -118,6 +123,7 @@ function iconDragStart(e: DragEvent) {
     border-top: 0;
     margin: 0 0 8px 0;
     height: 350px;
+    width: 760px;
 }
 
 .fui-iconset img {
@@ -131,6 +137,7 @@ function iconDragStart(e: DragEvent) {
 .image-custom:hover .image-custom-inner {
     background-color: oklch(var(--s));
 }
+
 .image-custom:hover .image-custom-remove {
     display: block;
 }

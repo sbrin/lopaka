@@ -27,15 +27,23 @@ export function alignLayer(event, layer: AbstractLayer, session) {
         if (mods.x) {
             mods.x.setValue(value);
         } else if (mods.x1 && mods.x2) {
-            const x1 = mods.x1.getValue();
-            const x2 = mods.x2.getValue();
-            const width = Math.abs(x2 - x1);
-            if (x2 >= x1) {
-                mods.x1.setValue(value);
-                mods.x2.setValue(value + width);
+            const curX1 = mods.x1.getValue();
+            const curX2 = mods.x2.getValue();
+            if (mods.x3) {
+                const curX3 = mods.x3.getValue();
+                const dx = value - Math.min(curX1, curX2, curX3);
+                mods.x1.setValue(curX1 + dx);
+                mods.x2.setValue(curX2 + dx);
+                mods.x3.setValue(curX3 + dx);
             } else {
-                mods.x1.setValue(value + width);
-                mods.x2.setValue(value);
+                const width = Math.abs(curX2 - curX1);
+                if (curX2 >= curX1) {
+                    mods.x1.setValue(value);
+                    mods.x2.setValue(value + width);
+                } else {
+                    mods.x1.setValue(value + width);
+                    mods.x2.setValue(value);
+                }
             }
         }
     };
@@ -46,15 +54,23 @@ export function alignLayer(event, layer: AbstractLayer, session) {
         if (mods.y) {
             mods.y.setValue(value);
         } else if (mods.y1 && mods.y2) {
-            const y1 = mods.y1.getValue();
-            const y2 = mods.y2.getValue();
-            const height = Math.abs(y2 - y1);
-            if (y2 >= y1) {
-                mods.y1.setValue(value);
-                mods.y2.setValue(value + height);
+            const curY1 = mods.y1.getValue();
+            const curY2 = mods.y2.getValue();
+            if (mods.y3) {
+                const curY3 = mods.y3.getValue();
+                const dy = value - Math.min(curY1, curY2, curY3);
+                mods.y1.setValue(curY1 + dy);
+                mods.y2.setValue(curY2 + dy);
+                mods.y3.setValue(curY3 + dy);
             } else {
-                mods.y1.setValue(value + height);
-                mods.y2.setValue(value);
+                const height = Math.abs(curY2 - curY1);
+                if (curY2 >= curY1) {
+                    mods.y1.setValue(value);
+                    mods.y2.setValue(value + height);
+                } else {
+                    mods.y1.setValue(value + height);
+                    mods.y2.setValue(value);
+                }
             }
         }
     };
@@ -101,12 +117,23 @@ export function alignLayer(event, layer: AbstractLayer, session) {
 }
 
 export function alignMultipleLayers(alignType: string, session) {
-    const selectedLayers = session.state.layers.filter((l) => l.selected) as AbstractLayer[];
+    const selectedLayers = session.layersManager.selected;
     if (selectedLayers.length <= 1) return;
 
-    const boundaries = calculateBoundaries(selectedLayers);
-    alignLayersWithinBoundaries(selectedLayers, boundaries, alignType);
-    session.virtualScreen.redraw();
+    // Collapse the multi-layer alignment into a single undo entry when history batching is available
+    const canBatch = Boolean(session.history?.batchStart && session.history?.batchEnd);
+    if (canBatch) {
+        session.history.batchStart();
+    }
+    try {
+        const boundaries = calculateBoundaries(selectedLayers);
+        alignLayersWithinBoundaries(selectedLayers, boundaries, alignType);
+        session.virtualScreen.redraw();
+    } finally {
+        if (canBatch) {
+            session.history.batchEnd();
+        }
+    }
 }
 
 function calculateBoundaries(layers: AbstractLayer[]): Boundaries {
@@ -129,12 +156,23 @@ function getLayerPosition(layer: AbstractLayer): LayerPosition {
     const bounds = layer.bounds;
     const mods = layer.modifiers;
 
-    const x1 = mods.x ? mods.x.getValue() : Math.min(mods.x1.getValue(), mods.x2.getValue());
-    const x2 = mods.x ? x1 + bounds.size.x : Math.max(mods.x1.getValue(), mods.x2.getValue());
-    const y1 = mods.y ? mods.y.getValue() : Math.min(mods.y1.getValue(), mods.y2.getValue());
-    const y2 = mods.y ? y1 + bounds.size.y : Math.max(mods.y1.getValue(), mods.y2.getValue());
+    if (mods.x) {
+        const x1 = mods.x.getValue();
+        const y1 = mods.y.getValue();
+        return {x1, x2: x1 + bounds.size.x, y1, y2: y1 + bounds.size.y};
+    }
 
-    return {x1, x2, y1, y2};
+    const xValues = [mods.x1.getValue(), mods.x2.getValue()];
+    const yValues = [mods.y1.getValue(), mods.y2.getValue()];
+    if (mods.x3) xValues.push(mods.x3.getValue());
+    if (mods.y3) yValues.push(mods.y3.getValue());
+
+    return {
+        x1: Math.min(...xValues),
+        x2: Math.max(...xValues),
+        y1: Math.min(...yValues),
+        y2: Math.max(...yValues),
+    };
 }
 
 function alignLayersWithinBoundaries(layers: AbstractLayer[], boundaries: Boundaries, alignType: string) {
@@ -194,6 +232,29 @@ function alignLayersWithinBoundaries(layers: AbstractLayer[], boundaries: Bounda
 function setHorizontalPosition(layer: AbstractLayer, position: number, isCenter = false, isRight = false) {
     const mods = layer.modifiers;
     const bounds = layer.bounds;
+
+    if (mods.x3) {
+        const curX1 = mods.x1.getValue();
+        const curX2 = mods.x2.getValue();
+        const curX3 = mods.x3.getValue();
+        const minX = Math.min(curX1, curX2, curX3);
+        const maxX = Math.max(curX1, curX2, curX3);
+        const width = maxX - minX;
+
+        let finalPosition = position;
+        if (isCenter) {
+            finalPosition = Math.floor(position - width / 2);
+        } else if (isRight) {
+            finalPosition = Math.floor(position - width);
+        }
+
+        const dx = Math.floor(finalPosition) - minX;
+        mods.x1.setValue(curX1 + dx);
+        mods.x2.setValue(curX2 + dx);
+        mods.x3.setValue(curX3 + dx);
+        return;
+    }
+
     const width = mods.x ? bounds.size.x : Math.abs(mods.x2.getValue() - mods.x1.getValue());
 
     let finalPosition = position;
@@ -211,7 +272,6 @@ function setHorizontalPosition(layer: AbstractLayer, position: number, isCenter 
         mods.x.setValue(Math.floor(finalPosition));
     } else if (mods.x1 && mods.x2) {
         if (xReversed) {
-            // Preserve reversed horizontal direction
             mods.x2.setValue(Math.floor(finalPosition));
             mods.x1.setValue(Math.floor(finalPosition + width));
         } else {
@@ -224,6 +284,29 @@ function setHorizontalPosition(layer: AbstractLayer, position: number, isCenter 
 function setVerticalPosition(layer: AbstractLayer, position: number, isCenter = false, isBottom = false) {
     const mods = layer.modifiers;
     const bounds = layer.bounds;
+
+    if (mods.y3) {
+        const curY1 = mods.y1.getValue();
+        const curY2 = mods.y2.getValue();
+        const curY3 = mods.y3.getValue();
+        const minY = Math.min(curY1, curY2, curY3);
+        const maxY = Math.max(curY1, curY2, curY3);
+        const height = maxY - minY;
+
+        let finalPosition = position;
+        if (isCenter) {
+            finalPosition = Math.floor(position - height / 2);
+        } else if (isBottom) {
+            finalPosition = position - height;
+        }
+
+        const dy = Math.floor(finalPosition) - minY;
+        mods.y1.setValue(curY1 + dy);
+        mods.y2.setValue(curY2 + dy);
+        mods.y3.setValue(curY3 + dy);
+        return;
+    }
+
     const height = mods.y ? bounds.size.y : Math.abs(mods.y2.getValue() - mods.y1.getValue());
     const isText = layer.getType() === 'string';
 
@@ -244,7 +327,6 @@ function setVerticalPosition(layer: AbstractLayer, position: number, isCenter = 
         mods.y.setValue(Math.floor(finalPosition));
     } else if (mods.y1 && mods.y2) {
         if (yReversed) {
-            // Preserve reversed vertical direction
             mods.y2.setValue(Math.floor(finalPosition));
             mods.y1.setValue(Math.floor(finalPosition + height));
         } else {

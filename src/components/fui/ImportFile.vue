@@ -1,7 +1,10 @@
-<script lang="ts" setup>
-import {defineProps, ref} from 'vue';
-import {useSession} from '../../core/session';
-import {logEvent, readTextFileAsync} from '../../utils';
+<script
+    lang="ts"
+    setup
+>
+import { defineProps, ref } from 'vue';
+import { useSession } from '../../core/session';
+import { logEvent, readTextFileAsync } from '../../utils';
 
 const props = defineProps<{
     title: string;
@@ -39,7 +42,7 @@ function resetFileInput() {
 </script>
 <template>
     <label
-        class="btn btn-sm btn-outline btn-primary uppercase font-sans overflow-hidden"
+        class="text-primary font-sans mr-2 underline decoration-dotted cursor-pointer flex items-center content-center"
         @click="logEvent(`button_import_${type}`)"
     >
         <slot></slot>

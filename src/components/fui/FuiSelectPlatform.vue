@@ -22,13 +22,16 @@ watch(platform, (val) => {
             class="fui-select__select fui-form-input"
             v-model="platform"
         >
-            <option
+            <template
                 v-for="(p, idx) in session.platforms"
                 :key="idx"
-                :value="idx"
             >
-                {{ p.getName() }}
-            </option>
+                <option
+                    :value="idx"
+                >
+                    {{ p.getName() }}
+                </option>
+            </template>
         </select>
     </div>
 </template>
