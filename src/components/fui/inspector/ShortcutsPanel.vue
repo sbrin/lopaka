@@ -81,16 +81,35 @@
                 — ungroup
             </p>
             
-            <div class="text text-sm font-bold">Rectangle, Ellipse, Triangle, Line</div>
+            <div class="text text-sm font-bold">Rectangle</div>
             <p>
                 Hold
                 <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
-                to switch draw/resize mode
+                to draw a square / preserve aspect ratio
             </p>
             <p>
                 Hold
                 <kbd class="kbd kbd-xs bg-base-300">ALT</kbd>
                 to draw from center point
+            </p>
+
+            <div class="text text-sm font-bold">Ellipse</div>
+            <p>
+                Hold
+                <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
+                to draw a circle / preserve aspect ratio
+            </p>
+            <p>
+                Hold
+                <kbd class="kbd kbd-xs bg-base-300">ALT</kbd>
+                to draw from center point
+            </p>
+
+            <div class="text text-sm font-bold">Line</div>
+            <p>
+                Hold
+                <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
+                to snap to 45° angles
             </p>
             <div class="text text-sm font-bold">Paint</div>
             <p>
