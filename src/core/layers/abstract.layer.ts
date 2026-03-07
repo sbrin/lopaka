@@ -1,11 +1,11 @@
-import {DrawContext} from '../../draw/draw-context';
-import {AbstractDrawingRenderer, PixelatedDrawingRenderer} from '../../draw/renderers';
-import {TPlatformFeatures} from '../../platforms/platform';
-import {generateUID} from '../../utils';
-import {getState, mapping, setState} from '../decorators/mapping';
-import {ChangeHistory, useHistory} from '../history';
-import {Point} from '../point';
-import {Rect} from '../rect';
+import { DrawContext } from '../../draw/draw-context';
+import { AbstractDrawingRenderer, PixelatedDrawingRenderer } from '../../draw/renderers';
+import { TPlatformFeatures } from '../../platforms/platform';
+import { generateUID } from '../../utils';
+import { getState, mapping, setState } from '../decorators/mapping';
+import { ChangeHistory, useHistory } from '../history';
+import { Point } from '../point';
+import { Rect } from '../rect';
 // TODO move type delarations outside of the class
 export enum EditMode {
     MOVING,
@@ -41,6 +41,8 @@ export type TModifierName =
     | 'x2'
     | 'y1'
     | 'y2'
+    | 'x3'
+    | 'y3'
     | 'color'
     | 'image'
     | 'overlay'
@@ -64,13 +66,13 @@ export type TLayerAction = {
     action: () => void;
 };
 
-export type TLayerModifiers = Partial<{[key in TModifierName]: TLayerModifier}>;
+export type TLayerModifiers = Partial<{ [key in TModifierName]: TLayerModifier }>;
 export type TLayerActions = TLayerAction[];
 
 export type TLayerEditPoint = {
     cursor: 'nwse-resize' | 'nesw-resize' | 'move' | 'ns-resize' | 'ew-resize';
     getRect(): Rect;
-    move(point: Point, event?: MouseEvent): void;
+    move(point: Point, event?: MouseEvent | TouchEvent): void;
 };
 
 /**
@@ -122,7 +124,7 @@ export abstract class AbstractLayer {
     // hidden
     @mapping('h') public hidden: boolean = false;
     // variables
-    @mapping('v') public variables: {[key: string]: boolean} = {};
+    @mapping('v') public variables: { [key: string]: boolean } = {};
     // is layer already added to the session
     public added: boolean = false;
     // is layer resizable
@@ -178,7 +180,7 @@ export abstract class AbstractLayer {
      * @param scale
      */
     public resize(display: Point, scale: Point): void {
-        const {dc, buffer} = this;
+        const { dc, buffer } = this;
         buffer.width = display.x;
         buffer.height = display.y;
         dc.ctx.fillStyle = '#000';
@@ -198,7 +200,7 @@ export abstract class AbstractLayer {
     /**
      * On load state
      */
-    protected onLoadState() {}
+    protected onLoadState() { }
 
     /**
      * Clone this layer as new one
