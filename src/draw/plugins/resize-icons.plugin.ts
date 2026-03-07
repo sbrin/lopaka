@@ -11,19 +11,22 @@ export class ResizeIconsPlugin extends DrawPlugin {
             ctx.save();
             const layer = resizableLayers[0];
 
+            const event = _event || ({ shiftKey: this.session.editor.state.shiftPressed } as unknown as MouseEvent);
+            const editPoints = layer.getEditPoints(event);
+
             if (layer.customMarkers) {
-                this.drawCustomMarkers(ctx, layer, scale, interfaceColors);
+                this.drawCustomMarkers(ctx, layer, editPoints, scale, interfaceColors);
             } else {
-                this.drawResizeMarkers(ctx, layer, layer.editPoints, scale, interfaceColors);
+                this.drawResizeMarkers(ctx, layer, editPoints, scale, interfaceColors);
             }
 
             ctx.restore();
         }
     }
 
-    private drawCustomMarkers(ctx: CanvasRenderingContext2D, layer: any, scale: Point, interfaceColors: any) {
+    private drawCustomMarkers(ctx: CanvasRenderingContext2D, layer: any, editPoints: any[], scale: Point, interfaceColors: any) {
         ctx.beginPath();
-        layer.editPoints.forEach((editPoint) => {
+        editPoints.forEach((editPoint: any) => {
             const r = editPoint.getRect().multiply(scale).round();
             const c = r.getCenter();
             ctx.moveTo(c.x + 8, c.y);
