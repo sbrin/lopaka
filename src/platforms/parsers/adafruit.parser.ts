@@ -17,7 +17,7 @@ export class AdafruitParser extends AbstractParser {
                 case 'setFont':
                     {
                         const [fontName] = this.getArgs(call.args, defines, variables);
-                        font = fontName.replace('&', '');
+                        font = fontName ? fontName.replace('&', '') : 'adafruit';
                     }
                     break;
                 case 'setTextColor':
@@ -154,6 +154,20 @@ export class AdafruitParser extends AbstractParser {
                             position: new Point(parseInt(x) - parseInt(rx), parseInt(y) - parseInt(ry)),
                             radius: new Point(parseInt(rx), parseInt(ry)),
                             fill: call.functionName === 'fillEllipse',
+                            color: this.getColor(color),
+                        });
+                    }
+                    break;
+                case 'drawTriangle':
+                case 'fillTriangle':
+                    {
+                        const [x0, y0, x1, y1, x2, y2, color] = this.getArgs(call.args, defines, variables);
+                        states.push({
+                            type: 'triangle',
+                            p1: new Point(parseInt(x0), parseInt(y0)),
+                            p2: new Point(parseInt(x1), parseInt(y1)),
+                            p3: new Point(parseInt(x2), parseInt(y2)),
+                            fill: call.functionName === 'fillTriangle',
                             color: this.getColor(color),
                         });
                     }

@@ -16,32 +16,42 @@ export class TTFFont extends Font {
             return this.source.arrayBuffer().then((data) => {
                 const font = new FontFace(this.name, new Uint8Array(data));
                 font.load();
+                (document.fonts as any).add(font);
+                return font.loaded;
+            });
+        } else if (this.source instanceof Function) {
+            return this.source().then((data) => {
+                const font = new FontFace(this.name, `url(${data.default})`);
+                font.load();
+                (document.fonts as any).add(font);
                 return font.loaded;
             });
         }
-        const font = new FontFace(this.name, `url(${this.source})`);
-        font.load();
-        await font.loaded;
-        (document.fonts as any).add(font);
     }
 
-    getSize(dc: DrawContext, text: string): Point {
+    getSize(dc: DrawContext, text: string, scaleFactor: number = 14): Point {
         const {ctx} = dc;
         ctx.save();
-        ctx.font = `${this.options.size}px '${this.name}', monospace`;
+        ctx.font = `${scaleFactor}px '${this.name}'`;
+        ctx.letterSpacing = `${scaleFactor / 26}px`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'alphabetic';
         const measure = ctx.measureText(text);
         ctx.restore();
-        return new Point(measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft, this.options.textCharHeight);
+
+        return new Point(
+            measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft,
+            measure.fontBoundingBoxAscent + measure.fontBoundingBoxDescent
+        );
     }
 
-    drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number = 1): void {
-        const {ctx} = dc;
-        ctx.beginPath();
-        ctx.font = `${this.options.size}px '${this.name}', monospace`;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillText(text, position.x, position.y);
+    drawText(
+        dc: DrawContext,
+        text: string,
+        position: Point,
+        scaleFactor: number = 14,
+        baseline: CanvasTextBaseline = 'bottom'
+    ): void {
+        dc.text(new Point(position.x, position.y - 2), text, `${scaleFactor}px '${this.name}'`, baseline, scaleFactor/50);
     }
 }

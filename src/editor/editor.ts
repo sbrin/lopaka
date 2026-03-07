@@ -1,42 +1,54 @@
-import {UnwrapRef, reactive} from 'vue';
-import {Keys} from '../core/keys.enum';
-import {AbstractLayer} from '../core/layers/abstract.layer';
-import {Point} from '../core/point';
-import {Session} from '../core/session';
-import {Font} from '../draw/fonts/font';
-import {AbstractEditorPlugin} from './plugins/abstract-editor.plugin';
-import {AddPlugin} from './plugins/add.plugin';
-import {CopyPlugin} from './plugins/copy.plugin';
-import {DeletePlugin} from './plugins/delete.plugin';
-import {ImageDropPlugin} from './plugins/image-drop.plugin';
-import {MovePlugin} from './plugins/move.plugin';
-import {PaintPlugin} from './plugins/paint.plugin';
-import {ResizePlugin} from './plugins/resize.plugin';
-import {SelectPlugin} from './plugins/select.plugin';
-import {AbstractTool} from './tools/abstract.tool';
-import {CircleTool} from './tools/circle.tool';
-import {DotTool} from './tools/dot.tool';
-import {EllipseTool} from './tools/ellipse.tool';
-import {LineTool} from './tools/line.tool';
-import {PaintTool} from './tools/paint.tool';
-import {RectTool} from './tools/rect.tool';
-import {TextTool} from './tools/text.tool';
-import {PolygonTool} from './tools/polygon.tool';
-import {HistoryPlugin} from './plugins/history.plugin';
+import { UnwrapRef, reactive } from 'vue';
+import { Keys } from '../core/keys.enum';
+import { AbstractLayer } from '../core/layers/abstract.layer';
+import { Point } from '../core/point';
+import { Session } from '../core/session';
+import { Font } from '../draw/fonts/font';
+import { AbstractEditorPlugin } from './plugins/abstract-editor.plugin';
+import { AddPlugin } from './plugins/add.plugin';
+import { CopyPlugin } from './plugins/copy.plugin';
+import { ClonePlugin } from './plugins/clone.plugin';
+import { DeletePlugin } from './plugins/delete.plugin';
+import { ImageDropPlugin } from './plugins/image-drop.plugin';
+import { MovePlugin } from './plugins/move.plugin';
+import { PaintPlugin } from './plugins/paint.plugin';
+import { ResizePlugin } from './plugins/resize.plugin';
+import { SelectPlugin } from './plugins/select.plugin';
+import { AbstractTool } from './tools/abstract.tool';
+import { CircleTool } from './tools/circle.tool';
+import { EllipseTool } from './tools/ellipse.tool';
+import { LineTool } from './tools/line.tool';
+import { PaintTool } from './tools/paint.tool';
+import { ImageTool } from './tools/image.tool';
+import { RectTool } from './tools/rect.tool';
+import { TriangleTool } from './tools/triangle.tool';
+import { TextTool } from './tools/text.tool';
+import { TextAreaTool } from './tools/text-area.tool';
+import { ButtonTool } from './tools/button.tool';
+import { PanelTool } from './tools/panel.tool';
+import { SwitchTool } from './tools/switch.tool';
+import { SliderTool } from './tools/slider.tool';
+import { CheckboxTool } from './tools/checkbox.tool';
+import { PolygonTool } from './tools/polygon.tool';
+import { HistoryPlugin } from './plugins/history.plugin';
+import { GroupPlugin } from './plugins/group.plugin';
+import { ZoomPlugin } from './plugins/zoom.plugin';
 
 type TEditorState = {
     activeLayer: AbstractLayer;
     activeTool: AbstractTool;
-    selectionUpdates: number;
+    textEditMode: number;
+    shiftPressed: boolean;
 };
 
 export class Editor {
     plugins: AbstractEditorPlugin[] = [];
     container: HTMLElement;
+    scrollContainer: HTMLElement | null = null;
     // default font
     font: Font;
     lastFontName: string;
-
+    lastColor: string;
     layer: AbstractLayer;
 
     mouseDownCaptured: boolean = false;
@@ -44,23 +56,31 @@ export class Editor {
     state: UnwrapRef<TEditorState> = reactive({
         activeLayer: null,
         activeTool: null,
-        selectionUpdates: 1,
+        textEditMode: 0,
+        shiftPressed: false,
     });
 
-    constructor(public session: Session) {}
+    constructor(public session: Session) { }
 
-    tools: {[key: string]: AbstractTool} = {
+    tools: { [key: string]: AbstractTool } = {
+        image: new ImageTool(this),
         paint: new PaintTool(this),
         string: new TextTool(this),
+        textarea: new TextAreaTool(this),
         rect: new RectTool(this),
+        panel: new PanelTool(this),
         circle: new CircleTool(this),
         ellipse: new EllipseTool(this),
         line: new LineTool(this),
+        triangle: new TriangleTool(this),
+        button: new ButtonTool(this),
+        switch: new SwitchTool(this),
+        slider: new SliderTool(this),
+        checkbox: new CheckboxTool(this),
         polygon: new PolygonTool(this),
-        // dot: new DotTool(this)
     };
 
-    getSupportedTools(platform: string): {[key: string]: AbstractTool} {
+    getSupportedTools(platform: string): { [key: string]: AbstractTool } {
         return Object.values(this.tools)
             .filter((tool) => tool.isSupported(platform))
             .reduce((acc, tool) => {
@@ -71,21 +91,38 @@ export class Editor {
 
     setContainer(container: HTMLElement) {
         this.container = container;
+        this.scrollContainer = container.closest('.fui-editor__canvas');
         this.plugins = [
             new PaintPlugin(this.session, this.container),
             new AddPlugin(this.session, this.container),
             new ResizePlugin(this.session, this.container),
             new SelectPlugin(this.session, this.container),
+            new ClonePlugin(this.session, this.container),
             new MovePlugin(this.session, this.container),
             new CopyPlugin(this.session, this.container),
             new HistoryPlugin(this.session, this.container),
             new DeletePlugin(this.session, this.container),
             new ImageDropPlugin(this.session, this.container),
+            new GroupPlugin(this.session, this.container),
+            new ZoomPlugin(this.session, this.container),
         ];
+        if (this.scrollContainer) {
+            this.scrollContainer.addEventListener('wheel', this.onWheel, { passive: false });
+        }
+    }
+
+    destroy() {
+        if (this.scrollContainer) {
+            this.scrollContainer.removeEventListener('wheel', this.onWheel);
+        }
     }
 
     selectionUpdate(): void {
-        this.state.selectionUpdates++;
+        this.session.state.selectionUpdates++;
+    }
+
+    triggerTextEdit(): void {
+        this.state.textEditMode++;
     }
 
     clear(): void {
@@ -106,25 +143,37 @@ export class Editor {
     }
 
     handleEvent = (event: MouseEvent | KeyboardEvent | DragEvent | TouchEvent) => {
-        const {virtualScreen, state} = this.session;
-        const {display, scale, layers} = state;
+        const { virtualScreen, state } = this.session;
+        const { scale } = state;
         if (event instanceof KeyboardEvent) {
+            // Keep modifier state in sync for draw plugins that depend on Shift mode.
+            const nextShiftPressed = event.code === Keys.Shift ? event.type === 'keydown' : event.shiftKey;
+            // Redraw plugin overlays only when Shift state actually changes.
+            if (this.state.shiftPressed !== nextShiftPressed) {
+                this.state.shiftPressed = nextShiftPressed;
+                virtualScreen.redrawPlugins();
+            }
             if (
-                ((event.ctrlKey || event.metaKey) && event.code === Keys.KeyZ) ||
+                ((event.ctrlKey || event.metaKey) && [Keys.KeyZ, Keys.KeyY].includes(event.code as Keys)) ||
+                (this.state.activeTool && event.code === Keys.Escape) ||
                 (event.target === document.body && Object.values(Keys).indexOf(event.code as Keys) != -1)
             ) {
                 event.preventDefault();
-                this.onKeyDown(Keys[event.code], event);
+                // Dispatch keyboard shortcuts only on keydown events.
+                if (event.type === 'keydown') {
+                    this.onKeyDown(Keys[event.code], event);
+                }
             }
         } else if (event instanceof DragEvent) {
             this.onDrop(new Point(event.offsetX, event.offsetY).divide(scale).round(), event);
         } else {
             let offsetX;
             let offsetY;
-            if ((event as TouchEvent).touches) {
-                const touch = (event as TouchEvent).touches[0];
-                offsetX = touch.clientX - this.container.getBoundingClientRect().left;
-                offsetY = touch.clientY - this.container.getBoundingClientRect().top;
+            if ((event as TouchEvent).touches !== undefined) {
+                const touch = (event as TouchEvent).touches[0] || (event as TouchEvent).changedTouches[0];
+                const rect = this.container.getBoundingClientRect();
+                offsetX = touch.clientX - rect.left;
+                offsetY = touch.clientY - rect.top;
             } else {
                 offsetX = (event as MouseEvent).offsetX;
                 offsetY = (event as MouseEvent).offsetY;
@@ -223,5 +272,9 @@ export class Editor {
     }
     private onDrop(point: Point, event: DragEvent): void {
         this.plugins.forEach((plugin) => plugin.onDrop(point, event));
+    }
+
+    private onWheel = (event: WheelEvent): void => {
+        this.plugins.forEach((plugin) => plugin.onWheel(event));
     }
 }

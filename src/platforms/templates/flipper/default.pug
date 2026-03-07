@@ -1,11 +1,18 @@
-each decl in declarations 
-    if decl.type == 'bitmap'
-        | static const uint8_t !{decl.data.name}[] = {!{decl.data.value}};
-        |
-        |
-    else 
-        | !{decl}
-        |
+if settings.include_images
+    each decl in declarations
+        if decl.type == 'bitmap'
+            | static const uint8_t !{decl.data.name}[] = {!{decl.data.value}};
+            |
+            |
+if settings.declare_vars
+    each decl in declarations
+        if decl.type == 'var'
+            if decl.data.type === 0
+                | const char* !{decl.data.name} = "!{decl.data.value}";
+            else
+                | int !{decl.data.name} = !{decl.data.value};
+            |
+            |
 each layer in layers
     if layer.type == 'polygon'
         - var pts = layer.points
@@ -22,35 +29,58 @@ each layer in layers
 |
 - var pad = settings.wrap ? '    ' : ''
 if settings.wrap
-    | void draw(Canvas* canvas) {
+    | void draw!{screenTitle}(Canvas* canvas) {
     | !{pad}canvas_set_bitmap_mode(canvas, true);
     |
     |
 - var font = ''
+- var drawColorMode = 1;
 each layer in layers 
     if settings.comments
         | !{pad}// !{layer.name}
         |
+    if layer.inverted 
+        if drawColorMode != 2
+            | !{pad}canvas_set_color(canvas, 2);
+            |
+            - drawColorMode = 2;
+    else
+        if drawColorMode != 1
+            | !{pad}canvas_set_color(canvas, 1);
+            |
+            - drawColorMode = 1;
     case layer.type
-        when 'dot'
-            | @!{layer.uid};!{pad}canvas_draw_dot(canvas, !{layer.position[0]}, !{layer.position[1]});
         when 'line'
-            | @!{layer.uid};!{pad}canvas_draw_line(canvas, !{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]});
+            | @!{layer.uid};!{pad}canvas_draw_line(canvas, !{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2});
         when 'rect'
             - var func = `canvas_draw_${layer.radius? 'r': ''}${layer.fill ? 'box' : 'frame'}`;
-            | @!{layer.uid};!{pad}!{func}(canvas, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''});
+            | @!{layer.uid};!{pad}!{func}(canvas, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}!{layer.radius? `, ${layer.radius}`: ''});
         when 'circle'
             - var func = layer.fill ? 'canvas_draw_disc' : 'canvas_draw_circle'
-            | @!{layer.uid};!{pad}!{func}(canvas, !{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius});
+            | @!{layer.uid};!{pad}!{func}(canvas, !{layer.x}, !{layer.y}, !{layer.radius});
+        when 'triangle'
+            // Flipper uses canvas_draw_triangle(canvas, x, y, base, height, orientation)
+            // Calculate bounding box for approximate conversion from 3-point triangle
+            - var minX = Math.min(layer.x1, layer.x2, layer.x3)
+            - var maxX = Math.max(layer.x1, layer.x2, layer.x3)
+            - var minY = Math.min(layer.y1, layer.y2, layer.y3)
+            - var maxY = Math.max(layer.y1, layer.y2, layer.y3)
+            - var base = maxX - minX
+            - var height = maxY - minY
+            - var orientation = 'CanvasDirectionBottomToTop'
+            | @!{layer.uid};!{pad}canvas_draw_triangle(canvas, !{minX}, !{minY}, !{base}, !{height}, !{orientation});
         when 'string'
             if layer.font != font
                 - font = layer.font
                 | !{pad}canvas_set_font(canvas, !{layer.font});
                 |
-            | @!{layer.uid};!{pad}canvas_draw_str(canvas, !{layer.position[0]}, !{layer.position[1]}, "!{layer.text}");
+            if layer.isTextVariable
+                | @!{layer.uid};!{pad}canvas_draw_str(canvas, !{layer.x}, !{layer.y}, !{layer.text});
+            else
+                | @!{layer.uid};!{pad}canvas_draw_str(canvas, !{layer.x}, !{layer.y}, "!{layer.text}");
         when 'paint'
         when 'icon'
-            | @!{layer.uid};!{pad}canvas_draw_xbm(canvas, !{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}, !{layer.imageName});
+            | @!{layer.uid};!{pad}canvas_draw_xbm(canvas, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
         when 'polygon'
             | @!{layer.uid};!{pad}draw_!{layer.name}(canvas);
         default 

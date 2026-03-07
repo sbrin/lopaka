@@ -1,15 +1,30 @@
 if settings.include_fonts
-    each decl in declarations 
+    each decl in declarations
         if decl.type == 'font'
             | #include "!{decl.data.value}.h"
             |
     |
     |
-each decl in declarations 
-    if decl.type == 'bitmap'
-        | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
-        |
-        |
+if settings.include_images
+    each decl in declarations
+        if decl.type == 'bitmap'
+            | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+            |
+        if decl.type == 'bitmap565'
+            | static const uint16_t PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+            |
+if settings.declare_vars
+    each decl in declarations
+        if decl.type == 'var'
+            if decl.data.type === 0
+                | const char* !{decl.data.name} = "!{decl.data.value}";
+                |
+            else
+                | int !{decl.data.name} = !{decl.data.value};
+                |
+|
+|
+- const hasRgbBitmap = layers.some((layer) => ['paint', 'icon'].includes(layer.type) && layer.colorMode === 'rgb');
 each layer in layers
     if layer.type == 'polygon'
         - var pts = layer.points
@@ -23,39 +38,45 @@ each layer in layers
         | }
         |
 if settings.wrap
-    | 
-    | void draw(void) {
+    |
+    | void draw!{screenTitle}(void) {
     |
 - var textColor = defaultColor;
 - var textSize = '0'
 - var textWrap = true
 - var pad = settings.wrap ? '    ' : ''
-each layer in layers 
+if settings.clear_screen
+    | !{pad}tft.!{clear_screen_method};
+    |
+each layer in layers
     if settings.comments
         | !{pad}// !{layer.name}
         |
     case layer.type
         when 'dot'
-            | @!{layer.uid};!{pad}tft.drawPixel(!{layer.position[0]}, !{layer.position[1]}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}tft.drawPixel(!{layer.x}, !{layer.y}, !{layer.color});
         when 'line'
-            | @!{layer.uid};!{pad}tft.drawLine(!{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}tft.drawLine(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.color});
         when 'rect'
             - var func = (layer.fill ? 'fill' : 'draw') + (layer.radius? 'Round' : '') + 'Rect'
-            | @!{layer.uid};!{pad}tft.!{func}(!{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}tft.!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}!{layer.radius? `, ${layer.radius}`: ''}, !{layer.color});
         when 'circle'
             - var func = layer.fill ? 'fillCircle' : 'drawCircle'
-            | @!{layer.uid};!{pad}tft.!{func}(!{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}tft.!{func}(!{layer.x}, !{layer.y}, !{layer.radius}, !{layer.color});
         when 'ellipse'
             - var func = layer.fill ? 'fillEllipse' : 'drawEllipse'
-            | @!{layer.uid};!{pad}tft.!{func}(@x:!{layer.position[0] + layer.rx}, @y:!{layer.position[1] + layer.ry}, @rx:!{layer.rx}, @ry:!{layer.ry}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}tft.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry}, !{layer.color});
+        when 'triangle'
+            - var func = layer.fill ? 'fillTriangle' : 'drawTriangle'
+            | @!{layer.uid};!{pad}tft.!{func}(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.x3}, !{layer.y3}, !{layer.color});
         when 'string'
             if layer.color != textColor
                 - textColor = layer.color
-                | !{pad}tft.setTextColor(!{packColor(layer.color)});
+                | !{pad}tft.setTextColor(!{layer.color});
                 |
-            if layer.scaleFactor != textSize
-                - textSize = layer.scaleFactor
-                | !{pad}tft.setTextSize(!{layer.scaleFactor});
+            if layer.fontSize != textSize
+                - textSize = layer.fontSize
+                | !{pad}tft.setTextSize(!{layer.fontSize});
                 |
             //- if layer.wrap != textWrap
             //-     - textWrap = layer.wrap
@@ -69,17 +90,22 @@ each layer in layers
                 else
                     | !{pad}tft.setFreeFont(&!{layer.font});
                     |
-            | @!{layer.uid};!{pad}tft.drawString("!{layer.text}", !{getTextPosition(layer).join(', ')});
+            if layer.isTextVariable
+                | @!{layer.uid};!{pad}tft.drawString(!{layer.text}, !{layer.x}, !{layer.y});
+            else
+                | @!{layer.uid};!{pad}tft.drawString("!{layer.text}", !{layer.x}, !{layer.y});
         when 'paint'
         when 'icon'
-            | @!{layer.uid};!{pad}tft.drawBitmap(!{layer.position[0]}, !{layer.position[1]}, !{layer.imageName}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
+            if layer.colorMode === 'rgb'
+                | @!{layer.uid};!{pad}tft.pushImage(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
+            else
+                | @!{layer.uid};!{pad}tft.drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{layer.color});
         when 'polygon'
             | @!{layer.uid};!{pad}draw_!{layer.name}();
         default 
             |
             | // Unknown layer type !{layer.type}
             |
-    |
     |
     |
 if settings.wrap

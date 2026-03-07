@@ -1,10 +1,10 @@
 import {Point} from '../../core/point';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
-import {PaintLayer} from '/src/core/layers/paint.layer';
+import {PaintLayer, resolvePaintColorMode} from '/src/core/layers/paint.layer';
 
 export class ImageDropPlugin extends AbstractEditorPlugin {
     async onDrop(point: Point, event: DragEvent): Promise<void> {
-        this.session.state.layers.forEach((layer) => (layer.selected = false));
+        this.session.layersManager.clearSelection();
         if (event.dataTransfer.files.length > 0) {
             let i = 0;
 
@@ -25,8 +25,8 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
     }
 
     private async addImageLayer(name: string, url: string, point: Point) {
-        const {virtualScreen} = this.session;
-        this.session.state.layers.forEach((layer) => (layer.selected = false));
+        const {virtualScreen, layersManager} = this.session;
+        layersManager.clearSelection();
         const icon = new Image();
         icon.crossOrigin = 'anonymous';
         icon.src = url;
@@ -37,11 +37,14 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
             };
             icon.onerror = reject;
         });
-        const newLayer = new PaintLayer(this.session.getPlatformFeatures());
+        const features = this.session.getPlatformFeatures();
+        const defaultColorMode = resolvePaintColorMode(features);
+        const newLayer = new PaintLayer(features, this.session.createRenderer(), defaultColorMode);
         newLayer.name = name;
         newLayer.size = size;
         newLayer.position = point.clone().subtract(size.clone().divide(2));
-        newLayer.selected = true;
+        layersManager.selectLayer(newLayer);
+        icon.dataset.colorMode = defaultColorMode;
         newLayer.modifiers.icon.setValue(icon);
         newLayer.stopEdit();
         this.session.addLayer(newLayer);

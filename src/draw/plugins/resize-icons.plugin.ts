@@ -2,10 +2,11 @@ import {Point} from '../../core/point';
 import {DrawPlugin} from './draw.plugin';
 
 export class ResizeIconsPlugin extends DrawPlugin {
-    update(ctx: CanvasRenderingContext2D, point: Point) {
-        const {scale, layers} = this.session.state;
-        const {interfaceColors} = this.session.getPlatformFeatures();
-        const resizableLayers = layers.filter((l) => l.resizable && l.selected && !l.locked);
+    update(ctx: CanvasRenderingContext2D, _point: Point, _event: MouseEvent | TouchEvent) {
+        const { scale } = this.session.state;
+        const { interfaceColors } = this.session.getPlatformFeatures();
+        const { layersManager } = this.session;
+        const resizableLayers = layersManager.selected.filter((l) => l.resizable);
         if (resizableLayers.length == 1) {
             ctx.save();
             const layer = resizableLayers[0];
@@ -13,7 +14,7 @@ export class ResizeIconsPlugin extends DrawPlugin {
             if (layer.customMarkers) {
                 this.drawCustomMarkers(ctx, layer, scale, interfaceColors);
             } else {
-                this.drawResizeMarkers(ctx, layer, scale, interfaceColors);
+                this.drawResizeMarkers(ctx, layer, editPoints, scale, interfaceColors);
             }
 
             ctx.restore();
@@ -35,13 +36,12 @@ export class ResizeIconsPlugin extends DrawPlugin {
         ctx.stroke();
     }
 
-    private drawResizeMarkers(ctx: CanvasRenderingContext2D, layer: any, scale: Point, interfaceColors: any) {
+    private drawResizeMarkers(ctx: CanvasRenderingContext2D, layer: any, editPoints: any[], scale: Point, interfaceColors: any) {
         ctx.beginPath();
-        layer.editPoints.forEach((editPoint) => {
+        editPoints.forEach((editPoint) => {
             const r = editPoint.getRect().multiply(scale).round();
             const c = r.getCenter();
-            ctx.moveTo(c.x + 4, c.y);
-            ctx.arc(c.x, c.y, 4, 0, 2 * Math.PI);
+            ctx.rect(c.x - 5, c.y - 5, 10, 10);
         });
         ctx.strokeStyle = interfaceColors.resizeIconColor;
         ctx.lineWidth = 1;

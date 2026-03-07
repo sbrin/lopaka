@@ -25,12 +25,17 @@ onMounted(() => {
     virtualScreen.setCanvas(screen.value);
     editor.setContainer(container.value as HTMLElement);
     document.addEventListener('mouseup', handleEvent);
+    document.addEventListener('touchend', handleEvent);
     document.addEventListener('keydown', handleEvent);
+    document.addEventListener('keyup', handleEvent);
 });
 
 onBeforeUnmount(() => {
+    editor.destroy();
     document.removeEventListener('mouseup', handleEvent);
+    document.removeEventListener('touchend', handleEvent);
     document.removeEventListener('keydown', handleEvent);
+    document.removeEventListener('keyup', handleEvent);
 });
 
 function handleEvent(e) {
@@ -44,13 +49,20 @@ function isSelectTool() {
 }
 
 function isDrawingTool() {
-    return activeTool.value;
+    // Treat text-based tools as type tools rather than drawing tools.
+    return activeTool.value && !isTextTool();
+}
+
+function isTextTool() {
+    // Match both plain text and text area tools for text cursor styling.
+    return activeTool.value && ['string', 'textarea'].includes(activeTool.value.getName());
 }
 
 const canvasClassNames = computed(() => {
     return {
         'fui-canvas_select': isSelectTool(),
         'fui-canvas_draw': isDrawingTool(),
+        'fui-canvas_type': isTextTool(),
     };
 });
 </script>
@@ -66,6 +78,7 @@ const canvasClassNames = computed(() => {
                 :class="canvasClassNames"
                 @mousedown.prevent="editor.handleEvent"
                 @mousemove.prevent="handleEvent"
+                @mouseleave.prevent="handleEvent"
                 @touchstart.prevent="handleEvent"
                 @touchend.prevent="handleEvent"
                 @touchmove.prevent="handleEvent"
@@ -79,6 +92,9 @@ const canvasClassNames = computed(() => {
                 <canvas
                     ref="screen"
                     class="screen"
+                    :class="{
+                        screen_smooth: session.getPlatformFeatures().smooth,
+                    }"
                     :width="display.x"
                     :height="display.y"
                     :style="{
@@ -93,13 +109,16 @@ const canvasClassNames = computed(() => {
 </template>
 <style lang="css">
 .canvas-wrapper {
-    margin: 0 auto;
     display: inline-block;
     font-size: 0;
-    position: relative;
+    position: absolute;
+    left: 0;
+    top: 0;
     background-color: white;
     height: fit-content;
     border: 10px solid oklch(var(--b1));
+    transform-origin: 0 0;
+    will-change: transform;
 }
 
 .fui-canvas__event-target {
@@ -132,6 +151,13 @@ const canvasClassNames = computed(() => {
     -webkit-font-smoothing: none;
 }
 
+.screen_smooth {
+    image-rendering: auto;
+    text-rendering: auto;
+    font-smooth: auto;
+    -webkit-font-smoothing: auto;
+}
+
 .fui-grid {
     box-sizing: content-box;
     position: relative;
@@ -156,5 +182,9 @@ const canvasClassNames = computed(() => {
 
 .fui-canvas_draw {
     cursor: crosshair;
+}
+
+.fui-canvas_type {
+    cursor: text;
 }
 </style>

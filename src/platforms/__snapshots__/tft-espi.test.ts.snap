@@ -11,39 +11,25 @@ void draw_polygon_abc123polygon(void) {
     tft.drawLine(20, 40, 5, 30, 0xF800);
     tft.drawLine(5, 30, 10, 10, 0xF800);
 }
-@veqtjp8jf9ln6isyfz;tft.fillRect(107, 46, 18, 15, 0xF800);
-
-@utlxpqvhdxnln6it5pw;tft.fillRect(97, 2, 27, 11, 0x7E0);
-
-tft.setTextSize(1);
+tft.fillScreen(0x0);
+@veqtjp8jf9ln6isyfz;tft.fillRect(107, 46, 18, 15, #FF0000);
+@utlxpqvhdxnln6it5pw;tft.fillRect(97, 2, 27, 11, #00FF00);
+tft.setTextSize();
 tft.setFreeFont(&6x10);
-@8c4v5zq;tft.drawString(\\"ячсмитьбю\\", 30, 37);
-
-@eu6bpe0xpvvln6itc2e;tft.fillRect(106, 19, 19, 18, 0x1F);
-
-tft.setTextColor(0x0);
+@8c4v5zq;tft.drawString("ячсмитьбю", 30, 37);
+@eu6bpe0xpvvln6itc2e;tft.fillRect(106, 19, 19, 18, #0000FF);
+tft.setTextColor(#000000);
 tft.setFreeFont(&profont22);
-@s3m4u762qpln6jvm90;tft.drawString(\\"Text\\", 3, 10);
-
-@b11j6xs5t46ln6jw96h;tft.drawLine(2, 16, 68, 16, 0xFFFF);
-
-@6uf3k6wj82ln6jwi73;tft.drawCircle(20, 41, 12, 0x1F);
-
-@87y8hf8sh8dhf8d98sd;tft.fillEllipse(@x:21, @y:37, @rx:13, @ry:8, 0x1F);
-
-@aibkefmz3cln6jwlit;tft.fillCircle(17, 43, 3, 0xF800);
-
-@g7pk1wfbqqkln6jwxby;tft.drawRect(44, 29, 44, 28, 0x7E0);
-
-@u9uidj9d90fu9sj9jj9;tft.drawEllipse(@x:15, @y:36, @rx:7, @ry:7, 0x1F);
-
+@s3m4u762qpln6jvm90;tft.drawString("Text", 3, 10);
+@b11j6xs5t46ln6jw96h;tft.drawLine(2, 16, 68, 16, #FFFFFF);
+@6uf3k6wj82ln6jwi73;tft.drawCircle(20, 41, 12, #0000FF);
+@87y8hf8sh8dhf8d98sd;tft.fillEllipse(@x:21, @y:37, @rx:13, @ry:8, #0000FF);
+@aibkefmz3cln6jwlit;tft.fillCircle(17, 43, 3, #FF0000);
+@g7pk1wfbqqkln6jwxby;tft.drawRect(44, 29, 44, 28, #00FF00);
+@u9uidj9d90fu9sj9jj9;tft.drawEllipse(@x:15, @y:36, @rx:7, @ry:7, #0000FF);
 @rrsjcz4oz2ln6jx4y4;tft.drawBitmap(0, 0, image_draw_rrsjcz4oz2ln6jx4y4_bits, 128, 64, 0xF800);
-
-@njsoidnfijoinisn;tft.fillRoundRect(10, 4, 12, 19, 3, 0x7E0);
-
-@jnijisniijaojosd;tft.drawRoundRect(45, 20, 14, 12, 5, 0x7E0);
-
+@njsoidnfijoinisn;tft.fillRoundRect(10, 4, 12, 19, 3, #00FF00);
+@jnijisniijaojosd;tft.drawRoundRect(45, 20, 14, 12, 5, #00FF00);
 @abc123polygon;draw_polygon_abc123polygon();
-
 "
 `;

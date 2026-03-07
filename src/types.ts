@@ -9,6 +9,7 @@ export interface Project {
     private?: boolean;
     stars_count?: number;
     is_starred?: boolean;
+    color_bg?: string;
 }
 
 export interface ProjectScreen {
@@ -19,4 +20,21 @@ export interface ProjectScreen {
     user_id?: string;
     img_preview?: string;
     layers?: any[];
+    order?: number; // Add order field for sorting
+}
+
+export interface PlatformTemplates {
+    [key: string]: {
+        template: any;
+        name?: string;
+        settings: {
+            progmem?: boolean;
+            wrap?: boolean;
+            include_fonts?: boolean;
+            include_images?: boolean;
+            comments?: boolean;
+            declare_vars?: boolean;
+            clear_screen?: boolean;
+        };
+    };
 }

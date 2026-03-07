@@ -2,6 +2,7 @@ import {TPlatformFeatures} from '../../platforms/platform';
 import {
     applyColor,
     downloadImage,
+    flattenImageDataToBackground,
     flipImageDataByX,
     flipImageDataByY,
     invertImageData,
@@ -11,9 +12,14 @@ import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerActions} from './abstract.layer';
+import {AbstractDrawingRenderer} from '../../draw/renderers';
 
 export abstract class AbstractImageLayer extends AbstractLayer {
-    protected editState: {firstPoint: Point; position: Point; size: Point} = null;
+    protected editState: {
+        firstPoint: Point;
+        position: Point;
+        size: Point;
+    } = null;
 
     public get properties(): any {
         return {
@@ -23,11 +29,13 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             h: this.size.y,
             overlay: this.overlay,
             color: this.color,
+            colorMode: this.colorMode,
             image: this.data,
             type: this.type,
             id: this.uid,
             imageName: this.imageName,
             inverted: this.inverted,
+            alphaChannel: this.alphaChannel,
         };
     }
 
@@ -37,11 +45,11 @@ export abstract class AbstractImageLayer extends AbstractLayer {
 
     @mapping('d', 'image') public data: ImageData;
 
+    @mapping('cm') public colorMode: string = 'monochrome';
+
     @mapping('nm') public imageName: string;
 
-    constructor(protected features: TPlatformFeatures) {
-        super(features);
-    }
+    @mapping('ac') public alphaChannel: boolean = true;
 
     actions: TLayerActions = [
         {
@@ -78,7 +86,7 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             iconType: 'invert',
             title: 'Invert colors',
             action: () => {
-                this.data = invertImageData(this.data, this.color);
+                this.data = invertImageData(this.data, this.color, this.colorMode);
                 this.draw();
             },
         },
@@ -96,14 +104,20 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             label: 'Download',
             title: 'Download image',
             action: () => {
-                downloadImage(this.data, this.imageName ?? 'image_' + this.index);
+                downloadImage(this.data, this.imageName ?? (this.name ? this.name : 'image'));
             },
         },
-        {label: 'Save', title: 'Add to Project assets', action: () => {}},
+        {
+            label: 'Save',
+            title: 'Add to Project assets',
+            action: () => {},
+        },
     ];
 
     applyColor() {
-        this.data = applyColor(this.data, this.color);
+        if (this.colorMode === 'monochrome') {
+            this.data = applyColor(this.data, this.color);
+        }
     }
 
     recalculate() {
@@ -128,7 +142,7 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         if (!hasContent) {
             // Handle empty image case
             this.position = new Point(0, 0);
-            this.size = new Point(0, 0);
+            this.size = new Point(1, 1);
             this.data = new ImageData(1, 1); // Create minimal valid ImageData
             return;
         }
@@ -138,9 +152,19 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         this.data = dc.ctx.getImageData(min.x, min.y, this.size.x, this.size.y);
     }
     draw() {
-        const {dc, position, data, size} = this;
+        const {position, data, size} = this;
+        // Draw transparent overlay for bounds (this is used for selection/interaction)
+        const {dc} = this.renderer;
         dc.clear();
-        dc.ctx.putImageData(data, position.x, position.y);
+
+        // Use the platform background when alpha export is disabled.
+        const drawData =
+            this.alphaChannel === false
+                ? flattenImageDataToBackground(data, this.features?.screenBgColor ?? '#000000')
+                : data;
+        // Draw the image content (flattened or original) onto the buffer.
+        dc.ctx.putImageData(drawData, position.x, position.y);
+
         dc.ctx.save();
         dc.ctx.fillStyle = 'rgba(0,0,0,0)';
         dc.ctx.beginPath();

@@ -3,6 +3,7 @@ import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractDrawingRenderer} from '../../draw/renderers';
 
 export class PolygonLayer extends AbstractLayer {
     protected type: ELayerType = 'polygon';
@@ -25,6 +26,10 @@ export class PolygonLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
         y: {
@@ -35,6 +40,10 @@ export class PolygonLayer extends AbstractLayer {
                 this.points.forEach((p) => (p[1] += offset));
                 this.updateBounds();
                 this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
             },
             type: TModifierType.number,
         },
@@ -60,6 +69,10 @@ export class PolygonLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.color,
         },
         inverted: {
@@ -72,8 +85,11 @@ export class PolygonLayer extends AbstractLayer {
         },
     };
 
-    constructor(protected features: TPlatformFeatures) {
-        super(features);
+    constructor(
+        protected features: TPlatformFeatures,
+        renderer?: AbstractDrawingRenderer
+    ) {
+        super(features, renderer);
         if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
             delete this.modifiers.color;
         }
@@ -87,10 +103,6 @@ export class PolygonLayer extends AbstractLayer {
 
     public vertexEditMode: boolean = false;
 
-    private toPoints(): Point[] {
-        return this.points.map((p) => new Point(p[0], p[1]));
-    }
-
     private getBoundsOrigin(): Point {
         if (this.points.length === 0) return new Point();
         let minX = Infinity,
@@ -100,6 +112,16 @@ export class PolygonLayer extends AbstractLayer {
             if (p[1] < minY) minY = p[1];
         }
         return new Point(minX, minY);
+    }
+
+    // Position getter for compatibility with platform code
+    get position(): Point {
+        return this.getBoundsOrigin();
+    }
+
+    // Size getter for compatibility with platform code
+    get size(): Point {
+        return new Point(this.bounds.w, this.bounds.h);
     }
 
     toggleVertexEditMode() {
@@ -144,8 +166,8 @@ export class PolygonLayer extends AbstractLayer {
                         0,
                         0
                     ),
-                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
-                    this.scalePoints(offset, 'top-right', modifiers);
+                move: (offset: Point, event?: MouseEvent): void => {
+                    this.scalePoints(offset, 'top-right', event);
                 },
             },
             {
@@ -155,8 +177,8 @@ export class PolygonLayer extends AbstractLayer {
                         new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
                         new Point(3)
                     ).subtract(1.5, 1.5, 0, 0),
-                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
-                    this.scalePoints(offset, 'bottom-right', modifiers);
+                move: (offset: Point, event?: MouseEvent): void => {
+                    this.scalePoints(offset, 'bottom-right', event);
                 },
             },
             {
@@ -168,16 +190,16 @@ export class PolygonLayer extends AbstractLayer {
                         0,
                         0
                     ),
-                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
-                    this.scalePoints(offset, 'bottom-left', modifiers);
+                move: (offset: Point, event?: MouseEvent): void => {
+                    this.scalePoints(offset, 'bottom-left', event);
                 },
             },
             {
                 cursor: 'nwse-resize',
                 getRect: (): Rect =>
                     new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
-                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
-                    this.scalePoints(offset, 'top-left', modifiers);
+                move: (offset: Point, event?: MouseEvent): void => {
+                    this.scalePoints(offset, 'top-left', event);
                 },
             },
             {
@@ -306,7 +328,7 @@ export class PolygonLayer extends AbstractLayer {
         }
 
         // Shift: lock aspect ratio
-        if (modifiers?.shiftKey) {
+        if (event?.shiftKey) {
             const aspectRatio = origW / origH;
             if (corner === 'top' || corner === 'bottom') {
                 newW = Math.round(newH * aspectRatio);
@@ -325,7 +347,7 @@ export class PolygonLayer extends AbstractLayer {
         }
 
         // Alt: resize from center
-        if (modifiers?.altKey) {
+        if (event?.altKey) {
             anchorX = centerX;
             anchorY = centerY;
         }
@@ -370,10 +392,7 @@ export class PolygonLayer extends AbstractLayer {
                 this.points = points.map((p) => [Math.round(p[0] + dx), Math.round(p[1] + dy)]);
                 break;
             case EditMode.RESIZING:
-                editPoint.move(point.clone().subtract(firstPoint), {
-                    shiftKey: originalEvent.shiftKey,
-                    altKey: originalEvent.altKey,
-                });
+                editPoint.move(point.clone().subtract(firstPoint), originalEvent as MouseEvent);
                 break;
             case EditMode.CREATING:
                 if (this.points.length > 0) {
@@ -399,12 +418,9 @@ export class PolygonLayer extends AbstractLayer {
     }
 
     draw() {
-        const {dc} = this;
-        dc.clear();
         if (this.points.length < 2) return;
-        dc.ctx.fillStyle = this.color;
-        dc.ctx.strokeStyle = this.color;
-        dc.pixelatePolygon(this.toPoints(), this.fill);
+        const pts = this.points.map((p) => new Point(p[0], p[1]));
+        this.renderer.drawPolygon(pts, this.fill, this.color);
     }
 
     onLoadState() {

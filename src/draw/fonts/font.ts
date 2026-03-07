@@ -19,16 +19,29 @@ export abstract class Font {
         public format: FontFormat,
         protected options?: TFontSizes
     ) {
-        this.title = name.split('#').pop();
-        this.fontReady = new Promise((resolve) => {
-            this.loadFont().then(() => {
-                resolve();
-                this.fontLoaded = true;
-            });
+        this.title = name
+            .split('#')
+            .pop()
+            .replace(/^[a-f0-9-]+\/[a-zA-Z0-9]+_/, '');
+        this.fontReady = new Promise((resolve, reject) => {
+            this.loadFont()
+                .then(() => {
+                    resolve();
+                    this.fontLoaded = true;
+                })
+                .catch((e) => {
+                    reject(e);
+                });
         });
     }
 
     abstract loadFont(): Promise<void>;
-    abstract drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number): void;
+    abstract drawText(
+        dc: DrawContext,
+        text: string,
+        position: Point,
+        scaleFactor: number,
+        baseline?: CanvasTextBaseline
+    ): void;
     abstract getSize(dc: DrawContext, text: string, scaleFactor?: number): Point;
 }
