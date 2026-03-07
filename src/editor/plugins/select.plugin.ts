@@ -37,7 +37,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 this.grabMode = true;
                 this.firstPoint = point.clone();
             } else {
-                const hovered = layers.filter((l) => !l.locked && l.contains(point)).sort((a, b) => b.index - a.index);
+                const hovered = layersManager.layers.filter((l) => !l.locked && l.contains(point)).sort((a, b) => b.index - a.index);
                 if (hovered.length) {
                     // if there is a hovered layer
                     const upperLayer = hovered[0];
@@ -47,18 +47,18 @@ export class SelectPlugin extends AbstractEditorPlugin {
                     } else if (!upperLayer.selected && !upperLayer.locked) {
                         // if upper layer is not selected, select it and unselect others
                         // if upper is selected then it will move all
-                        this.session.state.layers.forEach((l) => {
+                        layersManager.layers.forEach((l) => {
                             if (l instanceof PolygonLayer && l.selected) l.exitVertexEditMode();
                             l.selected = false;
                         });
                         upperLayer.selected = true;
                     }
+                } else {
+                    // if there is no hovered layer, start box selection
+                    this.captured = true;
+                    this.selected = false;
+                    this.firstPoint = point.clone();
                 }
-            } else {
-                // if there is no hovered layer, start box selection
-                this.captured = true;
-                this.selected = false;
-                this.firstPoint = point.clone();
             }
             this.session.editor.selectionUpdate();
         }

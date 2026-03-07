@@ -1,5 +1,5 @@
-import {Point} from '../../core/point';
-import {DrawPlugin} from './draw.plugin';
+import { Point } from '../../core/point';
+import { DrawPlugin } from './draw.plugin';
 
 export class ResizeIconsPlugin extends DrawPlugin {
     update(ctx: CanvasRenderingContext2D, _point: Point, _event: MouseEvent | TouchEvent) {
@@ -14,7 +14,7 @@ export class ResizeIconsPlugin extends DrawPlugin {
             if (layer.customMarkers) {
                 this.drawCustomMarkers(ctx, layer, scale, interfaceColors);
             } else {
-                this.drawResizeMarkers(ctx, layer, editPoints, scale, interfaceColors);
+                this.drawResizeMarkers(ctx, layer, layer.editPoints, scale, interfaceColors);
             }
 
             ctx.restore();

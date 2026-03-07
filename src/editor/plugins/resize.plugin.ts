@@ -1,8 +1,8 @@
-import {AbstractLayer, EditMode, TLayerEditPoint} from '../../core/layers/abstract.layer';
-import {PolygonLayer} from '../../core/layers/polygon.layer';
-import {Point} from '../../core/point';
-import {Rect} from '../../core/rect';
-import {AbstractEditorPlugin} from './abstract-editor.plugin';
+import { AbstractLayer, EditMode, TLayerEditPoint } from '../../core/layers/abstract.layer';
+import { PolygonLayer } from '../../core/layers/polygon.layer';
+import { Point } from '../../core/point';
+import { Rect } from '../../core/rect';
+import { AbstractEditorPlugin } from './abstract-editor.plugin';
 
 const RESIZE_HANDLE_HIT_AREA_MULTIPLIER = 2;
 
@@ -11,13 +11,13 @@ export class ResizePlugin extends AbstractEditorPlugin {
     resizeLayer: AbstractLayer = null;
 
     getPadding() {
-        const {scale} = this.session.state;
+        const { scale } = this.session.state;
         return new Rect(-8, -8, 16, 16).divide(scale).round();
     }
 
     private getResizableLayerAtPoint(point: Point): AbstractLayer | null {
         // Keep resize interactions limited to one visible and editable selected layer.
-        const {layersManager} = this.session;
+        const { layersManager } = this.session;
         const resizableLayers = layersManager.selected.filter(
             (layer) =>
                 layer.resizable &&
@@ -49,7 +49,7 @@ export class ResizePlugin extends AbstractEditorPlugin {
     }
 
     onMouseDown(point: Point, event: MouseEvent | TouchEvent): void {
-        const {activeTool} = this.session.editor.state;
+        const { activeTool } = this.session.editor.state;
         if (activeTool) return;
         // Find a single eligible layer under the pointer before starting resize.
         const layer = this.getResizableLayerAtPoint(point);
@@ -69,7 +69,7 @@ export class ResizePlugin extends AbstractEditorPlugin {
             this.session.virtualScreen.redraw();
             return;
         }
-        const {activeTool} = this.session.editor.state;
+        const { activeTool } = this.session.editor.state;
         if (activeTool) return;
         // Find a single eligible layer to show resize cursor hints.
         const layer = this.getResizableLayerAtPoint(point);
@@ -90,9 +90,9 @@ export class ResizePlugin extends AbstractEditorPlugin {
     }
 
     onMouseDoubleClick(point: Point, event: MouseEvent): void {
-        const {activeTool} = this.session.editor.state;
+        const { activeTool } = this.session.editor.state;
         if (activeTool) return;
-        const {layers} = this.session.state;
+        const layers = this.session.layersManager.layers;
         const selectedPolygons = layers.filter(
             (layer) => layer.selected && !layer.locked && layer instanceof PolygonLayer && layer.contains(point)
         );
