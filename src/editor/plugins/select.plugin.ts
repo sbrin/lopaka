@@ -32,51 +32,26 @@ export class SelectPlugin extends AbstractEditorPlugin {
         const { layersManager } = this.session;
         const { activeTool } = this.session.editor.state;
         if (!activeTool) {
-            const hovered = layersManager.contains(point).reverse();
-            if (hovered.length) {
-                // if there is a hovered layer
-                const upperLayer = hovered[0];
-                if (this.lastLayerId !== upperLayer.uid) {
-                    this.selected = false;
-                }
-                // add or remove from selection if shift is pressed
-                if (event.shiftKey) {
-                    if (upperLayer.selected) {
-                        if (upperLayer.group) {
-                            layersManager.eachLayer((l) => {
-                                if (l.group && l.group === upperLayer.group) {
-                                    layersManager.selectLayer(l);
-                                }
-                            });
-                        } else {
-                            layersManager.unselectLayer(upperLayer);
-                        }
-                    } else {
-                        if (upperLayer.group) {
-                            layersManager.eachLayer((l) => {
-                                if (l.group && l.group === upperLayer.group) {
-                                    layersManager.selectLayer(l);
-                                }
-                            });
-                        } else {
-                            layersManager.selectLayer(upperLayer);
-                        }
-                    }
-                } else if (!upperLayer.selected) {
-                    // if layer is not selected, select it and unselect others
-                    layersManager.clearSelection();
-                    layersManager.selectLayer(upperLayer);
-                }
-                if (!this.selected && upperLayer.group && !event.altKey) {
-                    const groupLayers = layersManager.getLayersInGroup(upperLayer.group);
-                    const isMultipleSelected = layersManager.selected.length > groupLayers.length;
-                    if (!isMultipleSelected) {
-                        layersManager.clearSelection();
-                        layersManager.eachLayer((l) => {
-                            if (l.group && l.group === upperLayer.group) {
-                                layersManager.selectLayer(l);
-                            }
+            if (event.altKey) {
+                this.captured = true;
+                this.grabMode = true;
+                this.firstPoint = point.clone();
+            } else {
+                const hovered = layers.filter((l) => !l.locked && l.contains(point)).sort((a, b) => b.index - a.index);
+                if (hovered.length) {
+                    // if there is a hovered layer
+                    const upperLayer = hovered[0];
+                    if (event.shiftKey && !upperLayer.locked) {
+                        // add or remove from selection if shift is pressed
+                        upperLayer.selected = !upperLayer.selected;
+                    } else if (!upperLayer.selected && !upperLayer.locked) {
+                        // if upper layer is not selected, select it and unselect others
+                        // if upper is selected then it will move all
+                        this.session.state.layers.forEach((l) => {
+                            if (l instanceof PolygonLayer && l.selected) l.exitVertexEditMode();
+                            l.selected = false;
                         });
+                        upperLayer.selected = true;
                     }
                 }
             } else {

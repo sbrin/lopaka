@@ -1,6 +1,5 @@
-import { Point } from '../../core/point';
-import { PolygonLayer } from '../../core/layers/polygon.layer';
-import { DrawPlugin } from './draw.plugin';
+import {Point} from '../../core/point';
+import {DrawPlugin} from './draw.plugin';
 
 export class ResizeIconsPlugin extends DrawPlugin {
     update(ctx: CanvasRenderingContext2D, _point: Point, _event: MouseEvent | TouchEvent) {
@@ -11,12 +10,9 @@ export class ResizeIconsPlugin extends DrawPlugin {
         if (resizableLayers.length == 1) {
             ctx.save();
             const layer = resizableLayers[0];
-            // Resolve handles from persistent editor modifier state instead of transient pointer events.
-            const editPoints = layer.getEditPoints({ shiftKey: this.session.editor.state.shiftPressed } as MouseEvent);
-            const isVertexMode = layer instanceof PolygonLayer && layer.vertexEditMode;
 
-            if (isVertexMode) {
-                this.drawPolygonVertexMarkers(ctx, layer, scale, interfaceColors);
+            if (layer.customMarkers) {
+                this.drawCustomMarkers(ctx, layer, scale, interfaceColors);
             } else {
                 this.drawResizeMarkers(ctx, layer, editPoints, scale, interfaceColors);
             }
@@ -25,12 +21,7 @@ export class ResizeIconsPlugin extends DrawPlugin {
         }
     }
 
-    private drawPolygonVertexMarkers(
-        ctx: CanvasRenderingContext2D,
-        layer: PolygonLayer,
-        scale: Point,
-        interfaceColors: any
-    ) {
+    private drawCustomMarkers(ctx: CanvasRenderingContext2D, layer: any, scale: Point, interfaceColors: any) {
         ctx.beginPath();
         layer.editPoints.forEach((editPoint) => {
             const r = editPoint.getRect().multiply(scale).round();

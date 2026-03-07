@@ -45,14 +45,8 @@ export type TModifierName =
     | 'image'
     | 'overlay'
     | 'inverted'
-    | 'alphaChannel'
-    | 'color'
     | 'locked'
-    | 'hidden'
-    | 'backgroundColor'
-    | 'checked'
-    | 'borderColor'
-    | 'borderWidth';
+    | 'customMarkers';
 
 export type TLayerModifier = {
     setValue?(value: any): void;
@@ -133,6 +127,8 @@ export abstract class AbstractLayer {
     public added: boolean = false;
     // is layer resizable
     public resizable: boolean = true;
+    // custom markers
+    @mapping('cm') public customMarkers: boolean = false;
     // modifiers
     public modifiers: TLayerModifiers = {};
     // actions

@@ -55,6 +55,13 @@ export class PolygonLayer extends AbstractLayer {
             },
             type: TModifierType.boolean,
         },
+        customMarkers: {
+            getValue: () => this.customMarkers,
+            setValue: (v: boolean) => {
+                this.customMarkers = v;
+            },
+            type: TModifierType.boolean,
+        },
         color: {
             getValue: () => this.color,
             setValue: (v: string) => {
@@ -141,7 +148,7 @@ export class PolygonLayer extends AbstractLayer {
         this.editPoints = this.points.map((_, idx) => ({
             cursor: 'move' as const,
             getRect: (): Rect =>
-                new Rect(new Point(this.points[idx][0], this.points[idx][1]), new Point(7)).subtract(3, 3, 0, 0),
+                new Rect(new Point(this.points[idx][0], this.points[idx][1]), new Point(3)).subtract(1.5, 1.5, 0, 0),
             move: (offset: Point): void => {
                 this.points[idx] = [this.editState.points[idx][0] + offset.x, this.editState.points[idx][1] + offset.y];
             },
@@ -195,13 +202,61 @@ export class PolygonLayer extends AbstractLayer {
                     this.scalePoints(offset, 'top-left', event);
                 },
             },
+            {
+                cursor: 'ns-resize',
+                getRect: (): Rect =>
+                    new Rect(new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y), new Point(3)).subtract(
+                        1.5,
+                        1.5,
+                        0,
+                        0
+                    ),
+                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                    this.scalePoints(offset, 'top', modifiers);
+                },
+            },
+            {
+                cursor: 'ew-resize',
+                getRect: (): Rect =>
+                    new Rect(
+                        new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h / 2),
+                        new Point(3)
+                    ).subtract(1.5, 1.5, 0, 0),
+                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                    this.scalePoints(offset, 'right', modifiers);
+                },
+            },
+            {
+                cursor: 'ns-resize',
+                getRect: (): Rect =>
+                    new Rect(
+                        new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y + this.bounds.h),
+                        new Point(3)
+                    ).subtract(1.5, 1.5, 0, 0),
+                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                    this.scalePoints(offset, 'bottom', modifiers);
+                },
+            },
+            {
+                cursor: 'ew-resize',
+                getRect: (): Rect =>
+                    new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h / 2), new Point(3)).subtract(
+                        1.5,
+                        1.5,
+                        0,
+                        0
+                    ),
+                move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+                    this.scalePoints(offset, 'left', modifiers);
+                },
+            },
         ];
     }
 
     private scalePoints(
         offset: Point,
-        corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right',
-        event?: MouseEvent
+        corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top' | 'bottom' | 'left' | 'right',
+        modifiers?: {shiftKey: boolean; altKey: boolean}
     ) {
         if (!this.editState || this.editState.points.length < 2) return;
         const origPts = this.editState.points;
@@ -246,18 +301,48 @@ export class PolygonLayer extends AbstractLayer {
                 newW = Math.max(origW + offset.x, 2);
                 newH = Math.max(origH + offset.y, 2);
                 break;
+            case 'top':
+                anchorX = centerX;
+                anchorY = maxY;
+                newW = origW;
+                newH = Math.max(origH - offset.y, 2);
+                break;
+            case 'bottom':
+                anchorX = centerX;
+                anchorY = minY;
+                newW = origW;
+                newH = Math.max(origH + offset.y, 2);
+                break;
+            case 'left':
+                anchorX = maxX;
+                anchorY = centerY;
+                newW = Math.max(origW - offset.x, 2);
+                newH = origH;
+                break;
+            case 'right':
+                anchorX = minX;
+                anchorY = centerY;
+                newW = Math.max(origW + offset.x, 2);
+                newH = origH;
+                break;
         }
 
         // Shift: lock aspect ratio
         if (event?.shiftKey) {
             const aspectRatio = origW / origH;
-            const maxDim = Math.max(newW, newH);
-            if (newW > newH) {
-                newW = Math.round(maxDim);
-                newH = Math.round(maxDim / aspectRatio);
+            if (corner === 'top' || corner === 'bottom') {
+                newW = Math.round(newH * aspectRatio);
+            } else if (corner === 'left' || corner === 'right') {
+                newH = Math.round(newW / aspectRatio);
             } else {
-                newW = Math.round(maxDim * aspectRatio);
-                newH = Math.round(maxDim);
+                const maxDim = Math.max(newW, newH);
+                if (newW > newH) {
+                    newW = Math.round(maxDim);
+                    newH = Math.round(maxDim / aspectRatio);
+                } else {
+                    newW = Math.round(maxDim * aspectRatio);
+                    newH = Math.round(maxDim);
+                }
             }
         }
 

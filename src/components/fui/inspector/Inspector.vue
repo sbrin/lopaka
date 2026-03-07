@@ -298,10 +298,7 @@ const LABELS = {
     y2: 'Y2',
     w: 'W',
     h: 'H',
-    backgroundColor: 'Back',
-    borderColor: 'Border',
-    borderWidth: 'BW',
-    checked: 'Checked',
+    customMarkers: 'Custom Markers',
 };
 
 // Provide tooltip text for inspector fields that need additional context.
