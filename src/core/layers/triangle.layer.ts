@@ -1,9 +1,9 @@
-import {TPlatformFeatures} from '../../platforms/platform';
-import {mapping} from '../decorators/mapping';
-import {Point} from '../point';
-import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
-import {AbstractDrawingRenderer} from '../../draw/renderers';
+import { TPlatformFeatures } from '../../platforms/platform';
+import { mapping } from '../decorators/mapping';
+import { Point } from '../point';
+import { Rect } from '../rect';
+import { AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType } from './abstract.layer';
+import { AbstractDrawingRenderer } from '../../draw/renderers';
 
 export class TriangleLayer extends AbstractLayer {
     protected type: ELayerType = 'triangle';
@@ -107,6 +107,13 @@ export class TriangleLayer extends AbstractLayer {
             },
             type: TModifierType.boolean,
         },
+        customMarkers: {
+            getValue: () => this.customMarkers,
+            setValue: (v: boolean) => {
+                this.customMarkers = v;
+            },
+            type: TModifierType.boolean,
+        },
         color: {
             getValue: () => this.color,
             setValue: (v: string) => {
@@ -148,14 +155,14 @@ export class TriangleLayer extends AbstractLayer {
         {
             cursor: 'move',
             getRect: (): Rect => new Rect(this.p1, new Point(3)).subtract(1, 1, 0, 0),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
                 this.p1 = this.editState.p1.clone().add(offset).round();
             },
         },
         {
             cursor: 'move',
             getRect: (): Rect => new Rect(this.p2, new Point(3)).subtract(1, 1, 0, 0),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
                 this.p2 = this.editState.p2.clone().add(offset).round();
             },
         },
@@ -331,7 +338,7 @@ export class TriangleLayer extends AbstractLayer {
         if (!this.editState) {
             return;
         }
-        const {p1, p2, p3, firstPoint, editPoint} = this.editState;
+        const { p1, p2, p3, firstPoint, editPoint } = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
                 this.p1 = p1.clone().add(point.clone().subtract(firstPoint)).round();
