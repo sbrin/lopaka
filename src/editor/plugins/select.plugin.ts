@@ -45,7 +45,10 @@ export class SelectPlugin extends AbstractEditorPlugin {
                     } else if (!upperLayer.selected && !upperLayer.locked) {
                         // if upper layer is not selected, select it and unselect others
                         // if upper is selected then it will move all
-                        this.session.state.layers.forEach((l) => (l.selected = false));
+                        this.session.state.layers.forEach((l) => {
+                            if (l instanceof PolygonLayer && l.selected) l.exitVertexEditMode();
+                            l.selected = false;
+                        });
                         upperLayer.selected = true;
                     }
                 } else {
