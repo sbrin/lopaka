@@ -349,15 +349,31 @@ export class TriangleLayer extends AbstractLayer {
                 editPoint.move(point.clone().subtract(firstPoint), originalEvent);
                 break;
             case EditMode.CREATING:
-                // First click sets p1, drag creates p2 and p3
-                this.p1 = firstPoint.clone();
-                // p2 is the dragged point
-                this.p2 = point.clone();
-                // p3 forms an equilateral-ish triangle
-                this.p3 = new Point(
-                    firstPoint.x - (point.x - firstPoint.x),
-                    point.y
-                );
+                if (originalEvent.altKey) {
+                    const radius = point.clone().subtract(firstPoint).abs();
+                    if (originalEvent.shiftKey) {
+                        const maxRadius = Math.max(radius.x, radius.y);
+                        radius.x = maxRadius;
+                        radius.y = maxRadius;
+                    }
+                    this.p1 = firstPoint.clone().subtract(0, radius.y);
+                    this.p2 = firstPoint.clone().add(radius.x, radius.y);
+                    this.p3 = firstPoint.clone().add(-radius.x, radius.y);
+                } else {
+                    const diff = point.clone().subtract(firstPoint);
+                    if (originalEvent.shiftKey) {
+                        // Make it an equilateral triangle
+                        const maxDiff = Math.max(Math.abs(diff.x), Math.abs(diff.y));
+                        diff.x = Math.sign(diff.x) * maxDiff || maxDiff;
+                        diff.y = Math.sign(diff.y) * maxDiff || maxDiff;
+                    }
+
+                    const p2Point = firstPoint.clone().add(diff);
+
+                    this.p1 = new Point(firstPoint.x + diff.x / 2, firstPoint.y);
+                    this.p2 = p2Point;
+                    this.p3 = new Point(firstPoint.x, p2Point.y);
+                }
                 break;
         }
         this.updateBounds();
