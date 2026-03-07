@@ -62,6 +62,13 @@ export class LineLayer extends AbstractLayer {
             },
             type: TModifierType.color,
         },
+        customMarkers: {
+            getValue: () => this.customMarkers,
+            setValue: (v: boolean) => {
+                this.customMarkers = v;
+            },
+            type: TModifierType.boolean,
+        },
         inverted: {
             getValue: () => this.inverted,
             setValue: (v: boolean) => {

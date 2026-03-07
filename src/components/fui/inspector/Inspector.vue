@@ -162,6 +162,7 @@ const LABELS = {
     y2: 'Y2',
     w: 'W',
     h: 'H',
+    customMarkers: 'Custom Markers',
 };
 </script>
 <template>
