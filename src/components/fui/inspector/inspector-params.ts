@@ -1,9 +1,6 @@
 import { TLayerModifier, TModifierType } from '/src/core/layers/abstract.layer';
 import { LVGLPlatform } from '/src/platforms/lvgl';
 import { MicropythonPlatform } from '/src/platforms/micropython';
-import { EsphomePlatform } from '/src/platforms/esphome';
-import { TFTeSPIPlatform } from '/src/platforms/tft-espi';
-import { U8g2Platform } from '/src/platforms/u8g2';
 
 type InspectorParamVisibility = {
     name: string;
@@ -30,7 +27,7 @@ export const shouldShowInspectorParam = ({
     if (platformId === LVGLPlatform.id && name === 'fontSize') {
         return false;
     }
-    // Hide fill for polygons because code generation on most platforms only supports outlines.
+    // Hide fill for polygons because code generation only supports outlines across all platforms.
     if (name === 'fill' && layerType === 'polygon') {
         return false;
     }
