@@ -38,7 +38,24 @@ export abstract class AbstractTool {
         this.editor.state.activeTool = null;
     }
 
+    finalizeCreate(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): boolean {
+        this.onStopEdit(layer, position, originalEvent);
+        return true;
+    }
+
+    cancelCreate(layer: AbstractLayer): boolean {
+        return false;
+    }
+
     onStartEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): void {
         // do nothing
+    }
+
+    /**
+     * Return true if this tool uses multi-click creation (e.g. polygon).
+     * Multi-click tools add points on each click and finish on double-click.
+     */
+    isMultiClick(): boolean {
+        return false;
     }
 }

@@ -1,9 +1,9 @@
-import {TPlatformFeatures} from '../../platforms/platform';
-import {mapping} from '../decorators/mapping';
-import {Point} from '../point';
-import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
-import {AbstractDrawingRenderer} from '../../draw/renderers';
+import { TPlatformFeatures } from '../../platforms/platform';
+import { mapping } from '../decorators/mapping';
+import { Point } from '../point';
+import { Rect } from '../rect';
+import { AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType } from './abstract.layer';
+import { AbstractDrawingRenderer } from '../../draw/renderers';
 
 export class CircleLayer extends AbstractLayer {
     protected type: ELayerType = 'circle';
@@ -116,7 +116,7 @@ export class CircleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
                 this.position.y = Math.floor(this.editState.position.y + Math.round(offset.x / 2) * 2);
                 this.radius = Math.floor(this.editState.radius - offset.x / 2);
             },
@@ -128,7 +128,7 @@ export class CircleLayer extends AbstractLayer {
                     new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
                 this.radius = Math.round(this.editState.radius - offset.x / 2);
             },
         },
@@ -141,7 +141,7 @@ export class CircleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
                 this.position.x = Math.ceil(this.editState.position.x - Math.round(offset.x / 2) * 2);
                 this.radius = Math.ceil(this.editState.radius + offset.x / 2);
             },
@@ -150,7 +150,7 @@ export class CircleLayer extends AbstractLayer {
             cursor: 'nwse-resize',
             getRect: (): Rect =>
                 new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, event?: MouseEvent): void => {
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
                 this.position = this.editState.position
                     .clone()
                     .subtract(Math.round(offset.x / 2) * 2)
@@ -181,7 +181,7 @@ export class CircleLayer extends AbstractLayer {
         if (!this.editState) {
             return;
         }
-        const {position, firstPoint, editPoint} = this.editState;
+        const { position, firstPoint, editPoint } = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
                 this.position = position.clone().add(point.clone().subtract(firstPoint)).round();

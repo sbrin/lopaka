@@ -1,4 +1,27 @@
 import {vi} from 'vitest';
+
+// Mock localStorage before any code uses it
+const localStorageMock = (() => {
+    let store: Record<string, string> = {};
+    return {
+        getItem: (key: string) => store[key] ?? null,
+        setItem: (key: string, value: string) => {
+            store[key] = value;
+        },
+        removeItem: (key: string) => {
+            delete store[key];
+        },
+        clear: () => {
+            store = {};
+        },
+        get length() {
+            return Object.keys(store).length;
+        },
+        key: (index: number) => Object.keys(store)[index] ?? null
+    };
+})();
+vi.stubGlobal('localStorage', localStorageMock);
+
 vi.mock('./src/draw/fonts/index.ts', () => ({
     getFont: (name) => {
         return {

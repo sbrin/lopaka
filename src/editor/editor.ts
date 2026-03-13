@@ -29,6 +29,7 @@ import { PanelTool } from './tools/panel.tool';
 import { SwitchTool } from './tools/switch.tool';
 import { SliderTool } from './tools/slider.tool';
 import { CheckboxTool } from './tools/checkbox.tool';
+import { PolygonTool } from './tools/polygon.tool';
 import { HistoryPlugin } from './plugins/history.plugin';
 import { GroupPlugin } from './plugins/group.plugin';
 import { ZoomPlugin } from './plugins/zoom.plugin';
@@ -76,6 +77,7 @@ export class Editor {
         switch: new SwitchTool(this),
         slider: new SliderTool(this),
         checkbox: new CheckboxTool(this),
+        polygon: new PolygonTool(this),
     };
 
     getSupportedTools(platform: string): { [key: string]: AbstractTool } {

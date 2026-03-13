@@ -59,6 +59,12 @@ export class PixelatedDrawingRenderer extends AbstractDrawingRenderer {
         }
     }
 
+    drawPolygon(points: Point[], fill: boolean, color: string): void {
+        this.clear();
+        this.setColor(color);
+        this.drawContext.pixelatePolygon(points, fill);
+    }
+
     drawImage(imageData: ImageData, position: Point): void {
         this.clear();
         this.drawContext.ctx.putImageData(imageData, position.x, position.y);

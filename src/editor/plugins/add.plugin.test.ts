@@ -8,6 +8,10 @@ import {RectTool} from '../tools/rect.tool';
 import {TextLayer} from '../../core/layers/text.layer';
 import {TextAreaLayer} from '../../core/layers/text-area.layer';
 import {PixelatedDrawingRenderer} from '../../draw/renderers';
+import {AbstractTool} from '../tools/abstract.tool';
+import {PolygonTool} from '../tools/polygon.tool';
+import {PolygonLayer} from '../../core/layers/polygon.layer';
+import {Keys} from '../../core/keys.enum';
 
 const features: TPlatformFeatures = {
     hasCustomFontSize: false,
@@ -48,20 +52,22 @@ type TestSession = {
         selectionUpdates: number;
     };
     getPlatformFeatures: () => TPlatformFeatures;
-    editor: {
-        session: TestSession;
-        lastColor: string | null | undefined;
-        triggerTextEdit: ReturnType<typeof vi.fn>;
-        state: {
-            activeTool: RectTool | null;
-            activeLayer: AbstractLayer | null;
-            textEditMode: number;
-        };
+        editor: {
+            session: TestSession;
+            lastColor: string | null | undefined;
+            triggerTextEdit: ReturnType<typeof vi.fn>;
+            setTool: ReturnType<typeof vi.fn>;
+            state: {
+                activeTool: AbstractTool | null;
+                activeLayer: AbstractLayer | null;
+                textEditMode: number;
+            };
     };
     virtualScreen: {redraw: ReturnType<typeof vi.fn>};
     layersManager: {
         clearSelection: ReturnType<typeof vi.fn>;
         selectLayer: ReturnType<typeof vi.fn>;
+        removeLayer: ReturnType<typeof vi.fn>;
         eachLayer: ReturnType<typeof vi.fn>;
         readonly sorted: AbstractLayer[];
         readonly selected: AbstractLayer[];
@@ -84,8 +90,11 @@ const createTestSession = (platformFeatures: TPlatformFeatures): TestSession => 
             session: null as unknown as TestSession,
             lastColor: null as string | null | undefined,
             triggerTextEdit: vi.fn(),
+            setTool: vi.fn(function (this: any, name: string | null) {
+                this.state.activeTool = null;
+            }),
             state: {
-                activeTool: null as RectTool | null,
+                activeTool: null as AbstractTool | null,
                 activeLayer: null as AbstractLayer | null,
                 textEditMode: 0,
             },
@@ -119,6 +128,12 @@ const createTestSession = (platformFeatures: TPlatformFeatures): TestSession => 
             if (!layer.locked && !layer.hidden) {
                 layer.selected = true;
                 state.selectionUpdates++;
+            }
+        }),
+        removeLayer: vi.fn((layer: AbstractLayer) => {
+            state.layers = state.layers.filter((candidate) => candidate !== layer);
+            if (session.editor.state.activeLayer === layer) {
+                session.editor.state.activeLayer = null;
             }
         }),
         eachLayer,
@@ -327,6 +342,44 @@ describe('AddPlugin', () => {
         expect(session.virtualScreen.redraw).not.toHaveBeenCalled();
     });
 
+    it('should keep started multi-click creation on Escape and reset tool', () => {
+        const polygonTool = new PolygonTool(session.editor as any);
+        const polygon = new PolygonLayer(features);
+        polygon.points = [[0, 0], [10, 0], [10, 10]];
+        session.editor.state.activeTool = polygonTool;
+        session.editor.state.activeLayer = polygon;
+        session.addLayer(polygon);
+        plugin.multiClickActive = true;
+
+        plugin.onKeyDown(Keys.Escape, new KeyboardEvent('keydown', { code: Keys.Escape }));
+
+        expect(session.state.layers).toContain(polygon);
+        expect(polygon.points).toEqual([[0, 0], [10, 0]]);
+        expect(session.layersManager.selectLayer).toHaveBeenCalledWith(polygon);
+        expect(session.editor.setTool).toHaveBeenCalledWith(null);
+        expect(session.editor.state.activeTool).toBeNull();
+        expect(session.editor.state.activeLayer).toBeNull();
+    });
+
+    it('should keep committed polygon vertices on Escape and reset tool', () => {
+        const polygonTool = new PolygonTool(session.editor as any);
+        const polygon = new PolygonLayer(features);
+        polygon.points = [[0, 0], [10, 0], [10, 10], [0, 10], [5, 5]];
+        session.editor.state.activeTool = polygonTool;
+        session.editor.state.activeLayer = polygon;
+        session.addLayer(polygon);
+        plugin.multiClickActive = true;
+
+        plugin.onKeyDown(Keys.Escape, new KeyboardEvent('keydown', { code: Keys.Escape }));
+
+        expect(session.state.layers).toContain(polygon);
+        expect(polygon.points).toEqual([[0, 0], [10, 0], [10, 10], [0, 10]]);
+        expect(session.layersManager.selectLayer).toHaveBeenCalledWith(polygon);
+        expect(session.editor.setTool).toHaveBeenCalledWith(null);
+        expect(session.editor.state.activeTool).toBeNull();
+        expect(session.editor.state.activeLayer).toBeNull();
+    });
+
     it('should create layer when activeLayer exists but is not editing', () => {
         // Arrange
         const existingLayer = new RectangleLayer(features);
@@ -453,6 +506,7 @@ describe('AddPlugin', () => {
             createLayer: () => textLayer,
             onStartEdit: vi.fn(),
             onStopEdit: vi.fn(),
+            isMultiClick: () => false,
         } as unknown as RectTool;
 
         session.editor.state.activeTool = textTool;
@@ -483,6 +537,7 @@ describe('AddPlugin', () => {
             createLayer: () => textAreaLayer,
             onStartEdit: vi.fn(),
             onStopEdit: vi.fn(),
+            isMultiClick: () => false,
         } as unknown as RectTool;
 
         session.editor.state.activeTool = textAreaTool;

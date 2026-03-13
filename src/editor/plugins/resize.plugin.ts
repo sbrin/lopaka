@@ -1,7 +1,8 @@
-import {AbstractLayer, EditMode, TLayerEditPoint} from '../../core/layers/abstract.layer';
-import {Point} from '../../core/point';
-import {Rect} from '../../core/rect';
-import {AbstractEditorPlugin} from './abstract-editor.plugin';
+import { AbstractLayer, EditMode, TLayerEditPoint } from '../../core/layers/abstract.layer';
+import { PolygonLayer } from '../../core/layers/polygon.layer';
+import { Point } from '../../core/point';
+import { Rect } from '../../core/rect';
+import { AbstractEditorPlugin } from './abstract-editor.plugin';
 
 const RESIZE_HANDLE_HIT_AREA_MULTIPLIER = 2;
 
@@ -9,14 +10,45 @@ export class ResizePlugin extends AbstractEditorPlugin {
     captured: boolean = false;
     resizeLayer: AbstractLayer = null;
 
+    private isSecondaryButton(event: MouseEvent | TouchEvent): boolean {
+        return 'button' in event && event.button === 2;
+    }
+
+    private removePolygonVertexAtPointer(
+        layer: PolygonLayer,
+        point: Point,
+        event: MouseEvent | TouchEvent
+    ): boolean {
+        if (!layer.vertexEditMode || !this.isSecondaryButton(event)) {
+            return false;
+        }
+        const editPoint = this.getEditPointAtPointer(layer, point, event);
+        if (!editPoint) {
+            return false;
+        }
+        const editPoints = layer.getEditPoints(event);
+        const vertexIndex = editPoints.indexOf(editPoint);
+        if (vertexIndex < 0) {
+            return false;
+        }
+        const pointsLeft = layer.removePoint(vertexIndex);
+        if (pointsLeft < 2) {
+            this.session.layersManager.removeLayer(layer);
+        }
+        this.captured = true;
+        this.resizeLayer = null;
+        this.session.virtualScreen.redraw(false);
+        return true;
+    }
+
     getPadding() {
-        const {scale} = this.session.state;
+        const { scale } = this.session.state;
         return new Rect(-8, -8, 16, 16).divide(scale).round();
     }
 
     private getResizableLayerAtPoint(point: Point): AbstractLayer | null {
         // Keep resize interactions limited to one visible and editable selected layer.
-        const {layersManager} = this.session;
+        const { layersManager } = this.session;
         const resizableLayers = layersManager.selected.filter(
             (layer) =>
                 layer.resizable &&
@@ -48,11 +80,14 @@ export class ResizePlugin extends AbstractEditorPlugin {
     }
 
     onMouseDown(point: Point, event: MouseEvent | TouchEvent): void {
-        const {activeTool} = this.session.editor.state;
+        const { activeTool } = this.session.editor.state;
         if (activeTool) return;
         // Find a single eligible layer under the pointer before starting resize.
         const layer = this.getResizableLayerAtPoint(point);
         if (!layer || !layer.editPoints.length) return;
+        if (layer instanceof PolygonLayer && this.removePolygonVertexAtPointer(layer, point, event)) {
+            return;
+        }
         // Use the expanded handle hit area when selecting the edit point.
         const editPoint = this.getEditPointAtPointer(layer, point, event);
         if (!editPoint) return;
@@ -68,7 +103,7 @@ export class ResizePlugin extends AbstractEditorPlugin {
             this.session.virtualScreen.redraw();
             return;
         }
-        const {activeTool} = this.session.editor.state;
+        const { activeTool } = this.session.editor.state;
         if (activeTool) return;
         // Find a single eligible layer to show resize cursor hints.
         const layer = this.getResizableLayerAtPoint(point);
@@ -84,7 +119,28 @@ export class ResizePlugin extends AbstractEditorPlugin {
     onMouseUp(point: Point, event: MouseEvent | TouchEvent): void {
         if (this.captured) {
             this.captured = false;
-            this.resizeLayer.stopEdit();
+            if (this.resizeLayer) {
+                this.resizeLayer.stopEdit();
+                this.resizeLayer = null;
+            }
+        }
+    }
+
+    onMouseDoubleClick(point: Point, event: MouseEvent): void {
+        const { activeTool } = this.session.editor.state;
+        if (activeTool) return;
+        const { layersManager } = this.session;
+        if (layersManager.selected.length !== 1) {
+            return;
+        }
+        const layers = layersManager.layers;
+        const selectedPolygons = layers.filter(
+            (layer) => layer.selected && !layer.locked && layer instanceof PolygonLayer && layer.contains(point)
+        );
+        if (selectedPolygons.length === 1) {
+            const polygon = selectedPolygons[0] as PolygonLayer;
+            polygon.toggleVertexEditMode();
+            this.session.virtualScreen.redraw(false);
         }
     }
 }

@@ -37,6 +37,10 @@ def draw():
 
 @jnijisniijaojosd;    display.rect(@x:45, @y:20, @w:14, @h:12, #00FF00)
 
+
+// Unknown layer type polygon
+
+
     display.show()
 "
 `;

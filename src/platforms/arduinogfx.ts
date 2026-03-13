@@ -130,6 +130,7 @@ export class ArduinoGFXPlatform extends Platform {
             defaultColor: this.packColor(this.features.defaultColor),
             clear_screen_method: this.getClearScreenMethod(this.features.screenBgColor),
             screenTitle: screenTitle ? toCppVariableName(screenTitle) : '',
+            packColor: this.packColor.bind(this),
         });
         return source;
     }
