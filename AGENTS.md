@@ -1,6 +1,16 @@
 — Never test visual canvas or or DOM rendering. Only test the logic.
 - Never commit or push without permission.
 
+## Specification Rules
+
+- For every new user-facing feature, first write or update a Gherkin spec under `specs/` before implementation.
+- If work changes an existing feature rather than adding a new one, update the existing Gherkin spec after implementation.
+- Update Gherkin specs only when user-visible behavior changes. Do not add spec churn for internal refactors or bugfixes that do not change expected behavior.
+- Keep the `specs/` tree stable and mirrored to `src/` so specs are easy to find from the implementation path.
+- Place specs by subsystem path, for example `specs/src/editor/...`, `specs/src/core/layers/...`, `specs/src/draw/plugins/...`.
+- Prefer feature-level `.feature` files named by behavior, not by ticket number, bug number, PR number, or one-off fix.
+- When behavior belongs to an existing feature, extend the existing `.feature` file instead of creating parallel duplicates.
+
 ## Build & Development Commands
 
 ```bash

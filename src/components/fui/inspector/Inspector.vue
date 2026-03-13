@@ -124,7 +124,12 @@ const fontsUsed = computed(() => {
 // Use a shared helper to keep modifier visibility logic testable.
 const shouldShowParam = (name: string, param: TLayerModifier) => {
     // Delegate the decision to the shared visibility helper.
-    return shouldShowInspectorParam({ name, param, platformId: platform.value });
+    return shouldShowInspectorParam({
+        name,
+        param,
+        platformId: platform.value,
+        layerType: activeLayer.value?.getType(),
+    });
 };
 
 // Group consecutive visible color params so the template can wrap them in a single flex container.

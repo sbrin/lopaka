@@ -1,7 +1,15 @@
-import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
-import {PolygonLayer} from '../../core/layers/polygon.layer';
-import {Point} from '../../core/point';
-import {AbstractTool} from './abstract.tool';
+import { AbstractLayer, EditMode } from '../../core/layers/abstract.layer';
+import { PolygonLayer } from '../../core/layers/polygon.layer';
+import { Point } from '../../core/point';
+import { AbstractTool } from './abstract.tool';
+import { U8g2Platform } from '/src/platforms/u8g2';
+import { AdafruitPlatform } from '/src/platforms/adafruit';
+import { AdafruitMonochromePlatform } from '/src/platforms/adafruit_mono';
+import { ArduinoGFXPlatform } from '/src/platforms/arduinogfx';
+import { TFTeSPIPlatform } from '/src/platforms/tft-espi';
+import { FlipperPlatform } from '/src/platforms/flipper';
+import { MicropythonPlatform } from '/src/platforms/micropython';
+import { EsphomePlatform } from '/src/platforms/esphome';
 
 export class PolygonTool extends AbstractTool {
     name: string = 'polygon';
@@ -29,8 +37,22 @@ export class PolygonTool extends AbstractTool {
     }
 
     createLayer(): AbstractLayer {
-        const {session} = this.editor;
+        const { session } = this.editor;
         return new PolygonLayer(session.getPlatformFeatures());
+    }
+
+    isSupported(platform: string): boolean {
+        // Keep polygon disabled on platforms without polygon code generation support such as LVGL.
+        return [
+            U8g2Platform.id,
+            AdafruitPlatform.id,
+            AdafruitMonochromePlatform.id,
+            ArduinoGFXPlatform.id,
+            TFTeSPIPlatform.id,
+            FlipperPlatform.id,
+            MicropythonPlatform.id,
+            EsphomePlatform.id,
+        ].includes(platform);
     }
 
     isMultiClick(): boolean {
@@ -63,7 +85,7 @@ export class PolygonTool extends AbstractTool {
     }
 
     onDeactivate(): void {
-        const {state} = this.editor;
+        const { state } = this.editor;
         if (state.activeLayer instanceof PolygonLayer) {
             const poly = state.activeLayer as PolygonLayer;
             if (poly.points.length > 2) {

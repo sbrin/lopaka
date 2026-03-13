@@ -22,6 +22,18 @@ if settings.declare_vars
                 |
     |
     |
+each layer in layers
+    if layer.type == 'polygon'
+        - var pts = layer.points
+        |
+        | void !{layer.functionName}(void) {
+        |
+        - for (var pi = 0; pi < pts.length; pi++)
+            - var npi = (pi + 1) % pts.length
+            |     display.drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]}, !{layer.color});
+            |
+        | }
+        |
 if settings.wrap
     | void draw!{screenTitle}(void) {
     |
@@ -90,6 +102,8 @@ each layer in layers
         when 'paint'
         when 'icon'
             | @!{layer.uid};!{pad}display.drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{layer.color});
+        when 'polygon'
+            | @!{layer.uid};!{pad}!{layer.functionName}();
         default 
             |
             | // Unknown layer type !{layer.type}

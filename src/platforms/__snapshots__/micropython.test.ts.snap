@@ -37,9 +37,7 @@ def draw():
 
 @jnijisniijaojosd;    display.rect(@x:45, @y:20, @w:14, @h:12, #00FF00)
 
-
-// Unknown layer type polygon
-
+@abc123polygon;    fbuf.poly(5, 10, array('h', [5, 0, 25, 0, 35, 20, 15, 30, 0, 20]), #FF0000, False)
 
     display.show()
 "

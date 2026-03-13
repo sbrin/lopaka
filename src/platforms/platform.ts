@@ -85,6 +85,9 @@ export abstract class Platform {
 
     processLayerModifiers(layer: AbstractLayer, props: any, overrides: any = {}) {
         const modifyPropsHandlers = {
+            functionName: (layer: AbstractLayer, props: any) => {
+                props.functionName = `draw_${toCppVariableName(layer.name)}`;
+            },
             x: (layer: AbstractLayer, props: any) => {
                 if (layer instanceof CircleLayer) {
                     props.x = layer.position.x + layer.radius;
@@ -158,6 +161,10 @@ export abstract class Platform {
                 modifyPropsHandlers[name](layer, props);
             }
         });
+
+        if (layer.getType() === 'polygon') {
+            modifyPropsHandlers.functionName(layer, props);
+        }
     }
 
     protected processVarDeclarations(layer: AbstractLayer, props: any, declarations: { type: string; data: any }[]) {

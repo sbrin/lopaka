@@ -1,6 +1,7 @@
 import { Keys } from '../../core/keys.enum';
 import { AbstractLayer, EditMode } from '../../core/layers/abstract.layer';
 import { PolygonLayer } from '../../core/layers/polygon.layer';
+import { TriangleLayer } from '../../core/layers/triangle.layer';
 import { Point } from '../../core/point';
 import { Rect } from '../../core/rect';
 import { Session } from '../../core/session';
@@ -24,6 +25,20 @@ export class SelectPlugin extends AbstractEditorPlugin {
         this.selectionElement = document.createElement('div');
         this.selectionElement.classList.add('fui-canvas__selection');
         this.container.appendChild(this.selectionElement);
+    }
+
+    private exitGeometryVertexEditMode(layer: AbstractLayer): void {
+        if (layer instanceof PolygonLayer || layer instanceof TriangleLayer) {
+            layer.exitVertexEditMode();
+        }
+    }
+
+    private clearSelectionAndExitGeometryModes(): void {
+        const { layersManager } = this.session;
+        layersManager.selected.forEach((layer) => {
+            this.exitGeometryVertexEditMode(layer);
+        });
+        layersManager.clearSelection();
     }
 
     onMouseDown(point: Point, event: MouseEvent | TouchEvent): void {
@@ -56,7 +71,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                                 });
                             } else {
                                 layersManager.unselectLayer(upperLayer);
-                                if (upperLayer instanceof PolygonLayer) upperLayer.exitVertexEditMode();
+                                this.exitGeometryVertexEditMode(upperLayer);
                             }
                         } else {
                             if (upperLayer.group && !this.selected) {
@@ -70,7 +85,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                             }
                         }
                     } else if (!upperLayer.selected) {
-                        layersManager.clearSelection();
+                        this.clearSelectionAndExitGeometryModes();
                         layersManager.selectLayer(upperLayer);
                     }
 
@@ -78,7 +93,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                         const groupLayers = layersManager.getLayersInGroup(upperLayer.group);
                         const isMultipleSelected = layersManager.selected.length > groupLayers.length;
                         if (!isMultipleSelected) {
-                            layersManager.clearSelection();
+                            this.clearSelectionAndExitGeometryModes();
                             layersManager.eachLayer((l) => {
                                 if (l.group && l.group === upperLayer.group) {
                                     layersManager.selectLayer(l);
@@ -144,7 +159,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                 if (size.x < 2 && size.y < 2) {
                     // Exit vertex edit mode for polygon layers before clearing selection
                     layersManager.selected.forEach((l) => {
-                        if (l instanceof PolygonLayer) l.exitVertexEditMode();
+                        this.exitGeometryVertexEditMode(l);
                     });
                     layersManager.clearSelection();
                     return;
@@ -161,8 +176,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
                     layersManager.selectLayer(l);
                 } else {
                     layersManager.unselectLayer(l);
-                    // Exit vertex edit mode when deselecting polygon layers
-                    if (wasSelected && l instanceof PolygonLayer) l.exitVertexEditMode();
+                    if (wasSelected) this.exitGeometryVertexEditMode(l);
                 }
                 if (l.selected && l.group) {
                     layersManager.eachLayer((ll) => {
@@ -177,7 +191,7 @@ export class SelectPlugin extends AbstractEditorPlugin {
             if (!hovered.length) {
                 // Exit vertex edit mode for polygon layers before clearing selection
                 layersManager.selected.forEach((l) => {
-                    if (l instanceof PolygonLayer) l.exitVertexEditMode();
+                    this.exitGeometryVertexEditMode(l);
                 });
                 layersManager.clearSelection();
             }
@@ -191,17 +205,19 @@ export class SelectPlugin extends AbstractEditorPlugin {
         if (this.session.editor.state.activeTool) return;
         if (key === Keys.Escape) {
             const selectedPolygonsInVertexMode = layersManager.selected.filter(
-                (layer) => layer instanceof PolygonLayer && layer.vertexEditMode
+                (layer) =>
+                    (layer instanceof PolygonLayer || layer instanceof TriangleLayer) &&
+                    layer.vertexEditMode
             );
             if (selectedPolygonsInVertexMode.length) {
                 selectedPolygonsInVertexMode.forEach((layer) => layer.exitVertexEditMode());
                 this.session.virtualScreen.redraw();
                 return;
             }
-            layersManager.clearSelection();
+            this.clearSelectionAndExitGeometryModes();
             this.session.virtualScreen.redraw();
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {
-            layersManager.clearSelection();
+            this.clearSelectionAndExitGeometryModes();
             layersManager.eachEditableLayer((l) => layersManager.selectLayer(l));
             this.session.virtualScreen.redraw(false);
         }
@@ -226,10 +242,22 @@ export class SelectPlugin extends AbstractEditorPlugin {
             const hovered = layersManager.contains(point).reverse();
             const upperLayer = hovered[0];
             if (hovered.length) {
-                layersManager.clearSelection();
-                layersManager.selectLayer(upperLayer);
-                this.selected = true;
-                this.lastLayerId = upperLayer.uid;
+                const isAlreadyFocusedSelection =
+                    layersManager.selected.length === 1 &&
+                    upperLayer.selected &&
+                    (!upperLayer.group ||
+                        (this.selected &&
+                            this.lastLayerId === upperLayer.uid));
+
+                if (!isAlreadyFocusedSelection) {
+                    this.clearSelectionAndExitGeometryModes();
+                    layersManager.selectLayer(upperLayer);
+                    this.selected = true;
+                    this.lastLayerId = upperLayer.uid;
+                } else if (upperLayer.group) {
+                    this.selected = true;
+                    this.lastLayerId = upperLayer.uid;
+                }
             }
             this.session.editor.triggerTextEdit();
         }

@@ -1,5 +1,6 @@
 import { AbstractLayer, EditMode, TLayerEditPoint } from '../../core/layers/abstract.layer';
 import { PolygonLayer } from '../../core/layers/polygon.layer';
+import { TriangleLayer } from '../../core/layers/triangle.layer';
 import { Point } from '../../core/point';
 import { Rect } from '../../core/rect';
 import { AbstractEditorPlugin } from './abstract-editor.plugin';
@@ -134,12 +135,16 @@ export class ResizePlugin extends AbstractEditorPlugin {
             return;
         }
         const layers = layersManager.layers;
-        const selectedPolygons = layers.filter(
-            (layer) => layer.selected && !layer.locked && layer instanceof PolygonLayer && layer.contains(point)
+        const selectedGeometryLayers = layers.filter(
+            (layer) =>
+                layer.selected &&
+                !layer.locked &&
+                layer.contains(point) &&
+                (layer instanceof PolygonLayer || layer instanceof TriangleLayer)
         );
-        if (selectedPolygons.length === 1) {
-            const polygon = selectedPolygons[0] as PolygonLayer;
-            polygon.toggleVertexEditMode();
+        if (selectedGeometryLayers.length === 1) {
+            const layer = selectedGeometryLayers[0] as PolygonLayer | TriangleLayer;
+            layer.toggleVertexEditMode();
             this.session.virtualScreen.redraw(false);
         }
     }

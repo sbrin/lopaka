@@ -37,6 +37,15 @@ each layer in layers
             - var minX = Math.min(layer.x1, layer.x2, layer.x3)
             - var minY = Math.min(layer.y1, layer.y2, layer.y3)
             | @!{layer.uid};!{pad}fbuf.poly(!{minX}, !{minY}, array('h', [!{layer.x1 - minX}, !{layer.y1 - minY}, !{layer.x2 - minX}, !{layer.y2 - minY}, !{layer.x3 - minX}, !{layer.y3 - minY}]), !{layer.color}, !{isFill})
+        when 'polygon'
+            - var isFill = layer.fill ? 'True' : 'False'
+            - var points = layer.points || []
+            - var xs = points.map((point) => point[0])
+            - var ys = points.map((point) => point[1])
+            - var minX = xs.length ? Math.min(...xs) : 0
+            - var minY = ys.length ? Math.min(...ys) : 0
+            - var relativePoints = points.flatMap((point) => [point[0] - minX, point[1] - minY]).join(', ')
+            | @!{layer.uid};!{pad}fbuf.poly(!{minX}, !{minY}, array('h', [!{relativePoints}]), !{layer.color}, !{isFill})
         when 'string'
             - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`;
             | @!{layer.uid};!{pad}display.text(@text:!{textContent}, @x:!{layer.x}, @y:!{layer.y}, !{layer.color})
