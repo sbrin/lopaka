@@ -7,6 +7,27 @@ export class PolygonTool extends AbstractTool {
     name: string = 'polygon';
     private creating: boolean = false;
 
+    private finalizePolygon(layer: AbstractLayer): boolean {
+        const poly = layer as PolygonLayer;
+        if (poly.points.length > 2) {
+            poly.points.pop();
+        }
+        if (poly.points.length > 2) {
+            poly.points.pop();
+        }
+        this.creating = false;
+        return poly.points.length >= 3;
+    }
+
+    private cancelPolygon(layer: AbstractLayer): boolean {
+        const poly = layer as PolygonLayer;
+        if (poly.points.length > 1) {
+            poly.points.pop();
+        }
+        this.creating = false;
+        return poly.points.length >= 2;
+    }
+
     createLayer(): AbstractLayer {
         const {session} = this.editor;
         return new PolygonLayer(session.getPlatformFeatures());
@@ -26,15 +47,15 @@ export class PolygonTool extends AbstractTool {
     }
 
     onStopEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent): void {
-        const poly = layer as PolygonLayer;
-        if (poly.points.length > 2) {
-            poly.points.pop();
-        }
-        if (poly.points.length > 2) {
-            poly.points.pop();
-        }
+        this.finalizePolygon(layer);
+    }
 
-        this.creating = false;
+    finalizeCreate(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): boolean {
+        return this.finalizePolygon(layer);
+    }
+
+    cancelCreate(layer: AbstractLayer): boolean {
+        return this.cancelPolygon(layer);
     }
 
     onActivate(): void {

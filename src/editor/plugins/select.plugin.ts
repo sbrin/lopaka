@@ -32,58 +32,65 @@ export class SelectPlugin extends AbstractEditorPlugin {
         const { layersManager } = this.session;
         const { activeTool } = this.session.editor.state;
         if (!activeTool) {
-            const hovered = layersManager.contains(point).reverse();
-            if (hovered.length) {
-                // if there is a hovered layer
-                const upperLayer = hovered[0];
-                if (this.lastLayerId !== upperLayer.uid) {
-                    this.selected = false;
-                }
-                // add or remove from selection if shift is pressed
-                if (event.shiftKey) {
-                    if (upperLayer.selected) {
-                        if (upperLayer.group) {
-                            layersManager.eachLayer((l) => {
-                                if (l.group && l.group === upperLayer.group) {
-                                    layersManager.selectLayer(l);
-                                }
-                            });
-                        } else {
-                            layersManager.unselectLayer(upperLayer);
-                        }
-                    } else {
-                        if (upperLayer.group) {
-                            layersManager.eachLayer((l) => {
-                                if (l.group && l.group === upperLayer.group) {
-                                    layersManager.selectLayer(l);
-                                }
-                            });
-                        } else {
-                            layersManager.selectLayer(upperLayer);
-                        }
-                    }
-                } else if (!upperLayer.selected) {
-                    // if layer is not selected, select it and unselect others
-                    layersManager.clearSelection();
-                    layersManager.selectLayer(upperLayer);
-                }
-                if (!this.selected && upperLayer.group && !event.altKey) {
-                    const groupLayers = layersManager.getLayersInGroup(upperLayer.group);
-                    const isMultipleSelected = layersManager.selected.length > groupLayers.length;
-                    if (!isMultipleSelected) {
-                        layersManager.clearSelection();
-                        layersManager.eachLayer((l) => {
-                            if (l.group && l.group === upperLayer.group) {
-                                layersManager.selectLayer(l);
-                            }
-                        });
-                    }
-                }
-            } else {
-                // if there is no hovered layer, start box selection
+            if (event.altKey) {
                 this.captured = true;
-                this.selected = false;
+                this.grabMode = true;
                 this.firstPoint = point.clone();
+            } else {
+                const hovered = layersManager.layers
+                    .filter((l) => !l.locked && l.contains(point))
+                    .sort((a, b) => b.index - a.index);
+                if (hovered.length) {
+                    const upperLayer = hovered[0];
+                    if (this.lastLayerId !== upperLayer.uid) {
+                        this.selected = false;
+                    }
+
+                    if (event.shiftKey) {
+                        if (upperLayer.selected) {
+                            if (upperLayer.group && !this.selected) {
+                                layersManager.eachLayer((l) => {
+                                    if (l.group && l.group === upperLayer.group) {
+                                        layersManager.selectLayer(l);
+                                    }
+                                });
+                            } else {
+                                layersManager.unselectLayer(upperLayer);
+                                if (upperLayer instanceof PolygonLayer) upperLayer.exitVertexEditMode();
+                            }
+                        } else {
+                            if (upperLayer.group && !this.selected) {
+                                layersManager.eachLayer((l) => {
+                                    if (l.group && l.group === upperLayer.group) {
+                                        layersManager.selectLayer(l);
+                                    }
+                                });
+                            } else {
+                                layersManager.selectLayer(upperLayer);
+                            }
+                        }
+                    } else if (!upperLayer.selected) {
+                        layersManager.clearSelection();
+                        layersManager.selectLayer(upperLayer);
+                    }
+
+                    if (!this.selected && upperLayer.group && !event.altKey) {
+                        const groupLayers = layersManager.getLayersInGroup(upperLayer.group);
+                        const isMultipleSelected = layersManager.selected.length > groupLayers.length;
+                        if (!isMultipleSelected) {
+                            layersManager.clearSelection();
+                            layersManager.eachLayer((l) => {
+                                if (l.group && l.group === upperLayer.group) {
+                                    layersManager.selectLayer(l);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    this.captured = true;
+                    this.selected = false;
+                    this.firstPoint = point.clone();
+                }
             }
             this.session.editor.selectionUpdate();
         }
@@ -183,10 +190,14 @@ export class SelectPlugin extends AbstractEditorPlugin {
         this.selected = false;
         if (this.session.editor.state.activeTool) return;
         if (key === Keys.Escape) {
-            // Exit vertex edit mode for polygon layers before clearing selection
-            layersManager.selected.forEach((l) => {
-                if (l instanceof PolygonLayer) l.exitVertexEditMode();
-            });
+            const selectedPolygonsInVertexMode = layersManager.selected.filter(
+                (layer) => layer instanceof PolygonLayer && layer.vertexEditMode
+            );
+            if (selectedPolygonsInVertexMode.length) {
+                selectedPolygonsInVertexMode.forEach((layer) => layer.exitVertexEditMode());
+                this.session.virtualScreen.redraw();
+                return;
+            }
             layersManager.clearSelection();
             this.session.virtualScreen.redraw();
         } else if (key === Keys.KeyA && (event.ctrlKey || event.metaKey)) {

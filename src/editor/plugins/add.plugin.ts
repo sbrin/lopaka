@@ -1,4 +1,5 @@
 import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
+import {Keys} from '../../core/keys.enum';
 import {Point} from '../../core/point';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
 import {TextLayer} from '/src/core/layers/text.layer';
@@ -98,12 +99,38 @@ export class AddPlugin extends AbstractEditorPlugin {
             this.multiClickActive = false;
             this.captured = false;
             if (activeLayer && activeTool) {
-                activeTool.onStopEdit(activeLayer as AbstractLayer, point, event);
+                const keepLayer = activeTool.finalizeCreate(activeLayer as AbstractLayer, point, event);
                 activeLayer.stopEdit();
-                activeLayer.draw();
-                activeLayer.selected = true;
+                if (keepLayer) {
+                    activeLayer.draw();
+                    this.session.layersManager.selectLayer(activeLayer as AbstractLayer);
+                } else {
+                    this.session.layersManager.removeLayer(activeLayer as AbstractLayer);
+                }
                 state.activeLayer = null;
-                state.activeTool = null;
+                this.session.editor.setTool(null);
+                this.session.virtualScreen.redraw();
+            }
+        }
+    }
+
+    onKeyDown(key: Keys, event: KeyboardEvent): void {
+        if (key === Keys.Escape && this.multiClickActive) {
+            const {state} = this.session.editor;
+            const {activeLayer, activeTool} = state;
+            this.multiClickActive = false;
+            this.captured = false;
+            if (activeLayer && activeTool) {
+                const keepLayer = activeTool.cancelCreate(activeLayer as AbstractLayer);
+                activeLayer.stopEdit();
+                if (keepLayer) {
+                    activeLayer.draw();
+                    this.session.layersManager.selectLayer(activeLayer as AbstractLayer);
+                } else {
+                    this.session.layersManager.removeLayer(activeLayer as AbstractLayer);
+                }
+                state.activeLayer = null;
+                this.session.editor.setTool(null);
                 this.session.virtualScreen.redraw();
             }
         }

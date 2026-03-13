@@ -38,6 +38,15 @@ export abstract class AbstractTool {
         this.editor.state.activeTool = null;
     }
 
+    finalizeCreate(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): boolean {
+        this.onStopEdit(layer, position, originalEvent);
+        return true;
+    }
+
+    cancelCreate(layer: AbstractLayer): boolean {
+        return false;
+    }
+
     onStartEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): void {
         // do nothing
     }

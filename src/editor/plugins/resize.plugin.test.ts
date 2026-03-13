@@ -1,8 +1,11 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {EditMode, TLayerEditPoint} from '../../core/layers/abstract.layer';
+import {PolygonLayer} from '../../core/layers/polygon.layer';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
+import {TPlatformFeatures} from '../../platforms/platform';
 import {ResizePlugin} from './resize.plugin';
+import {RectangleLayer} from '../../core/layers/rectangle.layer';
 
 type MockLayer = {
     resizable: boolean;
@@ -106,5 +109,134 @@ describe('ResizePlugin hit area', () => {
         // Verify no resize capture begins outside the expanded zone.
         expect(layer.startEdit).not.toHaveBeenCalled();
         expect(plugin.captured).toBe(false);
+    });
+
+    it('removes a polygon vertex on right click in vertex edit mode', () => {
+        const features: TPlatformFeatures = {
+            hasCustomFontSize: false,
+            hasInvertedColors: false,
+            hasRGBSupport: true,
+            hasIndexedColors: false,
+            defaultColor: '#ffffff',
+            interfaceColors: {
+                selectColor: '#fff',
+                resizeIconColor: '#fff',
+                hoverColor: '#fff',
+                rulerColor: '#fff',
+                rulerLineColor: '#fff',
+                selectionStrokeColor: '#fff',
+            },
+        };
+        const layer = new PolygonLayer(features);
+        layer.points = [[10, 10], [20, 10], [20, 20], [10, 20]];
+        layer.updateBounds();
+        layer.toggleVertexEditMode();
+        const session = {
+            state: { scale: new Point(1, 1) },
+            editor: { state: { activeTool: null } },
+            layersManager: {
+                selected: [layer],
+                removeLayer: vi.fn(),
+            },
+            virtualScreen: {
+                redraw: vi.fn(),
+            },
+        };
+        const plugin = new ResizePlugin(session as any, container);
+
+        plugin.onMouseDown(new Point(10, 10), new MouseEvent('mousedown', { button: 2 }));
+
+        expect(layer.points).toEqual([[20, 10], [20, 20], [10, 20]]);
+        expect(session.layersManager.removeLayer).not.toHaveBeenCalled();
+        expect(plugin.captured).toBe(true);
+        plugin.onMouseUp(new Point(10, 10), new MouseEvent('mouseup', { button: 2 }));
+        expect(plugin.captured).toBe(false);
+    });
+
+    it('removes the polygon layer when right click deletion leaves fewer than two vertices', () => {
+        const features: TPlatformFeatures = {
+            hasCustomFontSize: false,
+            hasInvertedColors: false,
+            hasRGBSupport: true,
+            hasIndexedColors: false,
+            defaultColor: '#ffffff',
+            interfaceColors: {
+                selectColor: '#fff',
+                resizeIconColor: '#fff',
+                hoverColor: '#fff',
+                rulerColor: '#fff',
+                rulerLineColor: '#fff',
+                selectionStrokeColor: '#fff',
+            },
+        };
+        const layer = new PolygonLayer(features);
+        layer.points = [[10, 10], [20, 10]];
+        layer.updateBounds();
+        layer.toggleVertexEditMode();
+        const session = {
+            state: { scale: new Point(1, 1) },
+            editor: { state: { activeTool: null } },
+            layersManager: {
+                selected: [layer],
+                removeLayer: vi.fn(),
+            },
+            virtualScreen: {
+                redraw: vi.fn(),
+            },
+        };
+        const plugin = new ResizePlugin(session as any, container);
+
+        plugin.onMouseDown(new Point(10, 10), new MouseEvent('mousedown', { button: 2 }));
+
+        expect(session.layersManager.removeLayer).toHaveBeenCalledWith(layer);
+        expect(plugin.captured).toBe(true);
+        plugin.onMouseUp(new Point(10, 10), new MouseEvent('mouseup', { button: 2 }));
+        expect(plugin.captured).toBe(false);
+    });
+
+    it('does not enter polygon vertex edit mode while a whole group is selected', () => {
+        const features: TPlatformFeatures = {
+            hasCustomFontSize: false,
+            hasInvertedColors: false,
+            hasRGBSupport: true,
+            hasIndexedColors: false,
+            defaultColor: '#ffffff',
+            interfaceColors: {
+                selectColor: '#fff',
+                resizeIconColor: '#fff',
+                hoverColor: '#fff',
+                rulerColor: '#fff',
+                rulerLineColor: '#fff',
+                selectionStrokeColor: '#fff',
+            },
+        };
+        const polygon = new PolygonLayer(features);
+        polygon.points = [[10, 10], [20, 10], [20, 20]];
+        polygon.updateBounds();
+        polygon.selected = true;
+
+        const rect = new RectangleLayer(features);
+        rect.position = new Point(30, 10);
+        rect.size = new Point(10, 10);
+        rect.updateBounds();
+        rect.selected = true;
+
+        const session = {
+            state: { scale: new Point(1, 1) },
+            editor: { state: { activeTool: null } },
+            layersManager: {
+                layers: [polygon, rect],
+                selected: [polygon, rect],
+            },
+            virtualScreen: {
+                redraw: vi.fn(),
+            },
+        };
+        const plugin = new ResizePlugin(session as any, container);
+
+        plugin.onMouseDoubleClick(new Point(15, 15), new MouseEvent('dblclick'));
+
+        expect(polygon.vertexEditMode).toBe(false);
+        expect(session.virtualScreen.redraw).not.toHaveBeenCalled();
     });
 });
