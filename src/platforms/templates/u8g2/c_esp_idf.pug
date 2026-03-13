@@ -16,7 +16,7 @@ each layer in layers
     if layer.type == 'polygon'
         - var pts = layer.points
         |
-        | void draw_!{layer.name}(u8g2_t *u8g2) {
+        | void !{layer.functionName}(u8g2_t *u8g2) {
         |
         - for (var pi = 0; pi < pts.length; pi++)
             - var npi = (pi + 1) % pts.length
@@ -82,7 +82,7 @@ each layer in layers
         when 'icon'
             | @!{layer.uid};!{pad}u8g2_DrawXBM(&u8g2, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
         when 'polygon'
-            | @!{layer.uid};!{pad}draw_!{layer.name}(&u8g2);
+            | @!{layer.uid};!{pad}!{layer.functionName}(&u8g2);
         default 
             |
             | // Unknown layer type !{layer.type}

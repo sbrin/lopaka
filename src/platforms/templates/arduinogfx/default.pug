@@ -30,7 +30,7 @@ each layer in layers
     if layer.type == 'polygon'
         - var pts = layer.points
         |
-        | void draw_!{layer.name}(void) {
+        | void !{layer.functionName}(void) {
         |
         - for (var pi = 0; pi < pts.length; pi++)
             - var npi = (pi + 1) % pts.length
@@ -112,7 +112,7 @@ each layer in layers
             else
                 | @!{layer.uid};!{pad}gfx->drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{layer.color});
         when 'polygon'
-            | @!{layer.uid};!{pad}draw_!{layer.name}();
+            | @!{layer.uid};!{pad}!{layer.functionName}();
         default 
             |
             | // Unknown layer type !{layer.type}
