@@ -10,6 +10,7 @@ import {TextAreaLayer} from '../../core/layers/text-area.layer';
 import {PixelatedDrawingRenderer} from '../../draw/renderers';
 import {AbstractTool} from '../tools/abstract.tool';
 import {PolygonTool} from '../tools/polygon.tool';
+import {TriangleTool} from '../tools/triangle.tool';
 import {PolygonLayer} from '../../core/layers/polygon.layer';
 import {Keys} from '../../core/keys.enum';
 
@@ -465,10 +466,10 @@ describe('AddPlugin', () => {
         expect(layer2.selected).toBe(false);
         expect(session.state.layers.length).toBe(3); // Original 2 + new 1
         
-        // Verify the new layer was created but not yet selected (selection happens on mouseUp)
+        // Verify the new layer is immediately selected when creation starts.
         const newLayer = session.state.layers.find((layer) => layer !== layer1 && layer !== layer2);
         expect(newLayer).toBeDefined();
-        expect(newLayer?.selected).toBe(false); // Not selected yet, will be selected on mouseUp
+        expect(newLayer?.selected).toBe(true);
     });
 
     it('should complete layer creation on mouse up', () => {
@@ -480,7 +481,6 @@ describe('AddPlugin', () => {
         plugin.onMouseDown(point, new MouseEvent('mousedown'));
         const createdLayer = session.state.layers[0];
         createdLayer.stopEdit = vi.fn();
-        createdLayer.selected = false;
 
         // Act
         plugin.onMouseUp(point, new MouseEvent('mouseup'));
@@ -490,6 +490,35 @@ describe('AddPlugin', () => {
         expect(createdLayer.selected).toBe(true);
         expect(session.virtualScreen.redraw).toHaveBeenCalledTimes(2); // Once on down, once on up
         expect(session.layersManager.selectLayer).toHaveBeenCalledWith(createdLayer);
+    });
+
+    it('should select the created layer immediately on mouse down', () => {
+        const point = new Point(10, 10);
+
+        plugin.onMouseDown(point, new MouseEvent('mousedown'));
+
+        const createdLayer = session.state.layers[0];
+        expect(createdLayer.selected).toBe(true);
+        expect(session.editor.state.activeLayer).toBe(createdLayer);
+        expect(session.layersManager.selectLayer).toHaveBeenCalledWith(createdLayer);
+    });
+
+    it('should place a default 5x5 triangle at the click position when creation ends without a drag', () => {
+        const triangleTool = new TriangleTool(session.editor as any);
+        const point = new Point(10, 12);
+        session.editor.state.activeTool = triangleTool;
+
+        plugin.onMouseDown(point, new MouseEvent('mousedown'));
+        plugin.onMouseUp(point, new MouseEvent('mouseup'));
+
+        const createdLayer = session.state.layers[0];
+        expect(createdLayer.bounds.x).toBe(10);
+        expect(createdLayer.bounds.y).toBe(12);
+        expect(createdLayer.bounds.w).toBe(5);
+        expect(createdLayer.bounds.h).toBe(5);
+        expect(createdLayer['p1']).toEqual(new Point(12, 12));
+        expect(createdLayer['p2']).toEqual(new Point(14, 16));
+        expect(createdLayer['p3']).toEqual(new Point(10, 16));
     });
 
     it('should trigger text edit mode when creating a text layer', () => {

@@ -1,5 +1,6 @@
 import { Point } from '../../core/point';
 import { PolygonLayer } from '../../core/layers/polygon.layer';
+import { TriangleLayer } from '../../core/layers/triangle.layer';
 import { DrawPlugin } from './draw.plugin';
 
 export class ResizeIconsPlugin extends DrawPlugin {
@@ -16,7 +17,10 @@ export class ResizeIconsPlugin extends DrawPlugin {
             const layer = resizableLayers[0];
             const event = _event || ({ shiftKey: this.session.editor.state.shiftPressed } as unknown as MouseEvent);
             const editPoints = layer.getEditPoints(event);
-            if (layer instanceof PolygonLayer && layer.vertexEditMode) {
+            if (
+                (layer instanceof PolygonLayer || layer instanceof TriangleLayer) &&
+                layer.vertexEditMode
+            ) {
                 this.drawVertexMarkers(ctx, editPoints, scale, interfaceColors);
             } else {
                 this.drawResizeMarkers(ctx, editPoints, scale, interfaceColors);

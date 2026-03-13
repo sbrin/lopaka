@@ -24,6 +24,12 @@ Feature: Polygon editing and escape flow
     When the user presses Escape
     Then the selection is cleared
 
+  Scenario: Selecting another layer exits polygon vertex editing
+    Given a polygon is selected
+    And polygon vertex editing is enabled
+    When the user selects a different layer
+    Then polygon vertex editing is turned off
+
   Scenario: Right click deletes a polygon vertex
     Given a polygon is in vertex editing mode
     When the user right-clicks a vertex marker

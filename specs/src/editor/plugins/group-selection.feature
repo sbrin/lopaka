@@ -26,3 +26,15 @@ Feature: Group-first selection and drill-in editing
     Given only a polygon is selected from its group
     When the user double clicks the polygon again
     Then polygon vertex editing is enabled
+
+  Scenario: Triangle inside group does not jump straight to vertex editing
+    Given a group is selected
+    And one member of the group is a triangle
+    When the user double clicks the triangle for the first time
+    Then only that triangle remains selected
+    And triangle vertex editing does not start yet
+
+  Scenario: Triangle vertex editing only starts after isolation
+    Given only a triangle is selected from its group
+    When the user double clicks the triangle again
+    Then triangle vertex editing is enabled

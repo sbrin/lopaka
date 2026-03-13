@@ -1,6 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {EditMode, TLayerEditPoint} from '../../core/layers/abstract.layer';
 import {PolygonLayer} from '../../core/layers/polygon.layer';
+import {TriangleLayer} from '../../core/layers/triangle.layer';
 import {Point} from '../../core/point';
 import {Rect} from '../../core/rect';
 import {TPlatformFeatures} from '../../platforms/platform';
@@ -238,5 +239,87 @@ describe('ResizePlugin hit area', () => {
 
         expect(polygon.vertexEditMode).toBe(false);
         expect(session.virtualScreen.redraw).not.toHaveBeenCalled();
+    });
+
+    it('enters triangle vertex edit mode on double click when a single triangle is selected', () => {
+        const features: TPlatformFeatures = {
+            hasCustomFontSize: false,
+            hasInvertedColors: false,
+            hasRGBSupport: true,
+            hasIndexedColors: false,
+            defaultColor: '#ffffff',
+            interfaceColors: {
+                selectColor: '#fff',
+                resizeIconColor: '#fff',
+                hoverColor: '#fff',
+                rulerColor: '#fff',
+                rulerLineColor: '#fff',
+                selectionStrokeColor: '#fff',
+            },
+        };
+        const triangle = new TriangleLayer(features);
+        triangle.p1 = new Point(15, 10);
+        triangle.p2 = new Point(20, 20);
+        triangle.p3 = new Point(10, 20);
+        triangle.updateBounds();
+        triangle.selected = true;
+
+        const session = {
+            state: { scale: new Point(1, 1) },
+            editor: { state: { activeTool: null } },
+            layersManager: {
+                layers: [triangle],
+                selected: [triangle],
+            },
+            virtualScreen: {
+                redraw: vi.fn(),
+            },
+        };
+        const plugin = new ResizePlugin(session as any, container);
+
+        plugin.onMouseDoubleClick(new Point(15, 15), new MouseEvent('dblclick'));
+
+        expect(triangle.vertexEditMode).toBe(true);
+        expect(session.virtualScreen.redraw).toHaveBeenCalledWith(false);
+    });
+
+    it('enters polygon vertex edit mode on second double click after group isolation', () => {
+        const features: TPlatformFeatures = {
+            hasCustomFontSize: false,
+            hasInvertedColors: false,
+            hasRGBSupport: true,
+            hasIndexedColors: false,
+            defaultColor: '#ffffff',
+            interfaceColors: {
+                selectColor: '#fff',
+                resizeIconColor: '#fff',
+                hoverColor: '#fff',
+                rulerColor: '#fff',
+                rulerLineColor: '#fff',
+                selectionStrokeColor: '#fff',
+            },
+        };
+        const polygon = new PolygonLayer(features);
+        polygon.points = [[10, 10], [20, 10], [20, 20]];
+        polygon.group = 'g1';
+        polygon.updateBounds();
+        polygon.selected = true;
+
+        const session = {
+            state: { scale: new Point(1, 1) },
+            editor: { state: { activeTool: null } },
+            layersManager: {
+                layers: [polygon],
+                selected: [polygon],
+            },
+            virtualScreen: {
+                redraw: vi.fn(),
+            },
+        };
+        const plugin = new ResizePlugin(session as any, container);
+
+        plugin.onMouseDoubleClick(new Point(15, 15), new MouseEvent('dblclick'));
+
+        expect(polygon.vertexEditMode).toBe(true);
     });
 });

@@ -142,9 +142,14 @@ export class TriangleLayer extends AbstractLayer {
             delete this.modifiers.inverted;
         }
         this.color = this.features.defaultColor;
+        this.rebuildEditPoints();
     }
 
-    editPoints: TLayerEditPoint[] = [
+    public vertexEditMode: boolean = false;
+
+    editPoints: TLayerEditPoint[] = [];
+
+    private vertexEditPoints: TLayerEditPoint[] = [
         {
             cursor: 'move',
             getRect: (): Rect => new Rect(this.p1, new Point(3)).subtract(1, 1, 0, 0),
@@ -168,28 +173,13 @@ export class TriangleLayer extends AbstractLayer {
         },
     ];
 
-    private cornerEditPoints: TLayerEditPoint[] = [
+    private boundsEditPoints: TLayerEditPoint[] = [
         {
             cursor: 'nwse-resize',
             getRect: (): Rect =>
                 new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point): void => {
-                // Skip resize work when there is no edit state.
-                if (!this.editState) {
-                    return;
-                }
-                // Compute the original bounds for proportional scaling.
-                const bounds = this.getTriangleBoundsForPoints(
-                    this.editState.p1,
-                    this.editState.p2,
-                    this.editState.p3
-                );
-                // Resize using the opposite corner as the anchor.
-                this.resizeFromCorner(
-                    offset,
-                    new Point(bounds.x, bounds.y),
-                    new Point(bounds.x + bounds.w, bounds.y + bounds.h)
-                );
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                this.scalePoints(offset, 'top-left', event);
             },
         },
         {
@@ -201,23 +191,8 @@ export class TriangleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point): void => {
-                // Skip resize work when there is no edit state.
-                if (!this.editState) {
-                    return;
-                }
-                // Compute the original bounds for proportional scaling.
-                const bounds = this.getTriangleBoundsForPoints(
-                    this.editState.p1,
-                    this.editState.p2,
-                    this.editState.p3
-                );
-                // Resize using the opposite corner as the anchor.
-                this.resizeFromCorner(
-                    offset,
-                    new Point(bounds.x + bounds.w, bounds.y),
-                    new Point(bounds.x, bounds.y + bounds.h)
-                );
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                this.scalePoints(offset, 'top-right', event);
             },
         },
         {
@@ -229,23 +204,8 @@ export class TriangleLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point): void => {
-                // Skip resize work when there is no edit state.
-                if (!this.editState) {
-                    return;
-                }
-                // Compute the original bounds for proportional scaling.
-                const bounds = this.getTriangleBoundsForPoints(
-                    this.editState.p1,
-                    this.editState.p2,
-                    this.editState.p3
-                );
-                // Resize using the opposite corner as the anchor.
-                this.resizeFromCorner(
-                    offset,
-                    new Point(bounds.x, bounds.y + bounds.h),
-                    new Point(bounds.x + bounds.w, bounds.y)
-                );
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                this.scalePoints(offset, 'bottom-left', event);
             },
         },
         {
@@ -255,34 +215,73 @@ export class TriangleLayer extends AbstractLayer {
                     new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point): void => {
-                // Skip resize work when there is no edit state.
-                if (!this.editState) {
-                    return;
-                }
-                // Compute the original bounds for proportional scaling.
-                const bounds = this.getTriangleBoundsForPoints(
-                    this.editState.p1,
-                    this.editState.p2,
-                    this.editState.p3
-                );
-                // Resize using the opposite corner as the anchor.
-                this.resizeFromCorner(
-                    offset,
-                    new Point(bounds.x + bounds.w, bounds.y + bounds.h),
-                    new Point(bounds.x, bounds.y)
-                );
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                this.scalePoints(offset, 'bottom-right', event);
+            },
+        },
+        {
+            cursor: 'ns-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y), new Point(3)).subtract(
+                    1.5,
+                    1.5,
+                    0,
+                    0
+                ),
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                this.scalePoints(offset, 'top', event);
+            },
+        },
+        {
+            cursor: 'ew-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h / 2), new Point(3))
+                    .subtract(1.5, 1.5, 0, 0),
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                this.scalePoints(offset, 'right', event);
+            },
+        },
+        {
+            cursor: 'ns-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y + this.bounds.h), new Point(3))
+                    .subtract(1.5, 1.5, 0, 0),
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                this.scalePoints(offset, 'bottom', event);
+            },
+        },
+        {
+            cursor: 'ew-resize',
+            getRect: (): Rect =>
+                new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h / 2), new Point(3)).subtract(
+                    1.5,
+                    1.5,
+                    0,
+                    0
+                ),
+            move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                this.scalePoints(offset, 'left', event);
             },
         },
     ];
 
-    // Switch edit points based on the shift modifier state.
-    public getEditPoints(event?: MouseEvent | TouchEvent): TLayerEditPoint[] {
-        // Use bounding box corners when shift is held.
-        if (event?.shiftKey) {
-            return this.cornerEditPoints;
+    toggleVertexEditMode() {
+        this.vertexEditMode = !this.vertexEditMode;
+        this.rebuildEditPoints();
+    }
+
+    exitVertexEditMode() {
+        if (this.vertexEditMode) {
+            this.vertexEditMode = false;
+            this.rebuildEditPoints();
         }
-        // Fall back to vertex edit points when shift is not held.
+    }
+
+    private rebuildEditPoints() {
+        this.editPoints = this.vertexEditMode ? this.vertexEditPoints : this.boundsEditPoints;
+    }
+
+    public getEditPoints(_event?: MouseEvent | TouchEvent): TLayerEditPoint[] {
         return this.editPoints;
     }
 
@@ -297,19 +296,112 @@ export class TriangleLayer extends AbstractLayer {
         return new Rect(new Point(minX, minY), new Point(maxX - minX + 1, maxY - minY + 1));
     }
 
-    // Resize triangle points uniformly from an anchor.
-    private resizeFromCorner(offset: Point, corner: Point, anchor: Point): void {
-        // Compute the dragged corner position.
-        const newCorner = corner.clone().add(offset);
-        // Compute the scale ratios while preserving orientation.
-        const cornerVector = corner.clone().subtract(anchor);
-        const newVector = newCorner.clone().subtract(anchor);
-        const scaleX = cornerVector.x ? Math.abs(newVector.x / cornerVector.x) : 1;
-        const scaleY = cornerVector.y ? Math.abs(newVector.y / cornerVector.y) : 1;
-        const uniformScale = Math.max(scaleX, scaleY);
-        // Scale each vertex around the anchor point.
+    private scalePoints(
+        offset: Point,
+        corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top' | 'bottom' | 'left' | 'right',
+        event?: MouseEvent | TouchEvent
+    ): void {
+        if (!this.editState) {
+            return;
+        }
+        const originalPoints = [this.editState.p1, this.editState.p2, this.editState.p3];
+        const bounds = this.getTriangleBoundsForPoints(...originalPoints);
+        const minX = bounds.x;
+        const minY = bounds.y;
+        const maxX = bounds.x + bounds.w - 1;
+        const maxY = bounds.y + bounds.h - 1;
+        const originalWidth = Math.max(maxX - minX, 1);
+        const originalHeight = Math.max(maxY - minY, 1);
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
+
+        let anchorX: number;
+        let anchorY: number;
+        let newWidth: number;
+        let newHeight: number;
+
+        switch (corner) {
+            case 'top-left':
+                anchorX = maxX;
+                anchorY = maxY;
+                newWidth = Math.max(originalWidth - offset.x, 2);
+                newHeight = Math.max(originalHeight - offset.y, 2);
+                break;
+            case 'top-right':
+                anchorX = minX;
+                anchorY = maxY;
+                newWidth = Math.max(originalWidth + offset.x, 2);
+                newHeight = Math.max(originalHeight - offset.y, 2);
+                break;
+            case 'bottom-left':
+                anchorX = maxX;
+                anchorY = minY;
+                newWidth = Math.max(originalWidth - offset.x, 2);
+                newHeight = Math.max(originalHeight + offset.y, 2);
+                break;
+            case 'bottom-right':
+                anchorX = minX;
+                anchorY = minY;
+                newWidth = Math.max(originalWidth + offset.x, 2);
+                newHeight = Math.max(originalHeight + offset.y, 2);
+                break;
+            case 'top':
+                anchorX = centerX;
+                anchorY = maxY;
+                newWidth = originalWidth;
+                newHeight = Math.max(originalHeight - offset.y, 2);
+                break;
+            case 'bottom':
+                anchorX = centerX;
+                anchorY = minY;
+                newWidth = originalWidth;
+                newHeight = Math.max(originalHeight + offset.y, 2);
+                break;
+            case 'left':
+                anchorX = maxX;
+                anchorY = centerY;
+                newWidth = Math.max(originalWidth - offset.x, 2);
+                newHeight = originalHeight;
+                break;
+            case 'right':
+                anchorX = minX;
+                anchorY = centerY;
+                newWidth = Math.max(originalWidth + offset.x, 2);
+                newHeight = originalHeight;
+                break;
+        }
+
+        if (event?.shiftKey) {
+            const aspectRatio = originalWidth / originalHeight;
+            if (corner === 'top' || corner === 'bottom') {
+                newWidth = Math.round(newHeight * aspectRatio);
+            } else if (corner === 'left' || corner === 'right') {
+                newHeight = Math.round(newWidth / aspectRatio);
+            } else {
+                const maxDimension = Math.max(newWidth, newHeight);
+                if (newWidth > newHeight) {
+                    newWidth = Math.round(maxDimension);
+                    newHeight = Math.round(maxDimension / aspectRatio);
+                } else {
+                    newWidth = Math.round(maxDimension * aspectRatio);
+                    newHeight = Math.round(maxDimension);
+                }
+            }
+        }
+
+        if (event?.altKey) {
+            anchorX = centerX;
+            anchorY = centerY;
+        }
+
+        const scaleX = newWidth / originalWidth;
+        const scaleY = newHeight / originalHeight;
         const scaleVertex = (vertex: Point) =>
-            anchor.clone().add(vertex.clone().subtract(anchor).multiply(uniformScale)).round();
+            new Point(
+                Math.round(anchorX + (vertex.x - anchorX) * scaleX),
+                Math.round(anchorY + (vertex.y - anchorY) * scaleY)
+            );
+
         this.p1 = scaleVertex(this.editState.p1);
         this.p2 = scaleVertex(this.editState.p2);
         this.p3 = scaleVertex(this.editState.p3);
@@ -376,6 +468,7 @@ export class TriangleLayer extends AbstractLayer {
     stopEdit() {
         this.mode = EditMode.NONE;
         this.editState = null;
+        this.rebuildEditPoints();
         this.pushRedoHistory();
     }
 
@@ -386,6 +479,7 @@ export class TriangleLayer extends AbstractLayer {
     onLoadState() {
         this.updateBounds();
         this.mode = EditMode.NONE;
+        this.rebuildEditPoints();
     }
 
     updateBounds() {

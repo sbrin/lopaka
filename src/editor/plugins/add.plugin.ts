@@ -43,6 +43,7 @@ export class AddPlugin extends AbstractEditorPlugin {
                 state.activeLayer.color = this.session.editor.lastColor ?? this.session.state.brushColor;
             }
             this.session.addLayer(state.activeLayer as AbstractLayer);
+            this.session.layersManager.selectLayer(state.activeLayer as AbstractLayer);
             state.activeLayer.startEdit(EditMode.CREATING, point);
             state.activeTool.onStartEdit(state.activeLayer as AbstractLayer, point, event);
             this.session.virtualScreen.redraw();
@@ -82,7 +83,6 @@ export class AddPlugin extends AbstractEditorPlugin {
 
             activeLayer.stopEdit();
             activeTool.onStopEdit(activeLayer as AbstractLayer, point, event);
-            this.session.layersManager.selectLayer(activeLayer as AbstractLayer);
             this.session.virtualScreen.redraw();
 
             // Trigger text editing mode for newly created text-based layers.
