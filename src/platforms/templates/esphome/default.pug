@@ -61,6 +61,13 @@ each layer in layers
         when 'triangle'
             - var func = layer.fill ? 'filled_triangle' : 'triangle'
             | @!{layer.uid};!{pad}it.!{func}(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2}, @x3:!{layer.x3}, @y3:!{layer.y3}, !{layer.color});
+        when 'polygon'
+            - var points = layer.points || []
+            each point, idx in points
+                - var nextPoint = points[(idx + 1) % points.length]
+                if nextPoint && points.length > 1
+                    | @!{layer.uid};!{pad}it.line(@x1:!{point[0]}, @y1:!{point[1]}, @x2:!{nextPoint[0]}, @y2:!{nextPoint[1]}, !{layer.color});
+                    |
         when 'string'
             if layer.isTextVariable
                 | @!{layer.uid};!{pad}it.print(!{layer.x}, !{layer.y}, id(!{layer.fontName}), !{layer.color}, @text:!{layer.text});

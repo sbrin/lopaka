@@ -80,17 +80,15 @@
                 <kbd class="kbd kbd-xs bg-base-300">G</kbd>
                 — ungroup
             </p>
-            
-            <div class="text text-sm font-bold">Rectangle, Ellipse, Triangle, Line</div>
+            <div class="text text-sm font-bold">Rsizing</div>
             <p>
                 Hold
                 <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
-                to switch draw/resize mode
+                to keep aspect ratio
             </p>
             <p>
                 Hold
                 <kbd class="kbd kbd-xs bg-base-300">ALT</kbd>
-                to draw from center point
             </p>
             <div class="text text-sm font-bold">Paint</div>
             <p>
@@ -102,27 +100,18 @@
                 <kbd class="kbd kbd-xs bg-base-300">RIGHT CLICK</kbd>
                 — eraser
             </p>
-
-            <div class="text text-sm font-bold">Polygon</div>
+            <div class="text text-sm font-bold">Polygon, Triangle</div>
             <p>
                 <kbd class="kbd kbd-xs bg-base-300">CLICK</kbd>
-                to place vertices,
-                <kbd class="kbd kbd-xs bg-base-300">DBL CLICK</kbd>
-                to finish
+                — place vertices
             </p>
             <p>
-                <kbd class="kbd kbd-xs bg-base-300">DBL CLICK</kbd>
-                selected — edit vertices
+                <kbd class="kbd kbd-xs bg-base-300">DOUBLE CLICK</kbd> or <kbd class="kbd kbd-xs bg-base-300">ESC</kbd>
+                — finish
             </p>
             <p>
-                Hold
-                <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
-                — lock aspect ratio
-            </p>
-            <p>
-                Hold
-                <kbd class="kbd kbd-xs bg-base-300">ALT</kbd>
-                — resize from center
+                <kbd class="kbd kbd-xs bg-base-300">DOUBLE CLICK</kbd>
+                — edit vertices
             </p>
         </div>
     </div>
