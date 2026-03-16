@@ -6,7 +6,9 @@ export class DrawContext {
         this.ctx = canvas.getContext('2d', {
             alpha: true,
             desynchronized: true,
-            willReadFrequently: true
+            willReadFrequently: true,
+            imageSmoothingEnabled: false,
+            textRendering: 'optimizeSpeed',
         });
     }
 
@@ -67,16 +69,26 @@ export class DrawContext {
         return this;
     }
 
-    text(position: Point, text: string, font: string): DrawContext {
+    text(position: Point, text: string, font: string, baseline: CanvasTextBaseline = 'bottom', letterSpacing?: number): DrawContext {
+        if (letterSpacing) {
+            this.ctx.letterSpacing = letterSpacing + 'px';
+        }
         this.ctx.font = font;
-        this.ctx.textBaseline = 'top';
+        this.ctx.textBaseline = baseline;
         this.ctx.fillText(text, position.x, position.y);
         return this;
     }
 
     pixelateLine(from: Point, to: Point, size: number): DrawContext {
-        const a = from.clone().round();
-        const b = to.clone().round();
+        let a = from.clone().round();
+        let b = to.clone().round();
+        // Normalize direction: always draw from top-to-bottom (left-to-right when horizontal)
+        // to match hardware Bresenham behavior and ensure symmetric pixel output
+        if (a.y > b.y || (a.y === b.y && a.x > b.x)) {
+            const temp = a;
+            a = b;
+            b = temp;
+        }
         const dx = Math.abs(a.x - b.x);
         const dy = Math.abs(a.y - b.y);
         const sx = a.x < b.x ? 1 : -1;
@@ -150,10 +162,10 @@ export class DrawContext {
             this.ctx.fillRect(position.x + radius, position.y, size.x - 2 * radius, size.y);
             this.ctx.fillRect(position.x, position.y + radius, size.x, size.y - 2 * radius);
         }
-        this.pixelateRectCorner(position, radius + 1, 0, fill);
-        this.pixelateRectCorner(new Point(position.x + size.x - 1, position.y), radius + 1, 1, fill);
-        this.pixelateRectCorner(new Point(position.x + size.x - 1, position.y + size.y - 1), radius + 1, 2, fill);
-        this.pixelateRectCorner(new Point(position.x, position.y + size.y - 1), radius + 1, 3, fill);
+        this.pixelateRectCorner(position, radius, 0, fill);
+        this.pixelateRectCorner(new Point(position.x + size.x - 1, position.y), radius, 1, fill);
+        this.pixelateRectCorner(new Point(position.x + size.x - 1, position.y + size.y - 1), radius, 2, fill);
+        this.pixelateRectCorner(new Point(position.x, position.y + size.y - 1), radius, 3, fill);
         this.ctx.fill();
         if (fill) {
             this.ctx.save();
@@ -165,6 +177,59 @@ export class DrawContext {
             this.ctx.arc(position.x + radius, position.y + size.y - radius, radius, 0.5 * Math.PI, Math.PI);
             this.ctx.fill();
         }
+        return this;
+    }
+
+    pixelatePolygon(points: Point[], fill: boolean): DrawContext {
+        if (points.length < 2) return this;
+        this.ctx.beginPath();
+        if (fill) {
+            this.ctx.moveTo(points[0].x + 0.5, points[0].y + 0.5);
+            for (let i = 1; i < points.length; i++) {
+                this.ctx.lineTo(points[i].x + 0.5, points[i].y + 0.5);
+            }
+            this.ctx.closePath();
+            this.ctx.fill();
+        }
+        this.ctx.beginPath();
+        for (let i = 0; i < points.length; i++) {
+            const from = points[i];
+            const to = points[(i + 1) % points.length];
+            const a = from.clone().round();
+            const b = to.clone().round();
+            const dx = Math.abs(a.x - b.x);
+            const dy = Math.abs(a.y - b.y);
+            const sx = a.x < b.x ? 1 : -1;
+            const sy = a.y < b.y ? 1 : -1;
+            let err = dx - dy;
+            while (true) {
+                this.ctx.rect(a.x, a.y, 1, 1);
+                if (a.x === b.x && a.y === b.y) break;
+                const e2 = 2 * err;
+                if (e2 > -dy) {
+                    err -= dy;
+                    a.x += sx;
+                }
+                if (e2 < dx) {
+                    err += dx;
+                    a.y += sy;
+                }
+            }
+        }
+        this.ctx.fill();
+        if (!fill) {
+            this.ctx.save();
+            this.ctx.fillStyle = 'rgba(0,0,0,0)';
+            this.ctx.beginPath();
+            this.ctx.moveTo(points[0].x + 0.5, points[0].y + 0.5);
+            for (let i = 1; i < points.length; i++) {
+                this.ctx.lineTo(points[i].x + 0.5, points[i].y + 0.5);
+            }
+            this.ctx.closePath();
+            this.ctx.fill();
+            this.ctx.restore();
+        }
+        this.ctx.closePath();
         return this;
     }
 
@@ -203,6 +268,45 @@ export class DrawContext {
             this.ctx.fill();
             this.ctx.restore();
         }
+        this.ctx.closePath();
+        return this;
+    }
+
+    pixelateFilledTriangle(p1: Point, p2: Point, p3: Point): DrawContext {
+        // Sort vertices by y coordinate
+        const vertices = [p1.clone().round(), p2.clone().round(), p3.clone().round()].sort((a, b) => a.y - b.y);
+        const [v1, v2, v3] = vertices;
+
+        this.ctx.beginPath();
+
+        // Interpolate x at a given y between two vertices using integer truncation
+        // to match C integer division behavior used by hardware libraries (Adafruit GFX, U8g2)
+        const interpolateX = (y: number, vStart: Point, vEnd: Point): number => {
+            if (vStart.y === vEnd.y) return vStart.x;
+            return vStart.x + Math.trunc((y - vStart.y) * (vEnd.x - vStart.x) / (vEnd.y - vStart.y));
+        };
+
+        // Fill the triangle using scanline algorithm
+        for (let y = v1.y; y <= v3.y; y++) {
+            let xStart: number, xEnd: number;
+
+            if (y < v2.y) {
+                // Upper half of triangle
+                xStart = interpolateX(y, v1, v2);
+                xEnd = interpolateX(y, v1, v3);
+            } else {
+                // Lower half of triangle
+                xStart = interpolateX(y, v2, v3);
+                xEnd = interpolateX(y, v1, v3);
+            }
+
+            if (xStart > xEnd) {
+                [xStart, xEnd] = [xEnd, xStart];
+            }
+            this.ctx.rect(xStart, y, xEnd - xStart + 1, 1);
+        }
+
+        this.ctx.fill();
         this.ctx.closePath();
         return this;
     }

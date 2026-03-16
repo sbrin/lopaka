@@ -1,6 +1,6 @@
 import {AdafruitPlatform} from './adafruit';
 import {InkplateParser} from './parsers/inkplate.parser';
-import defaultTemplate from './templates/adafruit/default.pug';
+import defaultTemplate from './templates/adafruit/mono.pug';
 import {Point} from '/src/core/point';
 
 export class InkplatePlatform extends AdafruitPlatform {
@@ -17,6 +17,8 @@ export class InkplatePlatform extends AdafruitPlatform {
                 wrap: false,
                 include_fonts: false,
                 comments: false,
+                declare_vars: true,
+                clear_screen: true,
             },
         },
     };
@@ -35,6 +37,7 @@ export class InkplatePlatform extends AdafruitPlatform {
     constructor() {
         super();
         Object.assign(this.features, {
+            isHidden: true,
             hasIndexedColors: true,
             palette: ['#000000', '#111111', '#333333', '#555555', '#777777', '#999999', '#bbbbbb', '#f8f8f8'],
             defaultColor: '#000000',
@@ -50,14 +53,7 @@ export class InkplatePlatform extends AdafruitPlatform {
         });
     }
 
-    protected getTextPosition(layer: any) {
-        if (layer.font === 'adafruit') {
-            return [layer.position[0], layer.position[1] - layer.bounds[3]];
-        }
-        return [layer.position[0], layer.position[1] - layer.scaleFactor];
-    }
-
-    protected packColor(color: string): string {
+    packColor(color: string): string {
         switch (color) {
             case '#000000':
                 return '0';

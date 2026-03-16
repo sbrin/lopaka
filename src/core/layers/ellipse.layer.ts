@@ -3,6 +3,7 @@ import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractDrawingRenderer} from '../../draw/renderers';
 
 export class EllipseLayer extends AbstractLayer {
     protected type: ELayerType = 'ellipse';
@@ -27,6 +28,10 @@ export class EllipseLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
         y: {
@@ -36,23 +41,35 @@ export class EllipseLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
-        radiusX: {
+        rx: {
             getValue: () => this.rx,
             setValue: (v: number) => {
                 this.rx = v;
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.number,
         },
-        radiusY: {
+        ry: {
             getValue: () => this.ry,
             setValue: (v: number) => {
                 this.ry = v;
                 this.updateBounds();
                 this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
             },
             type: TModifierType.number,
         },
@@ -71,6 +88,10 @@ export class EllipseLayer extends AbstractLayer {
                 this.updateBounds();
                 this.draw();
             },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
             type: TModifierType.color,
         },
         inverted: {
@@ -83,8 +104,11 @@ export class EllipseLayer extends AbstractLayer {
         },
     };
 
-    constructor(protected features: TPlatformFeatures) {
-        super(features);
+    constructor(
+        protected features: TPlatformFeatures,
+        renderer?: AbstractDrawingRenderer
+    ) {
+        super(features, renderer);
         if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
             delete this.modifiers.color;
         }
@@ -95,6 +119,7 @@ export class EllipseLayer extends AbstractLayer {
     }
 
     editPoints: TLayerEditPoint[] = [
+        // Corner handles
         {
             cursor: 'nesw-resize',
             getRect: (): Rect =>
@@ -104,13 +129,13 @@ export class EllipseLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 const dx = Math.round(offset.x / 2);
                 const dy = Math.round(offset.y / 2);
                 let newRx = Math.max(1, Math.floor(this.editState.radiusX - dx));
                 let newRy = Math.max(1, Math.floor(this.editState.radiusY + dy));
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.radiusX / this.editState.radiusY;
                     const maxRadius = Math.max(newRx, newRy);
                     if (newRx > newRy) {
@@ -122,12 +147,12 @@ export class EllipseLayer extends AbstractLayer {
                     }
                 }
 
-                if (modifiers?.altKey) {
+                if (event?.altKey) {
                     const center = this.editState.position.clone().add(this.editState.radiusX, this.editState.radiusY);
                     this.position = center.clone().subtract(newRx, newRy).round();
                 } else {
                     if (Math.floor(this.editState.radiusY + dy) >= 1) {
-                        this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
+                        this.position.y = this.editState.position.y - (newRy - this.editState.radiusY) * 2;
                     }
                 }
 
@@ -142,13 +167,13 @@ export class EllipseLayer extends AbstractLayer {
                     new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 const dx = Math.round(offset.x / 2);
                 const dy = Math.round(offset.y / 2);
                 let newRx = Math.max(1, Math.round(this.editState.radiusX - dx));
                 let newRy = Math.max(1, Math.round(this.editState.radiusY - dy));
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.radiusX / this.editState.radiusY;
                     const maxRadius = Math.max(newRx, newRy);
                     if (newRx > newRy) {
@@ -160,7 +185,7 @@ export class EllipseLayer extends AbstractLayer {
                     }
                 }
 
-                if (modifiers?.altKey) {
+                if (event?.altKey) {
                     const center = this.editState.position.clone().add(this.editState.radiusX, this.editState.radiusY);
                     this.position = center.clone().subtract(newRx, newRy).round();
                 }
@@ -178,13 +203,13 @@ export class EllipseLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 const dx = Math.round(offset.x / 2);
                 const dy = Math.round(offset.y / 2);
                 let newRx = Math.max(1, Math.ceil(this.editState.radiusX + dx));
                 let newRy = Math.max(1, Math.ceil(this.editState.radiusY - dy));
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.radiusX / this.editState.radiusY;
                     const maxRadius = Math.max(newRx, newRy);
                     if (newRx > newRy) {
@@ -196,12 +221,12 @@ export class EllipseLayer extends AbstractLayer {
                     }
                 }
 
-                if (modifiers?.altKey) {
+                if (event?.altKey) {
                     const center = this.editState.position.clone().add(this.editState.radiusX, this.editState.radiusY);
                     this.position = center.clone().subtract(newRx, newRy).round();
                 } else {
                     if (Math.ceil(this.editState.radiusX + dx) >= 1) {
-                        this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
+                        this.position.x = this.editState.position.x - (newRx - this.editState.radiusX) * 2;
                     }
                 }
 
@@ -213,13 +238,13 @@ export class EllipseLayer extends AbstractLayer {
             cursor: 'nwse-resize',
             getRect: (): Rect =>
                 new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 const dx = Math.round(offset.x / 2);
                 const dy = Math.round(offset.y / 2);
                 let newRx = Math.max(1, Math.ceil(this.editState.radiusX + dx));
                 let newRy = Math.max(1, Math.ceil(this.editState.radiusY + dy));
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.radiusX / this.editState.radiusY;
                     const maxRadius = Math.max(newRx, newRy);
                     if (newRx > newRy) {
@@ -231,15 +256,15 @@ export class EllipseLayer extends AbstractLayer {
                     }
                 }
 
-                if (modifiers?.altKey) {
+                if (event?.altKey) {
                     const center = this.editState.position.clone().add(this.editState.radiusX, this.editState.radiusY);
                     this.position = center.clone().subtract(newRx, newRy).round();
                 } else {
                     if (Math.ceil(this.editState.radiusX + dx) >= 1) {
-                        this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
+                        this.position.x = this.editState.position.x - (newRx - this.editState.radiusX) * 2;
                     }
                     if (Math.ceil(this.editState.radiusY + dy) >= 1) {
-                        this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
+                        this.position.y = this.editState.position.y - (newRy - this.editState.radiusY) * 2;
                     }
                 }
 
@@ -247,7 +272,7 @@ export class EllipseLayer extends AbstractLayer {
                 this.ry = Math.max(1, Math.ceil(newRy));
             },
         },
-
+        // Edge handles
         {
             cursor: 'ns-resize',
             getRect: (): Rect =>
@@ -257,19 +282,19 @@ export class EllipseLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 const dy = Math.round(offset.y / 2);
                 let newRy = Math.max(1, Math.round(this.editState.radiusY + dy));
                 let newRx = this.editState.radiusX;
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.radiusX / this.editState.radiusY;
                     newRx = Math.round(newRy * aspectRatio);
                 }
 
                 this.rx = newRx;
                 this.ry = newRy;
-                this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
+                this.position.y = this.editState.position.y - (newRy - this.editState.radiusY) * 2;
                 this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
             },
         },
@@ -280,12 +305,12 @@ export class EllipseLayer extends AbstractLayer {
                     new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h / 2),
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 const dx = Math.round(offset.x / 2);
                 let newRx = Math.max(1, Math.round(this.editState.radiusX - dx));
                 let newRy = this.editState.radiusY;
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.radiusX / this.editState.radiusY;
                     newRy = Math.round(newRx / aspectRatio);
                 }
@@ -302,12 +327,12 @@ export class EllipseLayer extends AbstractLayer {
                     new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y + this.bounds.h),
                     new Point(3)
                 ).subtract(1.5, 1.5, 0, 0),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 const dy = Math.round(offset.y / 2);
                 let newRy = Math.max(1, Math.round(this.editState.radiusY - dy));
                 let newRx = this.editState.radiusX;
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.radiusX / this.editState.radiusY;
                     newRx = Math.round(newRy * aspectRatio);
                 }
@@ -326,19 +351,19 @@ export class EllipseLayer extends AbstractLayer {
                     0,
                     0
                 ),
-            move: (offset: Point, modifiers?: {shiftKey: boolean; altKey: boolean}): void => {
+            move: (offset: Point, event?: MouseEvent): void => {
                 const dx = Math.round(offset.x / 2);
                 let newRx = Math.max(1, Math.round(this.editState.radiusX + dx));
                 let newRy = this.editState.radiusY;
 
-                if (modifiers?.shiftKey) {
+                if (event?.shiftKey) {
                     const aspectRatio = this.editState.radiusX / this.editState.radiusY;
                     newRy = Math.round(newRx / aspectRatio);
                 }
 
                 this.rx = newRx;
                 this.ry = newRy;
-                this.position.x = this.editState.position.x - (newRx - this.editState.radiusX);
+                this.position.x = this.editState.position.x - (newRx - this.editState.radiusX) * 2;
                 this.position.y = this.editState.position.y - (newRy - this.editState.radiusY);
             },
         },
@@ -363,36 +388,34 @@ export class EllipseLayer extends AbstractLayer {
         };
     }
 
-    edit(point: Point, originalEvent: MouseEvent) {
+    edit(point: Point, originalEvent: MouseEvent | TouchEvent) {
         if (!this.editState) {
             return;
         }
         const {position, firstPoint, editPoint} = this.editState;
+        const mouseEvent = originalEvent as MouseEvent;
         switch (this.mode) {
             case EditMode.MOVING:
                 this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
                 break;
             case EditMode.RESIZING:
-                editPoint.move(firstPoint.clone().subtract(point), {
-                    shiftKey: originalEvent.shiftKey,
-                    altKey: originalEvent.altKey,
-                });
+                editPoint.move(firstPoint.clone().subtract(point), mouseEvent);
                 break;
             case EditMode.CREATING:
                 let radiusOffset = point.clone().subtract(firstPoint).abs();
-                if (originalEvent.altKey) {
+                if (mouseEvent?.altKey) {
                     radiusOffset = radiusOffset.subtract(2).max(new Point(0));
                 } else {
                     radiusOffset = radiusOffset.divide(2).round().subtract(2).max(new Point(0));
                 }
                 this.rx = Math.max(radiusOffset.x, 0);
                 this.ry = Math.max(radiusOffset.y, 0);
-                if (originalEvent.shiftKey) {
+                if (mouseEvent?.shiftKey) {
                     const maxRadius = Math.max(this.rx, this.ry);
                     this.rx = maxRadius;
                     this.ry = maxRadius;
                 }
-                if (originalEvent.altKey) {
+                if (mouseEvent?.altKey) {
                     this.position = firstPoint.clone().subtract(this.rx, this.ry).round();
                 } else {
                     const signs = point.clone().subtract(firstPoint).xy.map(Math.sign);
@@ -414,12 +437,8 @@ export class EllipseLayer extends AbstractLayer {
     }
 
     draw() {
-        const {dc, rx: radiusX, ry: radiusY, position} = this;
-        const center = position.clone().add(radiusX, radiusY);
-        dc.clear();
-        dc.ctx.fillStyle = this.color;
-        dc.ctx.strokeStyle = this.color;
-        dc.pixelateEllipse(center, radiusX, radiusY, this.fill);
+        const center = this.position.clone().add(this.rx, this.ry);
+        this.renderer.drawEllipse(center, this.rx, this.ry, this.fill, this.color);
     }
 
     onLoadState() {

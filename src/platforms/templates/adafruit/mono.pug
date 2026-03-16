@@ -1,0 +1,118 @@
+if settings.include_fonts
+    each decl in declarations 
+        if decl.type == 'font'
+            | #include "!{decl.data.value}.h"
+            |
+    |
+    |
+if settings.include_images
+    each decl in declarations 
+        if decl.type == 'bitmap'
+            | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+            |
+            |
+if settings.declare_vars
+    each decl in declarations 
+        if decl.type == 'var'
+            if decl.data.type === 0
+                | const char* !{decl.data.name} = "!{decl.data.value}";
+                |
+            else
+                | int !{decl.data.name} = !{decl.data.value};
+                |
+    |
+    |
+each layer in layers
+    if layer.type == 'polygon'
+        - var pts = layer.points
+        |
+        | void !{layer.functionName}(void) {
+        |
+        - for (var pi = 0; pi < pts.length; pi++)
+            - var npi = (pi + 1) % pts.length
+            |     display.drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]}, !{layer.color});
+            |
+        | }
+        |
+if settings.wrap
+    | void draw!{screenTitle}(void) {
+    |
+- var textColor = defaultColor;
+- var textSize = '1'
+- var textWrap = true
+- var pad = settings.wrap ? '    ' : ''
+- var font = 'adafruit'
+- var stringLayersNumber = 0
+if settings.clear_screen
+    | !{pad}display.!{clear_screen_method};
+    |
+|
+|
+each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.name}
+        |
+    case layer.type
+        when 'dot' 
+            - // deprecated
+            | @!{layer.uid};!{pad}display.drawPixel(!{layer.position[0]}, !{layer.position[1]}, !{layer.color});
+        when 'line'
+            | @!{layer.uid};!{pad}display.drawLine(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.color});
+        when 'rect'
+            - var func = (layer.fill ? 'fill' : 'draw') + (layer.radius? 'Round' : '') + 'Rect'
+            | @!{layer.uid};!{pad}display.!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}!{layer.radius? `, ${layer.radius}`: ''}, !{layer.color});
+        when 'circle'
+            - var func = layer.fill ? 'fillCircle' : 'drawCircle'
+            | @!{layer.uid};!{pad}display.!{func}(!{layer.x}, !{layer.y}, !{layer.radius}, !{layer.color});
+        when 'triangle'
+            - var func = layer.fill ? 'fillTriangle' : 'drawTriangle'
+            | @!{layer.uid};!{pad}display.!{func}(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.x3}, !{layer.y3}, !{layer.color});
+        when 'string'
+            if stringLayersNumber === 0
+                - textColor = layer.color
+                | !{pad}display.setTextColor(!{layer.color});
+                |
+                - stringLayersNumber++
+            else if layer.color != textColor
+                - textColor = layer.color
+                | !{pad}display.setTextColor(!{layer.color});
+                |
+            if layer.scaleFactor != textSize
+                - textSize = layer.scaleFactor
+                | !{pad}display.setTextSize(!{layer.fontSize});
+                |
+            if layer.wrap != textWrap
+                - textWrap = layer.wrap
+                | !{pad}display.setTextWrap(false);
+                |
+            if layer.font != font 
+                - font = layer.font
+                if font == 'adafruit'
+                    | !{pad}display.setFont();
+                    |
+                else
+                    | !{pad}display.setFont(&!{layer.font});
+                    |
+            | !{pad}display.setCursor(!{layer.x}, !{layer.y});
+            |
+            if layer.isTextVariable
+                | @!{layer.uid};!{pad}display.print(!{layer.text});
+            else
+                | @!{layer.uid};!{pad}display.print("!{layer.text}");
+        when 'paint'
+        when 'icon'
+            | @!{layer.uid};!{pad}display.drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{layer.color});
+        when 'polygon'
+            | @!{layer.uid};!{pad}!{layer.functionName}();
+        default 
+            |
+            | // Unknown layer type !{layer.type}
+            |
+    |
+    |
+    |
+| !{pad}display.display();
+|
+if settings.wrap
+    | }
+    |

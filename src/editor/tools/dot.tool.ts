@@ -6,6 +6,7 @@ export class DotTool extends AbstractTool {
     name = 'dot';
     createLayer(): AbstractLayer {
         const {session} = this.editor;
-        return new DotLayer(session.getPlatformFeatures());
+        const renderer = session.createRenderer();
+        return new DotLayer(session.getPlatformFeatures(), renderer);
     }
 }

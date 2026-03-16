@@ -1,17 +1,45 @@
 if settings.include_fonts
-    each decl in declarations 
+    each decl in declarations
         if decl.type == 'font'
             | #include "!{decl.data.value}.h"
             |
     |
     |
-each decl in declarations 
-    if decl.type == 'bitmap'
-        | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+if settings.include_images
+    each decl in declarations
+        if decl.type == 'bitmap'
+            | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+            |
+            |
+        if decl.type == 'bitmap565'
+            | static const uint16_t PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+            |
+            |
+if settings.declare_vars
+    each decl in declarations
+        if decl.type == 'var'
+            if decl.data.type === 0
+                | const char* !{decl.data.name} = "!{decl.data.value}";
+                |
+            else
+                | int !{decl.data.name} = !{decl.data.value};
+                |
+    |
+    |
+each layer in layers
+    if layer.type == 'polygon'
+        - var pts = layer.points
         |
+        | void !{layer.functionName}(void) {
+        |
+        - for (var pi = 0; pi < pts.length; pi++)
+            - var npi = (pi + 1) % pts.length
+            |     display.drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]}, !{packColor(layer.color)});
+            |
+        | }
         |
 if settings.wrap
-    | void draw(void) {
+    | void draw!{screenTitle}(void) {
     |
 - var textColor = defaultColor;
 - var textSize = '1'
@@ -19,7 +47,9 @@ if settings.wrap
 - var pad = settings.wrap ? '    ' : ''
 - var font = 'adafruit'
 - var stringLayersNumber = 0
-| !{pad}display.clearDisplay();
+if settings.clear_screen
+    | !{pad}tft.!{clear_screen_method};
+    |
 |
 |
 each layer in layers 
@@ -27,46 +57,60 @@ each layer in layers
         | !{pad}// !{layer.name}
         |
     case layer.type
-        when 'dot'
-            | @!{layer.uid};!{pad}display.drawPixel(!{layer.position[0]}, !{layer.position[1]}, !{packColor(layer.color)});
+        when 'dot' 
+            - // deprecated
+            | @!{layer.uid};!{pad}tft.drawPixel(!{layer.position[0]}, !{layer.position[1]}, !{layer.color});
         when 'line'
-            | @!{layer.uid};!{pad}display.drawLine(!{layer.p1[0]}, !{layer.p1[1]}, !{layer.p2[0]}, !{layer.p2[1]}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}tft.drawLine(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.color});
         when 'rect'
             - var func = (layer.fill ? 'fill' : 'draw') + (layer.radius? 'Round' : '') + 'Rect'
-            | @!{layer.uid};!{pad}display.!{func}(!{layer.position[0]}, !{layer.position[1]}, !{layer.size[0]}, !{layer.size[1]}!{layer.radius? `, ${layer.radius}`: ''}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}tft.!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}!{layer.radius? `, ${layer.radius}`: ''}, !{layer.color});
         when 'circle'
             - var func = layer.fill ? 'fillCircle' : 'drawCircle'
-            | @!{layer.uid};!{pad}display.!{func}(!{layer.position[0] + layer.radius}, !{layer.position[1] + layer.radius}, !{layer.radius}, !{packColor(layer.color)});
+            | @!{layer.uid};!{pad}tft.!{func}(!{layer.x}, !{layer.y}, !{layer.radius}, !{layer.color});
+        when 'triangle'
+            - var func = layer.fill ? 'fillTriangle' : 'drawTriangle'
+            | @!{layer.uid};!{pad}tft.!{func}(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.x3}, !{layer.y3}, !{layer.color});
         when 'string'
             if stringLayersNumber === 0
-                | !{pad}display.setTextColor(!{packColor(layer.color)});
+                - textColor = layer.color
+                | !{pad}tft.setTextColor(!{layer.color});
                 |
                 - stringLayersNumber++
-            if layer.color != textColor
+            else if layer.color != textColor
                 - textColor = layer.color
-                | !{pad}display.setTextColor(!{packColor(layer.color)});
+                | !{pad}tft.setTextColor(!{layer.color});
                 |
             if layer.scaleFactor != textSize
                 - textSize = layer.scaleFactor
-                | !{pad}display.setTextSize(!{layer.scaleFactor});
+                | !{pad}tft.setTextSize(!{layer.fontSize});
                 |
             if layer.wrap != textWrap
                 - textWrap = layer.wrap
-                | !{pad}display.setTextWrap(false);
+                | !{pad}tft.setTextWrap(false);
                 |
             if layer.font != font 
                 - font = layer.font
                 if font == 'adafruit'
-                    | !{pad}display.setFont();
+                    | !{pad}tft.setFont();
                     |
                 else
-                    | !{pad}display.setFont(&!{layer.font});
+                    | !{pad}tft.setFont(&!{layer.font});
                     |
-            | !{pad}display.setCursor(!{getTextPosition(layer).join(', ')});
-            | @!{layer.uid};!{pad}display.print("!{layer.text}");
+            | !{pad}tft.setCursor(!{layer.x}, !{layer.y});
+            |
+            if layer.isTextVariable
+                | @!{layer.uid};!{pad}tft.print(!{layer.text});
+            else
+                | @!{layer.uid};!{pad}tft.print("!{layer.text}");
         when 'paint'
         when 'icon'
-            | @!{layer.uid};!{pad}display.drawBitmap(!{layer.position[0]}, !{layer.position[1]}, !{layer.imageName}, !{layer.size[0]}, !{layer.size[1]}, !{packColor(layer.color)});
+            if layer.colorMode === 'rgb'
+                | @!{layer.uid};!{pad}tft.drawRGBBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h});
+            else
+                | @!{layer.uid};!{pad}tft.drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{layer.color});
+        when 'polygon'
+            | @!{layer.uid};!{pad}!{layer.functionName}();
         default 
             |
             | // Unknown layer type !{layer.type}
@@ -74,7 +118,6 @@ each layer in layers
     |
     |
     |
-| !{pad}display.display();
 |
 if settings.wrap
     | }

@@ -59,6 +59,61 @@ export async function loadImageDataAsync(src): Promise<ImageData> {
     return ctx.getImageData(0, 0, img.width, img.height);
 }
 
+export async function extractGifFrames(file: File): Promise<HTMLImageElement[]> {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const uint8Array = new Uint8Array(arrayBuffer);
+
+            // Check if it's a GIF file
+            if (uint8Array[0] !== 0x47 || uint8Array[1] !== 0x49 || uint8Array[2] !== 0x46) {
+                reject(new Error('Not a valid GIF file'));
+                return;
+            }
+
+            // Dynamic import of gifuct-js to avoid bundling issues
+            const {decompressFrames, parseGIF} = await import('gifuct-js');
+
+            // Parse the GIF
+            const gif = parseGIF(uint8Array.buffer);
+            const frames = decompressFrames(gif, true);
+
+            if (frames.length === 0) {
+                reject(new Error('No frames found in GIF'));
+                return;
+            }
+
+            const imageFrames: HTMLImageElement[] = [];
+
+            // Process each frame
+            for (let i = 0; i < frames.length; i++) {
+                const frame = frames[i];
+
+                // Create ImageData from frame data
+                const imageData = new ImageData(
+                    new Uint8ClampedArray(frame.patch),
+                    frame.dims.width,
+                    frame.dims.height
+                );
+
+                // Convert ImageData to HTMLImageElement using existing utility
+                const img = await imageDataToImage(imageData);
+                imageFrames.push(img);
+            }
+
+            resolve(imageFrames);
+        } catch (error) {
+            // Fallback: try to load as a regular image (for static GIFs or parsing errors)
+            try {
+                const img = await loadImageAsync(URL.createObjectURL(file));
+                resolve([img]);
+            } catch (fallbackError) {
+                reject(new Error(`GIF processing failed: ${error.message}`));
+            }
+        }
+    });
+}
+
 export function hexToRgb(hexColor: string): RGBColor {
     const hex = hexColor.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16);
@@ -87,6 +142,10 @@ export function unpackedHexColor565(color: string) {
 export function packColor565(hexColor: string) {
     const rgb = hexToRgb(hexColor);
     return ((rgb.r >> 3) << 11) | ((rgb.g >> 2) << 5) | (rgb.b >> 3);
+}
+
+export function hexWeb2C(hexColor: string) {
+    return hexColor.replace('#', '0x');
 }
 
 export function addAlphaChannelToImageData(data: ImageData, color: string) {
@@ -169,6 +228,34 @@ export function imageDataToFile(imgData: ImageData, fileName: string = 'image.pn
     return new File([blob], fileName, {type: 'image/png'});
 }
 
+export function flattenImageDataToBackground(image: ImageData, backgroundHex: string): ImageData {
+    // Return early when image data is missing.
+    if (!image) {
+        return image;
+    }
+    // Normalize the background color to a safe hex value.
+    const safeBackground = backgroundHex && backgroundHex.startsWith('#') ? backgroundHex : '#000000';
+    const background = hexToRgb(safeBackground);
+    // Blend each pixel onto the background using its alpha channel.
+    const blended = new Uint8ClampedArray(image.data.length);
+    for (let i = 0; i < image.data.length; i += 4) {
+        const alpha = image.data[i + 3] / 255;
+        const inverseAlpha = 1 - alpha;
+        blended[i] = Math.round(image.data[i] * alpha + background.r * inverseAlpha);
+        blended[i + 1] = Math.round(image.data[i + 1] * alpha + background.g * inverseAlpha);
+        blended[i + 2] = Math.round(image.data[i + 2] * alpha + background.b * inverseAlpha);
+        blended[i + 3] = 255;
+    }
+    // Create a new ImageData instance and copy blended pixels into it.
+    const output = new ImageData(image.width, image.height);
+    // Fall back to a plain object when the test polyfill creates a zero-length buffer.
+    if (output.data.length !== blended.length) {
+        return {data: blended, width: image.width, height: image.height} as ImageData;
+    }
+    output.data.set(blended);
+    return output;
+}
+
 export function imgDataToXBMP(
     imgData: ImageData,
     xStart: number,
@@ -205,6 +292,185 @@ export function imgDataToXBMP(
     return xbmp;
 }
 
+export function imgDataToRGB565(
+    imgData: ImageData,
+    xStart: number,
+    yStart: number,
+    width: number,
+    height: number,
+    byteOrder: 'high' | 'low' = 'low'
+): string[] {
+    if (!imgData) {
+        return [];
+    }
+
+    const rgb565: string[] = [];
+    const canvasWidth = imgData.width;
+
+    for (let y = yStart; y < yStart + height; y++) {
+        for (let x = xStart; x < xStart + width; x++) {
+            const index = (y * canvasWidth + x) * 4;
+            const alpha = imgData.data[index + 3];
+
+            if (alpha < 128) {
+                rgb565.push('0x0000');
+                continue;
+            }
+
+            const r = imgData.data[index];
+            const g = imgData.data[index + 1];
+            const b = imgData.data[index + 2];
+
+            let packed = ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
+
+            if (byteOrder === 'low') {
+                packed = ((packed & 0xff) << 8) | (packed >> 8);
+            }
+
+            rgb565.push(`0x${packed.toString(16).padStart(4, '0').toUpperCase()}`);
+        }
+    }
+
+    return rgb565;
+}
+
+export function imgDataToRGB565_lvgl(
+    imgData: ImageData,
+    xStart: number,
+    yStart: number,
+    width: number,
+    height: number,
+    byteOrder: 'high' | 'low' = 'low',
+    outputFormat: 'uint16' | 'uint8' = 'uint16',
+    includeAlpha: boolean = true
+): string[] {
+    // Return an empty array when there is no image data.
+    if (!imgData) {
+        return [];
+    }
+
+    // Prepare output buffers for color data (and alpha if requested).
+    const rgb565: string[] = [];
+    const alphaBytes: string[] = [];
+    const canvasWidth = imgData.width;
+
+    // Walk the requested rectangle and pack each pixel.
+    for (let y = yStart; y < yStart + height; y++) {
+        for (let x = xStart; x < xStart + width; x++) {
+            const index = (y * canvasWidth + x) * 4;
+            const alpha = imgData.data[index + 3];
+
+            // Handle transparent pixels when alpha output is disabled.
+            if (!includeAlpha && alpha < 128) {
+                if (outputFormat === 'uint16') {
+                    rgb565.push('0x0000');
+                } else {
+                    rgb565.push('0x00');
+                    rgb565.push('0x00');
+                }
+                continue;
+            }
+
+            const r = imgData.data[index];
+            const g = imgData.data[index + 1];
+            const b = imgData.data[index + 2];
+
+            // Convert RGB888 to RGB565 with rounding.
+            const r5 = Math.min(31, (r + 4) >> 3);
+            const g6 = Math.min(63, (g + 2) >> 2);
+            const b5 = Math.min(31, (b + 4) >> 3);
+
+            const packed = (r5 << 11) | (g6 << 5) | b5;
+            // Split RGB565 into little-endian bytes for LVGL image data.
+            const lowByte = packed & 0xff;
+            const highByte = (packed >> 8) & 0xff;
+            // Select output byte order based on the requested endianness.
+            const firstByte = byteOrder === 'low' ? lowByte : highByte;
+            const secondByte = byteOrder === 'low' ? highByte : lowByte;
+
+            // Emit RGB565 bytes and collect alpha for planar RGB565A8 output.
+            if (includeAlpha) {
+                rgb565.push(`0x${firstByte.toString(16).padStart(2, '0').toUpperCase()}`);
+                rgb565.push(`0x${secondByte.toString(16).padStart(2, '0').toUpperCase()}`);
+                alphaBytes.push(`0x${alpha.toString(16).padStart(2, '0').toUpperCase()}`);
+            } else if (outputFormat === 'uint16') {
+                // Preserve the legacy uint16 byte-order behavior for RGB565 output.
+                const packedOutput = byteOrder === 'low' ? (lowByte << 8) | highByte : packed;
+                rgb565.push(`0x${packedOutput.toString(16).padStart(4, '0').toUpperCase()}`);
+            } else {
+                rgb565.push(`0x${firstByte.toString(16).padStart(2, '0').toUpperCase()}`);
+                rgb565.push(`0x${secondByte.toString(16).padStart(2, '0').toUpperCase()}`);
+            }
+        }
+    }
+
+    // Append the alpha plane after the color plane for LVGL RGB565A8 output.
+    if (includeAlpha) {
+        return rgb565.concat(alphaBytes);
+    }
+    // Return the packed color data for non-alpha output.
+    return rgb565;
+}
+
+export function buildLvglImageExport(
+    image: ImageData,
+    backgroundHex: string,
+    includeAlpha: boolean = true
+): {
+    bytes: string[];
+    dataSize: number;
+    colorFormat: 'LV_COLOR_FORMAT_RGB565' | 'LV_COLOR_FORMAT_RGB565A8';
+} {
+    // Return a minimal payload when image data is missing.
+    if (!image) {
+        return {
+            bytes: [],
+            dataSize: 0,
+            colorFormat: includeAlpha ? 'LV_COLOR_FORMAT_RGB565A8' : 'LV_COLOR_FORMAT_RGB565',
+        };
+    }
+
+    // Choose a source image based on whether alpha should be preserved.
+    const source = includeAlpha ? image : flattenImageDataToBackground(image, backgroundHex);
+    // Convert the source image to LVGL RGB565 byte output.
+    const bytes = imgDataToRGB565_lvgl(source, 0, 0, image.width, image.height, 'low', 'uint8', includeAlpha);
+    // Compute the total data size in bytes based on the color format.
+    const bytesPerPixel = includeAlpha ? 3 : 2;
+    return {
+        bytes,
+        dataSize: image.width * image.height * bytesPerPixel,
+        colorFormat: includeAlpha ? 'LV_COLOR_FORMAT_RGB565A8' : 'LV_COLOR_FORMAT_RGB565',
+    };
+}
+
+// Convert packed RGB565 arrays back into ImageData for RGB icons/bitmaps.
+export function rgb565ToImageData(bitmap: string, width: number, height: number): ImageData {
+    const values = bitmap
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('//'))
+        .join('\n')
+        .split(',')
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0)
+        .map((value) => parseInt(value, 16));
+    const data = new Uint8ClampedArray(width * height * 4);
+    const hasColor = values.some((value) => !isNaN(value) && value !== 0);
+
+    for (let i = 0; i < width * height; i++) {
+        const pixel = values[i] ?? 0;
+        const r = ((pixel >> 11) & 0x1f) << 3;
+        const g = ((pixel >> 5) & 0x3f) << 2;
+        const b = (pixel & 0x1f) << 3;
+        const baseIndex = i * 4;
+        data[baseIndex] = r;
+        data[baseIndex + 1] = g;
+        data[baseIndex + 2] = b;
+        data[baseIndex + 3] = pixel === 0 && hasColor ? 0 : 255;
+    }
+
+    return new ImageData(data, width, height);
+}
+
 export function imgDataToUint32Array(imgData) {
     const length = imgData.data.length / 4; // number of pixels
     const arrayLength = Math.ceil(length / 32);
@@ -231,9 +497,17 @@ export function xbmpToImgData(xbmp: string, width: number, height: number, swap:
     if (!xbmp) {
         throw new Error('xbmpToImgData() xbmp parameter is undefined');
     }
+    const sanitizedXbmp = xbmp
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('//'))
+        .join('\n');
     const imgData = new ImageData(width, height);
     const bytesPerRow = Math.ceil(width / 8);
-    let xbmpArray = xbmp.split(',').map((x) => parseInt(x));
+    let xbmpArray = sanitizedXbmp
+        .split(',')
+        .map((x) => x.trim())
+        .filter((x) => x.length > 0)
+        .map((x) => parseInt(x));
     if (swap) {
         xbmpArray = xbmpArray.map((x) => bitswap(x));
     }
@@ -358,14 +632,72 @@ export function debounce(func, delay = 500) {
     };
 }
 
+// Cache for packImage results
+const packImageCache = new Map<string, string>();
+
+// Generate a collision-resistant hash for ImageData contents
+function generateImageDataHash(imageData: ImageData): string {
+    const data = imageData.data;
+    const len = data.length;
+
+    // Early exit keeps empty buffers cheap while still giving a stable key
+    if (len === 0) {
+        return 'empty';
+    }
+
+    // Precompute the 64-bit FNV-1a constants we use for hashing every byte
+    const FNV_OFFSET_BASIS = 0xcbf29ce484222325n;
+    const FNV_PRIME = 0x100000001b3n;
+
+    // Hash the pixel payload so each individual byte contributes to the fingerprint
+    let hash = FNV_OFFSET_BASIS;
+    for (let i = 0; i < len; i++) {
+        hash ^= BigInt(data[i]);
+        hash = BigInt.asUintN(64, hash * FNV_PRIME);
+    }
+
+    // Mix in the metadata so identical buffers with different shapes stay unique
+    hash ^= BigInt(imageData.width);
+    hash = BigInt.asUintN(64, hash * FNV_PRIME);
+    hash ^= BigInt(imageData.height);
+    hash = BigInt.asUintN(64, hash * FNV_PRIME);
+
+    // Include dimensions and byte-length to make the key human-readable for debugging
+    return `${imageData.width}x${imageData.height}-${len}-${hash.toString(16)}`;
+}
+
 export function packImage(imageData: ImageData): string {
+    const hash = generateImageDataHash(imageData);
+
+    // Check if we have a cached result for this ImageData
+    if (packImageCache.has(hash)) {
+        return packImageCache.get(hash)!;
+    }
+
     const deflate = new pako.Deflate({level: 9});
     deflate.push(imageData.data, true);
-    return encode(deflate.result);
+    const result = encode(deflate.result);
+
+    // Cache the result
+    packImageCache.set(hash, result);
+
+    // Limit cache size to prevent memory issues
+    if (packImageCache.size > 100) {
+        // Remove oldest entries (Map maintains insertion order)
+        const keysToDelete = Array.from(packImageCache.keys()).slice(0, 50);
+        keysToDelete.forEach((key) => packImageCache.delete(key));
+    }
+
+    return result;
+}
+
+// Function to clear the packImage cache (useful for testing or memory management)
+export function clearPackImageCache(): void {
+    packImageCache.clear();
 }
 
 export function unpackImage(base64: string, width: number, height: number): ImageData | null {
-    if (width > 0 && height > 0) {
+    if (width > 0 && height > 0 && !!base64) {
         const inflate = new pako.Inflate({level: 9});
         const arr = new Uint8Array(decode(base64 ?? ''));
         inflate.push(arr, true);
@@ -438,11 +770,31 @@ export function rotateImageData(data: ImageData): ImageData {
     return new ImageData(newData, data.height, data.width);
 }
 
-export function invertImageData(data: ImageData, hexColor: string): ImageData {
-    const color = hexToRgb(hexColor);
+export function invertImageData(data: ImageData, hexColor: string, colorMode: string = 'monochrome'): ImageData {
     const newData = new Uint8ClampedArray(data.data.length);
+
+    if (colorMode === 'rgb') {
+        for (let i = 0; i < data.data.length; i += 4) {
+            const alpha = data.data[i + 3];
+            if (alpha === 0) {
+                newData[i] = 0;
+                newData[i + 1] = 0;
+                newData[i + 2] = 0;
+                newData[i + 3] = 0;
+                continue;
+            }
+
+            newData[i] = 255 - data.data[i];
+            newData[i + 1] = 255 - data.data[i + 1];
+            newData[i + 2] = 255 - data.data[i + 2];
+            newData[i + 3] = alpha;
+        }
+        return new ImageData(newData, data.width, data.height);
+    }
+
+    const color = hexToRgb(hexColor);
     for (let i = 0; i < data.data.length; i += 4) {
-        if (data.data[i + 3] == 0) {
+        if (data.data[i + 3] === 0) {
             newData[i] = color.r;
             newData[i + 1] = color.g;
             newData[i + 2] = color.b;
@@ -479,60 +831,80 @@ export function downloadImage(data: ImageData, name: string) {
     canvas.height = data.height;
     const ctx = canvas.getContext('2d');
     ctx.putImageData(data, 0, 0);
+    name = toCppVariableName(name);
     a.href = canvas.toDataURL('image/png');
     a.download = name;
     a.click();
 }
 
-export function processImage(data: ImageData, options: any, color: string = '#FFFFFF') {
+export function processImage(
+    data: ImageData,
+    options: any,
+    colorMode: string = 'monochrome',
+    color: string = '#FFFFFF'
+) {
+    let processed = data;
+
     if (options.grayscale) {
-        data = grayscale(data);
+        processed = grayscale(processed);
     }
-    if (options.brightness || options.contrast) {
-        data = imageBrightnessAndContrast(data, parseInt(options.brightness), parseInt(options.contrast));
+
+    const brightness = Number(options.brightness) || 0;
+    const contrast = Number(options.contrast) || 0;
+    if (brightness !== 0 || contrast !== 0) {
+        processed = imageBrightnessAndContrast(processed, brightness, contrast);
     }
-    switch (options.resampling) {
-        // case "nearest":
-        //     data = resampleNearest(data, options.width, options.height);
-        //     break;
-        case 'bilinear':
-            data = resampleBilinear(data, options.width, options.height);
-            break;
-        case 'lanczos':
-            data = resampleWithFilter(data, options.width, options.height, lanczosFilter);
-            break;
-        case 'gaussian':
-            data = resampleWithFilter(data, options.width, options.height, gaussianFilter);
-            break;
-        case 'mitchell':
-            data = resampleWithFilter(data, options.width, options.height, mitchellFilter);
-            break;
-        case 'mitchell-netravali':
-            data = resampleWithFilter(data, options.width, options.height, mitchellNetravaliFilter);
-            break;
-        case 'catmull-rom':
-            data = resampleWithFilter(data, options.width, options.height, catmullRomFilter);
-            break;
-        case 'bspline':
-            data = resampleWithFilter(data, options.width, options.height, bsplineFilter);
-            break;
-        default:
-            data = scaleImage(data, options.width, options.height);
-            break;
+
+    const targetWidth = Math.max(1, Number(options.width) || processed.width);
+    const targetHeight = Math.max(1, Number(options.height) || processed.height);
+    if (processed.width !== targetWidth || processed.height !== targetHeight) {
+        switch (options.resampling) {
+            case 'nearest':
+                processed = resampleNearest(processed, targetWidth, targetHeight);
+                break;
+            case 'bilinear':
+                processed = resampleBilinear(processed, targetWidth, targetHeight);
+                break;
+            case 'lanczos':
+                processed = resampleWithFilter(processed, targetWidth, targetHeight, lanczosFilter);
+                break;
+            case 'gaussian':
+                processed = resampleWithFilter(processed, targetWidth, targetHeight, gaussianFilter);
+                break;
+            case 'mitchell':
+                processed = resampleWithFilter(processed, targetWidth, targetHeight, mitchellFilter);
+                break;
+            case 'mitchell-netravali':
+                processed = resampleWithFilter(processed, targetWidth, targetHeight, mitchellNetravaliFilter);
+                break;
+            case 'catmull-rom':
+                processed = resampleWithFilter(processed, targetWidth, targetHeight, catmullRomFilter);
+                break;
+            case 'spline':
+                processed = resampleWithFilter(processed, targetWidth, targetHeight, bsplineFilter);
+                break;
+            default:
+                processed = scaleImage(processed, targetWidth, targetHeight);
+                break;
+        }
     }
-    if (options.dither) {
-        data = floydSteinbergDithering(
-            data,
+
+    if (options.dither && colorMode !== 'rgb') {
+        processed = floydSteinbergDithering(
+            processed,
             options.invertPalette ? options.palette.slice(0).reverse() : options.palette
         );
     }
-    if (options.alpha) {
-        data = addAlphaChannelToImageData(data, color);
+
+    if (options.alpha && colorMode !== 'rgb') {
+        processed = addAlphaChannelToImageData(processed, color);
     }
+
     if (!options.invert) {
-        data = invertImageData(data, color);
+        processed = invertImageData(processed, color, colorMode);
     }
-    return data;
+
+    return processed;
 }
 
 export function imageBrightnessAndContrast(data: ImageData, brightness: number, contrast: number) {
@@ -565,6 +937,23 @@ export function cropImage(data: ImageData, rect: UnwrapRef<Rect>) {
         for (let x = rect.x; x < rect.x + rect.w; x++) {
             const index = (y * data.width + x) * 4;
             const newIndex = ((y - rect.y) * rect.w + (x - rect.x)) * 4;
+            newData[newIndex] = data.data[index];
+            newData[newIndex + 1] = data.data[index + 1];
+            newData[newIndex + 2] = data.data[index + 2];
+            newData[newIndex + 3] = data.data[index + 3];
+        }
+    }
+    return new ImageData(newData, rect.w, rect.h);
+}
+
+export function cropImageRGB(data: ImageData, rect: UnwrapRef<Rect>): ImageData {
+    const newData = new Uint8ClampedArray(rect.w * rect.h * 4);
+    for (let y = rect.y; y < rect.y + rect.h; y++) {
+        for (let x = rect.x; x < rect.x + rect.w; x++) {
+            const index = (y * data.width + x) * 4;
+            const newIndex = ((y - rect.y) * rect.w + (x - rect.x)) * 4;
+
+            // Just copy the RGBA data normally - no color conversion needed
             newData[newIndex] = data.data[index];
             newData[newIndex + 1] = data.data[index + 1];
             newData[newIndex + 2] = data.data[index + 2];
@@ -833,4 +1222,73 @@ export function canvasToBMPFile(canvas, scaling = 1, bgColor): Blob {
     }
 
     return new Blob([buffer], {type: 'image/bmp'});
+}
+
+export function imgDataToBuffer(
+    imgData: ImageData,
+    xStart: number,
+    yStart: number,
+    width: number,
+    height: number
+): string {
+    if (!imgData) {
+        return "b''";
+    }
+
+    // Calculate bytes per row (8 pixels per byte)
+    const bytesPerRow = Math.ceil(width / 8);
+    const buffer = new Uint8Array(height * bytesPerRow);
+
+    // Convert image data to monochrome buffer
+    for (let y = yStart; y < yStart + height; y++) {
+        for (let x = xStart; x < xStart + width; x++) {
+            const imgDataIndex = (y * imgData.width + x) * 4;
+            const alphaValue = imgData.data[imgDataIndex + 3];
+
+            // Convert to monochrome (1 for white/visible, 0 for black/transparent)
+            if (alphaValue > 127) {
+                const bufferIndex = (y - yStart) * bytesPerRow + Math.floor((x - xStart) / 8);
+                const bitPosition = 7 - ((x - xStart) % 8); // MSB first
+                buffer[bufferIndex] |= 1 << bitPosition;
+            }
+        }
+    }
+
+    // Convert to Python byte string format
+    const bytes = Array.from(buffer)
+        .map((b) => {
+            // Escape special characters and format as hex
+            if (b === 0x22 || b === 0x27 || b === 0x5c) {
+                // ", ', \
+                return `\\x${b.toString(16).padStart(2, '0')}`;
+            }
+            // Use ASCII for printable characters
+            if (b >= 0x20 && b <= 0x7e) {
+                return String.fromCharCode(b);
+            }
+            // Use hex for non-printable characters
+            return `\\x${b.toString(16).padStart(2, '0')}`;
+        })
+        .join('');
+
+    return `b'${bytes}'`;
+}
+
+// Convert a 1bpp buffer into RGBA ImageData.
+export function bufferToImageData(buffer: Uint8Array, width: number, height: number): ImageData {
+    const imgData = new ImageData(width, height);
+    const bytesPerRow = Math.ceil(width / 8);
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const byteIndex = y * bytesPerRow + Math.floor(x / 8);
+            const bitPosition = 7 - (x % 8);
+            const alpha = (buffer[byteIndex] >> bitPosition) & 1 ? 255 : 0;
+            const idx = (y * width + x) * 4;
+            imgData.data[idx] = 255;
+            imgData.data[idx + 1] = 255;
+            imgData.data[idx + 2] = 255;
+            imgData.data[idx + 3] = alpha;
+        }
+    }
+    return imgData;
 }

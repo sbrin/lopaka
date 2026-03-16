@@ -1,6 +1,12 @@
-const GFX_BITMAP_REGEX = /const uint8_t\s+(\w+)\[\]\s+PROGMEM\s+=\s+\{([^}]+)\}/;
-const GFX_GLYPHS_REGEX = /const GFXglyph\s+(\w+)\[\]\s+PROGMEM\s+=\s+{([^;]+)};/;
-const GFX_FONT_REGEX = /const GFXfont\s+(\w+)\s+PROGMEM\s+=\s+{([^}]+)}/;
+// Matches bitmap arrays with optional static qualifier and PROGMEM usage
+const GFX_BITMAP_REGEX =
+    /(?:static\s+)?const\s+uint8_t\s+(\w+)\[\](?:\s+PROGMEM)?\s*=\s*\{([^}]+)\}/;
+// Matches glyph tables regardless of static/PROGMEM presence
+const GFX_GLYPHS_REGEX =
+    /(?:static\s+)?const\s+GFXglyph\s+(\w+)\[\](?:\s+PROGMEM)?\s*=\s*{([^;]+)};/;
+// Matches font metadata regardless of static/PROGMEM presence
+const GFX_FONT_REGEX =
+    /(?:static\s+)?const\s+GFXfont\s+(\w+)(?:\s+PROGMEM)?\s*=\s*{([^}]+)}/;
 
 function readBit(byte: number, bit: number) {
     return (byte & (1 << bit)) >> bit;
@@ -20,6 +26,10 @@ export default function parseGFX(source: string): FontPack {
     }
     const bitmap = bitmapMatch[2].split(',').map((v) => parseInt(v, 16));
     const glyphsMatch = source.match(GFX_GLYPHS_REGEX);
+    // Ensure glyph metadata exists before parsing raw glyph array
+    if (!glyphsMatch) {
+        throw new Error('No glyph table found');
+    }
     const rawGlyphs = glyphsMatch[2]
         .replace(/\s+/g, '')
         .split('},')
@@ -32,6 +42,10 @@ export default function parseGFX(source: string): FontPack {
             });
         });
     const fontMatch = source.match(GFX_FONT_REGEX);
+    // Ensure overall font definition exists to derive global metrics
+    if (!fontMatch) {
+        throw new Error('No font metadata found');
+    }
     let fontData = fontMatch[2].split(',').map((v) => parseInt(v.trim(), 16));
     const first = fontData[2];
     fontData = null;

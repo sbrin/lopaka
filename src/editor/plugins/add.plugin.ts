@@ -1,51 +1,143 @@
 import {AbstractLayer, EditMode} from '../../core/layers/abstract.layer';
+import {Keys} from '../../core/keys.enum';
 import {Point} from '../../core/point';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
+import {TextLayer} from '/src/core/layers/text.layer';
+import {TextAreaLayer} from '/src/core/layers/text-area.layer';
 
-/**
- * Add layer plugin
- */
 export class AddPlugin extends AbstractEditorPlugin {
     firstPoint: Point;
     captured: boolean = false;
+    multiClickActive: boolean = false;
 
-    onMouseDown(point: Point, event: MouseEvent): void {
+    onMouseDown(point: Point, event: MouseEvent | TouchEvent): void {
         const {state} = this.session.editor;
-        const {layers} = this.session.state;
-        if (!state.activeTool || state.activeLayer) {
-            return;
-        }
-        if (layers.find((l) => l.isEditing())) {
-            return;
-        } else {
+        const {layersManager} = this.session;
+
+        if (this.multiClickActive && state.activeLayer && state.activeTool) {
             this.captured = true;
-            layers.forEach((l) => (l.selected = false));
-            state.activeLayer = state.activeTool.createLayer();
-            this.session.addLayer(state.activeLayer as AbstractLayer);
             state.activeLayer.startEdit(EditMode.CREATING, point);
             state.activeTool.onStartEdit(state.activeLayer as AbstractLayer, point, event);
             this.session.virtualScreen.redraw(false);
+            return;
+        }
+
+        // Ignore creation when no creation-capable tool is active.
+        if (!state.activeTool) {
+            return;
+        }
+        // Block creation only while an in-progress edit session exists.
+        if (state.activeLayer?.isEditing()) {
+            return;
+        }
+        if (layersManager.sorted.find((l) => l.isEditing())) {
+            return;
+        } else {
+            this.captured = true;
+            layersManager.clearSelection();
+            state.activeLayer = state.activeTool.createLayer();
+            const features = this.session.getPlatformFeatures();
+            if (!features.hasRGBSupport && !features.hasIndexedColors) {
+                state.activeLayer.color = features.defaultColor;
+            } else {
+                state.activeLayer.color = this.session.editor.lastColor ?? this.session.state.brushColor;
+            }
+            this.session.addLayer(state.activeLayer as AbstractLayer);
+            this.session.layersManager.selectLayer(state.activeLayer as AbstractLayer);
+            state.activeLayer.startEdit(EditMode.CREATING, point);
+            state.activeTool.onStartEdit(state.activeLayer as AbstractLayer, point, event);
+            this.session.virtualScreen.redraw();
         }
     }
 
-    onMouseMove(point: Point, event: MouseEvent): void {
-        if (this.captured) {
+    onMouseMove(point: Point, event: MouseEvent | TouchEvent): void {
+        if (this.captured || this.multiClickActive) {
             const {activeLayer} = this.session.editor.state;
             if (!activeLayer) return;
             activeLayer.edit(point, event);
-            this.session.virtualScreen.redraw(false);
+            this.session.virtualScreen.redraw();
         }
     }
 
-    onMouseUp(point: Point, event: MouseEvent): void {
+    /**
+     * Handles mouse up events after layer creation.
+     *
+     * For text layers specifically:
+     * - Completes the layer creation process
+     * - Automatically triggers text editing mode via triggerTextEdit()
+     * - This allows users to immediately start typing after creating a text layer
+     * - Works in conjunction with Inspector component's reactive text editing system
+     */
+    onMouseUp(point: Point, event: MouseEvent | TouchEvent): void {
         if (this.captured) {
             const {activeLayer, activeTool} = this.session.editor.state;
             this.captured = false;
             if (!activeLayer) return;
+
+            if (activeTool?.isMultiClick()) {
+                activeLayer.stopEdit();
+                this.multiClickActive = true;
+                this.session.virtualScreen.redraw(false);
+                return;
+            }
+
             activeLayer.stopEdit();
             activeTool.onStopEdit(activeLayer as AbstractLayer, point, event);
-            activeLayer.selected = true;
             this.session.virtualScreen.redraw();
+
+            // Trigger text editing mode for newly created text-based layers.
+            if (activeLayer instanceof TextLayer || activeLayer instanceof TextAreaLayer) {
+                this.session.editor.triggerTextEdit();
+            }
         }
+    }
+
+    onMouseDoubleClick(point: Point, event: MouseEvent): void {
+        if (this.multiClickActive) {
+            const {state} = this.session.editor;
+            const {activeLayer, activeTool} = state;
+            this.multiClickActive = false;
+            this.captured = false;
+            if (activeLayer && activeTool) {
+                const keepLayer = activeTool.finalizeCreate(activeLayer as AbstractLayer, point, event);
+                activeLayer.stopEdit();
+                if (keepLayer) {
+                    activeLayer.draw();
+                    this.session.layersManager.selectLayer(activeLayer as AbstractLayer);
+                } else {
+                    this.session.layersManager.removeLayer(activeLayer as AbstractLayer);
+                }
+                state.activeLayer = null;
+                this.session.editor.setTool(null);
+                this.session.virtualScreen.redraw();
+            }
+        }
+    }
+
+    onKeyDown(key: Keys, event: KeyboardEvent): void {
+        if (key === Keys.Escape && this.multiClickActive) {
+            const {state} = this.session.editor;
+            const {activeLayer, activeTool} = state;
+            this.multiClickActive = false;
+            this.captured = false;
+            if (activeLayer && activeTool) {
+                const keepLayer = activeTool.cancelCreate(activeLayer as AbstractLayer);
+                activeLayer.stopEdit();
+                if (keepLayer) {
+                    activeLayer.draw();
+                    this.session.layersManager.selectLayer(activeLayer as AbstractLayer);
+                } else {
+                    this.session.layersManager.removeLayer(activeLayer as AbstractLayer);
+                }
+                state.activeLayer = null;
+                this.session.editor.setTool(null);
+                this.session.virtualScreen.redraw();
+            }
+        }
+    }
+
+    onClear(): void {
+        this.multiClickActive = false;
+        this.captured = false;
     }
 }

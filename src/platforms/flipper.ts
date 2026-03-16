@@ -21,8 +21,8 @@ export const flipperOldFontNames = {
 
 export class FlipperPlatform extends Platform {
     public static id = 'flipper';
-    protected name = 'Flipper Zero';
-    protected description = 'Flipper Zero';
+    protected name = 'Flipper Zero, One';
+    protected description = 'Flipper Zero, One';
     protected parser: FlipperParser = new FlipperParser();
 
     protected fonts: TPlatformFont[] = [
@@ -52,20 +52,22 @@ export class FlipperPlatform extends Platform {
         },
     ];
     public displays = [
-        {title: 'Horizontal (128×64)', size: new Point(128, 64)},
-        {title: 'Vertical (64×128)', size: new Point(64, 128)},
+        {title: 'Zero Horizontal (128×64)', size: new Point(128, 64)},
+        {title: 'Zero Vertical (64×128)', size: new Point(64, 128)},
+        {title: 'One Horizontal (256×144)', size: new Point(256, 144)},
+        {title: 'One Vertical (144×256)', size: new Point(144, 256)},
     ];
     constructor() {
         super();
         Object.assign(this.features, {
-            hasInvertedColors: false,
+            hasInvertedColors: true,
             defaultColor: '#000000',
             screenBgColor: '#ff8200',
             interfaceColors: {
                 selectColor: 'rgba(255, 255, 255, 0.9)',
                 resizeIconColor: 'rgba(255, 255, 255, 0.6)',
                 hoverColor: 'rgba(255, 255, 255, 0.5)',
-                rulerColor: '#ff8200',
+                rulerColor: 'rgba(255, 255, 255, 0.5)',
                 rulerLineColor: '#955B2F',
                 selectionStrokeColor: 'rgba(255, 255, 255, 0.9)',
             },
@@ -77,12 +79,14 @@ export class FlipperPlatform extends Platform {
             template: defaultTemplate,
             settings: {
                 wrap: false,
+                declare_vars: true,
+                include_images: true,
                 comments: false,
             },
         },
     };
 
-    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
+    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
         const declarations: {type: string; data: any}[] = [];
         const xbmps = [];
         const xbmpsNames = [];
@@ -113,13 +117,19 @@ export class FlipperPlatform extends Platform {
                 } else if (layer instanceof TextLayer) {
                     props.fontName = flipperOldFontNames[layer.font.name] ?? layer.font.name;
                 }
+                this.processLayerModifiers(layer, props);
+                this.processVarDeclarations(layer, props, declarations);
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
+            screenTitle: screenTitle ? toCppVariableName(screenTitle) : '',
         });
         return source;
+    }
+    getTextPosition(layer: TextLayer) {
+        return [layer.position[0], layer.position[1]];
     }
 }

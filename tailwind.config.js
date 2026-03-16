@@ -11,10 +11,23 @@ module.exports = {
                 lopaka: {
                     primary: '#FF8200', // orange
                     'base-100': '#0a0a0a', // bg
-                    'base-200': '#441F07', // default button
+                    'base-200': '#222', // default button
                     'base-300': '#333', // default tabs
                     neutral: '#171717',
                     secondary: '#202020',
+                    accent: '#00ff93',
+                    info: '#6dc8ff',
+                    success: '#cddc39',
+                    warning: '#f59e0b',
+                    error: '#dc2626',
+                },
+                'lopaka-light': {
+                    primary: '#FF8200', // orange
+                    'base-100': '#f5f5f5', // bg
+                    'base-200': '#eee', // default button
+                    'base-300': '#ddd', // default tabs
+                    neutral: '#ddd',
+                    secondary: '#ccc',
                     accent: '#00ff93',
                     info: '#6dc8ff',
                     success: '#cddc39',
@@ -26,7 +39,7 @@ module.exports = {
     },
     theme: {
         fontFamily: {
-            sans: 'Roboto, "PT Sans", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Open Sans"',
+            sans: '"PT Sans", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Open Sans"',
             mono: [
                 'ui-monospace',
                 'SFMono-Regular',

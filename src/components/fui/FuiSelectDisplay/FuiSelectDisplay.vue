@@ -58,49 +58,50 @@ function setCustomDisplay() {
     <div class="fui-displays fui-select">
         <label
             for="display-size"
-            class="fui-select__label"
+            class="flex gap-2 items-center"
         >
             Display:
+
+            <div
+                v-if="isDisplayCustom"
+                class="custom-value"
+            >
+                <span
+                    @click="enablePopup"
+                    class="link link-primary"
+                >
+                    Custom {{ display.x }}x{{ display.y }}
+                </span>
+                <span
+                    @click="resetDisplay"
+                    class="text-lg text-error pl-1 cursor-pointer"
+                    title="Reset display"
+                >
+                    ×
+                </span>
+            </div>
+            <select
+                v-else
+                id="display-size"
+                class="fui-select__select fui-form-input"
+                @change="selectDisplay"
+                :value="selectedDisplay"
+            >
+                <option
+                    key="custom"
+                    value="custom"
+                >
+                    Custom...
+                </option>
+                <option
+                    v-for="(item, idx) in displays"
+                    :key="idx"
+                    :value="idx"
+                >
+                    {{ item.title }}
+                </option>
+            </select>
         </label>
-        <div
-            v-if="isDisplayCustom"
-            class="custom-value"
-        >
-            <span
-                @click="enablePopup"
-                class="link link-primary"
-            >
-                Custom {{ display.x }}x{{ display.y }}
-            </span>
-            <span
-                @click="resetDisplay"
-                class="text-lg text-error pl-1 cursor-pointer"
-                title="Reset display"
-            >
-                ×
-            </span>
-        </div>
-        <select
-            v-else
-            id="display-size"
-            class="fui-select__select fui-form-input"
-            @change="selectDisplay"
-            :value="selectedDisplay"
-        >
-            <option
-                key="custom"
-                value="custom"
-            >
-                Custom...
-            </option>
-            <option
-                v-for="(item, idx) in displays"
-                :key="idx"
-                :value="idx"
-            >
-                {{ item.title }}
-            </option>
-        </select>
     </div>
     <FuiPopup v-if="showCustomDisplayPopup">
         <FuiDisplayCustomDialog

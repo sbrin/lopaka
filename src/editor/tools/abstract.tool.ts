@@ -19,6 +19,10 @@ export abstract class AbstractTool {
         return this.name;
     }
 
+    getIcon(): string {
+        return this.name;
+    }
+
     isSupported(platform: string): boolean {
         return true;
     }
@@ -29,12 +33,29 @@ export abstract class AbstractTool {
         // do nothing
     }
 
-    onStopEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent): void {
+    onStopEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): void {
         this.editor.state.activeLayer = null;
         this.editor.state.activeTool = null;
     }
 
-    onStartEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent): void {
+    finalizeCreate(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): boolean {
+        this.onStopEdit(layer, position, originalEvent);
+        return true;
+    }
+
+    cancelCreate(layer: AbstractLayer): boolean {
+        return false;
+    }
+
+    onStartEdit(layer: AbstractLayer, position: Point, originalEvent: MouseEvent | TouchEvent): void {
         // do nothing
+    }
+
+    /**
+     * Return true if this tool uses multi-click creation (e.g. polygon).
+     * Multi-click tools add points on each click and finish on double-click.
+     */
+    isMultiClick(): boolean {
+        return false;
     }
 }

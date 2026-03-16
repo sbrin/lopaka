@@ -3,18 +3,6 @@
         <div class="text-lg pb-2">Shortcuts</div>
         <div class="text-xs flex flex-col gap-1 text-gray-300">
             <p>
-                <kbd class="kbd kbd-xs bg-base-300">Delete</kbd>
-                <kbd class="kbd kbd-xs bg-base-300">Backspace</kbd>
-                — remove
-            </p>
-            <p>
-                <kbd class="kbd kbd-xs bg-base-300">←</kbd>
-                <kbd class="kbd kbd-xs bg-base-300">→</kbd>
-                <kbd class="kbd kbd-xs bg-base-300">↑</kbd>
-                <kbd class="kbd kbd-xs bg-base-300">↓</kbd>
-                — move 1px
-            </p>
-            <p>
                 <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
                 +
                 <kbd class="kbd kbd-xs bg-base-300">←</kbd>
@@ -36,7 +24,9 @@
                 <kbd class="kbd kbd-xs bg-base-300">C</kbd>
                 /
                 <kbd class="kbd kbd-xs bg-base-300">V</kbd>
-                — copy/paste
+                /
+                <kbd class="kbd kbd-xs bg-base-300">X</kbd>
+                — copy/paste/cut
             </p>
             <p>
                 <kbd class="kbd kbd-xs bg-base-300">CTRL</kbd>
@@ -76,37 +66,31 @@
                 <kbd class="kbd kbd-xs bg-base-300">ESC</kbd>
                 — reset selection
             </p>
-            <div class="text text-sm font-bold">Rectangle</div>
+            <p>
+                <kbd class="kbd kbd-xs bg-base-300">CTRL</kbd>
+                +
+                <kbd class="kbd kbd-xs bg-base-300">G</kbd>
+                — group layers
+            </p>
+            <p>
+                <kbd class="kbd kbd-xs bg-base-300">CTRL</kbd>
+                +
+                <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
+                +
+                <kbd class="kbd kbd-xs bg-base-300">G</kbd>
+                — ungroup
+            </p>
+            <div class="text text-sm font-bold">Rsizing</div>
             <p>
                 Hold
                 <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
-                to draw a square
+                to keep aspect ratio
             </p>
             <p>
                 Hold
                 <kbd class="kbd kbd-xs bg-base-300">ALT</kbd>
-                to draw from center point
+                to resize from center
             </p>
-
-            <div class="text text-sm font-bold">Ellipse</div>
-            <p>
-                Hold
-                <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
-                to draw a circle
-            </p>
-            <p>
-                Hold
-                <kbd class="kbd kbd-xs bg-base-300">ALT</kbd>
-                to draw from center point
-            </p>
-
-            <div class="text text-sm font-bold">Line</div>
-            <p>
-                Hold
-                <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>
-                to draw straight line
-            </p>
-
             <div class="text text-sm font-bold">Paint</div>
             <p>
                 Hold
@@ -116,6 +100,19 @@
             <p>
                 <kbd class="kbd kbd-xs bg-base-300">RIGHT CLICK</kbd>
                 — eraser
+            </p>
+            <div class="text text-sm font-bold">Polygon, Triangle</div>
+            <p>
+                <kbd class="kbd kbd-xs bg-base-300">CLICK</kbd>
+                — place vertices
+            </p>
+            <p>
+                <kbd class="kbd kbd-xs bg-base-300">DOUBLE CLICK</kbd> or <kbd class="kbd kbd-xs bg-base-300">ESC</kbd>
+                — finish
+            </p>
+            <p>
+                <kbd class="kbd kbd-xs bg-base-300">DOUBLE CLICK</kbd>
+                — edit vertices
             </p>
         </div>
     </div>
