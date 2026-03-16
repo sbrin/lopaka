@@ -1,17 +1,18 @@
-import {AbstractLayer} from '../../core/layers/abstract.layer';
-import {TriangleLayer} from '../../core/layers/triangle.layer';
-import {AbstractTool} from './abstract.tool';
-import {Point} from '../../core/point';
-import {U8g2Platform} from '/src/platforms/u8g2';
-import {AdafruitPlatform} from '/src/platforms/adafruit';
-import {AdafruitMonochromePlatform} from '/src/platforms/adafruit_mono';
-import {ArduinoGFXPlatform} from '/src/platforms/arduinogfx';
-import {TFTeSPIPlatform} from '/src/platforms/tft-espi';
-import {EsphomePlatform} from '/src/platforms/esphome';
-import {FlipperPlatform} from '/src/platforms/flipper';
-import {GxEPD2Platform} from '/src/platforms/gxepd2';
-import {InkplatePlatform} from '/src/platforms/inkplate';
-import {MicropythonPlatform} from '/src/platforms/micropython';
+import { AbstractLayer } from '../../core/layers/abstract.layer';
+import { TriangleLayer } from '../../core/layers/triangle.layer';
+import { AbstractTool } from './abstract.tool';
+import { Point } from '../../core/point';
+import { U8g2Platform } from '/src/platforms/u8g2';
+import { AdafruitPlatform } from '/src/platforms/adafruit';
+import { AdafruitMonochromePlatform } from '/src/platforms/adafruit_mono';
+import { ArduinoGFXPlatform } from '/src/platforms/arduinogfx';
+import { TFTeSPIPlatform } from '/src/platforms/tft-espi';
+import { EsphomePlatform } from '/src/platforms/esphome';
+import { FlipperPlatform } from '/src/platforms/flipper';
+import { GxEPD2Platform } from '/src/platforms/gxepd2';
+import { InkplatePlatform } from '/src/platforms/inkplate';
+import { MicropythonPlatform } from '/src/platforms/micropython';
+import { FreestylePlatform } from '/src/platforms/freestyle';
 
 export class TriangleTool extends AbstractTool {
     private static readonly MIN_CLICK_SIZE = 5;
@@ -20,7 +21,7 @@ export class TriangleTool extends AbstractTool {
     title = 'Triangle';
 
     createLayer(): AbstractLayer {
-        const {session} = this.editor;
+        const { session } = this.editor;
         const renderer = session.createRenderer();
         return new TriangleLayer(session.getPlatformFeatures(), renderer);
     }
@@ -33,10 +34,10 @@ export class TriangleTool extends AbstractTool {
             ArduinoGFXPlatform.id,
             TFTeSPIPlatform.id,
             EsphomePlatform.id,
-            FlipperPlatform.id,
             GxEPD2Platform.id,
             InkplatePlatform.id,
             MicropythonPlatform.id,
+            FreestylePlatform.id,
         ].includes(platform);
     }
 
