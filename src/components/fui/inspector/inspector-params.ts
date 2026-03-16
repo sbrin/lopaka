@@ -1,6 +1,7 @@
 import { TLayerModifier, TModifierType } from '/src/core/layers/abstract.layer';
 import { LVGLPlatform } from '/src/platforms/lvgl';
 import { MicropythonPlatform } from '/src/platforms/micropython';
+import { FlipperPlatform } from '/src/platforms/flipper';
 
 type InspectorParamVisibility = {
     name: string;
@@ -27,12 +28,16 @@ export const shouldShowInspectorParam = ({
     if (platformId === LVGLPlatform.id && name === 'fontSize') {
         return false;
     }
-    // Hide fill for polygons because code generation only supports outlines across all platforms.
+    // Polygon layers only support outlines across current platforms.
     if (name === 'fill' && layerType === 'polygon') {
         return false;
     }
-    // Hide fill where Micropython code generation only supports triangle outlines.
+    // Micropython triangles only support outline drawing.
     if (platformId === MicropythonPlatform.id && name === 'fill' && layerType === 'triangle') {
+        return false;
+    }
+    // Flipper Zero triangles only support outline drawing
+    if (platformId === FlipperPlatform.id && (name === 'fill' || name === 'color') && layerType === 'triangle') {
         return false;
     }
     // Show all remaining modifiers by default.

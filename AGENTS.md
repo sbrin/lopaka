@@ -7,9 +7,9 @@
 - If work changes an existing feature rather than adding a new one, update the existing Gherkin spec after implementation.
 - Update Gherkin specs only when user-visible behavior changes. Do not add spec churn for internal refactors or bugfixes that do not change expected behavior.
 - Keep the `specs/` tree stable and mirrored to `src/` so specs are easy to find from the implementation path.
-- Place specs by subsystem path, for example `specs/src/editor/...`, `specs/src/core/layers/...`, `specs/src/draw/plugins/...`.
 - Prefer feature-level `.feature` files named by behavior, not by ticket number, bug number, PR number, or one-off fix.
 - When behavior belongs to an existing feature, extend the existing `.feature` file instead of creating parallel duplicates.
+- The specification should focus on the functionality and properties that are available to the user, framing it as a set of capabilities rather than a list of restrictions or missing elements.
 
 ## Build & Development Commands
 
@@ -17,7 +17,6 @@
 pnpm install          # Install dependencies (never use npm)
 pnpm build            # Production build (VitePress docs + Vite app)
 pnpm test             # Run all tests
-pnpm test-dev         # Run tests in watch mode
 pnpm test -- src/platforms/u8g2.test.ts  # Run single test file
 ```
 
@@ -47,6 +46,19 @@ Lopaka is a VueJS 3 graphics editor that generates code for embedded graphics li
 - Plugins (`plugins/`) - MovePlugin, ResizePlugin, HistoryPlugin, CopyPlugin, etc.
 
 **Drawing** (`src/draw/`) - Renderers (`PixelatedDrawingRenderer` for pixel-perfect, `SmoothDrawingRenderer` for LVGL), font parsers (BDF, GFX, TTF), canvas plugins.
+
+### UI Components
+
+**Fui** (`src/components/fui/`) - All Core editor UI components.
+**FuiTools** (`src/components/fui/FuiTools.vue`) - Tools selection.
+**PaintColorModeToggle** (`src/components/fui/PaintBrushColorInput.vue`) - Paint color mode toggle.
+**PaintBrushColorInput** (`src/components/fui/PaintColorModeToggle.vue`) - Paint brush color input.
+**FuiSelectScale** (`src/components/fui/FuiSelectScale.vue`) - Zoom & Scale.
+**FuiLayers** (`src/components/layers/`) - Layers list and management.
+**FuiCanvas** (`src/components/fui/FuiCanvas.vue`) - Drawing Canvas.
+**Inspector** (`src/components/inspector/`) - Layer properties inspector panel.
+**FuiCode** (`src/components/fui/FuiCode.vue`) - Generated code.
+**FuiCodeSettings** (`src/components/fui/FuiCodeSettings.vue`) - Code settings.
 
 ### Data Flow
 

@@ -59,8 +59,6 @@ each layer in layers
             - var func = layer.fill ? 'canvas_draw_disc' : 'canvas_draw_circle'
             | @!{layer.uid};!{pad}!{func}(canvas, !{layer.x}, !{layer.y}, !{layer.radius});
         when 'triangle'
-            // Flipper uses canvas_draw_triangle(canvas, x, y, base, height, orientation)
-            // Calculate bounding box for approximate conversion from 3-point triangle
             - var minX = Math.min(layer.x1, layer.x2, layer.x3)
             - var maxX = Math.max(layer.x1, layer.x2, layer.x3)
             - var minY = Math.min(layer.y1, layer.y2, layer.y3)

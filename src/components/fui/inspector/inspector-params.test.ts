@@ -6,6 +6,7 @@ import {MicropythonPlatform} from '/src/platforms/micropython';
 import {EsphomePlatform} from '/src/platforms/esphome';
 import {TFTeSPIPlatform} from '/src/platforms/tft-espi';
 import {U8g2Platform} from '/src/platforms/u8g2';
+import {FlipperPlatform} from '/src/platforms/flipper';
 
 // Build a minimal modifier stub for visibility checks.
 const createModifier = (type: TModifierType): TLayerModifier => ({
@@ -152,5 +153,29 @@ describe('shouldShowInspectorParam', () => {
 
         // Assert that the unsupported fill toggle stays hidden.
         expect(result).toBe(false);
+    });
+
+    it('hides fill and color for Flipper triangle layers', () => {
+        // Arrange modifiers for fill and color.
+        const fillModifier = createModifier(TModifierType.boolean);
+        const colorModifier = createModifier(TModifierType.color);
+
+        // Act by checking visibility for a Flipper triangle.
+        const fillResult = shouldShowInspectorParam({
+            name: 'fill',
+            param: fillModifier,
+            platformId: FlipperPlatform.id,
+            layerType: 'triangle',
+        });
+        const colorResult = shouldShowInspectorParam({
+            name: 'color',
+            param: colorModifier,
+            platformId: FlipperPlatform.id,
+            layerType: 'triangle',
+        });
+
+        // Assert that both are hidden.
+        expect(fillResult).toBe(false);
+        expect(colorResult).toBe(false);
     });
 });

@@ -1,7 +1,7 @@
-import {AdafruitPlatform} from './adafruit';
-import {GxEPD2Parser} from './parsers/gxepd2.parser';
+import { AdafruitPlatform } from './adafruit';
+import { GxEPD2Parser } from './parsers/gxepd2.parser';
 import defaultTemplate from './templates/adafruit/mono.pug';
-import {Point} from '/src/core/point';
+import { Point } from '/src/core/point';
 
 export class GxEPD2Platform extends AdafruitPlatform {
     public static id = 'gxepd2';
@@ -39,6 +39,7 @@ export class GxEPD2Platform extends AdafruitPlatform {
             '#ff8000',
         ];
         this.features.defaultColor = '#000000';
+        this.features.screenBgColor = '#f8f8f8';
         this.features.interfaceColors = {
             selectColor: '#999',
             resizeIconColor: 'rgba(0, 0, 0, 0.6)',

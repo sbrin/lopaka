@@ -89,6 +89,7 @@
             <p>
                 Hold
                 <kbd class="kbd kbd-xs bg-base-300">ALT</kbd>
+                to resize from center
             </p>
             <div class="text text-sm font-bold">Paint</div>
             <p>
