@@ -10,6 +10,7 @@ import { TFTeSPIPlatform } from '/src/platforms/tft-espi';
 import { FlipperPlatform } from '/src/platforms/flipper';
 import { MicropythonPlatform } from '/src/platforms/micropython';
 import { EsphomePlatform } from '/src/platforms/esphome';
+import { FreestylePlatform } from '/src/platforms/freestyle';
 
 export class PolygonTool extends AbstractTool {
     name: string = 'polygon';
@@ -52,6 +53,7 @@ export class PolygonTool extends AbstractTool {
             FlipperPlatform.id,
             MicropythonPlatform.id,
             EsphomePlatform.id,
+            FreestylePlatform.id,
         ].includes(platform);
     }
 
