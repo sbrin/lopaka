@@ -80,7 +80,7 @@
                 <kbd class="kbd kbd-xs bg-base-300">G</kbd>
                 — ungroup
             </p>
-            <div class="text text-sm font-bold">Rsizing</div>
+            <div class="text text-sm font-bold">Resizing</div>
             <p>
                 Hold
                 <kbd class="kbd kbd-xs bg-base-300">SHIFT</kbd>

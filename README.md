@@ -39,7 +39,7 @@ Draw any graphics and use generated code in your Arduino, ESP32 or STM32project!
 * Inkplate, Watchy
 
 
-## Cloud App (no registation required)
+## Cloud App
 
 We have a fork of this project deployed to CloudFlare pages:
 
