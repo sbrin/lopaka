@@ -19,6 +19,8 @@ import PaintColorModeToggle from './PaintColorModeToggle.vue';
 import Icon from '/src/components/layout/Icon.vue';
 import FuiSelectColors from './FuiSelectColors.vue';
 import ImportImageWizard from './importImage/ImportImageWizard.vue';
+import ShareDialog from './ShareDialog.vue';
+import LopakaBadge from './LopakaBadge.vue';
 
 import { Point } from '/src/core/point';
 import { saveLayers, useSession } from '/src/core/session';
@@ -31,6 +33,7 @@ import { FreestylePlatform } from '/src/platforms/freestyle';
 import { U8g2Platform } from '/src/platforms/u8g2';
 import { addCustomImage } from '/src/core/session';
 import { createScreenAutosave } from '/src/core/screen-autosave';
+import { isShareMode, getShareDataFromUrl } from '/src/utils/share';
 
 const props = defineProps<{
     project: Project | null;
@@ -48,6 +51,8 @@ const { platform, warnings } = toRefs(state);
 const { immidiateUpdates } = toRefs(session.state);
 const flipper: ShallowRef<FlipperRPC> = ref(null);
 const uploading = ref(false);
+const showShareDialog = ref(false);
+const isShareView = ref(false);
 const { activeTool, activeLayer } = toRefs(session.editor.state);
 
 const isFlipper = computed(() => platform.value === FlipperPlatform.id);
@@ -56,14 +61,12 @@ const flipperPreviewBtnText = computed(() => (flipper.value ? 'Disconnect' : 'Li
 const isPlatformWithParser = computed(() => platforms[platform.value].hasParser());
 const platformFeatures = computed(() => session.getPlatformFeatures(platform.value));
 const isPlatformColored = computed(() => Boolean(platformFeatures.value?.hasRGBSupport));
-// Respect monochrome support flag for platforms that disable it.
 const supportsMonochrome = computed(() => platformFeatures.value?.hasMonochromeSupport ?? true);
 const isPaintToolActive = computed(() => activeTool.value?.getName() === 'paint');
 const supportsRgbBrushes = computed(() => {
     const features = platformFeatures.value;
     return Boolean(features?.hasRGBSupport);
 });
-// Hide the color mode toggle when monochrome isn't supported.
 const showColorModeToggle = computed(
     () => activeTool.value?.getName() === 'paint' && isPlatformColored.value && supportsMonochrome.value
 );
@@ -73,7 +76,7 @@ const shouldShowBrushControls = computed(() => {
     }
     return isPaintToolActive.value && session.state.paintColorMode === 'rgb';
 });
-// Keep autosave tied to the screen id captured at edit time.
+const effectiveReadonly = computed(() => props.readonly || isShareView.value);
 const screenAutosave = createScreenAutosave(1000);
 
 watch(immidiateUpdates, (newValue, oldValue) => {
@@ -112,8 +115,29 @@ watch(warnings, () => {
     setWarnings(session.state.warnings);
 });
 
-onMounted(() => {
+onMounted(async () => {
     navigator.serial?.addEventListener('disconnect', flipperDisconnect);
+
+    // Check if we're in share mode (URL hash contains shared project data)
+    if (isShareMode()) {
+        const shareData = getShareDataFromUrl();
+        if (shareData) {
+            isShareView.value = true;
+            session.state.isPublic = true;
+            session.unlock();
+            if (shareData.platform) {
+                session.state.platform = shareData.platform;
+            }
+            if (shareData.display) {
+                session.setDisplay(new Point(shareData.display[0], shareData.display[1]));
+            }
+            if (shareData.layers && shareData.layers.length > 0) {
+                await session.preparePlatform(shareData.platform || 'tft-espi');
+                await session.layersManager.loadLayers(shareData.layers);
+                session.virtualScreen.redraw();
+            }
+        }
+    }
 });
 
 onBeforeUnmount(() => {
@@ -231,6 +255,12 @@ function onMouseClick() {
         @onIconSelect="handleIconSelect"
     />
 
+    <!-- Share Dialog -->
+    <ShareDialog
+        v-if="showShareDialog"
+        @onClose="showShareDialog = false"
+    />
+
     <div class="toast toast-top toast-center z-50">
         <div
             class="alert alert-info"
@@ -260,10 +290,10 @@ function onMouseClick() {
         <div class="fui-editor__top pb-1">
             <slot name="title"></slot>
             <div class="flex flex-row text-sm mb-2 justify-center">
-                <FuiSelectPlatform></FuiSelectPlatform>
-                <FuiSelectDisplay></FuiSelectDisplay>
+                <FuiSelectPlatform v-if="!isShareView"></FuiSelectPlatform>
+                <FuiSelectDisplay v-if="!isShareView"></FuiSelectDisplay>
                 <FuiSelectColors
-                    v-if="platform !== U8g2Platform.id && platform !== FlipperPlatform.id"
+                    v-if="!isShareView && platform !== U8g2Platform.id && platform !== FlipperPlatform.id"
                     :key="platform"
                 ></FuiSelectColors>
             </div>
@@ -273,7 +303,7 @@ function onMouseClick() {
             >
                 <div class="w-1/6 text-center">
                     <Button
-                        v-if="isFlipper && isSerialSupported"
+                        v-if="isFlipper && isSerialSupported && !isShareView"
                         @click="toggleFlipperPreview"
                         title="Preview your design in real-time on your Flipper via USB"
                     >
@@ -281,9 +311,9 @@ function onMouseClick() {
                     </Button>
                 </div>
                 <div class="flex flex-1 items-center justify-center gap-4">
-                    <FuiTools v-if="!readonly"></FuiTools>
-                    <PaintColorModeToggle v-if="!readonly && showColorModeToggle" />
-                    <PaintBrushColorInput v-if="!readonly && shouldShowBrushControls" />
+                    <FuiTools v-if="!effectiveReadonly"></FuiTools>
+                    <PaintColorModeToggle v-if="!effectiveReadonly && showColorModeToggle" />
+                    <PaintBrushColorInput v-if="!effectiveReadonly && shouldShowBrushControls" />
                 </div>
                 <FuiSelectScale></FuiSelectScale>
             </div>
@@ -306,12 +336,16 @@ function onMouseClick() {
                     class="fui-editor__canvas rounded-md"
                     @click.self="onMouseClick"
                 >
-                    <FuiCanvas :readonly="readonly" />
+                    <FuiCanvas :readonly="effectiveReadonly" />
+                    <!-- Lopaka Badge on shared/view-only designs -->
+                    <div v-if="isShareView" class="canvas-badge">
+                        <LopakaBadge />
+                    </div>
                 </div>
             </div>
             <div class="fui-editor__main-right pl-2 border-l border-secondary">
                 <Inspector
-                    :readonly="readonly"
+                    :readonly="effectiveReadonly"
                     :project="project"
                     :screen="screen"
                 />
@@ -322,7 +356,7 @@ function onMouseClick() {
                     v-if="platform !== FreestylePlatform.id"
                 >
                     <div class="absolute right-6 top-4 z-10 flex flex-row gap-2 content-center items-center">
-                        <template v-if="!readonly">
+                        <template v-if="!effectiveReadonly">
                             <div
                                 class="tooltip tooltip-bottom no-animation"
                                 data-tip="Import code - Experimental: Works best with code generated in Lopaka"
@@ -341,6 +375,20 @@ function onMouseClick() {
                                 </ImportFile>
                             </div>
                         </template>
+                        <!-- Share button (only in edit mode) -->
+                        <Button
+                            v-if="!isShareView"
+                            secondary
+                            filled
+                            title="Share this design"
+                            @click="showShareDialog = true"
+                        >
+                            <Icon
+                                type="share"
+                                pointer
+                            />
+                            Share
+                        </Button>
                         <Button
                             success
                             filled
@@ -354,7 +402,7 @@ function onMouseClick() {
                             Copy
                         </Button>
                     </div>
-                    <FuiCode :readonly="readonly"></FuiCode>
+                    <FuiCode :readonly="effectiveReadonly"></FuiCode>
                 </div>
                 <div class="fui-editor__bottom-right pl-4">
                     <FuiEditorSettings
@@ -422,5 +470,13 @@ function onMouseClick() {
     flex-shrink: 1;
     overflow: hidden;
     position: relative;
+}
+
+.canvas-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    z-index: 10;
+    opacity: 0.8;
 }
 </style>

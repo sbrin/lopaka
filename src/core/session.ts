@@ -424,6 +424,18 @@ export class Session {
         }
         return platform.createRenderer();
     }
+
+    /**
+     * Load a starter template into the current session.
+     * Used during onboarding to give users a working design immediately.
+     */
+    loadTemplate = async (templateLayers: Record<string, any>[]) => {
+        if (!templateLayers || templateLayers.length === 0) return;
+        this.history.batchStart();
+        await this.layersManager.loadLayers(templateLayers, false, true);
+        this.history.batchEnd();
+        this.virtualScreen.redraw();
+    };
 }
 
 export async function loadLayers(states: any[], append: boolean = false, saveHistory: boolean = false) {

@@ -7,6 +7,8 @@ import { useSession } from '/src/core/session';
 import FuiEditor from '/src/components/fui/FuiEditor.vue';
 import { Project, ProjectScreen } from '/src/types';
 import FuiLayers from './fui/layers/FuiLayers.vue';
+import OnboardingTour from './fui/onboarding/OnboardingTour.vue';
+import { getDefaultTemplate } from '/src/templates/starter-templates';
 
 const session = useSession();
 const { setIsPublic } = session;
@@ -16,6 +18,7 @@ const isScreenLoaded = ref(false);
 const isScreenNotFound = ref(false);
 const infoMessage = ref();
 const errorMessage = ref();
+const showOnboarding = ref(false);
 
 const emit = defineEmits(['showModal']);
 
@@ -36,6 +39,20 @@ onMounted(async () => {
     await session.initSandbox();
     isScreenLoaded.value = true;
     setIsPublic(false);
+
+    // Onboarding: check if first visit
+    const hasSeenOnboarding = localStorage.getItem('lopaka_onboarding_seen');
+    if (!hasSeenOnboarding) {
+        // Load starter template so user sees something immediately
+        const template = getDefaultTemplate(session.state.platform);
+        if (template) {
+            await session.loadTemplate(template.layers);
+        }
+        // Show onboarding tour after a brief delay
+        setTimeout(() => {
+            showOnboarding.value = true;
+        }, 500);
+    }
 });
 
 function setInfoMessage(msg) {
@@ -82,6 +99,14 @@ function setErrorMessage(msg) {
             <template #title></template>
         </FuiEditor>
     </div>
+
+    <!-- Onboarding Tour -->
+    <OnboardingTour
+        v-if="showOnboarding"
+        @complete="showOnboarding = false"
+        @skip="showOnboarding = false"
+    />
+
     <datalist id="presetColors">
         <!-- 32 colors -->
         <!-- Grayscale -->
