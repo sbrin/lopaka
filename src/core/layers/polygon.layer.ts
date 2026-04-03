@@ -1,0 +1,499 @@
+import {TPlatformFeatures} from '../../platforms/platform';
+import {mapping} from '../decorators/mapping';
+import {Point} from '../point';
+import {Rect} from '../rect';
+import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
+import {AbstractDrawingRenderer} from '../../draw/renderers';
+
+export class PolygonLayer extends AbstractLayer {
+    protected type: ELayerType = 'polygon';
+    protected editState: {
+        firstPoint: Point;
+        points: number[][];
+        editPoint: TLayerEditPoint;
+    } = null;
+
+    @mapping('pts') public points: number[][] = [];
+    @mapping('f') public fill: boolean = false;
+
+    modifiers: TLayerModifiers = {
+        x: {
+            getValue: () => this.getBoundsOrigin().x,
+            setValue: (v: number) => {
+                const origin = this.getBoundsOrigin();
+                const offset = v - origin.x;
+                this.points.forEach((p) => (p[0] += offset));
+                this.updateBounds();
+                this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
+            type: TModifierType.number,
+        },
+        y: {
+            getValue: () => this.getBoundsOrigin().y,
+            setValue: (v: number) => {
+                const origin = this.getBoundsOrigin();
+                const offset = v - origin.y;
+                this.points.forEach((p) => (p[1] += offset));
+                this.updateBounds();
+                this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
+            type: TModifierType.number,
+        },
+        fill: {
+            getValue: () => this.fill,
+            setValue: (v: boolean) => {
+                this.fill = v;
+                this.draw();
+            },
+            type: TModifierType.boolean,
+        },
+        color: {
+            getValue: () => this.color,
+            setValue: (v: string) => {
+                this.color = v;
+                this.updateBounds();
+                this.draw();
+            },
+            getVariable: (name: string) => this.variables[name] ?? false,
+            setVariable: (name: string, enabled: boolean) => {
+                this.variables[name] = enabled;
+            },
+            type: TModifierType.color,
+        },
+        inverted: {
+            getValue: () => this.inverted,
+            setValue: (v: boolean) => {
+                this.inverted = v;
+                this.draw();
+            },
+            type: TModifierType.boolean,
+        },
+    };
+
+    constructor(
+        protected features: TPlatformFeatures,
+        renderer?: AbstractDrawingRenderer
+    ) {
+        super(features, renderer);
+        if (!this.features.hasRGBSupport && !this.features.hasIndexedColors) {
+            delete this.modifiers.color;
+        }
+        if (!this.features.hasInvertedColors) {
+            delete this.modifiers.inverted;
+        }
+        this.color = this.features.defaultColor;
+    }
+
+    editPoints: TLayerEditPoint[] = [];
+
+    public vertexEditMode: boolean = false;
+
+    private getBoundsOrigin(): Point {
+        if (this.points.length === 0) return new Point();
+        let minX = Infinity,
+            minY = Infinity;
+        for (const p of this.points) {
+            if (p[0] < minX) minX = p[0];
+            if (p[1] < minY) minY = p[1];
+        }
+        return new Point(minX, minY);
+    }
+
+    // Position getter for compatibility with platform code
+    get position(): Point {
+        return this.getBoundsOrigin();
+    }
+
+    // Size getter for compatibility with platform code
+    get size(): Point {
+        return new Point(this.bounds.w, this.bounds.h);
+    }
+
+    toggleVertexEditMode() {
+        this.vertexEditMode = !this.vertexEditMode;
+        this.rebuildEditPoints();
+    }
+
+    exitVertexEditMode() {
+        if (this.vertexEditMode) {
+            this.vertexEditMode = false;
+            this.rebuildEditPoints();
+        }
+    }
+
+    private rebuildEditPoints() {
+        if (this.vertexEditMode) {
+            this.rebuildVertexEditPoints();
+        } else {
+            this.rebuildBoundsEditPoints();
+        }
+    }
+
+    private rebuildVertexEditPoints() {
+        this.editPoints = this.points.map((_, idx) => ({
+            cursor: 'move' as const,
+            getRect: (): Rect =>
+                new Rect(new Point(this.points[idx][0], this.points[idx][1]), new Point(3)).subtract(1.5, 1.5, 0, 0),
+            move: (offset: Point): void => {
+                this.points[idx] = [this.editState.points[idx][0] + offset.x, this.editState.points[idx][1] + offset.y];
+            },
+        }));
+    }
+
+    private rebuildBoundsEditPoints() {
+        this.editPoints = [
+            {
+                cursor: 'nesw-resize',
+                getRect: (): Rect =>
+                    new Rect(new Point(this.bounds.x + this.bounds.w, this.bounds.y), new Point(3)).subtract(
+                        1.5,
+                        1.5,
+                        0,
+                        0
+                    ),
+                move: (offset: Point, event?: MouseEvent): void => {
+                    this.scalePoints(offset, 'top-right', event);
+                },
+            },
+            {
+                cursor: 'nwse-resize',
+                getRect: (): Rect =>
+                    new Rect(
+                        new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h),
+                        new Point(3)
+                    ).subtract(1.5, 1.5, 0, 0),
+                move: (offset: Point, event?: MouseEvent): void => {
+                    this.scalePoints(offset, 'bottom-right', event);
+                },
+            },
+            {
+                cursor: 'nesw-resize',
+                getRect: (): Rect =>
+                    new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h), new Point(3)).subtract(
+                        1.5,
+                        1.5,
+                        0,
+                        0
+                    ),
+                move: (offset: Point, event?: MouseEvent): void => {
+                    this.scalePoints(offset, 'bottom-left', event);
+                },
+            },
+            {
+                cursor: 'nwse-resize',
+                getRect: (): Rect =>
+                    new Rect(new Point(this.bounds.x, this.bounds.y), new Point(3)).subtract(1.5, 1.5, 0, 0),
+                move: (offset: Point, event?: MouseEvent): void => {
+                    this.scalePoints(offset, 'top-left', event);
+                },
+            },
+            {
+                cursor: 'ns-resize',
+                getRect: (): Rect =>
+                    new Rect(new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y), new Point(3)).subtract(
+                        1.5,
+                        1.5,
+                        0,
+                        0
+                    ),
+                move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                    this.scalePoints(offset, 'top', event);
+                },
+            },
+            {
+                cursor: 'ew-resize',
+                getRect: (): Rect =>
+                    new Rect(
+                        new Point(this.bounds.x + this.bounds.w, this.bounds.y + this.bounds.h / 2),
+                        new Point(3)
+                    ).subtract(1.5, 1.5, 0, 0),
+                move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                    this.scalePoints(offset, 'right', event);
+                },
+            },
+            {
+                cursor: 'ns-resize',
+                getRect: (): Rect =>
+                    new Rect(
+                        new Point(this.bounds.x + this.bounds.w / 2, this.bounds.y + this.bounds.h),
+                        new Point(3)
+                    ).subtract(1.5, 1.5, 0, 0),
+                move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                    this.scalePoints(offset, 'bottom', event);
+                },
+            },
+            {
+                cursor: 'ew-resize',
+                getRect: (): Rect =>
+                    new Rect(new Point(this.bounds.x, this.bounds.y + this.bounds.h / 2), new Point(3)).subtract(
+                        1.5,
+                        1.5,
+                        0,
+                        0
+                    ),
+                move: (offset: Point, event?: MouseEvent | TouchEvent): void => {
+                    this.scalePoints(offset, 'left', event);
+                },
+            },
+        ];
+    }
+
+    private scalePoints(
+        offset: Point,
+        corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top' | 'bottom' | 'left' | 'right',
+        event?: MouseEvent | TouchEvent
+    ) {
+        if (!this.editState || this.editState.points.length < 2) return;
+        const origPts = this.editState.points;
+        let minX = Infinity,
+            minY = Infinity,
+            maxX = -Infinity,
+            maxY = -Infinity;
+        for (const p of origPts) {
+            if (p[0] < minX) minX = p[0];
+            if (p[1] < minY) minY = p[1];
+            if (p[0] > maxX) maxX = p[0];
+            if (p[1] > maxY) maxY = p[1];
+        }
+        const origW = maxX - minX || 1;
+        const origH = maxY - minY || 1;
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
+
+        let anchorX: number, anchorY: number, newW: number, newH: number;
+        switch (corner) {
+            case 'top-left':
+                anchorX = maxX;
+                anchorY = maxY;
+                newW = Math.max(origW - offset.x, 2);
+                newH = Math.max(origH - offset.y, 2);
+                break;
+            case 'top-right':
+                anchorX = minX;
+                anchorY = maxY;
+                newW = Math.max(origW + offset.x, 2);
+                newH = Math.max(origH - offset.y, 2);
+                break;
+            case 'bottom-left':
+                anchorX = maxX;
+                anchorY = minY;
+                newW = Math.max(origW - offset.x, 2);
+                newH = Math.max(origH + offset.y, 2);
+                break;
+            case 'bottom-right':
+                anchorX = minX;
+                anchorY = minY;
+                newW = Math.max(origW + offset.x, 2);
+                newH = Math.max(origH + offset.y, 2);
+                break;
+            case 'top':
+                anchorX = centerX;
+                anchorY = maxY;
+                newW = origW;
+                newH = Math.max(origH - offset.y, 2);
+                break;
+            case 'bottom':
+                anchorX = centerX;
+                anchorY = minY;
+                newW = origW;
+                newH = Math.max(origH + offset.y, 2);
+                break;
+            case 'left':
+                anchorX = maxX;
+                anchorY = centerY;
+                newW = Math.max(origW - offset.x, 2);
+                newH = origH;
+                break;
+            case 'right':
+                anchorX = minX;
+                anchorY = centerY;
+                newW = Math.max(origW + offset.x, 2);
+                newH = origH;
+                break;
+        }
+
+        // Shift: lock aspect ratio
+        if (event?.shiftKey) {
+            const aspectRatio = origW / origH;
+            if (corner === 'top' || corner === 'bottom') {
+                newW = Math.round(newH * aspectRatio);
+            } else if (corner === 'left' || corner === 'right') {
+                newH = Math.round(newW / aspectRatio);
+            } else {
+                const maxDim = Math.max(newW, newH);
+                if (newW > newH) {
+                    newW = Math.round(maxDim);
+                    newH = Math.round(maxDim / aspectRatio);
+                } else {
+                    newW = Math.round(maxDim * aspectRatio);
+                    newH = Math.round(maxDim);
+                }
+            }
+        }
+
+        // Alt: resize from center
+        if (event?.altKey) {
+            anchorX = centerX;
+            anchorY = centerY;
+        }
+
+        const scaleX = newW / origW;
+        const scaleY = newH / origH;
+        this.points = origPts.map((p) => [
+            Math.round(anchorX + (p[0] - anchorX) * scaleX),
+            Math.round(anchorY + (p[1] - anchorY) * scaleY),
+        ]);
+    }
+
+    startEdit(mode: EditMode, point: Point, editPoint?: TLayerEditPoint) {
+        this.pushHistory();
+        this.mode = mode;
+        if (mode === EditMode.CREATING) {
+            if (this.points.length === 0) {
+                this.points = [point.xy, point.xy];
+            }
+        }
+        this.editState = {
+            firstPoint: point,
+            points: this.points.map((p) => [...p]),
+            editPoint,
+        };
+    }
+
+    edit(point: Point, originalEvent: MouseEvent) {
+        if (!this.editState) {
+            if (this.points.length > 1) {
+                this.points[this.points.length - 1] = point.xy;
+                this.updateBounds();
+                this.draw();
+            }
+            return;
+        }
+        const {points, firstPoint, editPoint} = this.editState;
+        switch (this.mode) {
+            case EditMode.MOVING:
+                const dx = point.x - firstPoint.x;
+                const dy = point.y - firstPoint.y;
+                this.points = points.map((p) => [Math.round(p[0] + dx), Math.round(p[1] + dy)]);
+                break;
+            case EditMode.RESIZING:
+                editPoint.move(point.clone().subtract(firstPoint), originalEvent as MouseEvent);
+                break;
+            case EditMode.CREATING:
+                if (this.points.length > 0) {
+                    this.points[this.points.length - 1] = point.xy;
+                }
+                break;
+        }
+        this.updateBounds();
+        this.draw();
+    }
+
+    addPoint(point: Point) {
+        this.points.push(point.xy);
+        this.updateBounds();
+        this.draw();
+    }
+
+    removePoint(index: number): number {
+        if (index < 0 || index >= this.points.length) {
+            return this.points.length;
+        }
+        this.pushHistory();
+        this.points.splice(index, 1);
+        this.updateBounds();
+        this.draw();
+        this.rebuildEditPoints();
+        this.pushRedoHistory();
+        return this.points.length;
+    }
+
+    stopEdit() {
+        this.mode = EditMode.NONE;
+        this.editState = null;
+        this.rebuildEditPoints();
+        this.pushRedoHistory();
+    }
+
+    draw() {
+        if (this.points.length < 2) return;
+        const pts = this.points.map((p) => new Point(p[0], p[1]));
+        this.renderer.drawPolygon(pts, this.fill, this.color);
+    }
+
+    onLoadState() {
+        this.rebuildEditPoints();
+        this.updateBounds();
+        this.mode = EditMode.NONE;
+    }
+
+    updateBounds() {
+        if (this.points.length === 0) {
+            this.bounds = new Rect();
+            return;
+        }
+        let minX = Infinity,
+            minY = Infinity,
+            maxX = -Infinity,
+            maxY = -Infinity;
+        for (const p of this.points) {
+            if (p[0] < minX) minX = p[0];
+            if (p[1] < minY) minY = p[1];
+            if (p[0] > maxX) maxX = p[0];
+            if (p[1] > maxY) maxY = p[1];
+        }
+        this.bounds = new Rect(new Point(minX, minY), new Point(maxX - minX + 1, maxY - minY + 1));
+    }
+
+    private isPointOnSegment(point: Point, start: Point, end: Point): boolean {
+        const cross = (point.y - start.y) * (end.x - start.x) - (point.x - start.x) * (end.y - start.y);
+        if (Math.abs(cross) > 1e-6) {
+            return false;
+        }
+        const dot = (point.x - start.x) * (end.x - start.x) + (point.y - start.y) * (end.y - start.y);
+        if (dot < 0) {
+            return false;
+        }
+        const squaredLength = (end.x - start.x) ** 2 + (end.y - start.y) ** 2;
+        return dot <= squaredLength;
+    }
+
+    public contains(point: Point): boolean {
+        if (!this.bounds.contains(point)) {
+            return false;
+        }
+        if (this.points.length < 3) {
+            return super.contains(point);
+        }
+
+        const vertices = this.points.map((coords) => new Point(coords));
+        let inside = false;
+
+        for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+            const current = vertices[i];
+            const previous = vertices[j];
+
+            if (this.isPointOnSegment(point, previous, current)) {
+                return true;
+            }
+
+            const intersects =
+                current.y > point.y !== previous.y > point.y &&
+                point.x < ((previous.x - current.x) * (point.y - current.y)) / (previous.y - current.y) + current.x;
+
+            if (intersects) {
+                inside = !inside;
+            }
+        }
+
+        return inside;
+    }
+}

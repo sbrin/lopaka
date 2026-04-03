@@ -1,0 +1,54 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`EsphomePlatform > generating source code 1`] = `
+"# You may need to download images and put them into esphome folder
+image:
+  - file: "images/draw_rrsjcz4oz2ln6jx4y4.png"
+    id: img_draw_rrsjcz4oz2ln6jx4y4
+    resize: 128x64
+    type: BINARY
+
+display:
+    lambda: |-
+
+@veqtjp8jf9ln6isyfz;      it.filled_rectangle(@x:107, @y:46, @w:18, @h:15, #FF0000);
+
+@utlxpqvhdxnln6it5pw;      it.filled_rectangle(@x:97, @y:2, @w:27, @h:11, #00FF00);
+
+@8c4v5zq;      it.print(30, 37, id(_6x10), #FFFFFF, @text:"ячсмитьбю");
+
+@eu6bpe0xpvvln6itc2e;      it.filled_rectangle(@x:106, @y:19, @w:19, @h:18, #0000FF);
+
+@s3m4u762qpln6jvm90;      it.print(3, 10, id(profont22), #000000, @text:"Text");
+
+@b11j6xs5t46ln6jw96h;      it.line(@x1:2, @y1:16, @x2:68, @y2:16, #FFFFFF);
+
+@6uf3k6wj82ln6jwi73;      it.circle(@x:20, @y:41, @r:12, #0000FF);
+
+
+// Unknown layer type ellipse
+
+
+@aibkefmz3cln6jwlit;      it.filled_circle(@x:17, @y:43, @r:3, #FF0000);
+
+@g7pk1wfbqqkln6jwxby;      it.rectangle(@x:44, @y:29, @w:44, @h:28, #00FF00);
+
+
+// Unknown layer type ellipse
+
+
+@rrsjcz4oz2ln6jx4y4;      it.image(@x:0, @y:0, @image:id(img_draw_rrsjcz4oz2ln6jx4y4), Color(255, 0, 0));
+
+@njsoidnfijoinisn;      it.filled_rectangle(@x:10, @y:4, @w:12, @h:19, #00FF00);
+
+@jnijisniijaojosd;      it.rectangle(@x:45, @y:20, @w:14, @h:12, #00FF00);
+
+@abc123polygon;      it.line(@x1:10, @y1:10, @x2:30, @y2:10, #FF0000);
+@abc123polygon;      it.line(@x1:30, @y1:10, @x2:40, @y2:30, #FF0000);
+@abc123polygon;      it.line(@x1:40, @y1:30, @x2:20, @y2:40, #FF0000);
+@abc123polygon;      it.line(@x1:20, @y1:40, @x2:5, @y2:30, #FF0000);
+@abc123polygon;      it.line(@x1:5, @y1:30, @x2:10, @y2:10, #FF0000);
+
+
+"
+`;

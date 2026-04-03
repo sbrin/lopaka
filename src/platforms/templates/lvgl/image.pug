@@ -1,0 +1,35 @@
+| #ifdef __has_include
+|   #if __has_include("lvgl.h")
+|     #ifndef LV_LVGL_H_INCLUDE_SIMPLE
+|       #define LV_LVGL_H_INCLUDE_SIMPLE
+|     #endif
+|   #endif
+| #endif
+| 
+| #if defined(LV_LVGL_H_INCLUDE_SIMPLE)
+|   #include "lvgl.h"
+| #else
+|   #include "lvgl/lvgl.h"
+| #endif
+| 
+| #ifndef LV_ATTRIBUTE_MEM_ALIGN
+|   #define LV_ATTRIBUTE_MEM_ALIGN
+| #endif
+| 
+| #ifndef LV_ATTRIBUTE_IMAGE_!{imageName}
+|   #define LV_ATTRIBUTE_IMAGE_!{imageName}
+| #endif
+| 
+| const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST LV_ATTRIBUTE_IMAGE_!{imageName} uint8_t !{imageName}_map[] = {
+|     !{imageData565}
+| };
+| 
+//- Choose the LVGL color format based on whether alpha bytes are included.
+| const lv_image_dsc_t image_!{imageName}_dsc = {
+|     .header.cf = !{imageColorFormat},
+|     .header.magic = LV_IMAGE_HEADER_MAGIC,
+|     .header.w = !{imageWidth},
+|     .header.h = !{imageHeight},
+|     .data_size = !{imageDataSize},
+|     .data = !{imageName}_map,
+| };

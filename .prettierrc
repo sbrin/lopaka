@@ -5,10 +5,11 @@
     "tabWidth": 4,
     "useTabs": false,
     "arrowParens": "always",
-    "trailingComma": "none",
+    "trailingComma": "es5",
     "semi": true,
     "insertPragma": false,
     "jsxBracketSameLine": true,
     "proseWrap": "always",
-    "htmlWhitespaceSensitivity": "ignore"
+    "htmlWhitespaceSensitivity": "ignore",
+    "singleAttributePerLine": true
 }

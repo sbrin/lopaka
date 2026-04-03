@@ -4,12 +4,14 @@ import {DrawContext} from '../draw-context';
 export enum FontFormat {
     FORMAT_5x7 = 0,
     FORMAT_BDF = 1,
-    FORMAT_TTF = 2
+    FORMAT_TTF = 2,
+    FORMAT_GFX = 3,
 }
 
 export abstract class Font {
     fontReady: Promise<void>;
     protected fontLoaded: boolean = false;
+    public title: string;
 
     constructor(
         protected source: TFontSource,
@@ -17,15 +19,29 @@ export abstract class Font {
         public format: FontFormat,
         protected options?: TFontSizes
     ) {
-        this.fontReady = new Promise((resolve) => {
-            this.loadFont().then(() => {
-                resolve();
-                this.fontLoaded = true;
-            });
+        this.title = name
+            .split('#')
+            .pop()
+            .replace(/^[a-f0-9-]+\/[a-zA-Z0-9]+_/, '');
+        this.fontReady = new Promise((resolve, reject) => {
+            this.loadFont()
+                .then(() => {
+                    resolve();
+                    this.fontLoaded = true;
+                })
+                .catch((e) => {
+                    reject(e);
+                });
         });
     }
 
     abstract loadFont(): Promise<void>;
-    abstract drawText(dc: DrawContext, text: string, position: Point, scaleFactor: number): void;
+    abstract drawText(
+        dc: DrawContext,
+        text: string,
+        position: Point,
+        scaleFactor: number,
+        baseline?: CanvasTextBaseline
+    ): void;
     abstract getSize(dc: DrawContext, text: string, scaleFactor?: number): Point;
 }

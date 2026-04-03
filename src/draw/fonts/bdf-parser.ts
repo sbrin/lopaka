@@ -16,18 +16,18 @@ enum BDFKeys {
     BBX = 'BBX',
     BITMAP = 'BITMAP',
     ENDCHAR = 'ENDCHAR',
-    ENDFONT = 'ENDFONT'
+    ENDFONT = 'ENDFONT',
 }
 
 /**
  * Based on https://github.com/victorporof/BDF.js
  * https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format
  */
-export default function parseBDF(source: string): BDFFormat {
-    const glyphs: Map<number, BDFGlyph> = new Map();
-    const meta: BDFMeta = {};
+export default function parseBDF(source: string): FontPack {
+    const glyphs: Map<number, FontGlyph> = new Map();
+    const meta: FontMeta = {};
     const stack = [];
-    let glyph: BDFGlyph = null;
+    let glyph: FontGlyph = null;
     let bytes: number[] = [];
     const fontLines = source.split('\n');
     for (let i = 0; i < fontLines.length; i++) {
@@ -46,7 +46,7 @@ export default function parseBDF(source: string): BDFFormat {
                 meta.size = {
                     points: parseInt(data[1]),
                     resolutionX: parseInt(data[2]),
-                    resolutionY: parseInt(data[3])
+                    resolutionY: parseInt(data[3]),
                 };
                 break;
             case BDFKeys.FONTBOUNDINGBOX:
@@ -84,7 +84,7 @@ export default function parseBDF(source: string): BDFFormat {
                     glyphName = data[1];
                 }
                 glyph = {
-                    name: glyphName
+                    name: glyphName,
                 };
                 break;
             case BDFKeys.ENCODING:
@@ -96,9 +96,12 @@ export default function parseBDF(source: string): BDFFormat {
                 break;
             case BDFKeys.DWIDTH:
                 glyph.deviceSize = [parseInt(data[1]), parseInt(data[2])];
+                glyph.xAdvance = parseInt(data[1]) + 1; // Add xAdvance for GFX compatibillity
                 break;
             case BDFKeys.BBX:
+                // data: [BBX, width, height, x-offset, y-offset]
                 glyph.bounds = [parseInt(data[3]), parseInt(data[4]), parseInt(data[1]), parseInt(data[2])];
+                glyph.bounds[1] -= meta.size.points - glyph.bounds[3]; // adjust to match GFX bounds
                 break;
             case BDFKeys.BITMAP:
                 const bytesPerRow = Math.ceil(glyph.bounds[2] / 8);
@@ -108,7 +111,6 @@ export default function parseBDF(source: string): BDFFormat {
                         bytes.push(byte);
                     }
                 }
-                glyph.bounds[1] -= meta.size.points - glyph.bounds[3];
                 break;
             case BDFKeys.ENDCHAR:
                 stack.pop();
@@ -122,4 +124,42 @@ export default function parseBDF(source: string): BDFFormat {
         }
     }
     return {glyphs, meta};
+}
+
+export function encodeBDF(font: FontPack): string {
+    const lines = [];
+    lines.push(`STARTFONT ${font.meta.version || '2.1'}`);
+    lines.push(`FONT ${font.meta.name}`);
+    lines.push(`SIZE ${font.meta.size.points} ${font.meta.size.resolutionX} ${font.meta.size.resolutionY}`);
+    lines.push(
+        `FONTBOUNDINGBOX ${font.meta.bounds[2]} ${font.meta.bounds[3]} ${font.meta.bounds[0]} ${font.meta.bounds[1]}`
+    );
+    lines.push('STARTPROPERTIES');
+    lines.push(`FONT_DESCENT ${font.meta.properties.fontDescent}`);
+    lines.push(`FONT_ASCENT ${font.meta.properties.fontAscent}`);
+    lines.push(`DEFAULT_CHAR ${font.meta.properties.defaultChar}`);
+    lines.push('ENDPROPERTIES');
+    lines.push(`CHARS ${font.meta.totalChars}`);
+    font.glyphs.forEach((glyph) => {
+        lines.push(`STARTCHAR ${glyph.name || glyph.code}`);
+        lines.push(`ENCODING ${glyph.code}`);
+        lines.push(`SWIDTH ${glyph.scalableSize[0]} ${glyph.scalableSize[1]}`);
+        lines.push(`DWIDTH ${glyph.deviceSize[0]} ${glyph.deviceSize[1]}`);
+
+        const adjustedY = glyph.bounds[1] + (font.meta.size.points - glyph.bounds[3]); // adjust back to match GFX bounds
+        lines.push(`BBX ${glyph.bounds[2]} ${glyph.bounds[3]} ${glyph.bounds[0]} ${adjustedY}`);
+
+        lines.push('BITMAP');
+        const bytesPerRow = Math.ceil(glyph.bounds[2] / 8);
+        for (let row = 0; row < glyph.bounds[3]; row++) {
+            let line = '';
+            for (let j = 0; j < bytesPerRow; j++) {
+                line += glyph.bytes[row * bytesPerRow + j].toString(16).padStart(2, '0');
+            }
+            lines.push(line.toUpperCase());
+        }
+        lines.push('ENDCHAR');
+    });
+    lines.push('ENDFONT');
+    return lines.join('\n');
 }

@@ -1,19 +1,20 @@
 import {TPlatformFeatures} from '../../platforms/platform';
 import {
+    applyColor,
     downloadImage,
+    flattenImageDataToBackground,
     flipImageDataByX,
     flipImageDataByY,
-    hexToRgb,
     invertImageData,
-    rotateImageData
+    rotateImageData,
 } from '../../utils';
 import {mapping} from '../decorators/mapping';
 import {Point} from '../point';
 import {Rect} from '../rect';
 import {AbstractLayer, EditMode, TLayerActions} from './abstract.layer';
+import {AbstractDrawingRenderer} from '../../draw/renderers';
 
 export abstract class AbstractImageLayer extends AbstractLayer {
-    protected type: ELayerType;
     protected editState: {
         firstPoint: Point;
         position: Point;
@@ -28,11 +29,13 @@ export abstract class AbstractImageLayer extends AbstractLayer {
             h: this.size.y,
             overlay: this.overlay,
             color: this.color,
+            colorMode: this.colorMode,
             image: this.data,
             type: this.type,
             id: this.uid,
             imageName: this.imageName,
-            inverted: this.inverted
+            inverted: this.inverted,
+            alphaChannel: this.alphaChannel,
         };
     }
 
@@ -42,77 +45,79 @@ export abstract class AbstractImageLayer extends AbstractLayer {
 
     @mapping('d', 'image') public data: ImageData;
 
-    @mapping('o') public overlay: boolean;
+    @mapping('cm') public colorMode: string = 'monochrome';
 
     @mapping('nm') public imageName: string;
 
-    constructor(protected features: TPlatformFeatures) {
-        super(features);
-    }
+    @mapping('ac') public alphaChannel: boolean = true;
 
     actions: TLayerActions = [
         {
             label: '⬌',
+            iconType: 'flip_h',
             title: 'Flip horizontally',
             action: () => {
                 this.data = flipImageDataByX(this.data);
                 this.draw();
-            }
+            },
         },
         {
             label: '⬍',
+            iconType: 'flip_v',
             title: 'Flip vertically',
             action: () => {
                 this.data = flipImageDataByY(this.data);
                 this.draw();
-            }
+            },
         },
         {
             label: '↻',
+            iconType: 'rotate',
             title: 'Rotate clockwise',
             action: () => {
                 this.data = rotateImageData(this.data);
                 this.size = new Point(this.data.width, this.data.height);
                 this.updateBounds();
                 this.draw();
-            }
+            },
         },
         {
             label: '◧',
+            iconType: 'invert',
             title: 'Invert colors',
             action: () => {
-                this.data = invertImageData(this.data, this.color);
+                this.data = invertImageData(this.data, this.color, this.colorMode);
                 this.draw();
-            }
+            },
         },
         {
             label: '⚀',
+            iconType: 'padding',
             title: 'Remove blank padding',
             action: () => {
                 this.recalculate();
                 this.updateBounds();
                 this.draw();
-            }
+            },
         },
         {
             label: 'Download',
             title: 'Download image',
             action: () => {
-                downloadImage(this.data, this.imageName ?? 'image_' + this.index);
-            }
-        }
+                downloadImage(this.data, this.imageName ?? (this.name ? this.name : 'image'));
+            },
+        },
+        {
+            label: 'Save',
+            title: 'Add to Project assets',
+            action: () => {},
+        },
     ];
 
     applyColor() {
-        const color = hexToRgb(this.color);
-        this.data.data.forEach((v, i) => {
-            if (i % 4 === 3 && v !== 0) {
-                this.data.data[i - 3] = color.r;
-                this.data.data[i - 2] = color.g;
-                this.data.data[i - 1] = color.b;
-                return v;
-            }
-        });
+        if (this.colorMode === 'monochrome') {
+            this.data = applyColor(this.data, this.color);
+        }
     }
 
     recalculate() {
@@ -121,24 +126,45 @@ export abstract class AbstractImageLayer extends AbstractLayer {
         const data = dc.ctx.getImageData(0, 0, width, height);
         let min: Point = new Point(width, height);
         let max: Point = new Point(0, 0);
+        let hasContent = false;
+
         dc.ctx.beginPath();
         for (let i = 0; i < data.data.length; i += 4) {
             const x = (i / 4) % width;
             const y = Math.floor(i / 4 / width);
             if (data.data[i + 3] !== 0) {
+                hasContent = true;
                 min = min.min(new Point(x, y));
                 max = max.max(new Point(x, y));
             }
         }
+
+        if (!hasContent) {
+            // Handle empty image case
+            this.position = new Point(0, 0);
+            this.size = new Point(1, 1);
+            this.data = new ImageData(1, 1); // Create minimal valid ImageData
+            return;
+        }
+
         this.position = min.clone();
         this.size = max.clone().subtract(min).add(1);
         this.data = dc.ctx.getImageData(min.x, min.y, this.size.x, this.size.y);
     }
-
     draw() {
-        const {dc, position, data, size} = this;
+        const {position, data, size} = this;
+        // Draw transparent overlay for bounds (this is used for selection/interaction)
+        const {dc} = this.renderer;
         dc.clear();
-        dc.ctx.putImageData(data, position.x, position.y);
+
+        // Use the platform background when alpha export is disabled.
+        const drawData =
+            this.alphaChannel === false
+                ? flattenImageDataToBackground(data, this.features?.screenBgColor ?? '#000000')
+                : data;
+        // Draw the image content (flattened or original) onto the buffer.
+        dc.ctx.putImageData(drawData, position.x, position.y);
+
         dc.ctx.save();
         dc.ctx.fillStyle = 'rgba(0,0,0,0)';
         dc.ctx.beginPath();

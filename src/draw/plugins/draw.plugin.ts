@@ -7,5 +7,5 @@ export abstract class DrawPlugin {
     static offset: Point = new Point(30, 30);
     constructor(protected session: Session) {}
 
-    public abstract update(ctx: CanvasRenderingContext2D, point: Point, event: MouseEvent): void;
+    public abstract update(ctx: CanvasRenderingContext2D, point: Point, event: MouseEvent | TouchEvent): void;
 }

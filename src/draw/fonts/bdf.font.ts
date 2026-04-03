@@ -1,11 +1,10 @@
 import {Point} from '../../core/point';
-import {Rect} from '../../core/rect';
 import {DrawContext} from '../draw-context';
 import parseBDF from './bdf-parser';
 import {Font, FontFormat} from './font';
 
 export class BDFFont extends Font {
-    fontData: BDFFormat;
+    fontData: FontPack;
 
     constructor(
         protected source: TFontSource,
@@ -27,11 +26,11 @@ export class BDFFont extends Font {
                     this.fontData = parseBDF(data);
                 });
         } else if (this.source instanceof Function) {
-            return this.source().then((data: {default: BDFFormat}) => {
+            return this.source().then((data: {default: FontPack}) => {
                 this.fontData = data.default;
             });
         } else if (typeof this.source === 'object') {
-            // return this.source.then((data: BDFFormat) => {
+            // return this.source.then((data: FontPack) => {
             this.fontData = this.source;
             // });
         }

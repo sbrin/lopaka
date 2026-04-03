@@ -2,17 +2,50 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <title>Lopaka - Arduino u8g2 Flipper Zero UI graphics editor</title>
-        <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
-        <link rel="manifest" href="/assets/site.webmanifest" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <meta
+            http-equiv="X-UA-Compatible"
+            content="ie=edge"
+        />
+        <meta
+            name="description"
+            content="UI graphics editor for embedded screens with pixel perfect code builder and export. Best for Arduino, STM32, ESP32. Converts images to
+    uint32 and uint8 variables for Adafruit GFX, u8g2 and TFT_eSPI"
+        />
+        <title>Graphics editor and image converter for Arduino, ESP32, Adafruit_GFX, u8g2, TFT_eSPI</title>
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/assets/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/assets/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/assets/favicon-16x16.png"
+        />
+        <link
+            rel="manifest"
+            href="/assets/site.webmanifest"
+        />
     </head>
-
-    <body>
-        <div id="lopaka_app"></div>
-        <script type="module" src="/src/app.ts"></script>
+    <body class="min-h-[100vh] flex-col flex flex-none">
+        <div
+            class="w-full max-w-[1600px] mx-auto font-sans min-h-[600px] flex flex-col flex-grow overflow-hidden"
+            id="lopaka_app"
+        ></div>
+        <script
+            type="module"
+            src="/src/app.ts"
+        ></script>
     </body>
 </html>

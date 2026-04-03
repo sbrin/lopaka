@@ -23,7 +23,9 @@ export class VirtualScreen {
 
     private pluginLayer: HTMLCanvasElement = null;
     private pluginLayerContext: CanvasRenderingContext2D = null;
-    public state;
+    private pluginRafId: number = 0;
+    private pendingMousePosition: Point = null;
+    private pendingMouseEvent: MouseEvent | TouchEvent = null;
 
     private scope: EffectScope;
     canvas: HTMLCanvasElement = null;
@@ -38,7 +40,7 @@ export class VirtualScreen {
         this.screen = new OffscreenCanvas(display.value.x, display.value.y);
         this.ctx = this.screen.getContext('2d', {
             willReadFrequently: true,
-            alpha: true
+            alpha: true,
         });
         if (options.ruler) {
             this.plugins.push(new RulerPlugin(session));
@@ -56,30 +58,29 @@ export class VirtualScreen {
         this.plugins.push(new PaintHighlightPlugin(session));
         this.scope = new EffectScope();
         this.scope.run(() => {
-            this.state = reactive({
-                updates: 1
-            });
+            // this.state = reactive({
+            //     updates: 1
+            // });
             watch([platform], () => {
-                this.redraw(false);
+                this.redraw();
             });
             watch([scale, display], () => {
                 this.resize();
-                this.redraw(false);
+                this.redraw();
             });
         });
     }
 
-    setCanvas(canvas: HTMLCanvasElement) {
+    setCanvas(canvas: HTMLCanvasElement, isPlugins = true) {
         this.canvas = canvas;
         this.canvasContext = canvas.getContext('2d', {
             willReadFrequently: true,
-            alpha: true
+            alpha: true,
         });
-        if (this.plugins.length) {
+        if (this.plugins.length && isPlugins) {
             this.pluginLayer = document.createElement('canvas');
             this.pluginLayerContext = this.pluginLayer.getContext('2d', {
-                willReadFrequently: true,
-                alpha: true
+                alpha: true,
             });
             this.pluginLayerContext.imageSmoothingEnabled = true;
             this.canvas.parentElement.prepend(this.pluginLayer);
@@ -88,37 +89,59 @@ export class VirtualScreen {
                 position: 'absolute',
                 left: -DrawPlugin.offset.x + 'px',
                 top: -DrawPlugin.offset.y + 'px',
-                zIndex: 1
+                zIndex: 1,
             });
         }
         this.resize();
-        this.redraw(false);
+        this.redraw();
     }
 
-    updateMousePosition(position: Point, event: MouseEvent) {
+    private renderPlugins(point: Point | null, event: MouseEvent | TouchEvent | null) {
+        // Skip overlay rendering when plugin layer is not initialized.
+        if (!this.pluginLayer) {
+            return;
+        }
+        // Clear the plugin layer before drawing fresh overlay graphics.
+        const ctx = this.pluginLayerContext;
+        ctx.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
+        // Draw each plugin in shared canvas-space transform.
+        this.plugins.forEach((plugin) => {
+            ctx.save();
+            ctx.scale(2, 2);
+            ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
+            plugin.update(ctx, point, event);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.restore();
+        });
+    }
+
+    public redrawPlugins() {
+        // Defer plugin overlay drawing to the next frame to keep rendering smooth.
+        requestAnimationFrame(() => {
+            this.renderPlugins(this.pendingMousePosition, this.pendingMouseEvent);
+        });
+    }
+
+    updateMousePosition(position: Point, event: MouseEvent | TouchEvent) {
         if (this.pluginLayer) {
-            requestAnimationFrame(() => {
-                const ctx = this.pluginLayerContext;
-                ctx.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
-                this.plugins.forEach((plugin) => {
-                    ctx.save();
-                    ctx.scale(2, 2);
-                    ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
-                    plugin.update(ctx, position, event);
-                    ctx.setTransform(1, 0, 0, 1, 0, 0);
-                    ctx.restore();
+            this.pendingMousePosition = position;
+            this.pendingMouseEvent = event;
+            if (!this.pluginRafId) {
+                this.pluginRafId = requestAnimationFrame(() => {
+                    this.pluginRafId = 0;
+                    this.renderPlugins(this.pendingMousePosition, this.pendingMouseEvent);
                 });
-            });
+            }
         }
     }
 
     getLayersInPoint(position: Point): AbstractLayer[] {
         const point = position.clone().divide(this.session.state.scale).round();
-        return this.session.state.layers.filter((layer) => layer.contains(point)).sort((a, b) => b.index - a.index);
+        return this.session.layersManager.contains(point).reverse();
     }
 
     public resize() {
-        const {display, scale, layers} = this.session.state;
+        const {display, scale} = this.session.state;
         const size = display.clone();
         this.screen.width = size.x;
         this.screen.height = size.y;
@@ -127,7 +150,7 @@ export class VirtualScreen {
             this.canvas.height = size.y;
             Object.assign(this.canvas.style, {
                 width: `${size.x * scale.x}px`,
-                height: `${size.y * scale.y}px`
+                height: `${size.y * scale.y}px`,
             });
         }
         if (this.pluginLayer) {
@@ -135,39 +158,38 @@ export class VirtualScreen {
             this.pluginLayer.height = (size.y * scale.y + DrawPlugin.offset.y * 2) * 2;
             Object.assign(this.pluginLayer.style, {
                 width: `${size.x * scale.x + DrawPlugin.offset.x * 2}px`,
-                height: `${size.y * scale.y + DrawPlugin.offset.y * 2}px`
+                height: `${size.y * scale.y + DrawPlugin.offset.y * 2}px`,
             });
         }
-        layers.forEach((layer: AbstractLayer) => {
+        this.session.layersManager.eachLayer((layer: AbstractLayer) => {
             layer.resize(display, scale);
             layer.draw();
         });
     }
 
-    public redraw(update = true) {
+    public redraw(update: boolean = true) {
         if (!this.canvas) return;
         this.clear();
         const overlays = [];
-        this.session.state.layers
-            .sort((a, b) => a.index - b.index)
-            .forEach((layer) => {
-                // skip all oberlays
-                if (layer.modifiers.overlay && layer.modifiers.overlay.getValue()) {
-                    overlays.push(layer);
-                    return;
-                }
-                if (layer.inverted) {
-                    this.ctx.globalCompositeOperation = 'difference';
-                }
-                this.ctx.drawImage(layer.getBuffer(), 0, 0);
-                this.ctx.globalCompositeOperation = 'source-over';
-            });
-        if (update) {
-            this.state.updates++;
-        }
+        this.session.layersManager.sorted.forEach((layer) => {
+            // skip all hidden layers
+            if (layer.hidden) {
+                return;
+            }
+            // skip all overlays
+            if (layer.modifiers.overlay && layer.modifiers.overlay.getValue()) {
+                overlays.push(layer);
+                return;
+            }
+            if (layer.inverted) {
+                this.ctx.globalCompositeOperation = 'xor';
+            }
+            this.ctx.drawImage(layer.getBuffer(), 0, 0);
+            this.ctx.globalCompositeOperation = 'source-over';
+        });
         // create data without alpha channel
         const data = this.ctx.getImageData(0, 0, this.screen.width, this.screen.height).data.map((v, i) => {
-            if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;
+            // if (i % 4 === 3) return v >= 255 / 2 ? 255 : 0;
             return v;
         });
         this.canvasContext.putImageData(
@@ -182,19 +204,13 @@ export class VirtualScreen {
         });
         this.canvasContext.globalAlpha = 1;
         if (this.pluginLayer) {
-            requestAnimationFrame(() => {
-                const ctx = this.pluginLayerContext;
-                ctx.clearRect(0, 0, this.pluginLayer.width, this.pluginLayer.height);
-                this.plugins.forEach((plugin) => {
-                    ctx.save();
-                    ctx.scale(2, 2);
-                    ctx.translate(DrawPlugin.offset.x, DrawPlugin.offset.y);
-                    plugin.update(ctx, null, null);
-                    ctx.setTransform(1, 0, 0, 1, 0, 0);
-                    ctx.restore();
-                });
-            });
+            this.redrawPlugins();
         }
+    }
+
+    public grab(position: Point, size: Point): ImageData {
+        const data = this.canvasContext.getImageData(position.x, position.y, size.x, size.y);
+        return data;
     }
 
     public clear() {

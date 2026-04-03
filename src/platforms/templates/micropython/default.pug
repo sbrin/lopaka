@@ -1,0 +1,64 @@
+if settings.include_images
+    each decl in declarations 
+        if decl.type == 'bitmap'
+            | !{decl.data.name} = bytearray(!{decl.data.value})
+            |
+if settings.declare_vars
+    each decl in declarations 
+        if decl.type == 'var'
+            if decl.data.type === 0
+                | !{decl.data.name} = "!{decl.data.value}"
+            else
+                | !{decl.data.name} = !{decl.data.value}
+            |
+            |
+|
+|
+- var pad = settings.wrap ? '    ' : ''
+if settings.wrap
+    | def draw!{screenTitle}():
+    |
+|
+each layer in layers 
+    if settings.comments
+        | !{pad}# !{layer.name}
+        |
+    case layer.type
+        when 'line'
+            | @!{layer.uid};!{pad}display.line(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2}, !{layer.color})
+        when 'rect'
+            - var func = (layer.fill ? 'fill_rect' : 'rect')
+            | @!{layer.uid};!{pad}display.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}, !{layer.color})
+        when 'ellipse'
+            - var isFill = layer.fill ? 'True' : 'False'
+            | @!{layer.uid};!{pad}display.ellipse(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry}, !{layer.color}, !{isFill})
+        when 'triangle'
+            - var isFill = layer.fill ? 'True' : 'False'
+            - var minX = Math.min(layer.x1, layer.x2, layer.x3)
+            - var minY = Math.min(layer.y1, layer.y2, layer.y3)
+            | @!{layer.uid};!{pad}fbuf.poly(!{minX}, !{minY}, array('h', [!{layer.x1 - minX}, !{layer.y1 - minY}, !{layer.x2 - minX}, !{layer.y2 - minY}, !{layer.x3 - minX}, !{layer.y3 - minY}]), !{layer.color}, !{isFill})
+        when 'polygon'
+            - var isFill = layer.fill ? 'True' : 'False'
+            - var points = layer.points || []
+            - var xs = points.map((point) => point[0])
+            - var ys = points.map((point) => point[1])
+            - var minX = xs.length ? Math.min(...xs) : 0
+            - var minY = ys.length ? Math.min(...ys) : 0
+            - var relativePoints = points.flatMap((point) => [point[0] - minX, point[1] - minY]).join(', ')
+            | @!{layer.uid};!{pad}fbuf.poly(!{minX}, !{minY}, array('h', [!{relativePoints}]), !{layer.color}, !{isFill})
+        when 'string'
+            - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`;
+            | @!{layer.uid};!{pad}display.text(@text:!{textContent}, @x:!{layer.x}, @y:!{layer.y}, !{layer.color})
+        when 'paint'
+        when 'icon'
+            | !{pad}fb_!{layer.imageName} = framebuf.FrameBuffer(!{layer.imageName}, !{layer.w}, !{layer.h}, framebuf.MONO_HLSB)
+            | @!{layer.uid};!{pad}display.blit(fb_!{layer.imageName}, !{layer.x}, !{layer.y})
+        default 
+            |
+            | // Unknown layer type !{layer.type}
+            |
+    |
+    |
+    |
+| !{pad}display.show()
+|

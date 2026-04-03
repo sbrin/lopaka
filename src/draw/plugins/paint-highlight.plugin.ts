@@ -7,7 +7,7 @@ import {DrawPlugin} from './draw.plugin';
 export class PaintHighlightPlugin extends DrawPlugin {
     paintEditorPlugin: PaintPlugin;
 
-    public update(ctx: CanvasRenderingContext2D, point: Point, event: MouseEvent): void {
+    public update(ctx: CanvasRenderingContext2D, point: Point, _event: MouseEvent): void {
         if (!this.paintEditorPlugin) {
             this.paintEditorPlugin = this.session.editor.plugins.find(
                 (p: AbstractEditorPlugin) => p instanceof PaintPlugin
@@ -15,9 +15,11 @@ export class PaintHighlightPlugin extends DrawPlugin {
         }
         const {display, scale} = this.session.state;
         const {interfaceColors} = this.session.getPlatformFeatures();
+        // Read Shift from editor state so helper overlays react without pointer movement.
+        const isShiftPressed = this.session.editor.state.shiftPressed;
         if (point) {
             if (
-                event.shiftKey &&
+                isShiftPressed &&
                 this.session.editor.state.activeLayer &&
                 this.session.editor.state.activeLayer instanceof PaintLayer &&
                 this.paintEditorPlugin.lastPoint
@@ -30,8 +32,8 @@ export class PaintHighlightPlugin extends DrawPlugin {
                     ctx.moveTo(point.x, 0);
                     ctx.lineTo(point.x, display.y * scale.y);
                     ctx.strokeStyle = interfaceColors.selectionStrokeColor;
-                    ctx.setLineDash([5, 5]);
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([2, 4]);
                     ctx.stroke();
                     ctx.beginPath();
                     const lastPoint = this.paintEditorPlugin.lastPoint
@@ -41,6 +43,8 @@ export class PaintHighlightPlugin extends DrawPlugin {
                     ctx.moveTo(lastPoint.x, lastPoint.y);
                     ctx.lineTo(point.x, point.y);
                     ctx.strokeStyle = interfaceColors.selectionStrokeColor;
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
                     ctx.stroke();
                     ctx.restore();
                 }

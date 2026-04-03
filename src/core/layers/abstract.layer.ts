@@ -1,18 +1,20 @@
-import {DrawContext} from '../../draw/draw-context';
-import {TPlatformFeatures} from '../../platforms/platform';
-import {generateUID} from '../../utils';
-import {getState, mapping, setState} from '../decorators/mapping';
-import {ChangeHistory, useHistory} from '../history';
-import {Point} from '../point';
-import {Rect} from '../rect';
+import { DrawContext } from '../../draw/draw-context';
+import { AbstractDrawingRenderer, PixelatedDrawingRenderer } from '../../draw/renderers';
+import { TPlatformFeatures } from '../../platforms/platform';
+import { generateUID } from '../../utils';
+import { getState, mapping, setState } from '../decorators/mapping';
+import { ChangeHistory, useHistory } from '../history';
+import { Point } from '../point';
+import { Rect } from '../rect';
 // TODO move type delarations outside of the class
 export enum EditMode {
     MOVING,
     RESIZING,
     CREATING,
     DRAWING,
+    ERASING,
     NONE,
-    EMPTY
+    EMPTY,
 }
 export enum TModifierType {
     'string',
@@ -20,7 +22,7 @@ export enum TModifierType {
     'boolean',
     'font',
     'image',
-    'color'
+    'color',
 }
 export type TModifierName =
     | 'x'
@@ -28,55 +30,68 @@ export type TModifierName =
     | 'w'
     | 'h'
     | 'radius'
-    | 'radiusX'
-    | 'radiusY'
+    | 'rx'
+    | 'ry'
     | 'fill'
     | 'text'
+    | 'fontSize'
     | 'font'
     | 'icon'
     | 'x1'
     | 'x2'
     | 'y1'
     | 'y2'
+    | 'x3'
+    | 'y3'
     | 'color'
     | 'image'
     | 'overlay'
     | 'inverted'
-    | 'color'
-    | 'fontSize';
+    | 'alphaChannel'
+    | 'locked'
+    | 'hidden'
+    | 'backgroundColor'
+    | 'checked'
+    | 'borderColor'
+    | 'borderWidth';
 
 export type TLayerModifier = {
     setValue?(value: any): void;
     getValue(): any;
+    getVariable?(name: string): boolean;
+    setVariable?(name: string, enabled: boolean): void;
     type: TModifierType;
+    fixed?: boolean;
 };
 
 export type TLayerAction = {
     label: string;
+    iconType?: string;
     title: string;
     action: () => void;
 };
 
-export type TLayerModifiers = Partial<{[key in TModifierName]: TLayerModifier}>;
+export type TLayerModifiers = Partial<{ [key in TModifierName]: TLayerModifier }>;
 export type TLayerActions = TLayerAction[];
 
 export type TLayerEditPoint = {
-    cursor: 'nwse-resize' | 'nesw-resize' | 'move';
+    cursor: 'nwse-resize' | 'nesw-resize' | 'move' | 'ns-resize' | 'ew-resize';
     getRect(): Rect;
-    move(point: Point): void;
+    move(point: Point, event?: MouseEvent | TouchEvent): void;
 };
 
 /**
  * Abstract layer class
  */
 export abstract class AbstractLayer {
+    [x: string]: any;
     @mapping('t') protected type: ELayerType;
     // OffscreenCanvas where layer is drawn
     protected buffer: OffscreenCanvas = new OffscreenCanvas(0, 0);
     // DrawContext
     protected dc: DrawContext = new DrawContext(this.buffer);
-    // Is layer visible
-    protected isOverlay: boolean = false;
+    // Drawing renderer for platform-specific drawing implementations
+    protected renderer: AbstractDrawingRenderer;
     // current layer state
     public get state() {
         return getState(this);
@@ -102,11 +117,19 @@ export abstract class AbstractLayer {
     // Layer index
     @mapping('i') public index: number;
     // public group
-    @mapping('g') public group: number;
+    @mapping('g') public group: string;
     // color
-    @mapping('c') public color: string = '#000000';
+    @mapping('c') public color: string = '#ffffff';
     // ibnverted
     @mapping('in') public inverted: boolean = false;
+    // overlay
+    @mapping('ov') public overlay: boolean = false;
+    // locked
+    @mapping('lo') public locked: boolean = false;
+    // hidden
+    @mapping('h') public hidden: boolean = false;
+    // variables
+    @mapping('v') public variables: { [key: string]: boolean } = {};
     // is layer already added to the session
     public added: boolean = false;
     // is layer resizable
@@ -118,12 +141,23 @@ export abstract class AbstractLayer {
 
     public editPoints: TLayerEditPoint[] = [];
 
-    constructor(protected features?: TPlatformFeatures) {}
+    // Provide edit points for the current input event.
+    public getEditPoints(event?: MouseEvent | TouchEvent): TLayerEditPoint[] {
+        // Default to the layer-defined edit points.
+        return this.editPoints;
+    }
+
+    constructor(protected features?: TPlatformFeatures, renderer?: AbstractDrawingRenderer) {
+        // Default to the pixelated renderer so standalone layers can render without a session
+        const resolvedRenderer = renderer ?? new PixelatedDrawingRenderer();
+        resolvedRenderer.setDrawContext(this.dc);
+        this.renderer = resolvedRenderer;
+    }
 
     // called when layer starts to edit
-    abstract startEdit(mode: EditMode, point?: Point, editPoint?: TLayerEditPoint);
+    abstract startEdit(mode: EditMode, point?: Point, editPoint?: TLayerEditPoint, originalEvent?: MouseEvent | TouchEvent);
     // called when layer is editing
-    abstract edit(point: Point, originalEvent?: MouseEvent);
+    abstract edit(point: Point, originalEvent?: MouseEvent | TouchEvent);
     // called when layer stops to edit
     abstract stopEdit();
     // draw layer
@@ -137,6 +171,9 @@ export abstract class AbstractLayer {
      * @returns {boolean}
      */
     public contains(point: Point): boolean {
+        if (!this.bounds.contains(point)) {
+            return false;
+        }
         return this.dc.ctx.isPointInPath(point.x, point.y) || this.dc.ctx.isPointInStroke(point.x, point.y);
     }
 
@@ -146,14 +183,13 @@ export abstract class AbstractLayer {
      * @param scale
      */
     public resize(display: Point, scale: Point): void {
-        const {dc, buffer} = this;
+        const { dc, buffer } = this;
         buffer.width = display.x;
         buffer.height = display.y;
         dc.ctx.fillStyle = '#000';
         dc.ctx.strokeStyle = '#000';
-        if (this.mode !== EditMode.EMPTY) {
-            this.draw();
-        }
+        // Always draw layers to ensure proper initialization
+        this.draw();
     }
 
     /**
@@ -167,16 +203,28 @@ export abstract class AbstractLayer {
     /**
      * On load state
      */
-    protected onLoadState() {}
+    protected onLoadState() { }
 
     /**
      * Clone this layer as new one
      * @returns copy of the layer
      */
-    public clone(): typeof this {
-        const cloned = new (this.constructor as any)();
+    public clone(): this {
+        const cloned = this.createCloneInstance();
         cloned.state = this.state;
         return cloned;
+    }
+
+    protected createCloneInstance(): this {
+        // Instantiate a sibling layer via the runtime constructor to preserve subclass state.
+        const LayerCtor = this.constructor as new (...args: any[]) => this;
+        // Create a new renderer instance of the same type as the current one
+        const RendererCtor = this.renderer.constructor as new () => AbstractDrawingRenderer;
+        return new LayerCtor(this.features, new RendererCtor());
+    }
+
+    public setName(text: string) {
+        this.name = text;
     }
 
     /**
@@ -196,17 +244,29 @@ export abstract class AbstractLayer {
     }
 
     public pushHistory() {
-        if (this.mode === EditMode.EMPTY) {
+        if ([EditMode.EMPTY, EditMode.CREATING].includes(this.mode)) {
             return;
         }
         this.history.push({
             type: 'change',
             layer: this,
-            state: this.state
+            state: this.state,
+        });
+    }
+
+    public pushRedoHistory() {
+        this.history.pushRedo({
+            type: 'change',
+            layer: this,
+            state: this.state,
         });
     }
 
     public getType() {
         return this.type;
+    }
+
+    public getIcon() {
+        return this.type as string;
     }
 }

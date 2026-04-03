@@ -1,21 +1,47 @@
-each decl in declarations 
-    if decl.type == 'bitmap'
-        | static const unsigned char !{decl.data.name}[]!{settings.progmem? ' U8X8_PROGMEM': ''} = {!{decl.data.value}};
+if settings.include_images
+    each decl in declarations
+        if decl.type == 'bitmap'
+            | static const unsigned char !{decl.data.name}[]!{settings.progmem? ' U8X8_PROGMEM': ''} = {!{decl.data.value}};
+            |
+if settings.declare_vars
+    each decl in declarations
+        if decl.type == 'var'
+            if decl.data.type === 0
+                | const char* !{decl.data.name} = "!{decl.data.value}";
+            else
+                | int !{decl.data.name} = !{decl.data.value};
+            |
+            |
+each layer in layers
+    if layer.type == 'polygon'
+        - var pts = layer.points
         |
-    else 
-        | !{decl}
+        | void !{layer.functionName}(void) {
         |
-| u8g2.clearBuffer();
-| u8g2.setFontMode(1);
-| u8g2.setBitmapMode(1);
+        - for (var pi = 0; pi < pts.length; pi++)
+            - var npi = (pi + 1) % pts.length
+            |     u8g2.drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]});
+            |
+        | }
+        |
+|
 |
 - var pad = settings.wrap ? '    ' : ''
 if settings.wrap
-    | void draw(void) {
+    | void draw!{screenTitle}(void) {
     |
+if settings.clear_screen
+    | !{pad}u8g2.clearBuffer();
+    |
+| !{pad}u8g2.setFontMode(1);
+| !{pad}u8g2.setBitmapMode(1);
+|
 - var font = ''
 - var drawColorMode = 1;
 each layer in layers 
+    if settings.comments
+        | !{pad}// !{layer.name}
+        |
     if layer.inverted 
         if drawColorMode != 2
             | !{pad}u8g2.setDrawColor(2);
@@ -27,35 +53,45 @@ each layer in layers
             |
             - drawColorMode = 1;
     case layer.type
-        when 'dot'
-            | @!{layer.uid};!{pad}u8g2.drawPixel(@x:!{layer.position[0]}, @y:!{layer.position[1]});
         when 'line'
-            | @!{layer.uid};!{pad}u8g2.drawLine(@x1:!{layer.p1[0]}, @y1:!{layer.p1[1]}, @x2:!{layer.p2[0]}, @y2:!{layer.p2[1]});
+            | @!{layer.uid};!{pad}u8g2.drawLine(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2});
         when 'rect'
             - var func = 'draw' + (layer.radius? 'R': '') + (layer.fill ? 'Box' : 'Frame')
-            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]}!{layer.radius? `, @r:${layer.radius}`: ''});
+            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}!{layer.radius? `, @r:${layer.radius}`: ''});
         when 'circle'
             - var func = layer.fill ? 'drawDisc' : 'drawCircle'
-            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0] + layer.radius}, @y:!{layer.position[1] + layer.radius}, @r:!{layer.radius});
+            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.radius});
         when 'ellipse'
             - var func = layer.fill ? 'drawFilledEllipse' : 'drawEllipse'
-            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.position[0] + layer.rx}, @y:!{layer.position[1] + layer.ry}, @rx:!{layer.rx}, @ry:!{layer.ry});
+            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
+        when 'triangle'
+            | @!{layer.uid};!{pad}u8g2.drawTriangle(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2}, @x3:!{layer.x3}, @y3:!{layer.y3});
         when 'string'
             if layer.font != font
                 - font = layer.font
                 | !{pad}u8g2.setFont(u8g2_font_!{layer.font}_tr);
                 |
-            | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @text:"!{layer.text}");
+            - let is_ascii = (s) => /^[\x00-\x7F]*$/.test(s)
+            - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`;
+            if is_ascii(layer.text)
+                | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
+            else
+                | @!{layer.uid};!{pad}u8g2.drawUTF8(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
         when 'paint'
         when 'icon'
-            | @!{layer.uid};!{pad}u8g2.drawXBM(@x:!{layer.position[0]}, @y:!{layer.position[1]}, @w:!{layer.size[0]}, @h:!{layer.size[1]}, @image:!{layer.imageName});
+            - var func = settings.progmem ? 'drawXBMP' : 'drawXBM'
+            | @!{layer.uid};!{pad}u8g2.!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
+        when 'polygon'
+            | @!{layer.uid};!{pad}!{layer.functionName}();
         default 
             |
             | // Unknown layer type !{layer.type}
             |
     |
     |
+    |
+| !{pad}u8g2.sendBuffer();
+|
 if settings.wrap
     | }
     |
-| u8g2.sendBuffer();

@@ -1,5 +1,5 @@
 import {AbstractLayer} from '../core/layers/abstract.layer';
-import {bdfFonts} from '../draw/fonts/fontTypes';
+import {bdfFonts, gfxFonts} from '../draw/fonts/fontTypes';
 import {imgDataToUint32Array} from '../utils';
 import {Platform} from './platform';
 export class Uint32RawPlatform extends Platform {
@@ -7,14 +7,15 @@ export class Uint32RawPlatform extends Platform {
     protected name = 'Uint32 Bitmap';
     protected description = 'Uint32 Bitmap';
 
-    protected fonts: TPlatformFont[] = [...bdfFonts];
+    protected fonts: TPlatformFont[] = [...bdfFonts, ...gfxFonts];
     constructor() {
         super();
-        this.features.hasInvertedColors = true;
+        this.features.hasInvertedColors = false;
         this.features.defaultColor = '#FFFFFF';
+        this.features.isHidden = true;
     }
 
-    public generateSourceCode(layers: AbstractLayer[], ctx: OffscreenCanvasRenderingContext2D): string {
+    public generateSourceCode(layers: AbstractLayer[], ctx: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
         const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
         const UINT32 = imgDataToUint32Array(imageData);
         const iconName = `image_frame`;

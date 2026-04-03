@@ -1,25 +1,35 @@
-import {IconLayer} from '../../core/layers/icon.layer';
 import {Point} from '../../core/point';
 import {AbstractEditorPlugin} from './abstract-editor.plugin';
+import {PaintLayer, resolvePaintColorMode} from '/src/core/layers/paint.layer';
 
 export class ImageDropPlugin extends AbstractEditorPlugin {
-    onDrop(point: Point, event: DragEvent): void {
-        const name = event.dataTransfer.getData('text/plain');
-        const url = event.dataTransfer.getData('text/uri');
-        this.session.state.layers.forEach((layer) => (layer.selected = false));
+    async onDrop(point: Point, event: DragEvent): Promise<void> {
+        this.session.layersManager.clearSelection();
         if (event.dataTransfer.files.length > 0) {
-            // todo drop from desktop
+            let i = 0;
+
+            for (const file of Array.from(event.dataTransfer.files)) {
+                if (file.type.startsWith('image/')) {
+                    const url = URL.createObjectURL(file);
+                    const name = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                    const newPoint = point.clone().add(i * 4);
+                    this.addImageLayer(name, url, newPoint);
+                    i++;
+                }
+            }
         } else {
+            const name = event.dataTransfer.getData('text/plain');
+            const url = event.dataTransfer.getData('text/uri');
             this.addImageLayer(name, url, point);
         }
     }
 
     private async addImageLayer(name: string, url: string, point: Point) {
-        const {virtualScreen} = this.session;
-        this.session.state.layers.forEach((layer) => (layer.selected = false));
+        const {virtualScreen, layersManager} = this.session;
+        layersManager.clearSelection();
         const icon = new Image();
-        icon.src = url;
         icon.crossOrigin = 'anonymous';
+        icon.src = url;
         icon.dataset.name = name;
         const size = await new Promise<Point>((resolve, reject) => {
             icon.onload = () => {
@@ -27,14 +37,18 @@ export class ImageDropPlugin extends AbstractEditorPlugin {
             };
             icon.onerror = reject;
         });
-        const newLayer = new IconLayer(this.session.getPlatformFeatures());
+        const features = this.session.getPlatformFeatures();
+        const defaultColorMode = resolvePaintColorMode(features);
+        const newLayer = new PaintLayer(features, this.session.createRenderer(), defaultColorMode);
         newLayer.name = name;
         newLayer.size = size;
         newLayer.position = point.clone().subtract(size.clone().divide(2));
-        newLayer.selected = true;
+        layersManager.selectLayer(newLayer);
+        icon.dataset.colorMode = defaultColorMode;
         newLayer.modifiers.icon.setValue(icon);
         newLayer.stopEdit();
         this.session.addLayer(newLayer);
         virtualScreen.redraw();
+        this.session.editor.setTool(null);
     }
 }

@@ -9,17 +9,6 @@ import {Platform} from './platform';
 import cEspIdfTemplate from './templates/u8g2/c_esp_idf.pug';
 import defaultTemplate from './templates/u8g2/default.pug';
 
-// for backwards compatibility
-// TODO: remove after 15.04.2024
-const oldFontNames = {
-    f4x6_tr: '4x6',
-    '5x8_tr': '5x8',
-    haxrcorp4089_tr: 'haxcorp4089',
-    helvB08_tr: 'helvb08',
-    '6x10_tr': '6x10',
-    profont22_tr: 'profont22'
-};
-
 export class U8g2Platform extends Platform {
     public static id = 'u8g2';
     protected name = 'U8g2';
@@ -35,25 +24,34 @@ export class U8g2Platform extends Platform {
             template: defaultTemplate,
             settings: {
                 progmem: true,
-                wrap: false
-            }
+                wrap: false,
+                declare_vars: true,
+                include_images: true,
+                comments: false,
+                clear_screen: true,
+            },
         },
         'esp-idf': {
             name: 'ESP-IDF (C)',
             template: cEspIdfTemplate,
             settings: {
-                wrap: false
-            }
-        }
+                wrap: false,
+                declare_vars: true,
+                include_images: true,
+                comments: false,
+                clear_screen: true,
+            },
+        },
     };
 
     constructor() {
         super();
         this.features.hasInvertedColors = true;
         this.features.defaultColor = '#FFFFFF';
+        this.features.screenBgColor = '#000000';
     }
 
-    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D): string {
+    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
         const declarations: {type: string; data: any}[] = [];
         const xbmps = [];
         const xbmpsNames = [];
@@ -66,7 +64,7 @@ export class U8g2Platform extends Platform {
                     if (xbmps.includes(XBMP)) {
                         props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
                     } else {
-                        const name = layer.imageName ? toCppVariableName(layer.imageName) : 'paint';
+                        const name = layer.name ? toCppVariableName(layer.name) : 'paint';
                         const nameRegexp = new RegExp(`${name}_?\d*`);
                         const countWithSameName = xbmpsNames.filter((n) => nameRegexp.test(n)).length;
                         const varName = `image_${name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')}_bits`;
@@ -74,24 +72,34 @@ export class U8g2Platform extends Platform {
                             type: 'bitmap',
                             data: {
                                 name: varName,
-                                value: XBMP
-                            }
+                                value: XBMP,
+                            },
                         });
                         xbmps.push(XBMP);
                         xbmpsNames.push(varName);
                         props.imageName = varName;
                     }
                 } else if (layer instanceof TextLayer) {
-                    const fontName = `u8g2_font_${oldFontNames[layer.font.name] ?? layer.font.name}`;
+                    const fontName = `u8g2_font_${layer.font.title}`;
                     props.fontName = `${fontName}_tr`;
                 }
+                this.processLayerModifiers(layer, props);
+                this.processVarDeclarations(layer, props, declarations);
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
-            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings)
+            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
+            screenTitle: screenTitle ? toCppVariableName(screenTitle) : '',
         });
         return source;
+    }
+    packColor(color: string): string {
+        if (color === '#000000' || color === '0xFFFF') return '0';
+        return '1';
+    }
+    getTextPosition(layer: TextLayer) {
+        return [layer.position[0], layer.position[1]];
     }
 }

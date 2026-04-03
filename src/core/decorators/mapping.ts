@@ -105,19 +105,7 @@ export function paramsToState(params: any, layerClassMap: any) {
     const state = {};
     for (const [fieldName, options] of fields) {
         const name = options.alias ?? options.name;
-        // switch (options.type) {
-        //     case 'point':
-        //         state[name] = [params[fieldName].x, params[fieldName].y];
-        //         break;
-        //     case 'image':
-        //         state[name] = packImage(params[fieldName]);
-        //         break;
-        //     case 'font':
-        //         state[name] = params[fieldName].name;
-        //         break;
-        //     default:
         state[name] = params[fieldName];
-        // }
     }
     return state;
 }
@@ -134,10 +122,9 @@ export function getLayerProperties(target: any): any {
                 properties[fieldName] = [...target[fieldName].xy, ...target[fieldName].wh];
                 break;
             case 'image':
-                // properties[fieldName] = target[fieldName];
                 break;
             case 'font':
-                properties[fieldName] = target[fieldName].name;
+                properties[fieldName] = target[fieldName].title ?? target[fieldName].name;
                 break;
             default:
                 // check if type is number
