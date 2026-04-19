@@ -1,17 +1,25 @@
-import {AbstractImageLayer} from '../../core/layers/abstract-image.layer';
-import {AbstractLayer} from '../../core/layers/abstract.layer';
-import {PaintLayer} from '../../core/layers/paint.layer';
-import {Point} from '../../core/point';
-import {AbstractEditorPlugin} from '../plugins/abstract-editor.plugin';
-import {PaintPlugin} from '../plugins/paint.plugin';
-import {AbstractTool} from './abstract.tool';
+import { AbstractImageLayer } from '../../core/layers/abstract-image.layer';
+import { AbstractLayer } from '../../core/layers/abstract.layer';
+import { PaintLayer } from '../../core/layers/paint.layer';
+import { Point } from '../../core/point';
+import { AbstractEditorPlugin } from '../plugins/abstract-editor.plugin';
+import { PaintPlugin } from '../plugins/paint.plugin';
+import { AbstractTool } from './abstract.tool';
 import { LVGLPlatform } from '/src/platforms/lvgl';
 
 export class PaintTool extends AbstractTool {
     name = 'paint';
 
+    isSupported(platform: string): boolean {
+        if ([LVGLPlatform.id].includes(platform)) {
+            return false;
+        }
+
+        return this.editor.session.getPlatformFeatures(platform)?.hasImages !== false;
+    }
+
     createLayer(): AbstractLayer {
-        const {session} = this.editor;
+        const { session } = this.editor;
         const features = session.getPlatformFeatures();
         const colorMode = session.state.paintColorMode ?? 'monochrome';
         const renderer = session.createRenderer();
@@ -29,7 +37,7 @@ export class PaintTool extends AbstractTool {
     onActivate(): void {
         const selected = this.editor.session.layersManager.selected;
         const selectedPaints = selected.filter((l) => l instanceof PaintLayer);
-        const {layersManager} = this.editor.session;
+        const { layersManager } = this.editor.session;
         // we need to deselect all layers except one PaintLayer
         selected.forEach((l) => layersManager.unselectLayer(l));
         let layer: PaintLayer;

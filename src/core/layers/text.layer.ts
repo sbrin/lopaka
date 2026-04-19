@@ -1,11 +1,11 @@
-import {getFont} from '../../draw/fonts';
-import {Font, FontFormat} from '../../draw/fonts/font';
-import {TPlatformFeatures} from '../../platforms/platform';
-import {mapping} from '../decorators/mapping';
-import {Point} from '../point';
-import {Rect} from '../rect';
-import {AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType} from './abstract.layer';
-import {AbstractDrawingRenderer} from '../../draw/renderers';
+import { getFont } from '../../draw/fonts';
+import { Font, FontFormat } from '../../draw/fonts/font';
+import { TPlatformFeatures } from '../../platforms/platform';
+import { mapping } from '../decorators/mapping';
+import { Point } from '../point';
+import { Rect } from '../rect';
+import { AbstractLayer, EditMode, TLayerEditPoint, TLayerModifiers, TModifierType } from './abstract.layer';
+import { AbstractDrawingRenderer } from '../../draw/renderers';
 
 type FixedCorner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -264,7 +264,7 @@ export class TextLayer extends AbstractLayer {
         super(features, renderer);
 
         // Disable edit points for u8g2 and micropython platforms
-        if (['u8g2', 'micropython', 'flipper'].includes(platformId)) {
+        if (['u8g2', 'micropython', 'flipper', 'embedded_graphics'].includes(platformId)) {
             this.editPoints = [];
         }
 
@@ -307,7 +307,7 @@ export class TextLayer extends AbstractLayer {
         if (!this.editState) {
             return;
         }
-        const {position, text, firstPoint, editPoint} = this.editState;
+        const { position, text, firstPoint, editPoint } = this.editState;
         switch (this.mode) {
             case EditMode.MOVING:
                 this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
@@ -348,7 +348,7 @@ export class TextLayer extends AbstractLayer {
     }
 
     updateBounds(): void {
-        const {dc, font, position, text} = this;
+        const { dc, font, position, text } = this;
         const size = font.getSize(dc, text, this.scaleFactor);
         this.bounds = new Rect(position.clone().subtract(0, size.y), size);
     }
