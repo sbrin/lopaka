@@ -7,6 +7,13 @@ import { imgDataToXBMP, toCppVariableName } from '../utils';
 import { Platform } from './platform';
 import defaultTemplate from './templates/embedded-graphics/default.pug';
 
+type TEmbeddedGraphicsImports = {
+    image: boolean;
+    text: boolean;
+    primitiveStyle: boolean;
+    primitives: string[];
+};
+
 export class EmbeddedGraphicsPlatform extends Platform {
     public static id = 'embedded_graphics';
     protected name = 'embedded-graphics';
@@ -47,22 +54,27 @@ export class EmbeddedGraphicsPlatform extends Platform {
         const bitmaps: string[] = [];
         const bitmapNames: string[] = [];
         const helperNames = new Set<string>();
+        const templateSettings = Object.assign({}, this.settings, this.templates[this.currentTemplate].settings);
+
+        if (templateSettings.preview_window) {
+            templateSettings.include_images = true;
+        }
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = getLayerProperties(layer);
-                props.functionName = this.getLayerFunctionName(layer, helperNames);
+                const functionName = this.getLayerFunctionName(layer, helperNames);
                 if (layer instanceof AbstractImageLayer) {
                     const bitmap = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y, true).join(', ');
 
                     if (bitmaps.includes(bitmap)) {
                         props.imageName = bitmapNames[bitmaps.indexOf(bitmap)];
                     } else {
-                        const name = layer.name ? toCppVariableName(layer.name) : 'paint';
+                        const name = layer.name ? this.toRustIdentifier(layer.name, 'image') : 'image';
                         const nameRegexp = new RegExp(`${name}_?\\d*`);
                         const countWithSameName = bitmapNames.filter((currentName) => nameRegexp.test(currentName)).length;
-                        const varName = `image_${name + (countWithSameName || name === 'paint' ? `_${countWithSameName}` : '')
-                            }_bits`;
+                        const suffix = countWithSameName || name === 'image' ? `_${countWithSameName}` : '';
+                        const varName = `IMAGE_${(name + suffix).toUpperCase()}_BITS`;
 
                         declarations.push({
                             type: 'bitmap',
@@ -88,6 +100,7 @@ export class EmbeddedGraphicsPlatform extends Platform {
                         }
                     },
                 });
+                props.functionName = functionName;
                 if (typeof props.color === 'string') {
                     props.color = this.packColor(props.color);
                 }
@@ -101,11 +114,12 @@ export class EmbeddedGraphicsPlatform extends Platform {
         return this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
-            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
-            screenTitle: screenTitle ? `_${toCppVariableName(screenTitle)}` : '',
+            settings: templateSettings,
+            screenTitle: screenTitle ? `_${this.toRustIdentifier(screenTitle, 'screen')}` : '',
             windowTitle: JSON.stringify(screenTitle || 'Graphics preview'),
             displayWidth: ctx?.canvas?.width ?? 128,
             displayHeight: ctx?.canvas?.height ?? 64,
+            imports: this.getImports(layerData),
         });
     }
 
@@ -114,7 +128,7 @@ export class EmbeddedGraphicsPlatform extends Platform {
     }
 
     private getLayerFunctionName(layer: AbstractLayer, helperNames: Set<string>): string {
-        const baseName = toCppVariableName(layer.name || `${layer.getType()}_${layer.uid || 'layer'}`) || 'layer';
+        const baseName = this.toRustIdentifier(layer.name || `${layer.getType()}_${layer.uid || 'layer'}`, 'layer');
         let functionName = `draw_${baseName}`;
         let duplicateIndex = 1;
 
@@ -126,5 +140,57 @@ export class EmbeddedGraphicsPlatform extends Platform {
         helperNames.add(functionName);
 
         return functionName;
+    }
+
+    private toRustIdentifier(value: string, fallback: string): string {
+        const normalized = toCppVariableName(value || fallback)
+            .replace(/_+/g, '_')
+            .replace(/^_+|_+$/g, '')
+            .toLowerCase();
+
+        return normalized || fallback;
+    }
+
+    private getImports(layers: any[]): TEmbeddedGraphicsImports {
+        const primitives = new Set<string>();
+        let image = false;
+        let text = false;
+
+        for (const layer of layers) {
+            switch (layer.type) {
+                case 'line':
+                    primitives.add('Line');
+                    break;
+                case 'rect':
+                    primitives.add('Rectangle');
+                    break;
+                case 'circle':
+                    primitives.add('Circle');
+                    break;
+                case 'ellipse':
+                    primitives.add('Ellipse');
+                    break;
+                case 'triangle':
+                    primitives.add('Triangle');
+                    break;
+                case 'polygon':
+                    primitives.add('Polyline');
+                    break;
+                case 'paint':
+                case 'icon':
+                    image = true;
+                    break;
+                case 'string':
+                    text = true;
+                    break;
+            }
+        }
+
+        return {
+            image,
+            text,
+            primitiveStyle: primitives.size > 0,
+            primitives: Array.from(primitives).sort(),
+        };
     }
 }

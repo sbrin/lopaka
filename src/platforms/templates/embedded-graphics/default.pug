@@ -1,13 +1,18 @@
-| use embedded_graphics::prelude::*;
-| use embedded_graphics::image::{Image, ImageRaw};
-| use embedded_graphics::pixelcolor::BinaryColor;
-| use embedded_graphics::mono_font::{ascii::FONT_6X10, MonoTextStyle};
-| use embedded_graphics::primitives::{Circle, Ellipse, Line, Polyline, PrimitiveStyle, Rectangle, Triangle};
-| use embedded_graphics::text::{Baseline, Text};
-|
+- var importLines = ['use embedded_graphics::prelude::*;', 'use embedded_graphics::pixelcolor::BinaryColor;']
+if imports.image
+    - importLines.push('use embedded_graphics::image::{Image, ImageRaw};')
+if imports.text
+    - importLines.push('use embedded_graphics::mono_font::{ascii::FONT_6X10, MonoTextStyle};')
+if imports.primitives.length
+    - importLines.push(`use embedded_graphics::primitives::{${imports.primitives.join(', ')}${imports.primitiveStyle ? ', PrimitiveStyle' : ''}};`)
+else if imports.primitiveStyle
+    - importLines.push('use embedded_graphics::primitives::PrimitiveStyle;')
+if imports.text
+    - importLines.push('use embedded_graphics::text::{Baseline, Text};')
 if settings.preview_window
-    | use embedded_graphics_simulator::{BinaryColorTheme, OutputSettingsBuilder, SimulatorDisplay, Window};
-    |
+    - importLines.push('use embedded_graphics_simulator::{BinaryColorTheme, OutputSettingsBuilder, SimulatorDisplay, Window};')
+| !{importLines.join('\n')}
+|
 
 - var hasDrawWrapper = settings.wrap || settings.preview_window
 
@@ -95,13 +100,13 @@ each layer in layers
             |         .draw(display)?;
         when 'paint'
             | @!{layer.uid};    Image::new(
-            |         &ImageRaw::new_binary(!{layer.imageName}, !{layer.w}),
+            |         &ImageRaw::<BinaryColor>::new(!{layer.imageName}, !{layer.w}),
             |         Point::new(!{layer.x}, !{layer.y}),
             |     )
             |         .draw(display)?;
         when 'icon'
             | @!{layer.uid};    Image::new(
-            |         &ImageRaw::new_binary(!{layer.imageName}, !{layer.w}),
+            |         &ImageRaw::<BinaryColor>::new(!{layer.imageName}, !{layer.w}),
             |         Point::new(!{layer.x}, !{layer.y}),
             |     )
             |         .draw(display)?;

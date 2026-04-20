@@ -21,7 +21,7 @@ describe('embedded-graphics platform', () => {
         expect(parsed.code).toContain('    Rectangle::new(');
         expect(parsed.code).toContain('fn draw_ui<D: DrawTarget<Color = BinaryColor>>(');
         expect(parsed.code).toContain('    draw_polygon_abc123polygon(display)?;');
-        expect(parsed.code).toContain('    &ImageRaw::new_binary(');
+        expect(parsed.code).toContain('ImageRaw::<BinaryColor>::new(');
     });
 
     it('exports icon layers as embedded-graphics raw images', () => {
@@ -37,11 +37,11 @@ describe('embedded-graphics platform', () => {
 
         const source = platform.generateSourceCode([icon], undefined, 'ui');
 
-        expect(source).toContain('static image_Icon_bits: &[u8] = &[');
-        expect(source).toContain('fn draw_Icon<D: DrawTarget<Color = BinaryColor>>(');
-        expect(source).toContain('&ImageRaw::new_binary(image_Icon_bits, 8)');
+        expect(source).toContain('static IMAGE_ICON_BITS: &[u8] = &[');
+        expect(source).toContain('fn draw_icon<D: DrawTarget<Color = BinaryColor>>(');
+        expect(source).toContain('&ImageRaw::<BinaryColor>::new(IMAGE_ICON_BITS, 8)');
         expect(source).toContain('Point::new(4, 6)');
-        expect(source).toContain('draw_Icon(display)?;');
+        expect(source).toContain('draw_icon(display)?;');
     });
 
     it('can wrap the generated code in a preview window entrypoint', () => {
@@ -54,6 +54,7 @@ describe('embedded-graphics platform', () => {
         } as OffscreenCanvasRenderingContext2D;
 
         platform.setTemplateSetting('preview_window', true);
+        platform.setTemplateSetting('include_images', false);
 
         const source = platform.generateSourceCode(layersMock, ctx, 'preview demo');
 
@@ -63,6 +64,8 @@ describe('embedded-graphics platform', () => {
         expect(source).toContain('SimulatorDisplay::<BinaryColor>::new(Size::new(240, 135));');
         expect(source).toContain('Window::new("preview demo", &output_settings).show_static(&display);');
         expect(source).toContain('draw_preview_demo(&mut display)?;');
+        expect(source).toContain('static IMAGE_DRAW_RRSJCZ4OZ2LN6JX4Y4_BITS: &[u8] = &[');
+        expect(source).toContain('&ImageRaw::<BinaryColor>::new(IMAGE_DRAW_RRSJCZ4OZ2LN6JX4Y4_BITS, 128)');
     });
 
     it('respects disabling the wrapper function when preview window is off', () => {
@@ -85,9 +88,19 @@ describe('embedded-graphics platform', () => {
         const source = platform.generateSourceCode([polygon], undefined, 'ui');
         polygon.name = originalName;
 
-        expect(source).toContain('fn draw_Polygon_01_test<D: DrawTarget<Color = BinaryColor>>(');
-        expect(source).toContain('draw_Polygon_01_test(display)?;');
-        expect(source).toContain('let pts_Polygon_01_test = [');
+        expect(source).toContain('fn draw_polygon_01_test<D: DrawTarget<Color = BinaryColor>>(');
+        expect(source).toContain('draw_polygon_01_test(display)?;');
+        expect(source).toContain('let pts_polygon_01_test = [');
         expect(source).toContain('fn draw_ui<D: DrawTarget<Color = BinaryColor>>(');
+    });
+
+    it('imports only the primitives used by the design', () => {
+        const platform = new EmbeddedGraphicsPlatform();
+        const source = platform.generateSourceCode([layersMock[0]], undefined, 'ui');
+
+        expect(source).toContain('use embedded_graphics::primitives::{Rectangle, PrimitiveStyle};');
+        expect(source).not.toContain('Circle,');
+        expect(source).not.toContain('Triangle,');
+        expect(source).not.toContain('use embedded_graphics::image::{Image, ImageRaw};');
     });
 });
