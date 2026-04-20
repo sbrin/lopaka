@@ -22,6 +22,7 @@ export class EmbeddedGraphicsPlatform extends Platform {
             template: defaultTemplate,
             settings: {
                 wrap: true,
+                preview_window: false,
                 comments: false,
                 declare_vars: true,
                 include_images: true,
@@ -102,6 +103,9 @@ export class EmbeddedGraphicsPlatform extends Platform {
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
             screenTitle: screenTitle ? `_${toCppVariableName(screenTitle)}` : '',
+            windowTitle: JSON.stringify(screenTitle || 'Graphics preview'),
+            displayWidth: ctx?.canvas?.width ?? 128,
+            displayHeight: ctx?.canvas?.height ?? 64,
         });
     }
 

@@ -156,6 +156,7 @@ function downloadImage(image: PaintLayer) {
 
 const LABELS = {
     wrap: 'Wrapper function',
+    preview_window: 'Preview window',
     progmem: 'Declare as PROGMEM',
     include_fonts: 'Include fonts',
     include_images: 'Declare images',

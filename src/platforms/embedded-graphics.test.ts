@@ -44,6 +44,38 @@ describe('embedded-graphics platform', () => {
         expect(source).toContain('draw_Icon(display)?;');
     });
 
+    it('can wrap the generated code in a preview window entrypoint', () => {
+        const platform = new EmbeddedGraphicsPlatform();
+        const ctx = {
+            canvas: {
+                width: 240,
+                height: 135,
+            },
+        } as OffscreenCanvasRenderingContext2D;
+
+        platform.setTemplateSetting('preview_window', true);
+
+        const source = platform.generateSourceCode(layersMock, ctx, 'preview demo');
+
+        expect(source).toContain('use embedded_graphics_simulator::{BinaryColorTheme, OutputSettingsBuilder, SimulatorDisplay, Window};');
+        expect(source).toContain('fn draw_preview_demo<D: DrawTarget<Color = BinaryColor>>(');
+        expect(source).toContain('fn main() -> Result<(), core::convert::Infallible> {');
+        expect(source).toContain('SimulatorDisplay::<BinaryColor>::new(Size::new(240, 135));');
+        expect(source).toContain('Window::new("preview demo", &output_settings).show_static(&display);');
+        expect(source).toContain('draw_preview_demo(&mut display)?;');
+    });
+
+    it('respects disabling the wrapper function when preview window is off', () => {
+        const platform = new EmbeddedGraphicsPlatform();
+
+        platform.setTemplateSetting('wrap', false);
+
+        const source = platform.generateSourceCode([layersMock[0]], undefined, 'ui');
+
+        expect(source).not.toContain('fn draw_ui<D: DrawTarget<Color = BinaryColor>>(');
+        expect(source).toContain('draw_box_veqtjp8jf9ln6isyfz(display)?;');
+    });
+
     it('normalizes polygon helper names to valid Rust identifiers', () => {
         const platform = new EmbeddedGraphicsPlatform();
         const polygon = layersMock.find((layer) => layer instanceof PolygonLayer) as PolygonLayer;

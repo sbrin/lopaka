@@ -5,6 +5,11 @@
 | use embedded_graphics::primitives::{Circle, Ellipse, Line, Polyline, PrimitiveStyle, Rectangle, Triangle};
 | use embedded_graphics::text::{Baseline, Text};
 |
+if settings.preview_window
+    | use embedded_graphics_simulator::{BinaryColorTheme, OutputSettingsBuilder, SimulatorDisplay, Window};
+    |
+
+- var hasDrawWrapper = settings.wrap || settings.preview_window
 
 if settings.include_images
     each decl in declarations
@@ -108,14 +113,31 @@ each layer in layers
     | }
     |
 |
-- var pad = settings.wrap ? '    ' : ''
-| fn draw!{screenTitle}<D: DrawTarget<Color = BinaryColor>>(
-|     display: &mut D,
-| ) -> Result<(), D::Error> {
-|
+- var pad = hasDrawWrapper ? '    ' : ''
+if hasDrawWrapper
+    | fn draw!{screenTitle}<D: DrawTarget<Color = BinaryColor>>(
+    |     display: &mut D,
+    | ) -> Result<(), D::Error> {
+    |
 each layer in layers
     | !{pad}!{layer.functionName}(display)?;
     |
-|
-| !{pad}Ok(())
-| }
+if hasDrawWrapper
+    |
+    | !{pad}Ok(())
+    | }
+    |
+
+if settings.preview_window
+    | fn main() -> Result<(), core::convert::Infallible> {
+    |     let output_settings = OutputSettingsBuilder::new()
+    |         .theme(BinaryColorTheme::OledBlue)
+    |         .build();
+    |     let mut display = SimulatorDisplay::<BinaryColor>::new(Size::new(!{displayWidth}, !{displayHeight}));
+    |
+    |     draw!{screenTitle}(&mut display)?;
+    |
+    |     Window::new(!{windowTitle}, &output_settings).show_static(&display);
+    |
+    |     Ok(())
+    | }

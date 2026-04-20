@@ -211,5 +211,6 @@ fn draw_ui<D: DrawTarget<Color = BinaryColor>>(
     draw_polygon_abc123polygon(display)?;
 
     Ok(())
-}"
+}
+"
 `;
