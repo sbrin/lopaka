@@ -1,5 +1,5 @@
-import {describe, expect, it} from 'vitest';
-import platforms, {getTemplates} from './platforms';
+import { describe, expect, it } from 'vitest';
+import platforms, { getTemplates } from './platforms';
 
 describe('Platforms', () => {
     it('should have platform registry structure', () => {
@@ -7,6 +7,7 @@ describe('Platforms', () => {
         expect(platforms).toBeTypeOf('object');
         expect(platforms['u8g2']).toBeDefined();
         expect(platforms['adafruit_gfx']).toBeDefined();
+        expect(platforms['embedded_graphics']).toBeDefined();
     });
     it('should return templates for a given platform', () => {
         // Test the getTemplates function to ensure it returns the correct templates for a given platform.
@@ -17,6 +18,10 @@ describe('Platforms', () => {
         const adafruitTemplates = getTemplates('adafruit_gfx');
         expect(Array.isArray(adafruitTemplates)).toBe(true);
         expect(adafruitTemplates).toEqual(['Default']);
+
+        const embeddedGraphicsTemplates = getTemplates('embedded_graphics');
+        expect(Array.isArray(embeddedGraphicsTemplates)).toBe(true);
+        expect(embeddedGraphicsTemplates).toEqual(['default']);
     });
 
     it('should throw an error for a non-existent platform', () => {

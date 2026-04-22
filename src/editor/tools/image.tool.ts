@@ -1,10 +1,14 @@
-import {AbstractLayer} from '../../core/layers/abstract.layer';
-import {AbstractTool} from './abstract.tool';
+import { AbstractLayer } from '../../core/layers/abstract.layer';
+import { AbstractTool } from './abstract.tool';
 
 // #2196f3
 
 export class ImageTool extends AbstractTool {
     name = 'image';
+
+    isSupported(platform: string): boolean {
+        return this.editor.session.getPlatformFeatures(platform)?.hasImages !== false;
+    }
 
     createLayer(): AbstractLayer {
         return null;

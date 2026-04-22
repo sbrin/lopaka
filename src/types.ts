@@ -30,6 +30,7 @@ export interface PlatformTemplates {
         settings: {
             progmem?: boolean;
             wrap?: boolean;
+            preview_window?: boolean;
             include_fonts?: boolean;
             include_images?: boolean;
             comments?: boolean;
