@@ -1,4 +1,4 @@
-— Never test visual canvas or or DOM rendering. Only test the logic.
+— Never test visual canvas or DOM rendering. Only test the logic.
 - Never commit or push without permission.
 
 ## Build & Development Commands

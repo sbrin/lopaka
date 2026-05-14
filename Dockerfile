@@ -2,8 +2,7 @@ FROM node:22.3.0-alpine AS build-stage
 
 WORKDIR /app
 
-RUN corepack enable \
-    && corepack prepare pnpm@8.15.9 --activate
+RUN npm install -g pnpm@10.30.3
 
 COPY package.json pnpm-lock.yaml ./
 
@@ -13,9 +12,6 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 
 RUN NODE_OPTIONS="--max-old-space-size=16384" pnpm build
-
-# Remove dev dependencies after build
-RUN pnpm prune --prod
 
 
 FROM nginx:alpine-slim
