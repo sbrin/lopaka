@@ -13,6 +13,7 @@ import { GxEPD2Platform } from '/src/platforms/gxepd2';
 import { InkplatePlatform } from '/src/platforms/inkplate';
 import { MicropythonPlatform } from '/src/platforms/micropython';
 import { FreestylePlatform } from '/src/platforms/freestyle';
+import { EmbeddedGraphicsPlatform } from '/src/platforms/embedded-graphics';
 
 export class TriangleTool extends AbstractTool {
     private static readonly MIN_CLICK_SIZE = 5;
@@ -38,6 +39,7 @@ export class TriangleTool extends AbstractTool {
             InkplatePlatform.id,
             MicropythonPlatform.id,
             FreestylePlatform.id,
+            EmbeddedGraphicsPlatform.id,
         ].includes(platform);
     }
 
