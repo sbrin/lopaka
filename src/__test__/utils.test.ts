@@ -104,3 +104,35 @@ describe('buildLvglImageExport', () => {
         expect(result.bytes.map((value) => value.toLowerCase())).toEqual(['0x00', '0x00', '0x00']);
     });
 });
+
+describe('imgDataToRGB565', () => {
+    it('converts single white pixel correctly', () => {
+        const width = 1;
+        const height = 1;
+        const data = new Uint8ClampedArray([
+            255, 255, 255, 255  
+        ]);
+        const imageData = { width, height, data } as ImageData;
+
+        const expected = ['0xFF', '0xFF'];
+        
+        const result = imgDataToRGB565_lvgl(imageData, 0, 0, width, height, 'low', 'uint8', false);
+        
+        expect(result).toEqual(expected);
+    });
+});
+
+it('converts single black pixel correctly', () => {
+    const width = 1;
+    const height = 1;
+    const data = new Uint8ClampedArray([
+        0, 0, 0, 255  
+    ]);
+    const imageData = { width, height, data } as ImageData;
+
+    const expected = ['0x00', '0x00'];
+    
+    const result = imgDataToRGB565_lvgl(imageData, 0, 0, width, height, 'low', 'uint8', false);
+    
+    expect(result).toEqual(expected);
+});
