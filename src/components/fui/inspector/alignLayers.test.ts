@@ -29,6 +29,44 @@ const createLayer = (x: number, y: number) => {
     } as any;
 };
 
+const createTextLayer = (x: number, y: number, width: number, height: number) => {
+    const xModifier = createModifier(x);
+    const yModifier = createModifier(y);
+    return {
+        bounds: {
+            size: {x: width, y: height},
+        },
+        modifiers: {
+            x: xModifier,
+            y: yModifier,
+        },
+        pushHistory: vi.fn(),
+        pushRedoHistory: vi.fn(),
+        getType: () => 'string',
+    } as any;
+};
+
+const createPointLayer = (x1: number, y1: number, x2: number, y2: number, type = 'rect') => {
+    const x1Modifier = createModifier(x1);
+    const x2Modifier = createModifier(x2);
+    const y1Modifier = createModifier(y1);
+    const y2Modifier = createModifier(y2);
+    return {
+        bounds: {
+            size: {x: Math.abs(x2 - x1), y: Math.abs(y2 - y1)},
+        },
+        modifiers: {
+            x1: x1Modifier,
+            x2: x2Modifier,
+            y1: y1Modifier,
+            y2: y2Modifier,
+        },
+        pushHistory: vi.fn(),
+        pushRedoHistory: vi.fn(),
+        getType: () => type,
+    } as any;
+};
+
 describe('alignMultipleLayers', () => {
     let history: {batchStart: ReturnType<typeof vi.fn>; batchEnd: ReturnType<typeof vi.fn>};
     let virtualScreen: {redraw: ReturnType<typeof vi.fn>};
@@ -73,5 +111,28 @@ describe('alignMultipleLayers', () => {
         expect(history.batchEnd).not.toHaveBeenCalled();
         expect(virtualScreen.redraw).not.toHaveBeenCalled();
         expect(layer.modifiers.x.setValue).not.toHaveBeenCalled();
+    });
+
+    it('keeps reversed x1/x2 ordering when aligning point-based layers to the right edge', () => {
+        const anchor = createLayer(40, 0);
+        const reversedLine = createPointLayer(28, 4, 20, 4);
+        session.layersManager.selected = [anchor, reversedLine];
+
+        alignMultipleLayers('align_right', session);
+
+        expect(reversedLine.modifiers.x1.setValue).toHaveBeenCalledWith(50);
+        expect(reversedLine.modifiers.x2.setValue).toHaveBeenCalledWith(42);
+        expect(virtualScreen.redraw).toHaveBeenCalledTimes(1);
+    });
+
+    it('aligns text layers to the shared bottom baseline', () => {
+        const rectangle = createLayer(0, 0);
+        const text = createTextLayer(15, 4, 10, 14);
+        session.layersManager.selected = [rectangle, text];
+
+        alignMultipleLayers('align_bottom', session);
+
+        expect(text.modifiers.y.setValue).toHaveBeenCalledWith(10);
+        expect(virtualScreen.redraw).toHaveBeenCalledTimes(1);
     });
 });
