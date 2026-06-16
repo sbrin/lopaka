@@ -117,7 +117,7 @@ describe('buildLvglImageExport', () => {
 
         expect(result.colorFormat).toBe('LV_COLOR_FORMAT_RGB565');
         expect(result.dataSize).toBe(2);
-        expect(result.bytes).toBeDefined();
+        expect(result.bytes.map((value) => value.toLowerCase())).toEqual(['0x10', '0x84']);
     });
 });
 

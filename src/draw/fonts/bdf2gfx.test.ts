@@ -15,7 +15,7 @@ describe('bdf2gfx', () => {
     });
 
     function loadFixture(filename: string): File {
-        const fixturePath = path.join('__dirname', '__fixtures__', filename);
+        const fixturePath = path.join(__dirname, '__fixtures__', filename);
         const content = fs.readFileSync(fixturePath, 'utf-8');
         return new File([content], filename, { type: 'text/plain' });
     }
