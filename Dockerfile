@@ -6,8 +6,8 @@ RUN npm install -g pnpm@10.30.3
 
 COPY package.json pnpm-lock.yaml ./
 
-# Install all deps (needed for build)
-RUN pnpm install --frozen-lockfile
+# Install all deps (needed for build). Disable git hooks in Docker builds.
+RUN HUSKY=0 pnpm install --frozen-lockfile
 
 COPY . .
 
