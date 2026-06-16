@@ -1,6 +1,6 @@
 {
   "name": "lopaka",
-  "version": "0.45",
+  "version": "0.6",
   "description": "Embedded graphics editor with code builder",
   "main": "index.html",
   "type": "module",
