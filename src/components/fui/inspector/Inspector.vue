@@ -340,6 +340,7 @@ watch(textEditMode, () => {
     }
 });
 </script>
+
 <template>
     <ShortcutsPanel
         v-if="!readonly && !layerToMerge && !activeLayer"
@@ -595,14 +596,14 @@ watch(textEditMode, () => {
                             <!-- Special case for U8g2 color modifiers: show only black and white buttons -->
                             <div
                                 v-if="platform === U8g2Platform.id"
-                                    class="color-palette"
-                                    :key="immidiateUpdates + '_' + name"
+                                class="color-palette"
+                                :key="immidiateUpdates + '_' + name"
                             >
                                 <div
                                     class="color-palette-box"
-                                    @click="onChange($event, entry.param, color )"
-                                    :style="{ backgroundColor: color }"
-                                        :class="{ selected: '#ffffff' === String(param.getValue()).toLowerCase() }"
+                                    @click="onChange($event, param, '#ffffff')"
+                                    style="backgroundColor: #ffffff; border: 1px solid #333"
+                                    :class="{ selected: '#ffffff' === String(param.getValue()).toLowerCase() }"
                                     title="White"
                                 ></div>
                                 <div
@@ -610,14 +611,14 @@ watch(textEditMode, () => {
                                     @click="onChange($event, param, '#000000')"
                                     style="backgroundColor: #000000"
                                     :class="{ selected: '#000000' === String(param.getValue()).toLowerCase() }"
-                                        title="Black"
+                                    title="Black"
                                 ></div>
                             </div>
                             <!-- Default palette for other platforms -->
                             <div
                                 v-else-if="palette && palette.length"
                                 class="color-palette"
-                                :key="immidiateUpdates + '_' + entry.name"
+                                :key="immidiateUpdates + '_' + name"
                             >
                                 <div
                                     v-for="color in palette"
@@ -700,6 +701,7 @@ watch(textEditMode, () => {
         </Button>
     </div>
 </template>
+
 <style
     lang="css"
     scoped

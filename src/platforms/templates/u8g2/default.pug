@@ -12,24 +12,7 @@ if settings.declare_vars
                 | int !{decl.data.name} = !{decl.data.value};
             |
             |
-| // Fill entire screen with black color
-| void fillBlack(void) {
-|     u8g2.setDrawColor(0)
-| ;
-|     u8g2.drawBox(0, 0, u8g2.getDisplayWidth(), u8g2.getDisplayHeight())
-| ;
-| }
-|
-| // Fill entire screen with white color
-| void fillWhite(void) {
-|     u8g2.setDrawColor(1)
-| ;
-|     u8g2.drawBox(0, 0, u8g2.getDisplayWidth(), u8g2.getDisplayHeight())
-| ;
-| }
-|
-|
-|
+
 each layer in layers
     if layer.type == 'polygon'
         - var pts = layer.points
