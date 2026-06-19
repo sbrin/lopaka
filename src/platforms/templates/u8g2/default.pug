@@ -73,9 +73,9 @@ each layer in layers
                 | !{pad}u8g2.setFont(u8g2_font_!{layer.font}_tr);
                 |
             - let is_ascii = (s) => /^[\x00-\x7F]*$/.test(s)
-            - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`;
+            - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`
             if is_ascii(layer.text)
-                | @!{layer.uid};!{pad}u8g2.drawXBMP(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
+                | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
             else
                 | @!{layer.uid};!{pad}u8g2.drawUTF8(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
         when 'icon'

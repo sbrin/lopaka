@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {LVGLParser} from './lvgl.parser';
+import {LVGLParser} from './parsers/lvgl.parser';
 
 describe('LVGL parser', () => {
     const parser = new LVGLParser();
