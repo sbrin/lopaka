@@ -52,20 +52,23 @@ if settings.clear_screen
 |
 - var font = ''
 - var drawColorMode = -1;
-each layer in layers 
+each layer in layers
     if settings.comments
         | !{pad}// !{layer.name}
         |
-    if layer.inverted 
+
+    if layer.inverted
         if drawColorMode != 2
             | !{pad}u8g2_SetDrawColor(&u8g2, 2);
             - drawColorMode = 2;
     else
-                - var targetColor = layer.color === '0' || layer.color === 0 || layer.color === '#000000' || layer.color === '0xFFFF' ? 0 : 1;
+        - var targetColor = layer.color === '0' || layer.color === 0 || layer.color === '#000000' || layer.color === '0xFFFF' ? 0 : 1;
+
         if drawColorMode != targetColor
             | !{pad}u8g2_SetDrawColor(&u8g2, !{targetColor});
             - drawColorMode = targetColor;
             |
+
     case layer.type
         when 'dot'
             | @!{layer.uid};!{pad}u8g2_DrawPixel(&u8g2, !{layer.x}, !{layer.y});

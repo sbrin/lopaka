@@ -93,9 +93,7 @@ each layer in layers
             - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`;
             if is_ascii(layer.text)
                 | @!{layer.uid};!{pad}u8g2.drawXBMP(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
-            |
             else
-            
                 | @!{layer.uid};!{pad}u8g2.drawUTF8(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
         when 'icon'
             
