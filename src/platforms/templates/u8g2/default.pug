@@ -12,6 +12,24 @@ if settings.declare_vars
                 | int !{decl.data.name} = !{decl.data.value};
             |
             |
+| // Fill entire screen with black color
+| void fillBlack(void) {
+|     u8g2.setDrawColor(0)
+| ;
+|     u8g2.drawBox(0, 0, u8g2.getDisplayWidth(), u8g2.getDisplayHeight())
+| ;
+| }
+|
+| // Fill entire screen with white color
+| void fillWhite(void) {
+|     u8g2.setDrawColor(1)
+| ;
+|     u8g2.drawBox(0, 0, u8g2.getDisplayWidth(), u8g2.getDisplayHeight())
+| ;
+| }
+|
+|
+|
 each layer in layers
     if layer.type == 'polygon'
         - var pts = layer.points
@@ -74,9 +92,13 @@ each layer in layers
             - let is_ascii = (s) => /^[\x00-\x7F]*$/.test(s)
             - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`;
             if is_ascii(layer.text)
-                | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
+                | @!{layer.uid};!{pad}u8g2.drawXBMP(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
+            |
             else
+            
                 | @!{layer.uid};!{pad}u8g2.drawUTF8(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
+        when 'icon'
+            
         when 'paint'
         when 'icon'
             - var func = settings.progmem ? 'drawXBMP' : 'drawXBM'

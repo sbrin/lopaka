@@ -24,6 +24,21 @@ each layer in layers
             |
         | }
         |
+
+// Fill functions
+|
+| // Fill entire screen with black color
+| void fillBlack(u8g2_t *u8g2) {
+|     u8g2_SetDrawColor(u8g2, 0);
+|     u8g2_DrawBox(u8g2, 0, 0, u8g2_GetDisplayWidth(u8g2), u8g2_GetDisplayHeight(u8g2));
+| }
+|
+| // Fill entire screen with white color
+| void fillWhite(u8g2_t *u8g2) {
+|     u8g2_SetDrawColor(u8g2, 1);
+|     u8g2_DrawBox(u8g2, 0, 0, u8g2_GetDisplayWidth(u8g2), u8g2_GetDisplayHeight(u8g2));
+| }
+|
 - var pad = settings.wrap ? '    ' : ''
 if settings.wrap
     | void draw!{screenTitle}(void) {
@@ -36,7 +51,7 @@ if settings.clear_screen
 |
 |
 - var font = ''
-- var drawColorMode = 1;
+- var drawColorMode = -1;
 each layer in layers 
     if settings.comments
         | !{pad}// !{layer.name}
@@ -44,13 +59,13 @@ each layer in layers
     if layer.inverted 
         if drawColorMode != 2
             | !{pad}u8g2_SetDrawColor(&u8g2, 2);
-            |
             - drawColorMode = 2;
     else
-        if drawColorMode != 1
-            | !{pad}u8g2_SetDrawColor(&u8g2, 1);
+                - var targetColor = layer.color === '0' || layer.color === 0 || layer.color === '#000000' || layer.color === '0xFFFF' ? 0 : 1;
+        if drawColorMode != targetColor
+            | !{pad}u8g2_SetDrawColor(&u8g2, !{targetColor});
+            - drawColorMode = targetColor;
             |
-            - drawColorMode = 1;
     case layer.type
         when 'dot'
             | @!{layer.uid};!{pad}u8g2_DrawPixel(&u8g2, !{layer.x}, !{layer.y});
@@ -79,6 +94,7 @@ each layer in layers
             else
                 | @!{layer.uid};!{pad}u8g2_DrawUTF8(&u8g2, !{layer.x}, !{layer.y}, !{textContent});
         when 'paint'
+            | @!{layer.uid};!{pad}u8g2_DrawXBM(&u8g2, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
         when 'icon'
             | @!{layer.uid};!{pad}u8g2_DrawXBM(&u8g2, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
         when 'polygon'

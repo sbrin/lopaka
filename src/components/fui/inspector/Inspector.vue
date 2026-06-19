@@ -25,6 +25,8 @@ import { CheckboxLayer } from '/src/core/layers/checkbox.layer';
 import { shouldShowInspectorParam } from './inspector-params';
 import { logEvent } from '/src/utils';
 
+import { U8g2Platform } from '/src/platforms/u8g2';
+
 const props = defineProps<{
     readonly?: boolean;
     project: Project;
@@ -424,9 +426,31 @@ watch(textEditMode, () => {
                         </div>
                         <label class="flex gap-2 text-sm w-full flex-col">
                             <div>
+                                <!-- Special case for U8g2 color modifiers: show only black and white buttons -->
                                 <div
+                                    v-if="platform === U8g2Platform.id"
                                     class="color-palette"
-                                    v-if="palette && palette.length"
+                                    :key="immidiateUpdates + '_' + name"
+                                >
+                                    <div
+                                        class="color-palette-box"
+                                        @click="onChange($event, entry.param, '#ffffff')"
+                                        style="backgroundColor: #ffffff; border: 1px solid #333"
+                                        :class="{ selected: '#ffffff' === entry.param.getValue() }"
+                                        title="White"
+                                    ></div>
+                                    <div
+                                        class="color-palette-box"
+                                        @click="onChange($event, entry.param, '#000000')"
+                                        style="backgroundColor: #000000"
+                                        :class="{ selected: '#000000' === entry.param.getValue() }"
+                                        title="Black"
+                                    ></div>
+                                </div>
+                                <!-- Default palette for other platforms -->
+                                <div
+                                    v-else-if="palette && palette.length"
+                                    class="color-palette"
                                     :key="immidiateUpdates + '_' + entry.name"
                                 >
                                     <div
@@ -568,10 +592,32 @@ watch(textEditMode, () => {
                             />
                         </template>
                         <div v-else-if="param.type == TModifierType.color">
+                            <!-- Special case for U8g2 color modifiers: show only black and white buttons -->
                             <div
+                                v-if="platform === U8g2Platform.id"
+                                    class="color-palette"
+                                    :key="immidiateUpdates + '_' + name"
+                            >
+                                <div
+                                    class="color-palette-box"
+                                    @click="onChange($event, entry.param, color )"
+                                    :style="{ backgroundColor: color }"
+                                        :class="{ selected: '#ffffff' === String(param.getValue()).toLowerCase() }"
+                                    title="White"
+                                ></div>
+                                <div
+                                    class="color-palette-box"
+                                    @click="onChange($event, param, '#000000')"
+                                    style="backgroundColor: #000000"
+                                    :class="{ selected: '#000000' === String(param.getValue()).toLowerCase() }"
+                                        title="Black"
+                                ></div>
+                            </div>
+                            <!-- Default palette for other platforms -->
+                            <div
+                                v-else-if="palette && palette.length"
                                 class="color-palette"
-                                v-if="palette && palette.length"
-                                :key="immidiateUpdates + '_' + name"
+                                :key="immidiateUpdates + '_' + entry.name"
                             >
                                 <div
                                     v-for="color in palette"
