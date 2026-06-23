@@ -122,6 +122,10 @@ const createTestContext = (): TestContext => {
         setTool: vi.fn((name: string | null) => {
             editorState.activeTool = name ? {} : null;
         }),
+        getViewportCenterInCanvas: () => {
+            const d = session.state.display;
+            return new Point(d.x / 2, d.y / 2).round();
+        },
     } as TestContext['editor'];
     // Wire the editor back onto the session for tool access.
     session.editor = editor;

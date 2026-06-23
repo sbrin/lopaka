@@ -25,7 +25,11 @@ export class TextAreaTool extends AbstractTool {
         const {layersManager, state} = this.editor.session;
         // Create the text area layer and compute its centered position.
         const layer = this.createLayer() as TextAreaLayer;
-        const position = new Point((state.display.x - layer.size.x) / 2, (state.display.y - layer.size.y) / 2).round();
+        const center = this.editor.getViewportCenterInCanvas();
+        const position = new Point(
+            Math.max(0, Math.min(state.display.x - layer.size.x, center.x - layer.size.x / 2)),
+            Math.max(0, Math.min(state.display.y - layer.size.y, center.y - layer.size.y / 2))
+        ).round();
         // Clear selection before adding the text area layer.
         layersManager.clearSelection();
         this.editor.state.activeLayer = layer;
