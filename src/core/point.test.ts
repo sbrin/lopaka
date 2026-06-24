@@ -202,6 +202,12 @@ describe('Point class', () => {
             expect(distance).toBe(5); // 3-4-5 triangle
         });
 
+        it('should return zero distance to itself', () => {
+            const point = new Point(5, 10);
+
+            expect(point.distanceTo(point)).toBe(0);
+        });
+
         it('should normalize point', () => {
             const point = new Point(3, 4);
             const normalized = point.normalize();
@@ -215,6 +221,15 @@ describe('Point class', () => {
             point.boundTo(rect);
             expect(point.xy).toEqual([10, 20]);
         });
+
+        it('should keep point unchanged when already inside bounds', () => {
+            const point = new Point(5, 10);
+            const rect = new Rect(0, 0, 20, 30);
+
+            point.boundTo(rect);
+
+        expect(point.xy).toEqual([5, 10]);
+    });
 
         it('should check equality with another point', () => {
             const point1 = new Point(5, 10);
@@ -232,6 +247,8 @@ describe('Point class', () => {
             expect(unpacked.equals(point)).toBe(true);
         });
     });
+
+    
 
     describe('edge cases', () => {
         it('should handle zero values', () => {
