@@ -58,7 +58,7 @@ export class TextLayer extends AbstractLayer {
         x: {
             getValue: () => this.position.x,
             setValue: (v: number) => {
-                this.position.x = v;
+                this.position.x = Math.max(0, Math.min(this.buffer.width - this.bounds.w, v));
                 this.updateBounds();
                 this.draw();
             },
@@ -71,7 +71,7 @@ export class TextLayer extends AbstractLayer {
         y: {
             getValue: () => this.position.y,
             setValue: (v: number) => {
-                this.position.y = v;
+                this.position.y = Math.max(this.bounds.h, Math.min(this.buffer.height, v));
                 this.updateBounds();
                 this.draw();
             },
@@ -309,9 +309,13 @@ export class TextLayer extends AbstractLayer {
         }
         const {position, text, firstPoint, editPoint} = this.editState;
         switch (this.mode) {
-            case EditMode.MOVING:
-                this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
+            case EditMode.MOVING: {
+                const pos = position.clone().add(point.clone().subtract(firstPoint)).round();
+                pos.x = Math.max(0, Math.min(this.buffer.width - this.bounds.w, pos.x));
+                pos.y = Math.max(this.bounds.h, Math.min(this.buffer.height, pos.y));
+                this.position = pos;
                 break;
+            }
             case EditMode.RESIZING:
                 editPoint.move(firstPoint.clone().subtract(point), originalEvent);
                 break;
