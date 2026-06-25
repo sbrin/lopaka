@@ -125,6 +125,24 @@ export class Editor {
         this.state.textEditMode++;
     }
 
+    getViewportCenterInCanvas(): Point {
+        const {state} = this.session;
+        const sc = this.scrollContainer;
+        const canvasWrapper = this.container?.closest('.canvas-wrapper') as HTMLElement;
+
+        if (sc && canvasWrapper) {
+            const matrix = new DOMMatrix(getComputedStyle(canvasWrapper).transform);
+            const cx = (sc.clientWidth  / 2 - matrix.m41) / state.scale.x;
+            const cy = (sc.clientHeight / 2 - matrix.m42) / state.scale.y;
+            return new Point(
+                Math.max(0, Math.min(state.display.x - 1, cx)),
+                Math.max(0, Math.min(state.display.y - 1, cy))
+            ).round();
+        }
+
+        return new Point(state.display.x / 2, state.display.y / 2).round();
+    }
+
     clear(): void {
         this.plugins.forEach((p: AbstractEditorPlugin) => p.onClear());
         this.state.activeTool = null;
