@@ -110,11 +110,23 @@ void draw_polygon_abc123polygon(u8g2_t *u8g2) {
     u8g2_DrawLine(u8g2, 20, 40, 5, 30);
     u8g2_DrawLine(u8g2, 5, 30, 10, 10);
 }
+<!-- Fill functions-->
+// Fill entire screen with black color
+void fillBlack(u8g2_t *u8g2) {
+    u8g2_SetDrawColor(u8g2, 0);
+    u8g2_DrawBox(u8g2, 0, 0, u8g2_GetDisplayWidth(u8g2), u8g2_GetDisplayHeight(u8g2));
+}
+
+// Fill entire screen with white color
+void fillWhite(u8g2_t *u8g2) {
+    u8g2_SetDrawColor(u8g2, 1);
+    u8g2_DrawBox(u8g2, 0, 0, u8g2_GetDisplayWidth(u8g2), u8g2_GetDisplayHeight(u8g2));
+}
 u8g2_ClearBuffer(&u8g2);
 u8g2_SetBitmapMode(&u8g2, 1);
 u8g2_SetFontMode(&u8g2, 1);
 
-@veqtjp8jf9ln6isyfz;u8g2_DrawBox(&u8g2, 107, 46, 18, 15);
+u8g2_SetDrawColor(&u8g2, 1);@veqtjp8jf9ln6isyfz;u8g2_DrawBox(&u8g2, 107, 46, 18, 15);
 
 @utlxpqvhdxnln6it5pw;u8g2_DrawBox(&u8g2, 97, 2, 27, 11);
 
@@ -123,10 +135,10 @@ u8g2_SetFont(&u8g2, u8g2_font_6x10_tr);
 
 @eu6bpe0xpvvln6itc2e;u8g2_DrawBox(&u8g2, 106, 19, 19, 18);
 
-u8g2_SetFont(&u8g2, u8g2_font_profont22_tr);
+u8g2_SetDrawColor(&u8g2, 0);u8g2_SetFont(&u8g2, u8g2_font_profont22_tr);
 @s3m4u762qpln6jvm90;u8g2_DrawStr(&u8g2, 3, 11, "Text");
 
-@b11j6xs5t46ln6jw96h;u8g2_DrawLine(&u8g2, 2, 16, 68, 16);
+u8g2_SetDrawColor(&u8g2, 1);@b11j6xs5t46ln6jw96h;u8g2_DrawLine(&u8g2, 2, 16, 68, 16);
 
 @6uf3k6wj82ln6jwi73;u8g2_DrawCircle(&u8g2, 20, 41, 12);
 
