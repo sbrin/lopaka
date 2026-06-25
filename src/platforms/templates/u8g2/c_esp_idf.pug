@@ -24,7 +24,23 @@ each layer in layers
             |
         | }
         |
+
+// Fill functions
+|
+| // Fill entire screen with black color
+| void fillBlack(u8g2_t *u8g2) {
+|     u8g2_SetDrawColor(u8g2, 0);
+|     u8g2_DrawBox(u8g2, 0, 0, u8g2_GetDisplayWidth(u8g2), u8g2_GetDisplayHeight(u8g2));
+| }
+|
+| // Fill entire screen with white color
+| void fillWhite(u8g2_t *u8g2) {
+|     u8g2_SetDrawColor(u8g2, 1);
+|     u8g2_DrawBox(u8g2, 0, 0, u8g2_GetDisplayWidth(u8g2), u8g2_GetDisplayHeight(u8g2));
+| }
+|
 - var pad = settings.wrap ? '    ' : ''
+- var resolveDrawColor = function(color) { var value = String(color).toLowerCase(); return color === 0 || value === '0' || value === '#000000' || value === '0xffff' ? 0 : (color === 1 || value === '1' || value.charAt(0) === '#' || value.indexOf('0x') === 0 ? 1 : color); }
 if settings.wrap
     | void draw!{screenTitle}(void) {
     |
@@ -36,21 +52,24 @@ if settings.clear_screen
 |
 |
 - var font = ''
-- var drawColorMode = 1;
-each layer in layers 
+- var drawColorMode = -1;
+each layer in layers
     if settings.comments
         | !{pad}// !{layer.name}
         |
-    if layer.inverted 
+
+    if layer.inverted
         if drawColorMode != 2
             | !{pad}u8g2_SetDrawColor(&u8g2, 2);
-            |
             - drawColorMode = 2;
     else
-        if drawColorMode != 1
-            | !{pad}u8g2_SetDrawColor(&u8g2, 1);
+        - var targetColor = resolveDrawColor(layer.color)
+
+        if drawColorMode != targetColor
+            | !{pad}u8g2_SetDrawColor(&u8g2, !{targetColor});
+            - drawColorMode = targetColor;
             |
-            - drawColorMode = 1;
+
     case layer.type
         when 'dot'
             | @!{layer.uid};!{pad}u8g2_DrawPixel(&u8g2, !{layer.x}, !{layer.y});
@@ -79,6 +98,7 @@ each layer in layers
             else
                 | @!{layer.uid};!{pad}u8g2_DrawUTF8(&u8g2, !{layer.x}, !{layer.y}, !{textContent});
         when 'paint'
+            | @!{layer.uid};!{pad}u8g2_DrawXBM(&u8g2, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
         when 'icon'
             | @!{layer.uid};!{pad}u8g2_DrawXBM(&u8g2, !{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
         when 'polygon'

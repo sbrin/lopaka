@@ -46,9 +46,11 @@ export class U8g2Platform extends Platform {
 
     constructor() {
         super();
+        this.features.hasIndexedColors = true;
         this.features.hasInvertedColors = true;
         this.features.defaultColor = '#FFFFFF';
         this.features.screenBgColor = '#000000';
+        this.features.palette = ['#000000', '#ffffff'];
     }
 
     generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {

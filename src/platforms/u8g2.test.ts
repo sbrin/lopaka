@@ -2,6 +2,22 @@ import {describe, expect, it} from 'vitest';
 import {layersMock} from './layers.mock';
 import {U8g2Platform} from './u8g2';
 import {PolygonLayer} from '../core/layers/polygon.layer';
+import {RectangleLayer} from '../core/layers/rectangle.layer';
+
+function createFilledRect(platform: U8g2Platform, uid: string, color: string, index: number) {
+    const layer = new RectangleLayer(platform.features);
+    layer.state = {
+        t: 'rect',
+        n: uid,
+        c: color,
+        f: true,
+        i: index,
+        p: [index * 10, 0],
+        u: uid,
+        s: [8, 8],
+    };
+    return layer;
+}
 
 describe('U8g2 platform', () => {
     it('generating source code: Arduino (Cpp) Progmem', () => {
@@ -21,6 +37,28 @@ describe('U8g2 platform', () => {
         platform.getTemplates().arduino.settings = {};
         expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
     });
+    it('emits draw color changes for Arduino layer colors', () => {
+        const platform = new U8g2Platform();
+        platform.setTemplate('arduino');
+        const source = platform.generateSourceCode([
+            createFilledRect(platform, 'black', '#000000', 0),
+            createFilledRect(platform, 'white', '#ffffff', 1),
+        ]);
+
+        expect(source).toMatch(/u8g2\.setDrawColor\(0\);\s*@black;u8g2\.drawBox/);
+        expect(source).toMatch(/u8g2\.setDrawColor\(1\);\s*@white;u8g2\.drawBox/);
+    });
+    it('emits draw color changes for ESP-IDF layer colors', () => {
+        const platform = new U8g2Platform();
+        platform.setTemplate('esp-idf');
+        const source = platform.generateSourceCode([
+            createFilledRect(platform, 'black', '#000000', 0),
+            createFilledRect(platform, 'white', '#ffffff', 1),
+        ]);
+
+        expect(source).toMatch(/u8g2_SetDrawColor\(&u8g2, 0\);\s*@black;u8g2_DrawBox/);
+        expect(source).toMatch(/u8g2_SetDrawColor\(&u8g2, 1\);\s*@white;u8g2_DrawBox/);
+    });
     it('normalizes polygon helper names to valid C and C++ identifiers', () => {
         const platform = new U8g2Platform();
         const polygon = layersMock.find((layer) => layer instanceof PolygonLayer) as PolygonLayer;
@@ -32,5 +70,54 @@ describe('U8g2 platform', () => {
 
         expect(source).toContain('void draw_Polygon_01_test(void)');
         expect(source).toContain('draw_Polygon_01_test();');
+    });
+    describe('Additional U8g2Platform tests', () => {
+        it('should initialize U8g2 specific features', () => {
+            const platform = new U8g2Platform();
+
+            expect(platform.features.hasInvertedColors).toBe(true);
+            expect(platform.features.defaultColor).toBe('#FFFFFF');
+            expect(platform.features.screenBgColor).toBe('#000000');
+        });
+
+        it('should pack black color as 0', () => {
+            const platform = new U8g2Platform();
+
+            expect(platform.packColor('#000000')).toBe('0');
+        });
+
+        it('should pack 0xFFFF color as 0', () => {
+            const platform = new U8g2Platform();
+
+            expect(platform.packColor('0xFFFF')).toBe('0');
+        });
+
+        it('should contain arduino template', () => {
+            const platform = new U8g2Platform();
+
+            expect(platform.getTemplates()).toHaveProperty('arduino');
+        });
+
+        it('should contain esp-idf template', () => {
+            const platform = new U8g2Platform();
+
+            expect(platform.getTemplates()).toHaveProperty('esp-idf');
+        });
+
+        it('should generate source code for unsorted layers', () => {
+            const platform = new U8g2Platform();
+
+            const layers = [...layersMock];
+
+            if (layers.length >= 2) {
+                layers[0].index = 100;
+                layers[1].index = 1;
+            }
+
+            const source = platform.generateSourceCode(layers);
+
+            expect(source).toBeTruthy();
+            expect(source.length).toBeGreaterThan(0);
+        });
     });
 });

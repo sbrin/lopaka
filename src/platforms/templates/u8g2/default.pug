@@ -12,6 +12,7 @@ if settings.declare_vars
                 | int !{decl.data.name} = !{decl.data.value};
             |
             |
+
 each layer in layers
     if layer.type == 'polygon'
         - var pts = layer.points
@@ -27,6 +28,7 @@ each layer in layers
 |
 |
 - var pad = settings.wrap ? '    ' : ''
+- var resolveDrawColor = function(color) { var value = String(color).toLowerCase(); return color === 0 || value === '0' || value === '#000000' || value === '0xffff' ? 0 : (color === 1 || value === '1' || value.charAt(0) === '#' || value.indexOf('0x') === 0 ? 1 : color); }
 if settings.wrap
     | void draw!{screenTitle}(void) {
     |
@@ -48,10 +50,11 @@ each layer in layers
             |
             - drawColorMode = 2;
     else
-        if drawColorMode != 1
-            | !{pad}u8g2.setDrawColor(1);
+        - var targetColor = resolveDrawColor(layer.color)
+        if drawColorMode != targetColor
+            | !{pad}u8g2.setDrawColor(!{targetColor});
             |
-            - drawColorMode = 1;
+            - drawColorMode = targetColor;
     case layer.type
         when 'line'
             | @!{layer.uid};!{pad}u8g2.drawLine(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2});
@@ -72,11 +75,13 @@ each layer in layers
                 | !{pad}u8g2.setFont(u8g2_font_!{layer.font}_tr);
                 |
             - let is_ascii = (s) => /^[\x00-\x7F]*$/.test(s)
-            - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`;
+            - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`
             if is_ascii(layer.text)
                 | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
             else
                 | @!{layer.uid};!{pad}u8g2.drawUTF8(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
+        when 'icon'
+            
         when 'paint'
         when 'icon'
             - var func = settings.progmem ? 'drawXBMP' : 'drawXBM'
