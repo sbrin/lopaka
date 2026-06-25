@@ -28,6 +28,7 @@ each layer in layers
 |
 |
 - var pad = settings.wrap ? '    ' : ''
+- var resolveDrawColor = function(color) { var value = String(color).toLowerCase(); return color === 0 || value === '0' || value === '#000000' || value === '0xffff' ? 0 : (color === 1 || value === '1' || value.charAt(0) === '#' || value.indexOf('0x') === 0 ? 1 : color); }
 if settings.wrap
     | void draw!{screenTitle}(void) {
     |
@@ -49,10 +50,11 @@ each layer in layers
             |
             - drawColorMode = 2;
     else
-        if drawColorMode != 1
-            | !{pad}u8g2.setDrawColor(1);
+        - var targetColor = resolveDrawColor(layer.color)
+        if drawColorMode != targetColor
+            | !{pad}u8g2.setDrawColor(!{targetColor});
             |
-            - drawColorMode = 1;
+            - drawColorMode = targetColor;
     case layer.type
         when 'line'
             | @!{layer.uid};!{pad}u8g2.drawLine(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2});

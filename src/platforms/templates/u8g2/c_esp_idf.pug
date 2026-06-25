@@ -40,6 +40,7 @@ each layer in layers
 | }
 |
 - var pad = settings.wrap ? '    ' : ''
+- var resolveDrawColor = function(color) { var value = String(color).toLowerCase(); return color === 0 || value === '0' || value === '#000000' || value === '0xffff' ? 0 : (color === 1 || value === '1' || value.charAt(0) === '#' || value.indexOf('0x') === 0 ? 1 : color); }
 if settings.wrap
     | void draw!{screenTitle}(void) {
     |
@@ -62,7 +63,7 @@ each layer in layers
             | !{pad}u8g2_SetDrawColor(&u8g2, 2);
             - drawColorMode = 2;
     else
-        - var targetColor = layer.color === '0' || layer.color === 0 || layer.color === '#000000' || layer.color === '0xFFFF' ? 0 : 1;
+        - var targetColor = resolveDrawColor(layer.color)
 
         if drawColorMode != targetColor
             | !{pad}u8g2_SetDrawColor(&u8g2, !{targetColor});

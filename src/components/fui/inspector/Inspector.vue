@@ -1,7 +1,4 @@
-<script
-    lang="ts"
-    setup
->
+<script lang="ts" setup>
 import { ComputedRef, UnwrapRef, computed, toRefs, ref, watch, nextTick } from 'vue';
 import { AbstractImageLayer } from '/src/core/layers/abstract-image.layer';
 import { AbstractLayer, TLayerModifier, TLayerModifiers, TModifierType } from '/src/core/layers/abstract.layer';
@@ -342,324 +339,159 @@ watch(textEditMode, () => {
 </script>
 
 <template>
-    <ShortcutsPanel
-        v-if="!readonly && !layerToMerge && !activeLayer"
-        class="pt-1"
-    />
-    <div
-        class="text-lg pb-2 pt-1"
-        v-if="layerToMerge"
-    >
-        <div
-            v-if="activeGroupName"
-            class="text-lg pb-2 flex flex-row items-center grid grid-cols-[24px_minmax(0,1fr)]"
-        >
-            <Icon
-                type="rect-group"
-                sm
-                class="text-gray-500 mr-2"
-            ></Icon>
-            <TextEditable
-                :text="activeGroupName"
-                @update="updateGroupName"
-                class="text-lg"
-                :readonly="readonly"
-            />
+    <ShortcutsPanel v-if="!readonly && !layerToMerge && !activeLayer" class="pt-1" />
+    <div class="text-lg pb-2 pt-1" v-if="layerToMerge">
+        <div v-if="activeGroupName" class="text-lg pb-2 flex flex-row items-center grid grid-cols-[24px_minmax(0,1fr)]">
+            <Icon type="rect-group" sm class="text-gray-500 mr-2"></Icon>
+            <TextEditable :text="activeGroupName" @update="updateGroupName" class="text-lg" :readonly="readonly" />
         </div>
-        <div
-            class="pb-2"
-            v-else
-        >
+        <div class="pb-2" v-else>
             Selected layers ({{ selectedLayersNumber }})
         </div>
-        <AlignButtons
-            v-if="!readonly"
-            @align="alignMultipleLayers($event, session)"
-        />
+        <AlignButtons v-if="!readonly" @align="alignMultipleLayers($event, session)" />
     </div>
-    <div
-        v-if="shouldShowLayerDetails"
-        class="pt-1"
-    >
+    <div v-if="shouldShowLayerDetails" class="pt-1">
         <div class="text-lg pb-2 flex flex-row items-center grid grid-cols-[24px_minmax(0,1fr)]">
-            <Icon
-                :type="activeLayer.getIcon()"
-                sm
-                class="text-gray-500 mr-2"
-            ></Icon>
-            <TextEditable
-                :text="activeLayer.name"
-                @update="updateLayerName"
-                class="text-lg"
-                :readonly="readonly"
-            />
+            <Icon :type="activeLayer.getIcon()" sm class="text-gray-500 mr-2"></Icon>
+            <TextEditable :text="activeLayer.name" @update="updateLayerName" class="text-lg" :readonly="readonly" />
         </div>
-        <AlignButtons
-            v-if="!readonly"
-            @align="alignLayer($event, activeLayer as AbstractLayer, session)"
-            :layer="activeLayer"
-        />
+        <AlignButtons v-if="!readonly" @align="alignLayer($event, activeLayer as AbstractLayer, session)"
+            :layer="activeLayer" />
         <div class="flex flex-row flex-wrap justify-between gap-2 mb-4">
-            <template
-                v-for="(param, name) in params"
-                :key="name"
-            >
+            <template v-for="(param, name) in params" :key="name">
                 <!-- Grouped consecutive color params in a flex row -->
-                <div
-                    v-if="isFirstInColorGroup(name)"
-                    class="flex flex-row flex-wrap gap-4 w-full pb-1"
-                >
-                    <div
-                        v-for="entry in getColorGroup(name)"
-                        :key="entry.name"
-                        class="flex flex-col items-start"
-                    >
+                <div v-if="isFirstInColorGroup(name)" class="flex flex-row flex-wrap gap-4 w-full pb-1">
+                    <div v-for="entry in getColorGroup(name)" :key="entry.name" class="flex flex-col items-start">
                         <div class="flex gap-2 items-center">
                             <label class="input input-sm p-0">
                                 {{ LABELS[entry.name] ?? entry.name }}
                             </label>
-                            <SwitchInputVariable
-                                v-if="!entry.param.fixed"
-                                :disabled="readonly"
+                            <SwitchInputVariable v-if="!entry.param.fixed" :disabled="readonly"
                                 :value="entry.param.getVariable(entry.name)"
-                                @change="onChangeVariable($event, entry.param, entry.name)"
-                            />
+                                @change="onChangeVariable($event, entry.param, entry.name)" />
                         </div>
                         <label class="flex gap-2 text-sm w-full flex-col">
                             <div>
                                 <!-- Special case for U8g2 color modifiers: show only black and white buttons -->
-                                <div
-                                    v-if="platform === U8g2Platform.id"
-                                    class="color-palette"
-                                    :key="immidiateUpdates + '_' + name"
-                                >
-                                    <div
-                                        class="color-palette-box"
-                                        @click="onChange($event, entry.param, '#ffffff')"
+                                <div v-if="platform === U8g2Platform.id" class="color-palette"
+                                    :key="immidiateUpdates + '_' + name">
+                                    <div class="color-palette-box" @click="onChange($event, entry.param, '#ffffff')"
                                         style="backgroundColor: #ffffff; border: 1px solid #333"
-                                        :class="{ selected: '#ffffff' === entry.param.getValue() }"
-                                        title="White"
-                                    ></div>
-                                    <div
-                                        class="color-palette-box"
-                                        @click="onChange($event, entry.param, '#000000')"
+                                        :class="{ selected: '#ffffff' === entry.param.getValue() }" title="White"></div>
+                                    <div class="color-palette-box" @click="onChange($event, entry.param, '#000000')"
                                         style="backgroundColor: #000000"
-                                        :class="{ selected: '#000000' === entry.param.getValue() }"
-                                        title="Black"
-                                    ></div>
+                                        :class="{ selected: '#000000' === entry.param.getValue() }" title="Black"></div>
                                 </div>
                                 <!-- Default palette for other platforms -->
-                                <div
-                                    v-else-if="palette && palette.length"
-                                    class="color-palette"
-                                    :key="immidiateUpdates + '_' + entry.name"
-                                >
-                                    <div
-                                        v-for="color in palette"
-                                        class="color-palette-box"
+                                <div v-else-if="palette && palette.length" class="color-palette"
+                                    :key="immidiateUpdates + '_' + entry.name">
+                                    <div v-for="color in palette" class="color-palette-box"
                                         @click="onChange($event, entry.param, color)"
                                         :style="{ backgroundColor: color }"
-                                        :class="{ selected: color === entry.param.getValue() }"
-                                    ></div>
+                                        :class="{ selected: color === entry.param.getValue() }"></div>
                                 </div>
-                                <input
-                                    v-else
-                                    :disabled="readonly"
-                                    class="text-primary select select-bordered select-sm w-12 pl-0 pr-1"
-                                    type="color"
-                                    :value="entry.param.getValue()"
-                                    @input="onChange($event, entry.param)"
-                                    :readonly="!entry.param.setValue"
-                                    list="presetColors"
-                                    :id="`inspector_${entry.param.type}_${entry.name}`"
-                                    tabindex="-1"
-                                />
+                                <input v-else :disabled="readonly"
+                                    class="text-primary select select-bordered select-sm w-12 pl-0 pr-1" type="color"
+                                    :value="entry.param.getValue()" @input="onChange($event, entry.param)"
+                                    :readonly="!entry.param.setValue" list="presetColors"
+                                    :id="`inspector_${entry.param.type}_${entry.name}`" tabindex="-1" />
                             </div>
                         </label>
                     </div>
                 </div>
                 <!-- Single param (skip non-first members of color groups) -->
-                <div
-                    v-else-if="!isInColorGroup(name) && shouldShowParam(name, param)"
-                    class="flex pb-1"
-                    :class="{
-                        'flex-col items-start w-full': ![TModifierType.boolean, TModifierType.number].includes(
-                            param.type
-                        ),
-                        'flex-row items-center w-24': [TModifierType.number].includes(param.type),
-                        'flex-row items-center w-full': [TModifierType.boolean].includes(param.type),
-                        'w-full': [TModifierType.string].includes(param.type),
-                    }"
-                >
-                    <div
-                        v-if="param.type == TModifierType.color"
-                        class="flex gap-2 items-center"
-                    >
+                <div v-else-if="!isInColorGroup(name) && shouldShowParam(name, param)" class="flex pb-1" :class="{
+                    'flex-col items-start w-full': ![TModifierType.boolean, TModifierType.number].includes(
+                        param.type
+                    ),
+                    'flex-row items-center w-24': [TModifierType.number].includes(param.type),
+                    'flex-row items-center w-full': [TModifierType.boolean].includes(param.type),
+                    'w-full': [TModifierType.string].includes(param.type),
+                }">
+                    <div v-if="param.type == TModifierType.color" class="flex gap-2 items-center">
                         <label class="input input-sm p-0">
                             {{ LABELS[name] ?? name }}
                         </label>
-                        <SwitchInputVariable
-                            v-if="!param.fixed"
-                            :disabled="readonly"
-                            :value="param.getVariable(name)"
-                            @change="onChangeVariable($event, param, name)"
-                        />
+                        <SwitchInputVariable v-if="!param.fixed" :disabled="readonly" :value="param.getVariable(name)"
+                            @change="onChangeVariable($event, param, name)" />
                     </div>
-                    <label
-                        class="flex gap-2 text-sm"
-                        :class="{
-                            'input items-center input-bordered input-sm w-24 text-neutral-600 relative':
-                                param.type == TModifierType.number,
-                            'input items-center input-bordered input-sm w-full relative':
-                                param.type == TModifierType.string && !isTextAreaTextParam(name, param),
-                            'flex flex-col w-full relative': isTextAreaTextParam(name, param),
-                            'w-full items-center': [TModifierType.boolean, TModifierType.font].includes(param.type),
-                            'w-full flex-col': [TModifierType.color].includes(param.type),
-                        }"
-                    >
+                    <label class="flex gap-2 text-sm" :class="{
+                        'input items-center input-bordered input-sm w-24 text-neutral-600 relative':
+                            param.type == TModifierType.number,
+                        'input items-center input-bordered input-sm w-full relative':
+                            param.type == TModifierType.string && !isTextAreaTextParam(name, param),
+                        'flex flex-col w-full relative': isTextAreaTextParam(name, param),
+                        'w-full items-center': [TModifierType.boolean, TModifierType.font].includes(param.type),
+                        'w-full flex-col': [TModifierType.color].includes(param.type),
+                    }">
                         <div v-if="
                             ![TModifierType.boolean, TModifierType.string, TModifierType.color].includes(param.type)
                         ">
                             {{ LABELS[name] ?? name }}
                         </div>
                         <template v-if="param.type == TModifierType.number">
-                            <input
-                                :disabled="readonly"
-                                class="text-gray-300 w-14 pr-1"
+                            <input :disabled="readonly" class="text-gray-300 w-14 pr-1"
                                 :class="{ 'text-neutral-500': readonly || !param.setValue || !param.setValue }"
-                                type="number"
-                                :value="param.getValue()"
-                                @change="onChange($event, param)"
-                                :readonly="!param.setValue"
-                                :id="`inspector_${param.type}_${name}`"
-                                tabindex="-1"
-                            />
-                            <SwitchInputVariable
-                                :key="immidiateUpdates + '_' + name"
-                                absolute
-                                v-if="!param.fixed"
-                                :disabled="readonly"
-                                :value="param.getVariable(name)"
-                                @change="onChangeVariable($event, param, name)"
-                            />
+                                type="number" :value="param.getValue()" @change="onChange($event, param)"
+                                :readonly="!param.setValue" :id="`inspector_${param.type}_${name}`" tabindex="-1" />
+                            <SwitchInputVariable :key="immidiateUpdates + '_' + name" absolute v-if="!param.fixed"
+                                :disabled="readonly" :value="param.getVariable(name)"
+                                @change="onChangeVariable($event, param, name)" />
                         </template>
                         <template v-else-if="param.type == TModifierType.boolean">
-                            <input
-                                :disabled="readonly"
-                                class="checkbox checkbox-sm checkbox-primary no-animation"
-                                type="checkbox"
-                                :checked="param.getValue()"
-                                @change="onChange($event, param)"
-                                :readonly="!param.setValue"
-                                :id="`inspector_${param.type}_${name}`"
-                                :key="immidiateUpdates + '_' + name"
-                                tabindex="-1"
-                            />
+                            <input :disabled="readonly" class="checkbox checkbox-sm checkbox-primary no-animation"
+                                type="checkbox" :checked="param.getValue()" @change="onChange($event, param)"
+                                :readonly="!param.setValue" :id="`inspector_${param.type}_${name}`"
+                                :key="immidiateUpdates + '_' + name" tabindex="-1" />
                         </template>
 
                         <template v-else-if="param.type == TModifierType.string">
                             <!-- Use multiline input for text area layer text. -->
-                            <textarea
-                                v-if="isTextAreaTextParam(name, param)"
-                                ref="textInputRef"
-                                :disabled="readonly"
+                            <textarea v-if="isTextAreaTextParam(name, param)" ref="textInputRef" :disabled="readonly"
                                 placeholder="Enter text..."
                                 class="textarea textarea-bordered textarea-sm w-full leading-tight"
-                                :class="{ 'text-white': readonly }"
-                                :value="param.getValue()"
-                                @input="onChange($event, param)"
-                                :readonly="!param.setValue"
-                                rows="4"
-                                tabindex="-1"
-                            ></textarea>
-                            <input
-                                v-else
-                                ref="textInputRef"
-                                :disabled="readonly"
-                                placeholder="Enter text..."
-                                class="w-full pr-1"
-                                :class="{ 'text-white': readonly }"
-                                type="text"
-                                :value="param.getValue()"
-                                @input="onChange($event, param)"
-                                :readonly="!param.setValue"
-                                tabindex="-1"
-                            />
-                            <SwitchInputVariable
-                                absolute
-                                :disabled="readonly"
-                                :value="param.getVariable('text')"
-                                @change="onChangeVariable($event, param, 'text')"
-                            />
+                                :class="{ 'text-white': readonly }" :value="param.getValue()"
+                                @input="onChange($event, param)" :readonly="!param.setValue" rows="4"
+                                tabindex="-1"></textarea>
+                            <input v-else ref="textInputRef" :disabled="readonly" placeholder="Enter text..."
+                                class="w-full pr-1" :class="{ 'text-white': readonly }" type="text"
+                                :value="param.getValue()" @input="onChange($event, param)" :readonly="!param.setValue"
+                                tabindex="-1" />
+                            <SwitchInputVariable absolute :disabled="readonly" :value="param.getVariable('text')"
+                                @change="onChangeVariable($event, param, 'text')" />
                         </template>
                         <div v-else-if="param.type == TModifierType.color">
                             <!-- Special case for U8g2 color modifiers: show only black and white buttons -->
-                            <div
-                                v-if="platform === U8g2Platform.id"
-                                class="color-palette"
-                                :key="immidiateUpdates + '_' + name"
-                            >
-                                <div
-                                    class="color-palette-box"
-                                    @click="onChange($event, param, '#ffffff')"
+                            <div v-if="platform === U8g2Platform.id" class="color-palette"
+                                :key="immidiateUpdates + '_' + name">
+                                <div class="color-palette-box" @click="onChange($event, param, '#ffffff')"
                                     style="backgroundColor: #ffffff; border: 1px solid #333"
                                     :class="{ selected: '#ffffff' === String(param.getValue()).toLowerCase() }"
-                                    title="White"
-                                ></div>
-                                <div
-                                    class="color-palette-box"
-                                    @click="onChange($event, param, '#000000')"
+                                    title="White"></div>
+                                <div class="color-palette-box" @click="onChange($event, param, '#000000')"
                                     style="backgroundColor: #000000"
                                     :class="{ selected: '#000000' === String(param.getValue()).toLowerCase() }"
-                                    title="Black"
-                                ></div>
+                                    title="Black"></div>
                             </div>
                             <!-- Default palette for other platforms -->
-                            <div
-                                v-else-if="palette && palette.length"
-                                class="color-palette"
-                                :key="immidiateUpdates + '_' + name"
-                            >
-                                <div
-                                    v-for="color in palette"
-                                    class="color-palette-box"
-                                    @click="onChange($event, param, color)"
-                                    :style="{ backgroundColor: color }"
-                                    :class="{ selected: color === param.getValue() }"
-                                ></div>
+                            <div v-else-if="palette && palette.length" class="color-palette"
+                                :key="immidiateUpdates + '_' + name">
+                                <div v-for="color in palette" class="color-palette-box"
+                                    @click="onChange($event, param, color)" :style="{ backgroundColor: color }"
+                                    :class="{ selected: color === param.getValue() }"></div>
                             </div>
-                            <input
-                                v-else
-                                :disabled="readonly"
-                                class="text-primary select select-bordered select-sm w-16 pl-0 pr-1"
-                                type="color"
-                                :value="param.getValue()"
-                                @input="onChange($event, param)"
-                                :readonly="!param.setValue"
-                                list="presetColors"
-                                :id="`inspector_${param.type}_${name}`"
-                                tabindex="-1"
-                            />
+                            <input v-else :disabled="readonly"
+                                class="text-primary select select-bordered select-sm w-16 pl-0 pr-1" type="color"
+                                :value="param.getValue()" @input="onChange($event, param)" :readonly="!param.setValue"
+                                list="presetColors" :id="`inspector_${param.type}_${name}`" tabindex="-1" />
                         </div>
-                        <div
-                            v-else-if="param.type == TModifierType.font"
-                            class=""
-                        >
-                            <SelectFont
-                                :fonts="fonts"
-                                :fontsUsed="fontsUsed"
-                                :project_id="project.id"
-                                :disabled="readonly"
-                                :fontValue="param.getValue()"
-                                @change="(event) => onChange(event, param)"
-                            />
+                        <div v-else-if="param.type == TModifierType.font" class="">
+                            <SelectFont :fonts="fonts" :fontsUsed="fontsUsed" :project_id="project.id"
+                                :disabled="readonly" :fontValue="param.getValue()"
+                                @change="(event) => onChange(event, param)" />
                         </div>
                         <template v-if="param.type === TModifierType.boolean">
-                            <span
-                                v-if="TOOLTIPS[name]"
-                                class="tooltip tooltip-bottom"
-                                :data-tip="TOOLTIPS[name]"
-                            >
+                            <span v-if="TOOLTIPS[name]" class="tooltip tooltip-bottom" :data-tip="TOOLTIPS[name]">
                                 {{ LABELS[name] ?? name }}
                             </span>
                             <span v-else>
@@ -670,42 +502,22 @@ watch(textEditMode, () => {
                 </div>
             </template>
         </div>
-        <ImageOperations
-            v-if="!readonly"
-            :actions="actions"
-            :activeLayer="activeLayer"
-            :project_id="project.id"
-        />
+        <ImageOperations v-if="!readonly" :actions="actions" :activeLayer="activeLayer" :project_id="project.id" />
     </div>
-    <div
-        v-if="(activeLayer && !['icon', 'paint'].includes(activeLayer.getType())) || layerToMerge"
-        class="flex flex-row gap-2"
-    >
-        <Button
-            v-if="!readonly"
-            @click="mergeLayers"
-            title="Merge layers into a single bitmap"
-        >
+    <div v-if="(activeLayer && !['icon', 'paint'].includes(activeLayer.getType())) || layerToMerge"
+        class="flex flex-row gap-2">
+        <Button v-if="!readonly" @click="mergeLayers" title="Merge layers into a single bitmap">
             Merge to Bitmap
         </Button>
     </div>
-    <div
-        class="mt-2"
-        v-if="isDeleteButtonVisible"
-    >
-        <Button
-            danger
-            @click="deleteLayers"
-        >
+    <div class="mt-2" v-if="isDeleteButtonVisible">
+        <Button danger @click="deleteLayers">
             Delete
         </Button>
     </div>
 </template>
 
-<style
-    lang="css"
-    scoped
->
+<style lang="css" scoped>
 .inspector-panel {
     display: flex;
     flex-direction: row;

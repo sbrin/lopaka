@@ -23,9 +23,11 @@ u8g2.setFont(u8g2_font_6x10_tr);
 
 @eu6bpe0xpvvln6itc2e;u8g2.drawBox(@x:106, @y:19, @w:19, @h:18);
 
+u8g2.setDrawColor(0);
 u8g2.setFont(u8g2_font_profont22_tr);
 @s3m4u762qpln6jvm90;u8g2.drawStr(@x:3, @y:11, @text:"Text");
 
+u8g2.setDrawColor(1);
 @b11j6xs5t46ln6jw96h;u8g2.drawLine(@x1:2, @y1:16, @x2:68, @y2:16);
 
 @6uf3k6wj82ln6jwi73;u8g2.drawCircle(@x:20, @y:41, @r:12);
@@ -73,9 +75,11 @@ u8g2.setFont(u8g2_font_6x10_tr);
 
 @eu6bpe0xpvvln6itc2e;u8g2.drawBox(@x:106, @y:19, @w:19, @h:18);
 
+u8g2.setDrawColor(0);
 u8g2.setFont(u8g2_font_profont22_tr);
 @s3m4u762qpln6jvm90;u8g2.drawStr(@x:3, @y:11, @text:"Text");
 
+u8g2.setDrawColor(1);
 @b11j6xs5t46ln6jw96h;u8g2.drawLine(@x1:2, @y1:16, @x2:68, @y2:16);
 
 @6uf3k6wj82ln6jwi73;u8g2.drawCircle(@x:20, @y:41, @r:12);
