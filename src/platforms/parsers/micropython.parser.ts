@@ -72,7 +72,8 @@ export class MicropythonParser extends AbstractParser {
                         states.push({
                             type: 'ellipse',
                             position: new Point(parseInt(x) - parseInt(rx), parseInt(y) - parseInt(ry)),
-                            radius: new Point(parseInt(rx), parseInt(ry)),
+                            rx: parseInt(rx),
+                            ry: parseInt(ry),radius: new Point(parseInt(rx), parseInt(ry)),
                             fill: this.resolveBoolean(fill),
                             color: this.getColor(color),
                         });
