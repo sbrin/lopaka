@@ -1,30 +1,12 @@
 import {describe, expect, it} from 'vitest';
-import {layersMock} from './layers.mock';
-import {AdafruitPlatform} from './adafruit';
-import {PolygonLayer} from '../core/layers/polygon.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {Point} from '../core/point';
+import {GxEPD2Platform} from './gxepd2';
+import {layersMock} from './layers.mock';
 
-describe('Adafruit platform', () => {
-    it('generating source code', () => {
-        const platform = new AdafruitPlatform();
-        expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
-    });
-    it('normalizes polygon helper names to valid C and C++ identifiers', () => {
-        const platform = new AdafruitPlatform();
-        const polygon = layersMock.find((layer) => layer instanceof PolygonLayer) as PolygonLayer;
-        const originalName = polygon.name;
-        polygon.name = 'Polygon 01-test';
-
-        const source = platform.generateSourceCode([polygon]);
-        polygon.name = originalName;
-
-        expect(source).toContain('void draw_Polygon_01_test(void)');
-        expect(source).toContain('draw_Polygon_01_test();');
-    });
-
+describe('GxEPD2 platform', () => {
     it('imports a generated 20x20 circle with the original radius and position', () => {
-        const platform = new AdafruitPlatform();
+        const platform = new GxEPD2Platform();
         const circle = layersMock.find((layer) => layer instanceof CircleLayer) as CircleLayer;
         const originalPosition = circle.position.clone();
         const originalRadius = circle.radius;
