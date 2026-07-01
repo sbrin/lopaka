@@ -73,13 +73,20 @@ export abstract class Platform {
     protected templates: PlatformTemplates;
     protected currentTemplate: string = 'Default';
     protected settings = {};
-    protected parser: AbstractParser;
+    protected parser: AbstractParser | null = null;
     public displays: Display[] = displays;
     public sourceMapParser: SourceMapParser = new SourceMapParser();
 
     abstract generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string;
 
     importSourceCode(sourceCode: string): { states: any[]; warnings: string[] } {
+        if (!this.parser) {
+            return {
+                states: [],
+                warnings: [`Import is not supported for ${this.getName()}.`],
+            };
+        }
+
         return this.parser.importSourceCode(sourceCode);
     }
 
