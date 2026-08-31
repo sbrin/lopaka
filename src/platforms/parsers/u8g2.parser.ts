@@ -101,6 +101,7 @@ export class U8g2Parser extends AbstractParser {
                         radius: parseInt(radius),
                         fill: call.functionName === 'drawDisc',
                     });
+                    break;
                 }
                 case 'u8g2_DrawEllipse':
                 case 'u8g2_DrawFilledEllipse':
