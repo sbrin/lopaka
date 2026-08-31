@@ -2,6 +2,7 @@ import { nextTick, watch, WatchStopHandle } from 'vue';
 import { SCALE_LIST } from '/src/const';
 import { Session } from '../../core/session';
 import { AbstractEditorPlugin } from './abstract-editor.plugin';
+import { Point } from '../../core/point';
 
 export class ZoomPlugin extends AbstractEditorPlugin {
     private panX = 0;
@@ -71,6 +72,26 @@ export class ZoomPlugin extends AbstractEditorPlugin {
     }
 
     private lastZoomTime = 0;
+
+    /**
+     * Current pan offset (in CSS pixels) applied to the canvas wrapper.
+     * Exposed so other editor components (e.g. viewport-relative placement)
+     * can reuse the already-tracked pan state instead of re-deriving it
+     * from the DOM transform.
+     */
+    getPan(): Point {
+        return new Point(this.panX, this.panY);
+    }
+
+    /**
+     * Size of the visible scroll viewport (in CSS pixels), or null when the
+     * DOM has not been wired up yet (e.g. in unit tests without a container).
+     */
+    getViewportSize(): Point | null {
+        const sc = this.getScrollContainer();
+        if (!sc) return null;
+        return new Point(sc.clientWidth, sc.clientHeight);
+    }
 
     private handleZoom(event: WheelEvent): void {
         const sc = this.getScrollContainer();

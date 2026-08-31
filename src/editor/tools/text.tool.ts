@@ -31,8 +31,13 @@ export class TextTool extends AbstractTool {
         
         layer.updateBounds();
         const bounds = layer.bounds;
-        // Center the text bounds on the display.
-        const position = new Point((state.display.x - bounds.w) / 2, (state.display.y + bounds.h) / 2).round();
+        // Center the text bounds on the currently visible viewport, clamped
+        // so newly created text always lands fully inside the canvas.
+        const center = this.editor.getViewportCenterInCanvas();
+        const position = new Point(
+            Math.max(0, Math.min(state.display.x - bounds.w, center.x - bounds.w / 2)),
+            Math.max(bounds.h, Math.min(state.display.y, center.y + bounds.h / 2))
+        ).round();
         
         this.editor.state.activeLayer.startEdit(EditMode.CREATING, position);
         this.editor.state.activeLayer.stopEdit();

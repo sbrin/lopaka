@@ -4,6 +4,13 @@ import {U8g2Platform} from './u8g2';
 import {PolygonLayer} from '../core/layers/polygon.layer';
 import {CircleLayer} from '../core/layers/circle.layer';
 import {Point} from '../core/point';
+import {RectangleLayer} from '../core/layers/rectangle.layer';
+
+function createRect(features: TPlatformFeatures, uid: string, color: string, index: number): RectangleLayer {
+    const layer = new RectangleLayer(features);
+    layer.state = {t: 'rect', n: uid, c: color, f: true, i: index, p: [index * 10, 0], u: uid, s: [8, 8]};
+    return layer;
+}
 
 describe('U8g2 platform', () => {
     it('generating source code: Arduino (Cpp) Progmem', () => {
@@ -22,6 +29,28 @@ describe('U8g2 platform', () => {
         platform.setTemplate('esp-idf');
         platform.getTemplates().arduino.settings = {};
         expect(platform.generateSourceCode(layersMock)).toMatchSnapshot();
+    });
+    it('emits setDrawColor only when the draw color changes between layers (Arduino)', () => {
+        const platform = new U8g2Platform();
+        platform.setTemplate('arduino');
+        const source = platform.generateSourceCode([
+            createRect(platform.features, 'black', '#000000', 0),
+            createRect(platform.features, 'white', '#ffffff', 1),
+        ]);
+
+        expect(source).toMatch(/u8g2\.setDrawColor\(0\);\s*@black;u8g2\.drawBox/);
+        expect(source).toMatch(/u8g2\.setDrawColor\(1\);\s*@white;u8g2\.drawBox/);
+    });
+    it('emits setDrawColor only when the draw color changes between layers (ESP-IDF)', () => {
+        const platform = new U8g2Platform();
+        platform.setTemplate('esp-idf');
+        const source = platform.generateSourceCode([
+            createRect(platform.features, 'black', '#000000', 0),
+            createRect(platform.features, 'white', '#ffffff', 1),
+        ]);
+
+        expect(source).toMatch(/u8g2_SetDrawColor\(&u8g2, 0\);\s*@black;u8g2_DrawBox/);
+        expect(source).toMatch(/u8g2_SetDrawColor\(&u8g2, 1\);\s*@white;u8g2_DrawBox/);
     });
     it('normalizes polygon helper names to valid C and C++ identifiers', () => {
         const platform = new U8g2Platform();

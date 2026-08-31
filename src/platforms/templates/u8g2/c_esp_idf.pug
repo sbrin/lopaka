@@ -36,7 +36,7 @@ if settings.clear_screen
 |
 |
 - var font = ''
-- var drawColorMode = 1;
+- var drawColorMode = -1;
 each layer in layers 
     if settings.comments
         | !{pad}// !{layer.name}
@@ -47,10 +47,10 @@ each layer in layers
             |
             - drawColorMode = 2;
     else
-        if drawColorMode != 1
-            | !{pad}u8g2_SetDrawColor(&u8g2, 1);
+        if drawColorMode != layer.color
+            | !{pad}u8g2_SetDrawColor(&u8g2, !{layer.color});
             |
-            - drawColorMode = 1;
+            - drawColorMode = layer.color;
     case layer.type
         when 'dot'
             | @!{layer.uid};!{pad}u8g2_DrawPixel(&u8g2, !{layer.x}, !{layer.y});

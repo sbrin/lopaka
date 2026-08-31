@@ -37,7 +37,7 @@ if settings.clear_screen
 | !{pad}u8g2.setBitmapMode(1);
 |
 - var font = ''
-- var drawColorMode = 1;
+- var drawColorMode = -1;
 each layer in layers 
     if settings.comments
         | !{pad}// !{layer.name}
@@ -48,10 +48,10 @@ each layer in layers
             |
             - drawColorMode = 2;
     else
-        if drawColorMode != 1
-            | !{pad}u8g2.setDrawColor(1);
+        if drawColorMode != layer.color
+            | !{pad}u8g2.setDrawColor(!{layer.color});
             |
-            - drawColorMode = 1;
+            - drawColorMode = layer.color;
     case layer.type
         when 'line'
             | @!{layer.uid};!{pad}u8g2.drawLine(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2});

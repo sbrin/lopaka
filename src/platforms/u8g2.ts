@@ -46,9 +46,11 @@ export class U8g2Platform extends Platform {
 
     constructor() {
         super();
+        this.features.hasIndexedColors = true;
         this.features.hasInvertedColors = true;
         this.features.defaultColor = '#FFFFFF';
         this.features.screenBgColor = '#000000';
+        this.features.palette = ['#000000', '#ffffff'];
     }
 
     generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
@@ -84,6 +86,7 @@ export class U8g2Platform extends Platform {
                     props.fontName = `${fontName}_tr`;
                 }
                 this.processLayerModifiers(layer, props);
+                props.color = this.packColor(layer.color);
                 this.processVarDeclarations(layer, props, declarations);
                 return props;
             });

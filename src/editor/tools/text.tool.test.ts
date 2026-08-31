@@ -1,7 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {Point} from '../../core/point';
-import {TextAreaLayer} from '../../core/layers/text-area.layer';
-import {TextAreaTool} from './text-area.tool';
+import {TextLayer} from '../../core/layers/text.layer';
+import {TextTool} from './text.tool';
 import {PixelatedDrawingRenderer} from '../../draw/renderers';
 import {FontFormat} from '../../draw/fonts/font';
 import type {AbstractLayer} from '../../core/layers/abstract.layer';
@@ -53,6 +53,7 @@ type TestContext = {
             activeTool: unknown;
         };
         setTool: (name: string | null) => void;
+        getViewportCenterInCanvas: () => Point;
     };
     session: {
         state: {
@@ -75,7 +76,7 @@ type TestContext = {
     layers: AbstractLayer[];
 };
 
-const createTestContext = (): TestContext => {
+const createTestContext = (viewportCenter?: Point): TestContext => {
     // Build the session state needed for centering and rendering.
     const state = {
         display: new Point(128, 64),
@@ -122,48 +123,67 @@ const createTestContext = (): TestContext => {
         setTool: vi.fn((name: string | null) => {
             editorState.activeTool = name ? {} : null;
         }),
-        // Stub the viewport-center lookup: in tests without a mounted DOM
-        // container, Editor falls back to the display's geometric center.
-        getViewportCenterInCanvas: () => new Point(state.display.x / 2, state.display.y / 2).round(),
+        // Stub the viewport-center lookup: defaults to the display's
+        // geometric center, matching Editor's fallback when unmounted.
+        getViewportCenterInCanvas: () =>
+            viewportCenter ?? new Point(state.display.x / 2, state.display.y / 2).round(),
     } as TestContext['editor'];
     // Wire the editor back onto the session for tool access.
     session.editor = editor;
     return {editor, session, layers};
 };
 
-describe('TextAreaTool', () => {
+describe('TextTool', () => {
     beforeEach(() => {
         // Stub font resolution for each test case.
         vi.spyOn(fonts, 'getFont').mockReturnValue(FAKE_FONT as any);
     });
 
-    it('centers the text area and updates hit testing on activation', () => {
-        // Arrange a tool with stubbed editor/session context.
-        const {editor, layers, session} = createTestContext();
-        const tool = new TextAreaTool(editor as any);
+    it('centers the text layer on the viewport center and exits the tool on activation', () => {
+        const {editor, layers} = createTestContext();
+        const tool = new TextTool(editor as any);
 
-        // Act by activating the tool to create the layer.
         tool.onActivate();
 
-        // Assert a text area layer is created and centered.
         expect(layers).toHaveLength(1);
-        const layer = layers[0] as TextAreaLayer;
-        const expectedPosition = new Point(
-            (session.state.display.x - layer.size.x) / 2,
-            (session.state.display.y - layer.size.y) / 2
-        ).round();
-        expect(layer).toBeInstanceOf(TextAreaLayer);
+        const layer = layers[0] as TextLayer;
+        expect(layer).toBeInstanceOf(TextLayer);
+
+        // Display center is (64, 32); text is 'Text' -> width 24, height 10.
+        // x = max(0, min(128-24, 64-12)) = 52
+        // y = max(10, min(64, 32+5)) = 37 (baseline sits below the visual center)
+        const expectedPosition = new Point(52, 37);
         expect(layer.position.equals(expectedPosition)).toBe(true);
 
-        // Assert bounds align to the centered position.
-        expect(layer.bounds.x).toBe(layer.position.x);
-        expect(layer.bounds.y).toBe(layer.position.y);
-        expect(layer.bounds.w).toBe(layer.size.x);
-        expect(layer.bounds.h).toBe(layer.size.y);
+        expect(editor.setTool).toHaveBeenCalledWith(null);
+    });
 
-        // Assert hit testing succeeds for points inside the bounds.
-        const centerPoint = layer.bounds.getCenter().round();
-        expect(layer.contains(centerPoint)).toBe(true);
-        expect(layer.contains(new Point(0, 0))).toBe(false);
+    it('centers on a scrolled viewport instead of the display center when provided', () => {
+        // Simulate a viewport scrolled toward the bottom-right corner of the canvas.
+        const {editor, layers} = createTestContext(new Point(100, 50));
+        const tool = new TextTool(editor as any);
+
+        tool.onActivate();
+
+        const layer = layers[0] as TextLayer;
+        // x = max(0, min(128-24, 100-12)) = 88
+        // y = max(10, min(64, 50+5)) = 55
+        expect(layer.position.equals(new Point(88, 55))).toBe(true);
+    });
+
+    it('clamps text placement to the canvas when the viewport center sits outside it', () => {
+        // A viewport center beyond the canvas edge should still keep the
+        // whole text layer inside the canvas bounds.
+        const {editor, layers} = createTestContext(new Point(500, 500));
+        const tool = new TextTool(editor as any);
+
+        tool.onActivate();
+
+        const layer = layers[0] as TextLayer;
+        expect(layer.position.x).toBeLessThanOrEqual(128 - layer.bounds.w);
+        expect(layer.position.y).toBeLessThanOrEqual(64);
+        expect(layer.position.x).toBeGreaterThanOrEqual(0);
+        expect(layer.position.y).toBeGreaterThanOrEqual(layer.bounds.h);
     });
 });
+
