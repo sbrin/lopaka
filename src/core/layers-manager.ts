@@ -186,6 +186,7 @@ export class LayersManager {
 
     add(layer: AbstractLayer, saveHistory: boolean = true) {
         const { display, scale } = this.session.state;
+        layer.setHistory(this.session.history);
         layer.resize(display, scale);
         layer.index = layer.index ?? this.layersMap.size + 1;
         layer.name = layer.name ?? 'Layer ' + (this.layersMap.size + 1);
@@ -215,7 +216,7 @@ export class LayersManager {
         this.requestUpdate();
     }
 
-    group(layers: AbstractLayer[]) {
+    group(layers: AbstractLayer[], name?: string) {
         // Ignore empty calls
         if (!layers.length) {
             return;
@@ -223,6 +224,17 @@ export class LayersManager {
 
         // Work on a copy ordered by z-index so results stay predictable
         const ordered = layers.slice().sort((a, b) => a.index - b.index);
+
+        // An explicit name is already validated by its caller, so it is applied
+        // as given instead of being derived from the current selection.
+        if (name) {
+            ordered.forEach((layer) => {
+                layer.group = name;
+            });
+            this.rebuildGroups();
+            this.requestUpdate();
+            return;
+        }
 
         // Bucket selected entries by their current group membership
         const groupedSelection = new Map<string, AbstractLayer[]>();
@@ -622,6 +634,35 @@ export class LayersManager {
         this.requestUpdate();
     }
 
+    // Restore a recorded stacking order, together with its group membership.
+    private applyReorderChange(state?: { uid: string; group: string | null }[]) {
+        if (!Array.isArray(state)) {
+            return;
+        }
+
+        const ordered = state.map(({ uid }) => this.getLayer(uid)).filter(Boolean);
+        // A partial snapshot cannot describe a whole stack, so it is ignored.
+        if (ordered.length !== this.layersMap.size) {
+            return;
+        }
+
+        state.forEach(({ uid, group }) => {
+            const layer = this.getLayer(uid);
+            if (layer) {
+                layer.group = group ?? null;
+            }
+        });
+        this.layersMap = new Map(
+            ordered.map((layer, index) => {
+                layer.index = index + 1;
+                return [layer.uid, layer];
+            }),
+        );
+
+        this.rebuildGroups();
+        this.requestUpdate();
+    }
+
     clearLayers() {
         this.layersMap.clear();
         this.groupsMap.clear();
@@ -686,6 +727,10 @@ export class LayersManager {
                         // Restore the pre-change group membership snapshot
                         this.applyGroupChange(change.state?.before);
                         break;
+                    case 'reorder':
+                        // Restore the pre-change stacking order
+                        this.applyReorderChange(change.state?.before);
+                        break;
                     case 'merge':
                         this.removeLayer(change.layer, false);
                         change.state.forEach((l) => {
@@ -732,6 +777,10 @@ export class LayersManager {
                     case 'group':
                         // Apply the post-change group membership snapshot
                         this.applyGroupChange(change.state?.after);
+                        break;
+                    case 'reorder':
+                        // Apply the post-change stacking order
+                        this.applyReorderChange(change.state?.after);
                         break;
                     case 'merge':
                         change.state.forEach((l) => {

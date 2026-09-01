@@ -3,6 +3,7 @@ import {computed, ref, toRefs} from 'vue';
 import {useSession} from '../../../core/session';
 import FuiPopup from '../FuiPopup.vue';
 import FuiDisplayCustomDialog from './FuiDisplayCustomDialog.vue';
+import {useDisplaySelection} from './display-selection';
 import {Display} from '/src/core/displays';
 import {InkplatePlatform} from '/src/platforms/inkplate';
 
@@ -14,18 +15,16 @@ const showCustomDisplayPopup = ref(false);
 const customWidth = ref(display.value.x);
 const customHeight = ref(display.value.y);
 const displays = computed(() => getDisplays(platform.value));
-const selectedDisplay = ref(
-    isDisplayCustom.value ? 'custom' : displays.value.findIndex((d) => d.size.equals(display.value))
-);
-const lastDisplay = ref(selectedDisplay.value);
+const {selectedDisplay, lastDisplay} = useDisplaySelection({display, isDisplayCustom, platform, displays});
 
 function selectDisplay(event) {
     if (event.target.value === 'custom') {
         enablePopup();
     } else {
-        selectedDisplay.value = event.target.value;
-        lastDisplay.value = selectedDisplay.value;
-        setDisplay(displays.value[selectedDisplay.value].size, true);
+        const index = Number(event.target.value);
+        selectedDisplay.value = index;
+        lastDisplay.value = index;
+        setDisplay(displays.value[index].size, true);
     }
 }
 

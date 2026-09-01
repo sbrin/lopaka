@@ -62,6 +62,11 @@ export type TLayerModifier = {
     setVariable?(name: string, enabled: boolean): void;
     type: TModifierType;
     fixed?: boolean;
+    // Optional descriptive metadata, reported to agents through WebMCP.
+    nullable?: boolean;
+    min?: number;
+    max?: number;
+    step?: number;
 };
 
 export type TLayerAction = {
@@ -241,6 +246,11 @@ export abstract class AbstractLayer {
      */
     public isEditing() {
         return this.mode !== EditMode.NONE;
+    }
+
+    /** Bind the layer to the history of the session that owns it. */
+    public setHistory(history: ChangeHistory): void {
+        this.history = history;
     }
 
     public pushHistory() {

@@ -1,22 +1,29 @@
 <script lang="ts" setup>
-import {ref, toRefs, watch} from 'vue';
+import {computed, toRefs} from 'vue';
 import {useSession} from '../../core/session';
 
 const session = useSession();
 const {preparePlatform} = session;
+const {platform, immidiateUpdates} = toRefs(session.state);
 
-const color_bg = ref(session.platforms[session.state.platform].features.screenBgColor);
-
-const emit = defineEmits<{
-    'update:color_bg': [value: string];
-}>();
-
-watch(color_bg, (val, oldVal) => {
-    if (val !== oldVal) {
-        session.platforms[session.state.platform].features.screenBgColor = val;
-        preparePlatform(session.state.platform);
-        localStorage.setItem(`lopaka_${session.state.platform}_color_bg`, val);
-    }
+const color_bg = computed({
+    get: () => {
+        // Platform features are plain objects, so also depend on the session
+        // mutation counter for WebMCP background changes.
+        immidiateUpdates.value;
+        return session.getPlatformFeatures(platform.value)?.screenBgColor ?? '#000000';
+    },
+    set: (value: string) => {
+        const features = session.getPlatformFeatures(platform.value);
+        if (!features || features.screenBgColor === value) return;
+        features.screenBgColor = value;
+        void preparePlatform(platform.value).then(() => {
+            // Invalidate dependent UI only after the platform reload has
+            // finished, so autosave captures the final layer state.
+            session.state.immidiateUpdates++;
+        });
+        localStorage.setItem(`lopaka_${platform.value}_color_bg`, value);
+    },
 });
 </script>
 <template>

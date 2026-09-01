@@ -23,10 +23,10 @@ const createMockLayer = (overrides: Partial<AbstractLayer> = {}): AbstractLayer 
         bounds: new Rect(0, 0, 10, 10),
         resize: vi.fn(),
         draw: vi.fn(),
-        getBuffer: () => ({getContext: () => ({})}),
         stopEdit: vi.fn(),
         recalculate: vi.fn(),
         applyColor: vi.fn(),
+        setHistory: vi.fn(),
     };
 
     return {...base, ...overrides} as AbstractLayer;

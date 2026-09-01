@@ -18,8 +18,16 @@ const screen = ref(null);
 const container = ref(null);
 const session = useSession();
 const {editor, virtualScreen, state} = session;
-const {display, scale, lock} = toRefs(state);
+const {display, scale, lock, platform, immidiateUpdates} = toRefs(state);
 const {activeTool} = toRefs(editor.state);
+
+const platformFeatures = computed(() => session.getPlatformFeatures(platform.value));
+const screenBackground = computed(() => {
+    // Platform feature objects are shared plain objects. Depend on the
+    // session mutation counter so WebMCP feature updates invalidate this CSS.
+    immidiateUpdates.value;
+    return platformFeatures.value?.screenBgColor ?? '#000000';
+});
 
 onMounted(() => {
     virtualScreen.setCanvas(screen.value);
@@ -93,14 +101,14 @@ const canvasClassNames = computed(() => {
                     ref="screen"
                     class="screen"
                     :class="{
-                        screen_smooth: session.getPlatformFeatures().smooth,
+                        screen_smooth: platformFeatures?.smooth,
                     }"
                     :width="display.x"
                     :height="display.y"
                     :style="{
                         width: display.x * scale.x + 'px',
                         height: display.y * scale.y + 'px',
-                        backgroundColor: session.getPlatformFeatures().screenBgColor,
+                        backgroundColor: screenBackground,
                     }"
                 />
             </div>
@@ -165,7 +173,8 @@ const canvasClassNames = computed(() => {
         content: '';
         position: absolute;
         inset: 0;
-        background-image: linear-gradient(to right, var(--color-grid) 0.1px, transparent 0.5px),
+        background-image:
+            linear-gradient(to right, var(--color-grid) 0.1px, transparent 0.5px),
             linear-gradient(to bottom, var(--color-grid) 0.1px, transparent 0.5px);
         background-size: v-bind(gridSize);
         opacity: 0.2;
