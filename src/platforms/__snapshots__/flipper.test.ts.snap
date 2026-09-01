@@ -12,41 +12,59 @@ void draw_polygon_abc123polygon(Canvas* canvas) {
     canvas_draw_line(canvas, 5, 30, 10, 10);
 }
 
-@veqtjp8jf9ln6isyfz;canvas_draw_box(canvas, 107, 46, 18, 15);
+void draw(Canvas* canvas) {
+    canvas_set_bitmap_mode(canvas, true);
 
-@utlxpqvhdxnln6it5pw;canvas_draw_box(canvas, 97, 2, 27, 11);
+    // box_veqtjp8jf9ln6isyfz
+@veqtjp8jf9ln6isyfz;    canvas_draw_box(canvas, 107, 46, 18, 15);
 
-canvas_set_font(canvas, 6x10);
-@8c4v5zq;canvas_draw_str(canvas, 30, 38, "ячсмитьбю");
+    // box_utlxpqvhdxnln6it5pw
+@utlxpqvhdxnln6it5pw;    canvas_draw_box(canvas, 97, 2, 27, 11);
 
-@eu6bpe0xpvvln6itc2e;canvas_draw_box(canvas, 106, 19, 19, 18);
+    // Layer 1
+    canvas_set_font(canvas, 6x10);
+@8c4v5zq;    canvas_draw_str(canvas, 30, 38, "ячсмитьбю");
 
-canvas_set_font(canvas, profont22);
-@s3m4u762qpln6jvm90;canvas_draw_str(canvas, 3, 11, "Text");
+    // box_eu6bpe0xpvvln6itc2e
+@eu6bpe0xpvvln6itc2e;    canvas_draw_box(canvas, 106, 19, 19, 18);
 
-@b11j6xs5t46ln6jw96h;canvas_draw_line(canvas, 2, 16, 68, 16);
+    // str_s3m4u762qpln6jvm90
+    canvas_set_font(canvas, profont22);
+@s3m4u762qpln6jvm90;    canvas_draw_str(canvas, 3, 11, "Text");
 
-@6uf3k6wj82ln6jwi73;canvas_draw_circle(canvas, 20, 41, 12);
+    // line_b11j6xs5t46ln6jw96h
+@b11j6xs5t46ln6jw96h;    canvas_draw_line(canvas, 2, 16, 68, 16);
 
+    // circle_6uf3k6wj82ln6jwi73
+@6uf3k6wj82ln6jwi73;    canvas_draw_circle(canvas, 20, 41, 12);
+
+    // ellipse_87y8hf8sh8dhf8d98sd
 
 // Unknown layer type ellipse
 
 
-@aibkefmz3cln6jwlit;canvas_draw_disc(canvas, 17, 43, 3);
+    // disc_aibkefmz3cln6jwlit
+@aibkefmz3cln6jwlit;    canvas_draw_disc(canvas, 17, 43, 3);
 
-@g7pk1wfbqqkln6jwxby;canvas_draw_frame(canvas, 44, 29, 44, 28);
+    // frame_g7pk1wfbqqkln6jwxby
+@g7pk1wfbqqkln6jwxby;    canvas_draw_frame(canvas, 44, 29, 44, 28);
 
+    // ellipse_u9uidj9d90fu9sj9jj9
 
 // Unknown layer type ellipse
 
 
-@rrsjcz4oz2ln6jx4y4;canvas_draw_xbm(canvas, 0, 0, 128, 64, image_draw_rrsjcz4oz2ln6jx4y4_0_bits);
+    // draw_rrsjcz4oz2ln6jx4y4
+@rrsjcz4oz2ln6jx4y4;    canvas_draw_xbm(canvas, 0, 0, 128, 64, image_draw_rrsjcz4oz2ln6jx4y4_0_bits);
 
-@njsoidnfijoinisn;canvas_draw_rbox(canvas, 10, 4, 12, 19, 3);
+    // box_njsoidnfijoinisn
+@njsoidnfijoinisn;    canvas_draw_rbox(canvas, 10, 4, 12, 19, 3);
 
-@jnijisniijaojosd;canvas_draw_rframe(canvas, 45, 20, 14, 12, 5);
+    // box_jnijisniijaojosd
+@jnijisniijaojosd;    canvas_draw_rframe(canvas, 45, 20, 14, 12, 5);
 
-@abc123polygon;draw_polygon_abc123polygon(canvas);
+    // polygon_abc123polygon
+@abc123polygon;    draw_polygon_abc123polygon(canvas);
 
-"
+}"
 `;

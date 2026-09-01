@@ -34,6 +34,7 @@ import { LVGLPlatform } from '/src/platforms/lvgl';
 import { AbstractDrawingRenderer } from '../draw/renderers';
 import { SCALE_LIST } from '/src/const';
 import { syncProjectClipboard } from './project-clipboard';
+import { EditorActions } from './editor-actions';
 
 const sessions = new Map<string, UnwrapRef<Session>>();
 let currentSessionId = null;
@@ -114,6 +115,8 @@ export class Session {
 
     history: ChangeHistory = useHistory();
     layersManager: LayersManager = new LayersManager(this);
+    /** Framework-agnostic editor operations shared by the UI and WebMCP tools. */
+    editorActions: EditorActions;
 
     editor: Editor = new Editor(this);
 
@@ -393,6 +396,7 @@ export class Session {
         }
     };
     constructor() {
+        this.editorActions = new EditorActions(this);
         this.history.subscribe((event: THistoryEvent, change: TChange) => {
             this.layersManager.undoChange(event, change);
             this.virtualScreen.redraw();

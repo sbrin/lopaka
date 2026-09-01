@@ -122,6 +122,9 @@ const createTestContext = (): TestContext => {
         setTool: vi.fn((name: string | null) => {
             editorState.activeTool = name ? {} : null;
         }),
+        // Stub the viewport-center lookup: in tests without a mounted DOM
+        // container, Editor falls back to the display's geometric center.
+        getViewportCenterInCanvas: () => new Point(state.display.x / 2, state.display.y / 2).round(),
     } as TestContext['editor'];
     // Wire the editor back onto the session for tool access.
     session.editor = editor;

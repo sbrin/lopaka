@@ -23,11 +23,11 @@ export class AdafruitMonochromePlatform extends AdafruitPlatform {
         Default: {
             template: monoTemplate,
             settings: {
-                wrap: false,
-                include_fonts: false,
+                wrap: true,
+                include_fonts: true,
                 include_images: true,
                 declare_vars: true,
-                comments: false,
+                comments: true,
                 clear_screen: true,
             },
         },

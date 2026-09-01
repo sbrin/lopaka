@@ -11,6 +11,7 @@ export type TChangeType =
     | 'show'
     | 'hide'
     | 'group'
+    | 'reorder'
     | 'begin'
     | 'end';
 

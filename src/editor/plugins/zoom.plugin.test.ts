@@ -1,12 +1,13 @@
 import {describe, expect, it, beforeEach, afterEach, vi} from 'vitest';
 import {ZoomPlugin} from './zoom.plugin';
 import {SCALE_LIST} from '/src/const';
-import {reactive} from 'vue';
+import {nextTick, reactive} from 'vue';
 
 type TestSession = {
     state: {
         scale: {x: number; y: number};
         scaleIndex: number;
+        display: {x: number; y: number};
     };
     getScalePercent: () => number;
     scaleUp: ReturnType<typeof vi.fn>;
@@ -18,6 +19,7 @@ function createTestSession(initialScaleIndex = 6): TestSession {
     const state = reactive({
         scale: {x: SCALE_LIST[initialScaleIndex] / 100, y: SCALE_LIST[initialScaleIndex] / 100},
         scaleIndex: initialScaleIndex,
+        display: {x: 128, y: 64},
     });
 
     const session: TestSession = {
@@ -233,6 +235,16 @@ describe('ZoomPlugin', () => {
 
             plugin.onWheel(createWheelEvent({deltaX: 0, deltaY: 0}));
             expect(dom.canvasWrapper.style.transform).toBe('translate(0px, 0px)');
+        });
+
+        it('should recenter after the display size changes', async () => {
+            Object.defineProperty(dom.canvasWrapper, 'offsetWidth', {value: 300, configurable: true});
+            Object.defineProperty(dom.canvasWrapper, 'offsetHeight', {value: 200, configurable: true});
+
+            session.state.display = {x: 240, y: 160};
+            await nextTick();
+
+            expect(dom.canvasWrapper.style.transform).toBe('translate(250px, 200px)');
         });
     });
 

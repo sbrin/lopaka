@@ -115,7 +115,8 @@ export abstract class AbstractImageLayer extends AbstractLayer {
     ];
 
     applyColor() {
-        if (this.colorMode === 'monochrome') {
+        // A layer created before its pixels are loaded has no data to recolor.
+        if (this.colorMode === 'monochrome' && this.data) {
             this.data = applyColor(this.data, this.color);
         }
     }

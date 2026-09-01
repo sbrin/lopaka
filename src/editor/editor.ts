@@ -125,6 +125,35 @@ export class Editor {
         this.state.textEditMode++;
     }
 
+    /**
+     * Center of the currently visible viewport, expressed in canvas
+     * (display) coordinates. Falls back to the display's geometric center
+     * when the canvas is not scrolled/panned yet (e.g. before mount, or in
+     * unit tests without a DOM container).
+     *
+     * Reuses ZoomPlugin's already-tracked pan/scale state instead of
+     * re-deriving it from the DOM transform, since ZoomPlugin is the single
+     * source of truth for pan position.
+     */
+    getViewportCenterInCanvas(): Point {
+        const {display, scale} = this.session.state;
+        const fallback = new Point(display.x / 2, display.y / 2).round();
+
+        const zoomPlugin = this.plugins.find((p): p is ZoomPlugin => p instanceof ZoomPlugin);
+        const viewport = zoomPlugin?.getViewportSize();
+        if (!zoomPlugin || !viewport) {
+            return fallback;
+        }
+
+        const pan = zoomPlugin.getPan();
+        const cx = (viewport.x / 2 - pan.x) / scale.x;
+        const cy = (viewport.y / 2 - pan.y) / scale.y;
+        return new Point(
+            Math.max(0, Math.min(display.x, cx)),
+            Math.max(0, Math.min(display.y, cy))
+        ).round();
+    }
+
     clear(): void {
         this.plugins.forEach((p: AbstractEditorPlugin) => p.onClear());
         this.state.activeTool = null;

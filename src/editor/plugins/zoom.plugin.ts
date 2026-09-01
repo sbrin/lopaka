@@ -1,7 +1,8 @@
-import { nextTick, watch, WatchStopHandle } from 'vue';
-import { SCALE_LIST } from '/src/const';
-import { Session } from '../../core/session';
-import { AbstractEditorPlugin } from './abstract-editor.plugin';
+import {nextTick, watch, WatchStopHandle} from 'vue';
+import {SCALE_LIST} from '/src/const';
+import {Session} from '../../core/session';
+import {AbstractEditorPlugin} from './abstract-editor.plugin';
+import {Point} from '../../core/point';
 
 export class ZoomPlugin extends AbstractEditorPlugin {
     private panX = 0;
@@ -9,7 +10,8 @@ export class ZoomPlugin extends AbstractEditorPlugin {
     private canvasWrapper: HTMLElement | null = null;
     private scrollContainer: HTMLElement | null = null;
     private resizeObserver: ResizeObserver | null = null;
-    private stopWatch: WatchStopHandle | null = null;
+    private stopScaleWatch: WatchStopHandle | null = null;
+    private stopDisplayWatch: WatchStopHandle | null = null;
     private isWheelZooming = false;
 
     constructor(session: Session, container: HTMLElement) {
@@ -37,7 +39,7 @@ export class ZoomPlugin extends AbstractEditorPlugin {
         if (!sc || !cw) return;
 
         // Watch for external scale changes (slider, keyboard shortcuts)
-        this.stopWatch = watch(
+        this.stopScaleWatch = watch(
             () => this.session.state.scaleIndex,
             (newIdx, oldIdx) => {
                 if (this.isWheelZooming) return;
@@ -47,7 +49,16 @@ export class ZoomPlugin extends AbstractEditorPlugin {
                     this.zoomToViewCenter(ratio);
                 });
             },
-            { flush: 'sync' }
+            {flush: 'sync'}
+        );
+
+        this.stopDisplayWatch = watch(
+            () => [this.session.state.display.x, this.session.state.display.y],
+            ([newWidth, newHeight], [oldWidth, oldHeight]) => {
+                if (newWidth === oldWidth && newHeight === oldHeight) return;
+                nextTick(() => this.centerCanvas());
+            },
+            {flush: 'sync'}
         );
 
         // Watch for container resize (window resize)
@@ -71,6 +82,26 @@ export class ZoomPlugin extends AbstractEditorPlugin {
     }
 
     private lastZoomTime = 0;
+
+    /**
+     * Current pan offset (in CSS pixels) applied to the canvas wrapper.
+     * Exposed so other editor components (e.g. viewport-relative placement)
+     * can reuse the already-tracked pan state instead of re-deriving it
+     * from the DOM transform.
+     */
+    getPan(): Point {
+        return new Point(this.panX, this.panY);
+    }
+
+    /**
+     * Size of the visible scroll viewport (in CSS pixels), or null when the
+     * DOM has not been wired up yet (e.g. in unit tests without a container).
+     */
+    getViewportSize(): Point | null {
+        const sc = this.getScrollContainer();
+        if (!sc) return null;
+        return new Point(sc.clientWidth, sc.clientHeight);
+    }
 
     private handleZoom(event: WheelEvent): void {
         const sc = this.getScrollContainer();
@@ -201,9 +232,13 @@ export class ZoomPlugin extends AbstractEditorPlugin {
     }
 
     onDestroy(): void {
-        if (this.stopWatch) {
-            this.stopWatch();
-            this.stopWatch = null;
+        if (this.stopScaleWatch) {
+            this.stopScaleWatch();
+            this.stopScaleWatch = null;
+        }
+        if (this.stopDisplayWatch) {
+            this.stopDisplayWatch();
+            this.stopDisplayWatch = null;
         }
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();

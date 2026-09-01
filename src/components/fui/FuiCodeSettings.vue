@@ -11,6 +11,7 @@ import imageTemplate from '/src/platforms/templates/lvgl/image.pug';
 import { TextLayer } from '/src/core/layers/text.layer';
 import { bdfSources, gfxSources } from '/src/draw/fonts/fontTypes';
 import { FontFormat } from '/src/draw/fonts/font';
+import { applySavedCodeSettings } from './code-settings';
 
 const props = defineProps<{
     updates: number;
@@ -58,9 +59,7 @@ const template = ref(
 
 session.platforms[platform.value].setTemplate(template.value);
 const savedCodeSettings = JSON.parse(localStorage.getItem(`lopaka_${platform.value}_code_settings`)) ?? {};
-for (let key in session.platforms[platform.value].getTemplateSettings()) {
-    session.platforms[platform.value].getTemplateSettings()[key] = savedCodeSettings[key];
-}
+applySavedCodeSettings(session.platforms[platform.value].getTemplateSettings(), savedCodeSettings);
 
 watch(template, (val) => {
     if (val) {

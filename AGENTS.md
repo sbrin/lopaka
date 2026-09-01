@@ -80,6 +80,8 @@ Lopaka is a VueJS 3 graphics editor that generates code for embedded graphics li
 ### Testing
 
 Tests are colocated with source files (`*.test.ts`). Platform tests use snapshots for code generation verification. Run `pnpm test -- -u` to update snapshots.
+- If `pnpm exec vitest` (or similar `pnpm exec`) hangs silently with zero output for more than ~10s, don't retry/poll it repeatedly — immediately retry once with `node_modules/.bin/vitest` directly under an escalated sandbox instead.
+- If `gh` fails with a network/connection error, retry `gh` itself under an escalated sandbox before falling back to raw `curl` against the GitHub API; don't default to curl out of inertia once `gh` is confirmed to work escalated.
 
 ### Key Patterns
 

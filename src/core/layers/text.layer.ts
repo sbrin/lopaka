@@ -58,7 +58,7 @@ export class TextLayer extends AbstractLayer {
         x: {
             getValue: () => this.position.x,
             setValue: (v: number) => {
-                this.position.x = v;
+                this.position.x = this.clampX(v);
                 this.updateBounds();
                 this.draw();
             },
@@ -71,7 +71,7 @@ export class TextLayer extends AbstractLayer {
         y: {
             getValue: () => this.position.y,
             setValue: (v: number) => {
-                this.position.y = v;
+                this.position.y = this.clampY(v);
                 this.updateBounds();
                 this.draw();
             },
@@ -253,6 +253,26 @@ export class TextLayer extends AbstractLayer {
         this.position = newPosition;
     }
 
+    /**
+     * Clamp a candidate x position (left edge of text bounds) so the text
+     * stays fully inside the layer's canvas buffer.
+     */
+    private clampX(v: number): number {
+        const width = this.bounds?.w ?? 0;
+        return Math.max(0, Math.min(this.buffer.width - width, v));
+    }
+
+    /**
+     * Clamp a candidate y position (baseline of the text, i.e. bottom edge
+     * of text bounds) so the text stays fully inside the layer's canvas
+     * buffer: the top of the bounds (y - height) must not go above 0, and
+     * the baseline itself must not go below the buffer's bottom edge.
+     */
+    private clampY(v: number): number {
+        const height = this.bounds?.h ?? 0;
+        return Math.max(height, Math.min(this.buffer.height, v));
+    }
+
     private platformId?: string;
 
     constructor(
@@ -309,9 +329,13 @@ export class TextLayer extends AbstractLayer {
         }
         const {position, text, firstPoint, editPoint} = this.editState;
         switch (this.mode) {
-            case EditMode.MOVING:
-                this.position = position.clone().add(point.clone().subtract(firstPoint)).round();
+            case EditMode.MOVING: {
+                const nextPosition = position.clone().add(point.clone().subtract(firstPoint)).round();
+                nextPosition.x = this.clampX(nextPosition.x);
+                nextPosition.y = this.clampY(nextPosition.y);
+                this.position = nextPosition;
                 break;
+            }
             case EditMode.RESIZING:
                 editPoint.move(firstPoint.clone().subtract(point), originalEvent);
                 break;
