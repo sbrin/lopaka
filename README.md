@@ -9,6 +9,7 @@ Draw any graphics and use generated code in your Arduino, ESP32 or STM32project!
 ## Table of Contents
 
 - [Features](#features)
+- [WebMCP](#webmcp)
 - [Installation](#installation)
 - [Credits](#credits)
 - [How to Contribute](#how-can-you-help)
@@ -29,6 +30,10 @@ Draw any graphics and use generated code in your Arduino, ESP32 or STM32project!
 * generate the source code in C/C++
 * FlipperZero live preview
 * select zoom scale
+
+## WebMCP
+
+With WebMCP, you can ask a compatible AI assistant to work with your Lopaka design in plain language: it can inspect the screen and generated code, create and edit layers, arrange them, place built-in icons or images you have already imported, and adjust screen settings—while you stay in control of the result.
 
 ## Supported platforms
 * TFT_eSPI
