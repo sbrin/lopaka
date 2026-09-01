@@ -1,8 +1,8 @@
-import { nextTick, watch, WatchStopHandle } from 'vue';
-import { SCALE_LIST } from '/src/const';
-import { Session } from '../../core/session';
-import { AbstractEditorPlugin } from './abstract-editor.plugin';
-import { Point } from '../../core/point';
+import {nextTick, watch, WatchStopHandle} from 'vue';
+import {SCALE_LIST} from '/src/const';
+import {Session} from '../../core/session';
+import {AbstractEditorPlugin} from './abstract-editor.plugin';
+import {Point} from '../../core/point';
 
 export class ZoomPlugin extends AbstractEditorPlugin {
     private panX = 0;
@@ -10,7 +10,8 @@ export class ZoomPlugin extends AbstractEditorPlugin {
     private canvasWrapper: HTMLElement | null = null;
     private scrollContainer: HTMLElement | null = null;
     private resizeObserver: ResizeObserver | null = null;
-    private stopWatch: WatchStopHandle | null = null;
+    private stopScaleWatch: WatchStopHandle | null = null;
+    private stopDisplayWatch: WatchStopHandle | null = null;
     private isWheelZooming = false;
 
     constructor(session: Session, container: HTMLElement) {
@@ -38,7 +39,7 @@ export class ZoomPlugin extends AbstractEditorPlugin {
         if (!sc || !cw) return;
 
         // Watch for external scale changes (slider, keyboard shortcuts)
-        this.stopWatch = watch(
+        this.stopScaleWatch = watch(
             () => this.session.state.scaleIndex,
             (newIdx, oldIdx) => {
                 if (this.isWheelZooming) return;
@@ -48,7 +49,16 @@ export class ZoomPlugin extends AbstractEditorPlugin {
                     this.zoomToViewCenter(ratio);
                 });
             },
-            { flush: 'sync' }
+            {flush: 'sync'}
+        );
+
+        this.stopDisplayWatch = watch(
+            () => [this.session.state.display.x, this.session.state.display.y],
+            ([newWidth, newHeight], [oldWidth, oldHeight]) => {
+                if (newWidth === oldWidth && newHeight === oldHeight) return;
+                nextTick(() => this.centerCanvas());
+            },
+            {flush: 'sync'}
         );
 
         // Watch for container resize (window resize)
@@ -222,9 +232,13 @@ export class ZoomPlugin extends AbstractEditorPlugin {
     }
 
     onDestroy(): void {
-        if (this.stopWatch) {
-            this.stopWatch();
-            this.stopWatch = null;
+        if (this.stopScaleWatch) {
+            this.stopScaleWatch();
+            this.stopScaleWatch = null;
+        }
+        if (this.stopDisplayWatch) {
+            this.stopDisplayWatch();
+            this.stopDisplayWatch = null;
         }
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
