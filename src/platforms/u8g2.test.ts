@@ -33,6 +33,8 @@ describe('U8g2 platform', () => {
     it('emits setDrawColor only when the draw color changes between layers (Arduino)', () => {
         const platform = new U8g2Platform();
         platform.setTemplate('arduino');
+        platform.setTemplateSetting('comments', false);
+        platform.setTemplateSetting('wrap', false);
         const source = platform.generateSourceCode([
             createRect(platform.features, 'black', '#000000', 0),
             createRect(platform.features, 'white', '#ffffff', 1),
@@ -44,6 +46,8 @@ describe('U8g2 platform', () => {
     it('emits setDrawColor only when the draw color changes between layers (ESP-IDF)', () => {
         const platform = new U8g2Platform();
         platform.setTemplate('esp-idf');
+        platform.setTemplateSetting('comments', false);
+        platform.setTemplateSetting('wrap', false);
         const source = platform.generateSourceCode([
             createRect(platform.features, 'black', '#000000', 0),
             createRect(platform.features, 'white', '#ffffff', 1),

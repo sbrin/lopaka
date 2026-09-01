@@ -67,8 +67,8 @@ export class LVGLPlatform extends Platform {
         Default: {
             template: defaultTemplate,
             settings: {
-                wrap: false,
-                include_fonts: false,
+                wrap: true,
+                include_fonts: true,
                 declare_vars: true,
                 clear_screen: true,
                 // include_images: false,

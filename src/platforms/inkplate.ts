@@ -14,9 +14,9 @@ export class InkplatePlatform extends AdafruitPlatform {
         Default: {
             template: defaultTemplate,
             settings: {
-                wrap: false,
-                include_fonts: false,
-                comments: false,
+                wrap: true,
+                include_fonts: true,
+                comments: true,
                 declare_vars: true,
                 clear_screen: true,
             },

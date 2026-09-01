@@ -24,7 +24,7 @@ export class MicropythonPlatform extends Platform {
             template: defaultTemplate,
             settings: {
                 wrap: true,
-                comments: false,
+                comments: true,
                 include_images: true,
                 declare_vars: true,
             },

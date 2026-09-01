@@ -24,8 +24,8 @@ export class EsphomePlatform extends Platform {
             template: defaultTemplate,
             settings: {
                 wrap: true,
-                comments: false,
-                include_fonts: false,
+                comments: true,
+                include_fonts: true,
                 include_images: true,
                 declare_vars: true,
             },

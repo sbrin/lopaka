@@ -78,10 +78,10 @@ export class FlipperPlatform extends Platform {
         Default: {
             template: defaultTemplate,
             settings: {
-                wrap: false,
+                wrap: true,
                 declare_vars: true,
                 include_images: true,
-                comments: false,
+                comments: true,
             },
         },
     };
