@@ -107,6 +107,9 @@ async function triggerDownload(url: string, filename: string) {
 async function getFontFile(url: string, font) {
     try {
         const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to download font: HTTP ${response.status}`);
+        }
         const blob = await response.blob();
         const downloadUrl = URL.createObjectURL(blob);
         const filename = `${font.title ?? font.name}${font.format === FontFormat.FORMAT_BDF ? '.bdf' : '.h'}`;
