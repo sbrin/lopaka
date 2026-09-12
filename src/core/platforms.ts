@@ -1,16 +1,17 @@
-import {AdafruitPlatform} from '../platforms/adafruit';
-import {AdafruitMonochromePlatform} from '../platforms/adafruit_mono';
-import {ArduinoGFXPlatform} from '../platforms/arduinogfx';
-import {EsphomePlatform} from '../platforms/esphome';
-import {FlipperPlatform} from '../platforms/flipper';
-import {InkplatePlatform} from '../platforms/inkplate';
-import {TFTeSPIPlatform} from '../platforms/tft-espi';
-import {U8g2Platform} from '../platforms/u8g2';
-import {Uint32RawPlatform} from '../platforms/uint32-raw';
-import {LVGLPlatform} from '/src/platforms/lvgl';
-import {FreestylePlatform} from '../platforms/freestyle';
-import {MicropythonPlatform} from '/src/platforms/micropython';
-import {GxEPD2Platform} from '/src/platforms/gxepd2';
+import { AdafruitPlatform } from '../platforms/adafruit';
+import { AdafruitMonochromePlatform } from '../platforms/adafruit_mono';
+import { ArduinoGFXPlatform } from '../platforms/arduinogfx';
+import { EsphomePlatform } from '../platforms/esphome';
+import { FlipperPlatform } from '../platforms/flipper';
+import { InkplatePlatform } from '../platforms/inkplate';
+import { TFTeSPIPlatform } from '../platforms/tft-espi';
+import { U8g2Platform } from '../platforms/u8g2';
+import { Uint32RawPlatform } from '../platforms/uint32-raw';
+import { LVGLPlatform } from '/src/platforms/lvgl';
+import { FreestylePlatform } from '../platforms/freestyle';
+import { MicropythonPlatform } from '/src/platforms/micropython';
+import { GxEPD2Platform } from '/src/platforms/gxepd2';
+import { EmbeddedGraphicsPlatform } from '../platforms/embedded-graphics';
 const platforms = {
     [TFTeSPIPlatform.id]: new TFTeSPIPlatform(),
     [U8g2Platform.id]: new U8g2Platform(),
@@ -25,6 +26,7 @@ const platforms = {
     [GxEPD2Platform.id]: new GxEPD2Platform(),
     [Uint32RawPlatform.id]: new Uint32RawPlatform(),
     [FreestylePlatform.id]: new FreestylePlatform(),
+    [EmbeddedGraphicsPlatform.id]: new EmbeddedGraphicsPlatform(),
 };
 
 export function getTemplates(platform: string): string[] {

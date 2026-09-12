@@ -1,0 +1,148 @@
+- var importLines = ['use embedded_graphics::prelude::*;', 'use embedded_graphics::pixelcolor::BinaryColor;']
+if imports.image
+    - importLines.push('use embedded_graphics::image::{Image, ImageRaw};')
+if imports.text
+    - importLines.push('use embedded_graphics::mono_font::{ascii::FONT_6X10, MonoTextStyle};')
+if imports.primitives.length
+    - importLines.push(`use embedded_graphics::primitives::{${imports.primitives.join(', ')}${imports.primitiveStyle ? ', PrimitiveStyle' : ''}};`)
+else if imports.primitiveStyle
+    - importLines.push('use embedded_graphics::primitives::PrimitiveStyle;')
+if imports.text
+    - importLines.push('use embedded_graphics::text::{Baseline, Text};')
+if settings.preview_window
+    - importLines.push('use embedded_graphics_simulator::{BinaryColorTheme, OutputSettingsBuilder, SimulatorDisplay, Window};')
+| !{importLines.join('\n')}
+|
+
+- var hasDrawWrapper = settings.wrap || settings.preview_window
+
+if settings.include_images
+    each decl in declarations
+        if decl.type == 'bitmap'
+            | static !{decl.data.name}: &[u8] = &[!{decl.data.value}];
+            |
+
+each layer in layers
+    |
+    | fn !{layer.functionName}<D: DrawTarget<Color = BinaryColor>>(
+    |     display: &mut D,
+    | ) -> Result<(), D::Error> {
+    |
+
+    if settings.declare_vars
+        each decl in layer.declarations
+            if decl.type == 'var'
+                if decl.data.type === 0
+                    |     let !{decl.data.name} = "!{decl.data.value}";
+                else
+                    |     let !{decl.data.name} = !{decl.data.value};
+                |
+
+    if settings.comments
+        |     // !{layer.name}
+
+    case layer.type
+        when 'line'
+            | @!{layer.uid};    Line::new(Point::new(!{layer.x1}, !{layer.y1}), Point::new(!{layer.x2}, !{layer.y2}))
+            |         .into_styled(PrimitiveStyle::with_stroke(!{layer.color}, 1))
+            |         .draw(display)?;
+        when 'rect'
+            - var style = layer.fill ? `PrimitiveStyle::with_fill(${layer.color})` : `PrimitiveStyle::with_stroke(${layer.color}, 1)`
+            | @!{layer.uid};    Rectangle::new(
+            |         Point::new(!{layer.x}, !{layer.y}),
+            |         Size::new(!{layer.w}, !{layer.h}),
+            |     )
+            |         .into_styled(!{style})
+            |         .draw(display)?;
+        when 'circle'
+            - var style = layer.fill ? `PrimitiveStyle::with_fill(${layer.color})` : `PrimitiveStyle::with_stroke(${layer.color}, 1)`
+            | @!{layer.uid};    Circle::new(
+            |         Point::new(!{layer.position[0]}, !{layer.position[1]}),
+            |         !{layer.radius * 2},
+            |     )
+            |         .into_styled(!{style})
+            |         .draw(display)?;
+        when 'ellipse'
+            - var style = layer.fill ? `PrimitiveStyle::with_fill(${layer.color})` : `PrimitiveStyle::with_stroke(${layer.color}, 1)`
+            | @!{layer.uid};    Ellipse::new(
+            |         Point::new(!{layer.position[0]}, !{layer.position[1]}),
+            |         Size::new(!{layer.rx * 2}, !{layer.ry * 2}),
+            |     )
+            |         .into_styled(!{style})
+            |         .draw(display)?;
+        when 'triangle'
+            - var style = layer.fill ? `PrimitiveStyle::with_fill(${layer.color})` : `PrimitiveStyle::with_stroke(${layer.color}, 1)`
+            | @!{layer.uid};    Triangle::new(
+            |         Point::new(!{layer.x1}, !{layer.y1}),
+            |         Point::new(!{layer.x2}, !{layer.y2}),
+            |         Point::new(!{layer.x3}, !{layer.y3}),
+            |     )
+            |         .into_styled(!{style})
+            |         .draw(display)?;
+        when 'string'
+            - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`
+            | @!{layer.uid};    Text::with_baseline(
+            |         !{textContent},
+            |         Point::new(!{layer.x}, !{layer.y}),
+            |         MonoTextStyle::new(&FONT_6X10, !{layer.color}),
+            |         Baseline::Top,
+            |     )
+            |         .draw(display)?;
+        when 'polygon'
+            - var polygonPoints = layer.points.map((point) => `        Point::new(${point[0]}, ${point[1]}),`)
+            if layer.points.length
+                - polygonPoints.push(`        Point::new(${layer.points[0][0]}, ${layer.points[0][1]}),`)
+            |     let !{layer.pointsVarName} = [
+            | !{polygonPoints.join('\n')}
+            |     ];
+            | @!{layer.uid};    Polyline::new(&!{layer.pointsVarName})
+            |         .into_styled(PrimitiveStyle::with_stroke(!{layer.color}, 1))
+            |         .draw(display)?;
+        when 'paint'
+            | @!{layer.uid};    Image::new(
+            |         &ImageRaw::<BinaryColor>::new(!{layer.imageName}, !{layer.w}),
+            |         Point::new(!{layer.x}, !{layer.y}),
+            |     )
+            |         .draw(display)?;
+        when 'icon'
+            | @!{layer.uid};    Image::new(
+            |         &ImageRaw::<BinaryColor>::new(!{layer.imageName}, !{layer.w}),
+            |         Point::new(!{layer.x}, !{layer.y}),
+            |     )
+            |         .draw(display)?;
+        default
+            |     // Unknown layer type !{layer.type}
+
+    |
+    |     Ok(())
+    | }
+    |
+|
+- var pad = hasDrawWrapper ? '    ' : ''
+if hasDrawWrapper
+    | fn draw!{screenTitle}<D: DrawTarget<Color = BinaryColor>>(
+    |     display: &mut D,
+    | ) -> Result<(), D::Error> {
+    |
+each layer in layers
+    | !{pad}!{layer.functionName}(display)?;
+    |
+if hasDrawWrapper
+    |
+    | !{pad}Ok(())
+    | }
+    |
+
+if settings.preview_window
+    | fn main() -> Result<(), core::convert::Infallible> {
+    |     let output_settings = OutputSettingsBuilder::new()
+    |         .theme(BinaryColorTheme::OledBlue)
+    |         .build();
+    |     let mut display = SimulatorDisplay::<BinaryColor>::new(Size::new(!{displayWidth}, !{displayHeight}));
+    |
+    |     draw!{screenTitle}(&mut display)?;
+    |
+    |     Window::new(!{windowTitle}, &output_settings).show_static(&display);
+    |
+    |     Ok(())
+    | }

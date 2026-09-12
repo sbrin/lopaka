@@ -1,17 +1,18 @@
-import {AbstractLayer} from '../../core/layers/abstract.layer';
-import {EllipseLayer} from '../../core/layers/ellipse.layer';
-import {TFTeSPIPlatform} from '../../platforms/tft-espi';
-import {U8g2Platform} from '../../platforms/u8g2';
-import {Uint32RawPlatform} from '../../platforms/uint32-raw';
-import {AbstractTool} from './abstract.tool';
-import {ArduinoGFXPlatform} from '/src/platforms/arduinogfx';
-import {MicropythonPlatform} from '/src/platforms/micropython';
+import { AbstractLayer } from '../../core/layers/abstract.layer';
+import { EllipseLayer } from '../../core/layers/ellipse.layer';
+import { TFTeSPIPlatform } from '../../platforms/tft-espi';
+import { U8g2Platform } from '../../platforms/u8g2';
+import { Uint32RawPlatform } from '../../platforms/uint32-raw';
+import { AbstractTool } from './abstract.tool';
+import { ArduinoGFXPlatform } from '/src/platforms/arduinogfx';
+import { MicropythonPlatform } from '/src/platforms/micropython';
+import { EmbeddedGraphicsPlatform } from '/src/platforms/embedded-graphics';
 
 export class EllipseTool extends AbstractTool {
     name = 'ellipse';
 
     createLayer(): AbstractLayer {
-        const {session} = this.editor;
+        const { session } = this.editor;
         const renderer = session.createRenderer();
         return new EllipseLayer(session.getPlatformFeatures(), renderer);
     }
@@ -23,6 +24,7 @@ export class EllipseTool extends AbstractTool {
             TFTeSPIPlatform.id,
             MicropythonPlatform.id,
             ArduinoGFXPlatform.id,
+            EmbeddedGraphicsPlatform.id,
         ].includes(platform);
     }
 }
