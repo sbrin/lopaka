@@ -3,6 +3,7 @@ import {PlatformTemplates} from '/src/types';
 import monoTemplate from './templates/adafruit/mono.pug';
 
 export class AdafruitMonochromePlatform extends AdafruitPlatform {
+    protected defaultDisplayObject = 'display';
     public static id = 'adafruit_gfx_mono';
     protected name = 'AdafruitGFX Mono';
     protected description = 'Adafruit GFX Monochrome';

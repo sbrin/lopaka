@@ -20,7 +20,7 @@ each layer in layers
         |
         - for (var pi = 0; pi < pts.length; pi++)
             - var npi = (pi + 1) % pts.length
-            |     u8g2.drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]});
+            |     !{displayObject || 'u8g2'}.drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]});
             |
         | }
         |
@@ -31,10 +31,10 @@ if settings.wrap
     | void draw!{screenTitle}(void) {
     |
 if settings.clear_screen
-    | !{pad}u8g2.clearBuffer();
+    | !{pad}!{displayObject || 'u8g2'}.clearBuffer();
     |
-| !{pad}u8g2.setFontMode(1);
-| !{pad}u8g2.setBitmapMode(1);
+| !{pad}!{displayObject || 'u8g2'}.setFontMode(1);
+| !{pad}!{displayObject || 'u8g2'}.setBitmapMode(1);
 |
 - var font = ''
 - var drawColorMode = -1;
@@ -44,43 +44,43 @@ each layer in layers
         |
     if layer.inverted 
         if drawColorMode != 2
-            | !{pad}u8g2.setDrawColor(2);
+            | !{pad}!{displayObject || 'u8g2'}.setDrawColor(2);
             |
             - drawColorMode = 2;
     else
         if drawColorMode != layer.color
-            | !{pad}u8g2.setDrawColor(!{layer.color});
+            | !{pad}!{displayObject || 'u8g2'}.setDrawColor(!{layer.color});
             |
             - drawColorMode = layer.color;
     case layer.type
         when 'line'
-            | @!{layer.uid};!{pad}u8g2.drawLine(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2});
+            | @!{layer.uid};!{pad}!{displayObject || 'u8g2'}.drawLine(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2});
         when 'rect'
             - var func = 'draw' + (layer.radius? 'R': '') + (layer.fill ? 'Box' : 'Frame')
-            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}!{layer.radius? `, @r:${layer.radius}`: ''});
+            | @!{layer.uid};!{pad}!{displayObject || 'u8g2'}.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}!{layer.radius? `, @r:${layer.radius}`: ''});
         when 'circle'
             - var func = layer.fill ? 'drawDisc' : 'drawCircle'
-            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.radius});
+            | @!{layer.uid};!{pad}!{displayObject || 'u8g2'}.!{func}(@x:!{layer.x}, @y:!{layer.y}, @r:!{layer.radius});
         when 'ellipse'
             - var func = layer.fill ? 'drawFilledEllipse' : 'drawEllipse'
-            | @!{layer.uid};!{pad}u8g2.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
+            | @!{layer.uid};!{pad}!{displayObject || 'u8g2'}.!{func}(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry});
         when 'triangle'
-            | @!{layer.uid};!{pad}u8g2.drawTriangle(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2}, @x3:!{layer.x3}, @y3:!{layer.y3});
+            | @!{layer.uid};!{pad}!{displayObject || 'u8g2'}.drawTriangle(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2}, @x3:!{layer.x3}, @y3:!{layer.y3});
         when 'string'
             if layer.font != font
                 - font = layer.font
-                | !{pad}u8g2.setFont(u8g2_font_!{layer.font}_tr);
+                | !{pad}!{displayObject || 'u8g2'}.setFont(u8g2_font_!{layer.font}_tr);
                 |
             - let is_ascii = (s) => /^[\x00-\x7F]*$/.test(s)
             - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`;
             if is_ascii(layer.text)
-                | @!{layer.uid};!{pad}u8g2.drawStr(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
+                | @!{layer.uid};!{pad}!{displayObject || 'u8g2'}.drawStr(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
             else
-                | @!{layer.uid};!{pad}u8g2.drawUTF8(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
+                | @!{layer.uid};!{pad}!{displayObject || 'u8g2'}.drawUTF8(@x:!{layer.x}, @y:!{layer.y}, @text:!{textContent});
         when 'paint'
         when 'icon'
             - var func = settings.progmem ? 'drawXBMP' : 'drawXBM'
-            | @!{layer.uid};!{pad}u8g2.!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
+            | @!{layer.uid};!{pad}!{displayObject || 'u8g2'}.!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}, !{layer.imageName});
         when 'polygon'
             | @!{layer.uid};!{pad}!{layer.functionName}();
         default 
@@ -90,7 +90,7 @@ each layer in layers
     |
     |
     |
-| !{pad}u8g2.sendBuffer();
+| !{pad}!{displayObject || 'u8g2'}.sendBuffer();
 |
 if settings.wrap
     | }

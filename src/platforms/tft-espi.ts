@@ -12,6 +12,7 @@ import {TFTeSPIParser} from './parsers/tft-espi.parser';
 import {TextLayer} from '/src/core/layers/text.layer';
 
 export class TFTeSPIPlatform extends Platform {
+    protected defaultDisplayObject = 'tft';
     public static id = 'tft-espi';
     protected name = 'TFT_eSPI, M5, Lovyan';
     protected description = 'TFT_eSPI';
@@ -123,6 +124,7 @@ export class TFTeSPIPlatform extends Platform {
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
+            displayObject: this.customDisplayObject,
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

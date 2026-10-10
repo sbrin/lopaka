@@ -16,6 +16,7 @@ import {PlatformTemplates} from '/src/types';
 const layerProps = ['x', 'y', 'w', 'h', 'radius', 'x1', 'y1', 'x2', 'y2', 'fontSize', 'text'];
 
 export class AdafruitPlatform extends Platform {
+    protected defaultDisplayObject = 'tft';
     public static id = 'adafruit_gfx';
     protected name = 'AdafruitGFX Color';
     protected description = 'Adafruit GFX Colored';
@@ -130,6 +131,7 @@ export class AdafruitPlatform extends Platform {
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
+            displayObject: this.customDisplayObject,
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

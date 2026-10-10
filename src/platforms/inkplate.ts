@@ -4,6 +4,7 @@ import defaultTemplate from './templates/adafruit/mono.pug';
 import {Point} from '/src/core/point';
 
 export class InkplatePlatform extends AdafruitPlatform {
+    protected defaultDisplayObject = 'display';
     public static id = 'inkplate';
     protected name = 'Inkplate';
     protected description = 'Inkplate';
