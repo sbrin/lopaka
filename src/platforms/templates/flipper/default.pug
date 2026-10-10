@@ -1,7 +1,7 @@
 if settings.include_images
     each decl in declarations
         if decl.type == 'bitmap'
-            | static const uint8_t !{decl.data.name}[] = {!{decl.data.value}};
+            | !{imageDeclaration(decl.data.name, `static const uint8_t ${decl.data.name}[] = {${decl.data.value}};`)}
             |
             |
 if settings.declare_vars

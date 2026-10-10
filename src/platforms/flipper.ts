@@ -81,6 +81,7 @@ export class FlipperPlatform extends Platform {
                 wrap: true,
                 declare_vars: true,
                 include_images: true,
+                export_images: false,
                 comments: true,
             },
         },
@@ -121,7 +122,7 @@ export class FlipperPlatform extends Platform {
                 this.processVarDeclarations(layer, props, declarations);
                 return props;
             });
-        const source = this.templates[this.currentTemplate].template({
+        const source = this.renderTemplate({
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

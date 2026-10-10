@@ -8,6 +8,7 @@ import { TextLayer } from '/src/core/layers/text.layer';
 import { PlatformTemplates } from '/src/types';
 import { packedHexColor565, toCppVariableName } from '/src/utils';
 import { AbstractDrawingRenderer, PixelatedDrawingRenderer } from '../draw/renderers';
+import {createImageHeader, ImageHeader} from './image-headers';
 
 export type TPlatformFeatures = {
     hasCustomFontSize: boolean;
@@ -73,6 +74,27 @@ export abstract class Platform {
     protected templates: PlatformTemplates;
     protected currentTemplate: string = 'Default';
     protected settings = {};
+    private imageHeaders: ImageHeader[] = [];
+    public getImageHeaders(): readonly ImageHeader[] {
+        return this.imageHeaders;
+    }
+
+    protected renderTemplate(context: any): string {
+        this.imageHeaders = [];
+        return this.templates[this.currentTemplate].template({
+            ...context,
+            imageDeclaration: (name: string, declaration: string) => {
+                if (!context.settings.export_images) return declaration;
+                const header = createImageHeader(name, declaration);
+                let suffix = 2;
+                while (this.imageHeaders.some((asset) => asset.filename.toLowerCase() === header.filename.toLowerCase())) {
+                    header.filename = `${name}_${suffix++}.h`;
+                }
+                this.imageHeaders.push(header);
+                return `#include "${header.filename}"`;
+            },
+        });
+    }
     protected parser: AbstractParser;
     public displays: Display[] = displays;
     public sourceMapParser: SourceMapParser = new SourceMapParser();
