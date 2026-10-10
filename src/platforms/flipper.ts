@@ -20,6 +20,7 @@ export const flipperOldFontNames = {
 };
 
 export class FlipperPlatform extends Platform {
+    protected defaultDisplayObject = 'canvas';
     public static id = 'flipper';
     protected name = 'Flipper Zero, One';
     protected description = 'Flipper Zero, One';
@@ -122,6 +123,7 @@ export class FlipperPlatform extends Platform {
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
+            displayObject: this.customDisplayObject,
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

@@ -25,13 +25,13 @@ each layer in layers
         |
     case layer.type
         when 'line'
-            | @!{layer.uid};!{pad}display.line(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2}, !{layer.color})
+            | @!{layer.uid};!{pad}!{displayObject || 'display'}.line(@x1:!{layer.x1}, @y1:!{layer.y1}, @x2:!{layer.x2}, @y2:!{layer.y2}, !{layer.color})
         when 'rect'
             - var func = (layer.fill ? 'fill_rect' : 'rect')
-            | @!{layer.uid};!{pad}display.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}, !{layer.color})
+            | @!{layer.uid};!{pad}!{displayObject || 'display'}.!{func}(@x:!{layer.x}, @y:!{layer.y}, @w:!{layer.w}, @h:!{layer.h}, !{layer.color})
         when 'ellipse'
             - var isFill = layer.fill ? 'True' : 'False'
-            | @!{layer.uid};!{pad}display.ellipse(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry}, !{layer.color}, !{isFill})
+            | @!{layer.uid};!{pad}!{displayObject || 'display'}.ellipse(@x:!{layer.x}, @y:!{layer.y}, @rx:!{layer.rx}, @ry:!{layer.ry}, !{layer.color}, !{isFill})
         when 'triangle'
             - var isFill = layer.fill ? 'True' : 'False'
             - var minX = Math.min(layer.x1, layer.x2, layer.x3)
@@ -48,11 +48,11 @@ each layer in layers
             | @!{layer.uid};!{pad}fbuf.poly(!{minX}, !{minY}, array('h', [!{relativePoints}]), !{layer.color}, !{isFill})
         when 'string'
             - var textContent = layer.isTextVariable ? layer.text : `"${layer.text}"`;
-            | @!{layer.uid};!{pad}display.text(@text:!{textContent}, @x:!{layer.x}, @y:!{layer.y}, !{layer.color})
+            | @!{layer.uid};!{pad}!{displayObject || 'display'}.text(@text:!{textContent}, @x:!{layer.x}, @y:!{layer.y}, !{layer.color})
         when 'paint'
         when 'icon'
             | !{pad}fb_!{layer.imageName} = framebuf.FrameBuffer(!{layer.imageName}, !{layer.w}, !{layer.h}, framebuf.MONO_HLSB)
-            | @!{layer.uid};!{pad}display.blit(fb_!{layer.imageName}, !{layer.x}, !{layer.y})
+            | @!{layer.uid};!{pad}!{displayObject || 'display'}.blit(fb_!{layer.imageName}, !{layer.x}, !{layer.y})
         default 
             |
             | // Unknown layer type !{layer.type}
@@ -60,5 +60,5 @@ each layer in layers
     |
     |
     |
-| !{pad}display.show()
+| !{pad}!{displayObject || 'display'}.show()
 |

@@ -22,6 +22,30 @@ const session = useSession();
 const { platform, customFonts } = toRefs(session.state);
 const templates = computed(() => platform.value && session.platforms[platform.value].getTemplates());
 const settings = computed(() => template.value && session.platforms[platform.value].getTemplateSettings());
+const displayObjectInput = ref('');
+const displayObjectError = ref('');
+const supportsDisplayObject = computed(() => !!session.platforms[platform.value].getDisplayObjectName());
+
+watch(platform, () => {
+    const selected = session.platforms[platform.value];
+    selected.setDisplayObjectName('');
+    selected.setDisplayObjectName(localStorage.getItem(`lopaka_${platform.value}_display_object`) ?? '');
+    displayObjectInput.value = selected.getDisplayObjectName();
+    displayObjectError.value = '';
+    session.state.immidiateUpdates++;
+}, {immediate: true});
+
+function setDisplayObject(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    displayObjectInput.value = value;
+    if (!session.platforms[platform.value].setDisplayObjectName(value)) {
+        displayObjectError.value = 'Invalid name';
+        return;
+    }
+    displayObjectError.value = '';
+    localStorage.setItem(`lopaka_${platform.value}_display_object`, value.trim());
+    session.state.immidiateUpdates++;
+}
 const fontsList = computed(() => {
     const uniqueFonts = new Set<{ name: string; title?: string; file: Promise<string>; format?: FontFormat }>();
     const fonts: {
@@ -165,6 +189,23 @@ const LABELS = {
 </script>
 <template>
     <div class="">
+        <div v-if="supportsDisplayObject" class="mb-1">
+            <label class="flex items-center gap-2 text-sm">
+                <span class="shrink-0">Display object</span>
+                <span class="flex-1 min-w-0">
+                    <input
+                        class="input input-xs input-bordered w-full min-w-0"
+                        type="text"
+                        title="Graphics library name or alias"
+                        :value="displayObjectInput"
+                        :aria-invalid="!!displayObjectError"
+                        :aria-describedby="displayObjectError ? 'display-object-error' : undefined"
+                        @input="setDisplayObject"
+                    />
+                </span>
+            </label>
+            <p v-if="displayObjectError" id="display-object-error" class="text-xs text-error mt-1">{{ displayObjectError }}</p>
+        </div>
         <div class="">
             <div
                 class="fui-select"

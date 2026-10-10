@@ -34,7 +34,7 @@ each layer in layers
         |
         - for (var pi = 0; pi < pts.length; pi++)
             - var npi = (pi + 1) % pts.length
-            |     gfx->drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]}, !{packColor(layer.color)});
+            |     !{displayObject || 'gfx'}->drawLine(!{pts[pi][0]}, !{pts[pi][1]}, !{pts[npi][0]}, !{pts[npi][1]}, !{packColor(layer.color)});
             |
         | }
         |
@@ -48,7 +48,7 @@ if settings.wrap
 - var font = 'adafruit'
 - var stringLayersNumber = 0
 if settings.clear_screen
-    | !{pad}gfx->!{clear_screen_method};
+    | !{pad}!{displayObject || 'gfx'}->!{clear_screen_method};
     |
 |
 |
@@ -58,59 +58,59 @@ each layer in layers
         |
     case layer.type
         when 'dot'
-            | @!{layer.uid};!{pad}gfx->drawPixel(!{layer.x}, !{layer.y}, !{layer.color});
+            | @!{layer.uid};!{pad}!{displayObject || 'gfx'}->drawPixel(!{layer.x}, !{layer.y}, !{layer.color});
         when 'line'
-            | @!{layer.uid};!{pad}gfx->drawLine(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.color});
+            | @!{layer.uid};!{pad}!{displayObject || 'gfx'}->drawLine(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.color});
         when 'rect'
             - var func = (layer.fill ? 'fill' : 'draw') + (layer.radius? 'Round' : '') + 'Rect'
-            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}!{layer.radius? `, ${layer.radius}`: ''}, !{layer.color});
+            | @!{layer.uid};!{pad}!{displayObject || 'gfx'}->!{func}(!{layer.x}, !{layer.y}, !{layer.w}, !{layer.h}!{layer.radius? `, ${layer.radius}`: ''}, !{layer.color});
         when 'circle'
             - var func = layer.fill ? 'fillCircle' : 'drawCircle'
-            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.x + layer.radius}, !{layer.y + layer.radius}, !{layer.radius}, !{layer.color});
+            | @!{layer.uid};!{pad}!{displayObject || 'gfx'}->!{func}(!{layer.x + layer.radius}, !{layer.y + layer.radius}, !{layer.radius}, !{layer.color});
         when 'ellipse'
             - var func = layer.fill ? 'fillEllipse' : 'drawEllipse'
-            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.x}, !{layer.y}, !{layer.rx}, !{layer.ry}, !{layer.color});
+            | @!{layer.uid};!{pad}!{displayObject || 'gfx'}->!{func}(!{layer.x}, !{layer.y}, !{layer.rx}, !{layer.ry}, !{layer.color});
         when 'triangle'
             - var func = layer.fill ? 'fillTriangle' : 'drawTriangle'
-            | @!{layer.uid};!{pad}gfx->!{func}(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.x3}, !{layer.y3}, !{layer.color});
+            | @!{layer.uid};!{pad}!{displayObject || 'gfx'}->!{func}(!{layer.x1}, !{layer.y1}, !{layer.x2}, !{layer.y2}, !{layer.x3}, !{layer.y3}, !{layer.color});
         when 'string'
             if stringLayersNumber === 0
                 - textColor = layer.color
-                | !{pad}gfx->setTextColor(!{layer.color});
+                | !{pad}!{displayObject || 'gfx'}->setTextColor(!{layer.color});
                 |
                 - stringLayersNumber++
             else if layer.color != textColor
                 - textColor = layer.color
-                | !{pad}gfx->setTextColor(!{layer.color});
+                | !{pad}!{displayObject || 'gfx'}->setTextColor(!{layer.color});
                 |
             if layer.scaleFactor != textSize
                 - textSize = layer.scaleFactor
-                | !{pad}gfx->setTextSize(!{layer.scaleFactor});
+                | !{pad}!{displayObject || 'gfx'}->setTextSize(!{layer.scaleFactor});
                 |
             if layer.wrap != textWrap
                 - textWrap = layer.wrap
-                | !{pad}gfx->setTextWrap(false);
+                | !{pad}!{displayObject || 'gfx'}->setTextWrap(false);
                 |
             if layer.font != font 
                 - font = layer.font
                 if font == 'adafruit'
-                    | !{pad}gfx->setFont();
+                    | !{pad}!{displayObject || 'gfx'}->setFont();
                     |
                 else
-                    | !{pad}gfx->setFont(&!{layer.font});
+                    | !{pad}!{displayObject || 'gfx'}->setFont(&!{layer.font});
                     |
-            | !{pad}gfx->setCursor(!{layer.x}, !{layer.y});
+            | !{pad}!{displayObject || 'gfx'}->setCursor(!{layer.x}, !{layer.y});
             |
             if layer.isTextVariable
-                | @!{layer.uid};!{pad}gfx->print(!{layer.text});
+                | @!{layer.uid};!{pad}!{displayObject || 'gfx'}->print(!{layer.text});
             else
-                | @!{layer.uid};!{pad}gfx->println("!{layer.text}");
+                | @!{layer.uid};!{pad}!{displayObject || 'gfx'}->println("!{layer.text}");
         when 'paint'
         when 'icon'
             if layer.colorMode === 'rgb'
-                | @!{layer.uid};!{pad}gfx->draw16bitRGBBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h});
+                | @!{layer.uid};!{pad}!{displayObject || 'gfx'}->draw16bitRGBBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h});
             else
-                | @!{layer.uid};!{pad}gfx->drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{layer.color});
+                | @!{layer.uid};!{pad}!{displayObject || 'gfx'}->drawBitmap(!{layer.x}, !{layer.y}, !{layer.imageName}, !{layer.w}, !{layer.h}, !{layer.color});
         when 'polygon'
             | @!{layer.uid};!{pad}!{layer.functionName}();
         default 

@@ -10,6 +10,7 @@ import defaultTemplate from './templates/micropython/default.pug';
 import {MicropythonParser} from '/src/platforms/parsers/micropython.parser';
 
 export class MicropythonPlatform extends Platform {
+    protected defaultDisplayObject = 'display';
     public static id = 'micropython';
     protected name = 'Micropython';
     protected description = 'Micropython';
@@ -77,6 +78,7 @@ export class MicropythonPlatform extends Platform {
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
+            displayObject: this.customDisplayObject,
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

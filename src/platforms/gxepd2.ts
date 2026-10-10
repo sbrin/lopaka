@@ -4,6 +4,7 @@ import defaultTemplate from './templates/adafruit/mono.pug';
 import { Point } from '/src/core/point';
 
 export class GxEPD2Platform extends AdafruitPlatform {
+    protected defaultDisplayObject = 'display';
     public static id = 'gxepd2';
     protected name = 'GxEPD2 (e-paper)';
     protected description = 'GxEPD2';

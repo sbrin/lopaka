@@ -11,6 +11,7 @@ import {PlatformTemplates} from '/src/types';
 
 // https://github.com/moononournation/Arduino_GFX
 export class ArduinoGFXPlatform extends Platform {
+    protected defaultDisplayObject = 'gfx';
     public static id = 'arduino_gfx';
     protected name = 'ArduinoGFX';
     protected description = 'ArduinoGFX';
@@ -124,6 +125,7 @@ export class ArduinoGFXPlatform extends Platform {
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
+            displayObject: this.customDisplayObject,
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

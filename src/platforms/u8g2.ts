@@ -10,6 +10,7 @@ import cEspIdfTemplate from './templates/u8g2/c_esp_idf.pug';
 import defaultTemplate from './templates/u8g2/default.pug';
 
 export class U8g2Platform extends Platform {
+    protected defaultDisplayObject = 'u8g2';
     public static id = 'u8g2';
     protected name = 'U8g2';
     protected description = 'U8g2';
@@ -91,6 +92,7 @@ export class U8g2Platform extends Platform {
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
+            displayObject: this.customDisplayObject,
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

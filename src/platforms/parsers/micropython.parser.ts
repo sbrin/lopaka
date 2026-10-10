@@ -10,8 +10,9 @@ export class MicropythonParser extends AbstractParser {
     private frameBufferRegex =
         /(\w+)\s*=\s*framebuf\.FrameBuffer\(\s*(\w+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*framebuf\.([A-Z_]+)\s*\)/gim;
 
-    // Match display.* calls that draw primitives on screen.
-    private displayCallRegex = /display\.(\w+)\s*\(/gm;
+    // Match standalone calls on any display alias, including source-map markers.
+    // Anchoring to a statement avoids interpreting draw calls inside text literals.
+    private displayCallRegex = /^[ \t]*(?:@\w+;[ \t]*)?[A-Za-z_]\w*[ \t]*\.[ \t]*(\w+)[ \t]*\(/gm;
 
     // Match framebuffer.* calls (e.g., fbuf.poly) for drawing primitives.
     private frameBufferCallRegex = /(\w+)\.(\w+)\s*\(/gm;
@@ -35,7 +36,8 @@ export class MicropythonParser extends AbstractParser {
         // Pair framebuffer handles with backing buffers and dimensions.
         const frameBuffers = this.parseFrameBuffers(sanitizedSource, warnings);
 
-        // Walk every display.* call and convert it into an editor layer state.
+        // Walk drawing calls independently of the display object's name.
+        this.displayCallRegex.lastIndex = 0;
         let match;
         while ((match = this.displayCallRegex.exec(sanitizedSource)) !== null) {
             const functionName = match[1];

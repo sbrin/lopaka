@@ -1,3 +1,4 @@
+import {isDisplayObjectName} from './display-object';
 import { AbstractLayer } from '../core/layers/abstract.layer';
 import { AbstractParser } from './parsers/abstract-parser';
 import { SourceMapParser } from './parsers/source-map-parser';
@@ -73,6 +74,19 @@ export abstract class Platform {
     protected templates: PlatformTemplates;
     protected currentTemplate: string = 'Default';
     protected settings = {};
+    protected defaultDisplayObject = '';
+    protected customDisplayObject = '';
+
+    public getDisplayObjectName(): string {
+        return this.customDisplayObject || this.defaultDisplayObject;
+    }
+
+    public setDisplayObjectName(value: string): boolean {
+        value = value.trim();
+        if (!this.defaultDisplayObject || (value && !isDisplayObjectName(value))) return false;
+        this.customDisplayObject = value;
+        return true;
+    }
     protected parser: AbstractParser;
     public displays: Display[] = displays;
     public sourceMapParser: SourceMapParser = new SourceMapParser();
