@@ -17,6 +17,7 @@ export class GxEPD2Platform extends AdafruitPlatform {
                 wrap: true,
                 include_fonts: true,
                 include_images: true,
+                export_images: false,
                 declare_vars: true,
                 comments: true,
                 clear_screen: true,

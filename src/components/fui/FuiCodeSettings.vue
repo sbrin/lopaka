@@ -12,6 +12,7 @@ import { TextLayer } from '/src/core/layers/text.layer';
 import { bdfSources, gfxSources } from '/src/draw/fonts/fontTypes';
 import { FontFormat } from '/src/draw/fonts/font';
 import { applySavedCodeSettings } from './code-settings';
+import type { ImageHeader } from '/src/platforms/image-headers';
 
 const props = defineProps<{
     updates: number;
@@ -53,6 +54,14 @@ const imageList = computed(() => {
         : ([] as PaintLayer[]);
 });
 
+const imageHeaders = computed(() => {
+    // Use the same generation path and layer filtering as the code panel.
+    void props.updates;
+    void template.value;
+    session.generateCode();
+    return session.platforms[platform.value].getImageHeaders();
+});
+
 const template = ref(
     localStorage.getItem(`lopaka_${platform.value}_code_template`) ?? session.platforms[platform.value].getTemplate()
 );
@@ -66,12 +75,16 @@ watch(template, (val) => {
         session.platforms[platform.value].setTemplate(val);
         // session.virtualScreen.redraw();
         localStorage.setItem(`lopaka_${platform.value}_code_template`, val);
+        session.state.immidiateUpdates++;
     }
 });
 
 watch(platform, (val) => {
     if (val) {
-        template.value = session.platforms[platform.value].getTemplate();
+        const selectedPlatform = session.platforms[val];
+        template.value = localStorage.getItem(`lopaka_${val}_code_template`) ?? selectedPlatform.getTemplate();
+        selectedPlatform.setTemplate(template.value);
+        applySavedCodeSettings(selectedPlatform.getTemplateSettings(), JSON.parse(localStorage.getItem(`lopaka_${val}_code_settings`) ?? '{}'));
     }
 });
 
@@ -153,11 +166,17 @@ function downloadImage(image: PaintLayer) {
     triggerDownload(url, `${name}.c`);
 }
 
+function downloadImageHeader(header: ImageHeader) {
+    const url = URL.createObjectURL(new Blob([header.content], {type: 'text/plain'}));
+    triggerDownload(url, header.filename);
+}
+
 const LABELS = {
     wrap: 'Wrapper function',
     progmem: 'Declare as PROGMEM',
     include_fonts: 'Include fonts',
     include_images: 'Declare images',
+    export_images: 'Include image files',
     declare_vars: 'Declare variables',
     comments: 'Layer titles',
     clear_screen: 'Clear/Fill display',
@@ -173,7 +192,7 @@ const LABELS = {
                 <label class="label label-xs">
                     <div class="text-sm">Syntax</div>
                     <select
-                        class="select select-xs select-bordered ml-2"
+                        class="select select-xs select-bordered ml-2 min-w-0"
                         v-model="template"
                         @change="changeTemplate"
                     >
@@ -223,6 +242,18 @@ const LABELS = {
                         {{ font.title ?? font.name }}{{ font.format === FontFormat.FORMAT_BDF ? '.bdf' : '.h' }}
                     </div>
                 </div>
+            </div>
+        </template>
+        <template v-if="imageHeaders.length">
+            <div class="text-md mb-1">Images</div>
+            <div class="flex flex-col gap-2">
+                <button
+                    v-for="header in imageHeaders"
+                    :key="header.filename"
+                    type="button"
+                    class="text-sm link text-gray-400 text-left truncate"
+                    @click="downloadImageHeader(header)"
+                >{{ header.filename }}</button>
             </div>
         </template>
         <template v-if="session.getPlatformFeatures(platform).hasImages && imageList.length">

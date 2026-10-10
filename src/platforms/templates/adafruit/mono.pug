@@ -8,7 +8,7 @@ if settings.include_fonts
 if settings.include_images
     each decl in declarations 
         if decl.type == 'bitmap'
-            | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+            | !{imageDeclaration(decl.data.name, `static const unsigned char PROGMEM ${decl.data.name}[] = {${decl.data.value}};`)}
             |
             |
 if settings.declare_vars
