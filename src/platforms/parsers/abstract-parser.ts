@@ -1,3 +1,5 @@
+import {parseLayerTitles} from './layer-titles';
+
 export abstract class AbstractParser {
     protected variablesRegex = /(\w+)\s+(\w+)(\[\d+\])?(\s*=\s*([^;]+))?;/gm;
     protected definesRegex = /#define\s+([a-zA-Z0-9_]+)\s+([a-zA-Z0-9_]+)/gm;
@@ -11,7 +13,8 @@ export abstract class AbstractParser {
         const defines = new Map<string, string>();
         const variables = new Map<string, string>();
         let match;
-        sourceCode = sourceCode.replace(/\/\/[^\n]*\n/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+        const titles = parseLayerTitles(sourceCode);
+        sourceCode = titles.code;
         while ((match = this.variablesRegex.exec(sourceCode)) !== null) {
             const type = match[1];
             const name = match[2];
@@ -32,7 +35,7 @@ export abstract class AbstractParser {
             const functionName = match[1];
             const startPos = match.index + match[0].length;
             const args = this.parseFunctionArguments(sourceCode, startPos);
-            methods.push({functionName, args});
+            methods.push({functionName, args, title: titles.titleAt(match.index)});
         }
         return {methods, defines, variables, images};
     }

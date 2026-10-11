@@ -1,3 +1,4 @@
+import {applyLayerTitle, parseLayerTitles} from './layer-titles';
 import {Point} from '../../core/point';
 import {bufferToImageData, unpackedHexColor565} from '../../utils';
 import {AbstractParser} from './abstract-parser';
@@ -24,7 +25,8 @@ export class MicropythonParser extends AbstractParser {
         const states: any[] = [];
 
         // Strip comments while leaving byte strings intact so parsing stays reliable.
-        const sanitizedSource = this.removeComments(sourceCode);
+        const titles = parseLayerTitles(sourceCode, true);
+        const sanitizedSource = titles.code;
 
         // Track user-defined variables so they can be substituted inside draw calls.
         const variables = this.parseVariables(sanitizedSource);
@@ -38,6 +40,8 @@ export class MicropythonParser extends AbstractParser {
         // Walk every display.* call and convert it into an editor layer state.
         let match;
         while ((match = this.displayCallRegex.exec(sanitizedSource)) !== null) {
+            const firstState = states.length;
+            const title = titles.titleAt(match.index);
             const functionName = match[1];
             const args = this.parseFunctionArguments(sanitizedSource, match.index + match[0].length);
             try {
@@ -127,11 +131,14 @@ export class MicropythonParser extends AbstractParser {
             } catch (e) {
                 warnings.push(`Failed to parse ${functionName}: ${e.message}`);
             }
+            applyLayerTitle(states, firstState, title);
         }
 
         // Walk every framebuffer.* call (e.g., fbuf.poly) and convert to editor layer state.
         this.frameBufferCallRegex.lastIndex = 0;
         while ((match = this.frameBufferCallRegex.exec(sanitizedSource)) !== null) {
+            const firstState = states.length;
+            const title = titles.titleAt(match.index);
             const functionName = match[2];
             const args = this.parseFunctionArguments(sanitizedSource, match.index + match[0].length);
             try {
@@ -172,6 +179,7 @@ export class MicropythonParser extends AbstractParser {
             } catch (e) {
                 warnings.push(`Failed to parse ${functionName}: ${e.message}`);
             }
+            applyLayerTitle(states, firstState, title);
         }
 
         return {states, warnings};
@@ -316,30 +324,6 @@ export class MicropythonParser extends AbstractParser {
             }
         }
         return new Uint8Array(bytes);
-    }
-
-    // Strip Python comments while respecting quoted literals.
-    private removeComments(source: string): string {
-        let result = '';
-        let inSingle = false;
-        let inDouble = false;
-        for (let i = 0; i < source.length; i++) {
-            const char = source[i];
-            if (char === "'" && !inDouble) {
-                inSingle = !inSingle;
-            } else if (char === '"' && !inSingle) {
-                inDouble = !inDouble;
-            }
-            if (char === '#' && !inSingle && !inDouble) {
-                while (i < source.length && source[i] !== '\n') {
-                    i++;
-                }
-                result += source[i] ?? '';
-                continue;
-            }
-            result += char;
-        }
-        return result;
     }
 
     // Normalize Micropython color values to standard hex strings.

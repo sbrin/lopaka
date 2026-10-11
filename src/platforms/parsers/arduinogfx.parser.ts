@@ -1,3 +1,4 @@
+import {applyLayerTitle} from './layer-titles';
 import {Point} from '../../core/point';
 import {rgb565ToImageData, unpackedHexColor565, xbmpToImgData} from '../../utils';
 import {AbstractParser} from './abstract-parser';
@@ -19,6 +20,7 @@ export class ArduinoGFXParser extends AbstractParser {
         const warnings = [];
 
         methods.forEach((call) => {
+            const firstState = states.length;
             switch (call.functionName) {
                 case 'setFont':
                     {
@@ -195,6 +197,7 @@ export class ArduinoGFXParser extends AbstractParser {
                     }
                     break;
             }
+            applyLayerTitle(states, firstState, call.title);
         });
 
         return {states, warnings};

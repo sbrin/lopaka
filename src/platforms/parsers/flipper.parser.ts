@@ -1,3 +1,4 @@
+import {applyLayerTitle} from './layer-titles';
 import {Point} from '../../core/point';
 import {iconsList} from '../../icons/icons';
 import {xbmpToImgData} from '../../utils';
@@ -24,6 +25,7 @@ export class FlipperParser extends AbstractParser {
         let currentColor = 1;
         const warnings = [];
         methods.forEach((call) => {
+            const firstState = states.length;
             switch (call.functionName) {
                 case 'canvas_set_font':
                     {
@@ -173,6 +175,7 @@ export class FlipperParser extends AbstractParser {
                     }
                     break;
             }
+            applyLayerTitle(states, firstState, call.title);
         });
         return {states, warnings};
     }

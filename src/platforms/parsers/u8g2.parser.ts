@@ -1,3 +1,4 @@
+import {applyLayerTitle} from './layer-titles';
 import {Point} from '../../core/point';
 import {xbmpToImgData} from '../../utils';
 import {AbstractParser} from './abstract-parser';
@@ -10,6 +11,7 @@ export class U8g2Parser extends AbstractParser {
         let currentFont = '4x6';
         const warnings = [];
         methods.forEach((call) => {
+            const firstState = states.length;
             if (call.functionName.includes('u8g2_')) {
                 call.args.shift();
             }
@@ -132,6 +134,7 @@ export class U8g2Parser extends AbstractParser {
                     }
                     break;
             }
+            applyLayerTitle(states, firstState, call.title);
         });
         return {states, warnings};
     }

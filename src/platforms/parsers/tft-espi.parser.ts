@@ -1,3 +1,4 @@
+import {applyLayerTitle} from './layer-titles';
 import {Point} from '../../core/point';
 import {unpackedHexColor565, xbmpToImgData} from '../../utils';
 import {AbstractParser} from './abstract-parser';
@@ -12,6 +13,7 @@ export class TFTeSPIParser extends AbstractParser {
         let font = 'adafruit';
         const warnings = [];
         methods.forEach((call) => {
+            const firstState = states.length;
             switch (call.functionName) {
                 case 'setFreeFont':
                     {
@@ -166,6 +168,7 @@ export class TFTeSPIParser extends AbstractParser {
                     }
                     break;
             }
+            applyLayerTitle(states, firstState, call.title);
         });
 
         return {states, warnings};

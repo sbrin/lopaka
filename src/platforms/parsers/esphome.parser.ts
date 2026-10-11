@@ -1,3 +1,4 @@
+import {applyLayerTitle, parseLayerTitles} from './layer-titles';
 import {AbstractParser} from './abstract-parser';
 
 export class EsphomeParser extends AbstractParser {
@@ -11,11 +12,15 @@ export class EsphomeParser extends AbstractParser {
         // Parse font definitions from the YAML configuration
         const fonts = this.parseFonts(sourceCode);
 
+        const titles = parseLayerTitles(sourceCode);
+
         // Reset the regex lastIndex to ensure we start from the beginning
         this.lambdaRegex.lastIndex = 0;
 
         let match;
-        while ((match = this.lambdaRegex.exec(sourceCode)) !== null) {
+        while ((match = this.lambdaRegex.exec(titles.code)) !== null) {
+            const firstState = states.length;
+            const title = titles.titleAt(match.index);
             const functionName = match[1];
             // Get the raw arguments string
             const rawArgs = match[2];
@@ -54,6 +59,7 @@ export class EsphomeParser extends AbstractParser {
             } catch (e) {
                 warnings.push(`Failed to parse ${functionName}: ${e.message}`);
             }
+            applyLayerTitle(states, firstState, title);
         }
 
         return {states, warnings};
