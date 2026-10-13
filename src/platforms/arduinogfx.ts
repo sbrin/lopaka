@@ -1,3 +1,4 @@
+import {createImageExport} from './image-headers';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
@@ -124,10 +125,14 @@ export class ArduinoGFXPlatform extends Platform {
                 this.processVarDeclarations(layer, props, declarations);
                 return props;
             });
-        const source = this.renderTemplate({
+        const settings = Object.assign({}, this.settings, this.templates[this.currentTemplate].settings);
+        const images = createImageExport(settings.export_images);
+        this.imageHeaders = images.headers;
+        const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
-            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
+            settings,
+            imageDeclaration: images.declare,
             defaultColor: this.packColor(this.features.defaultColor),
             clear_screen_method: this.getClearScreenMethod(this.features.screenBgColor),
             screenTitle: screenTitle ? toCppVariableName(screenTitle) : '',

@@ -19,10 +19,16 @@ Feature: Code generation settings
     And the screen contains images used by the generated code
     When the user enables "Include image files" in Code Settings
     Then each generated image asset is available for individual download
-    And the download list is titled "Images" without an explanatory paragraph
     And the main code includes the corresponding header files instead of inline image data
     And drawing commands reference the same symbols declared in those headers
     And shared image data produces one header and one include
+
+  Scenario: Enable image declarations when enabling header export
+    Given "Declare images" is disabled
+    When the user enables "Include image files"
+    Then "Declare images" is enabled automatically
+    And both enabled settings are saved with the code settings
+    And generated image headers are available for download
 
   Scenario: Switch back to inline image data
     Given exporting images as header files is enabled

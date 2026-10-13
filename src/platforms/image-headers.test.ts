@@ -16,6 +16,21 @@ const platforms = [AdafruitPlatform, AdafruitMonochromePlatform, ArduinoGFXPlatf
 
 describe.each(platforms.map((PlatformClass) => ({PlatformClass, name: PlatformClass.name})))('$name image header export', ({PlatformClass}) => {
     for (const template of Object.keys(new PlatformClass().getTemplates())) {
+        it(`${template}: enabling header export also enables image declarations`, () => {
+            const platform = new PlatformClass();
+            platform.setTemplate(template);
+            platform.setTemplateSetting('include_images', false);
+            platform.setTemplateSetting('export_images', true);
+            expect(platform.getTemplateSettings().include_images).toBe(true);
+            const code = platform.generateSourceCode([...layersMock]);
+            expect(platform.getImageHeaders().length).toBeGreaterThan(0);
+            for (const header of platform.getImageHeaders()) {
+                expect(code).toContain(`#include "${header.filename}"`);
+            }
+            platform.setTemplateSetting('export_images', false);
+            expect(platform.getTemplateSettings().include_images).toBe(true);
+        });
+
         it(`${template}: moves the exact image declarations into headers and restores inline output`, () => {
             const platform = new PlatformClass();
             platform.setTemplate(template);

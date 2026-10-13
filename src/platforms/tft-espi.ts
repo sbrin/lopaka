@@ -1,3 +1,4 @@
+import {createImageExport} from './image-headers';
 import {getLayerProperties} from '/src/core/decorators/mapping';
 import {AbstractImageLayer} from '/src/core/layers/abstract-image.layer';
 import {AbstractLayer} from '/src/core/layers/abstract.layer';
@@ -123,10 +124,14 @@ export class TFTeSPIPlatform extends Platform {
                 this.processVarDeclarations(layer, props, declarations);
                 return props;
             });
-        const source = this.renderTemplate({
+        const settings = Object.assign({}, this.settings, this.templates[this.currentTemplate].settings);
+        const images = createImageExport(settings.export_images);
+        this.imageHeaders = images.headers;
+        const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
-            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
+            settings,
+            imageDeclaration: images.declare,
             packColor: (color) => this.packColor(color),
             defaultColor: this.features.defaultColor,
             clear_screen_method: this.getClearScreenMethod(this.features.screenBgColor),

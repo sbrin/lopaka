@@ -318,7 +318,7 @@ function onMouseClick() {
             </div>
             <div class="fui-editor__bottom flex flex-row justify-center pt-2 border-t border-secondary">
                 <div
-                    class="flex-1 min-w-0 relative"
+                    class="flex-1 relative"
                     v-if="platform !== FreestylePlatform.id"
                 >
                     <div class="absolute right-6 top-4 z-10 flex flex-row gap-2 content-center items-center">
@@ -410,12 +410,9 @@ function onMouseClick() {
 }
 
 .fui-editor__bottom-right {
-    flex: 0 0 250px;
-    width: 250px;
-    min-width: 0;
+    min-width: 230px;
     height: 0;
     min-height: 100%;
-    overflow-x: hidden;
     overflow-y: auto;
     scrollbar-gutter: stable;
 }
