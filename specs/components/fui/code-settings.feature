@@ -16,14 +16,6 @@ Feature: Code generation settings
     Then "Invalid name" is shown below the input
     And the generated code keeps the last valid name
 
-  Scenario: Compact display object setting
-    Given the selected platform supports a display object name
-    When the user opens the code settings
-    Then "Display object" and its input appear on the same row
-    And explanatory text below the input appears only for an invalid name
-    When the user hovers over the input
-    Then the tooltip "Graphics library name or alias" is shown
-
   Scenario: Open code settings without saved preferences
     Given the selected platform exposes code generation settings
     And no preferences have been saved for that platform

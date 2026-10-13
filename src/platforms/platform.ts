@@ -1,4 +1,4 @@
-import {isDisplayObjectName} from './display-object';
+import {DISPLAY_OBJECT_KEYWORDS, DISPLAY_OBJECT_GNU_KEYWORDS} from '../const';
 import { AbstractLayer } from '../core/layers/abstract.layer';
 import { AbstractParser } from './parsers/abstract-parser';
 import { SourceMapParser } from './parsers/source-map-parser';
@@ -83,9 +83,15 @@ export abstract class Platform {
 
     public setDisplayObjectName(value: string): boolean {
         value = value.trim();
-        if (!this.defaultDisplayObject || (value && !isDisplayObjectName(value))) return false;
+        if (!this.defaultDisplayObject || (value && !this.isDisplayObjectName(value))) return false;
         this.customDisplayObject = value;
         return true;
+    }
+
+    private isDisplayObjectName(value: string): boolean {
+        return /^[A-Za-z_][A-Za-z0-9_]*$/.test(value)
+            && !DISPLAY_OBJECT_KEYWORDS.has(value)
+            && !DISPLAY_OBJECT_GNU_KEYWORDS.has(value);
     }
     protected parser: AbstractParser;
     public displays: Display[] = displays;
