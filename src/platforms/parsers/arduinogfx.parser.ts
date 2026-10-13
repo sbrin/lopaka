@@ -1,4 +1,4 @@
-import {applyLayerTitle} from './layer-titles';
+import {applyLayerTitle} from './source-comments';
 import {Point} from '../../core/point';
 import {rgb565ToImageData, unpackedHexColor565, xbmpToImgData} from '../../utils';
 import {AbstractParser} from './abstract-parser';

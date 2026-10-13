@@ -1,4 +1,4 @@
-import {applyLayerTitle} from './layer-titles';
+import {applyLayerTitle} from './source-comments';
 import {Point} from '../../core/point';
 import {iconsList} from '../../icons/icons';
 import {xbmpToImgData} from '../../utils';

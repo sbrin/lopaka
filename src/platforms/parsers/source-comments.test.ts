@@ -9,7 +9,7 @@ import {InkplateParser} from './inkplate.parser';
 import {MicropythonParser} from './micropython.parser';
 import {EsphomeParser} from './esphome.parser';
 import {LVGLParser} from './lvgl.parser';
-import {parseLayerTitles} from './layer-titles';
+import {parseSourceComments} from './source-comments';
 import {AdafruitMonochromePlatform} from '../adafruit_mono';
 import {U8g2Platform} from '../u8g2';
 import {FlipperPlatform} from '../flipper';
@@ -115,7 +115,7 @@ lv_obj_t * unnamed = lv_switch_create(lv_screen_active());
 
     it('keeps source offsets and escaped quotes while masking comments', () => {
         const source = 'display.print("a\\\"//b"); /* comment */\r\n// Title\r\ndisplay.drawRect(1,2,3,4,1);';
-        const parsed = parseLayerTitles(source);
+        const parsed = parseSourceComments(source);
         expect(parsed.code.length).toBe(source.length);
         expect(parsed.code).toContain('"a\\\"//b"');
         expect(parsed.code.indexOf('drawRect')).toBe(source.indexOf('drawRect'));

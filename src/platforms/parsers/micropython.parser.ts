@@ -1,4 +1,4 @@
-import {applyLayerTitle, parseLayerTitles} from './layer-titles';
+import {applyLayerTitle, parseSourceComments} from './source-comments';
 import {Point} from '../../core/point';
 import {bufferToImageData, unpackedHexColor565} from '../../utils';
 import {AbstractParser} from './abstract-parser';
@@ -25,8 +25,7 @@ export class MicropythonParser extends AbstractParser {
         const states: any[] = [];
 
         // Strip comments while leaving byte strings intact so parsing stays reliable.
-        const titles = parseLayerTitles(sourceCode, true);
-        const sanitizedSource = titles.code;
+        const {code: sanitizedSource, titleAt} = parseSourceComments(sourceCode, true);
 
         // Track user-defined variables so they can be substituted inside draw calls.
         const variables = this.parseVariables(sanitizedSource);
@@ -41,7 +40,7 @@ export class MicropythonParser extends AbstractParser {
         let match;
         while ((match = this.displayCallRegex.exec(sanitizedSource)) !== null) {
             const firstState = states.length;
-            const title = titles.titleAt(match.index);
+            const title = titleAt(match.index);
             const functionName = match[1];
             const args = this.parseFunctionArguments(sanitizedSource, match.index + match[0].length);
             try {
@@ -138,7 +137,7 @@ export class MicropythonParser extends AbstractParser {
         this.frameBufferCallRegex.lastIndex = 0;
         while ((match = this.frameBufferCallRegex.exec(sanitizedSource)) !== null) {
             const firstState = states.length;
-            const title = titles.titleAt(match.index);
+            const title = titleAt(match.index);
             const functionName = match[2];
             const args = this.parseFunctionArguments(sanitizedSource, match.index + match[0].length);
             try {

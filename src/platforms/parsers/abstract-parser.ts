@@ -1,4 +1,4 @@
-import {parseLayerTitles} from './layer-titles';
+import {parseSourceComments} from './source-comments';
 
 export abstract class AbstractParser {
     protected variablesRegex = /(\w+)\s+(\w+)(\[\d+\])?(\s*=\s*([^;]+))?;/gm;
@@ -13,29 +13,28 @@ export abstract class AbstractParser {
         const defines = new Map<string, string>();
         const variables = new Map<string, string>();
         let match;
-        const titles = parseLayerTitles(sourceCode);
-        sourceCode = titles.code;
-        while ((match = this.variablesRegex.exec(sourceCode)) !== null) {
+        const {code, titleAt} = parseSourceComments(sourceCode);
+        while ((match = this.variablesRegex.exec(code)) !== null) {
             const type = match[1];
             const name = match[2];
             const size = match[3];
             const value = match[5];
             variables.set(name, value);
         }
-        while ((match = this.definesRegex.exec(sourceCode)) !== null) {
+        while ((match = this.definesRegex.exec(code)) !== null) {
             const name = match[1];
             const value = match[2];
             defines.set(name, value);
         }
-        while ((match = this.xbmpRegex.exec(sourceCode)) !== null) {
+        while ((match = this.xbmpRegex.exec(code)) !== null) {
             let {name, xbmp} = this.getXbmpFromMatch(match);
             images.set(this.parseImageName(name), xbmp);
         }
-        while ((match = this.cppMethodsRegexp.exec(sourceCode)) !== null) {
+        while ((match = this.cppMethodsRegexp.exec(code)) !== null) {
             const functionName = match[1];
             const startPos = match.index + match[0].length;
-            const args = this.parseFunctionArguments(sourceCode, startPos);
-            methods.push({functionName, args, title: titles.titleAt(match.index)});
+            const args = this.parseFunctionArguments(code, startPos);
+            methods.push({functionName, args, title: titleAt(match.index)});
         }
         return {methods, defines, variables, images};
     }

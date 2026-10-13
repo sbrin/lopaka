@@ -1,7 +1,7 @@
 export type LayerTitle = {name: string; used?: boolean};
 
 /** Mask comments without moving source offsets or touching quoted literals. */
-export function parseLayerTitles(source: string, python = false) {
+export function parseSourceComments(source: string, python = false) {
     const titles: {offset: number; title?: LayerTitle}[] = [];
     const tokens = python
         ? /"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|#[^\r\n]*/g

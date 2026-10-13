@@ -1,4 +1,4 @@
-import {applyLayerTitle, parseLayerTitles} from './layer-titles';
+import {applyLayerTitle, parseSourceComments} from './source-comments';
 import {Point} from '../../core/point';
 import {LVGL_DEFAULT_TTF_FONT_SIZE} from '../lvgl/constants';
 import {AbstractParser} from './abstract-parser';
@@ -193,8 +193,7 @@ export class LVGLParser extends AbstractParser {
 
     private discoverWidgets(sourceCode: string): Map<string, LVGLWidget> {
         const widgets = new Map<string, LVGLWidget>();
-        const titles = parseLayerTitles(sourceCode);
-        const cleanedCode = titles.code;
+        const {code: cleanedCode, titleAt} = parseSourceComments(sourceCode);
         let match: RegExpExecArray | null;
 
         // Reset regex state
@@ -215,7 +214,7 @@ export class LVGLParser extends AbstractParser {
             }
 
             const state: Record<string, any> = {};
-            const title = titles.titleAt(match.index);
+            const title = titleAt(match.index);
             applyLayerTitle([state], 0, title, `${widgetType}: `);
             widgets.set(varName, {
                 varName,
