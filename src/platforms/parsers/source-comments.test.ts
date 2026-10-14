@@ -26,17 +26,31 @@ describe('imported layer titles', () => {
         const platform = create();
         const layers = ['Battery / Батарея', 'Border 2'].map((name, index) => {
             const layer = new RectangleLayer(platform.features);
-            layer.state = {t: 'rect', n: name, c: '#ffffff', f: false, i: index, p: [index * 10, 2], u: `rect${index}`, s: [8, 8]};
+            layer.state = {
+                t: 'rect',
+                n: name,
+                c: '#ffffff',
+                f: false,
+                i: index,
+                p: [index * 10, 2],
+                u: `rect${index}`,
+                s: [8, 8],
+            };
             return layer;
         });
         for (const wrap of [true, false]) {
             platform.setTemplateSetting('wrap', wrap);
             platform.setTemplateSetting('comments', true);
             const code = platform.sourceMapParser.parse(platform.generateSourceCode(layers)).code;
-            expect(platform.importSourceCode(code).states.map(state => state.name)).toEqual(layers.map(layer => layer.name));
+            expect(platform.importSourceCode(code).states.map((state) => state.name)).toEqual(
+                layers.map((layer) => layer.name)
+            );
             platform.setTemplateSetting('comments', false);
             const unnamed = platform.sourceMapParser.parse(platform.generateSourceCode(layers)).code;
-            expect(platform.importSourceCode(unnamed).states.map(state => state.name)).toEqual([undefined, undefined]);
+            expect(platform.importSourceCode(unnamed).states.map((state) => state.name)).toEqual([
+                undefined,
+                undefined,
+            ]);
         }
     });
     it.each([
@@ -54,9 +68,9 @@ describe('imported layer titles', () => {
         const source = `// Рамка: батарея 50%\r\n${command}\r\n${command}\r\n// Second\r\n${command}`;
         const result = parser.importSourceCode(source);
         expect(result.warnings).toEqual([]);
-        expect(result.states.map(state => state.name)).toEqual(['Рамка: батарея 50%', undefined, 'Second']);
+        expect(result.states.map((state) => state.name)).toEqual(['Рамка: батарея 50%', undefined, 'Second']);
         // Names and consumed-comment state must not survive a subsequent import.
-        expect(parser.importSourceCode(command).states.map(state => state.name)).toEqual([undefined]);
+        expect(parser.importSourceCode(command).states.map((state) => state.name)).toEqual([undefined]);
     });
 
     it('retains a title across text setup calls and preserves URL text', () => {
@@ -94,7 +108,7 @@ display.rect(1, 2, 3, 4, 1) # inline
 # Border
 display.rect(1, 2, 3, 4, 1)
 `);
-        expect(result.states.map(state => state.name)).toEqual(['Caption', undefined, 'Border']);
+        expect(result.states.map((state) => state.name)).toEqual(['Caption', undefined, 'Border']);
         expect(result.states[0].text).toBe('Value #1');
     });
 
@@ -109,8 +123,8 @@ lv_obj_t * label_status = lv_label_create(lv_screen_active());
 lv_label_set_text(label_status, "Ready");
 lv_obj_t * unnamed = lv_switch_create(lv_screen_active());
 `);
-        expect(result.states.map(state => state.name)).toEqual(['Start / Старт', 'Status: ready', undefined]);
-        expect(result.states.map(state => state.type)).toEqual(['button', 'string', 'switch']);
+        expect(result.states.map((state) => state.name)).toEqual(['Start / Старт', 'Status: ready', undefined]);
+        expect(result.states.map((state) => state.type)).toEqual(['button', 'string', 'switch']);
     });
 
     it('keeps source offsets and escaped quotes while masking comments', () => {
@@ -129,6 +143,6 @@ display.drawRect(1, 2, 3, 4, 0xFFFF);
 // rect: Rounded
 display.drawRoundRect(1, 2, 3, 4, 1, 0xFFFF);
 `);
-        expect(states.map(state => state.name)).toEqual(['Border', 'Rounded']);
+        expect(states.map((state) => state.name)).toEqual(['Border', 'Rounded']);
     });
 });
