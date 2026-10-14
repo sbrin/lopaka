@@ -23,12 +23,16 @@ Feature: Code generation settings
     And drawing commands reference the same symbols declared in those headers
     And shared image data produces one header and one include
 
-  Scenario: Enable image declarations when enabling header export
+  Scenario: Choose header export after enabling image declarations
     Given "Declare images" is disabled
+    Then "Include image files" is hidden
+    When the user enables "Declare images"
+    Then "Include image files" is visible and remains disabled
+    And image data stays inline until the user enables "Include image files"
     When the user enables "Include image files"
-    Then "Declare images" is enabled automatically
-    And both enabled settings are saved with the code settings
-    And generated image headers are available for download
+    Then generated image headers are available for download
+    When the user disables "Declare images"
+    Then "Include image files" is disabled and hidden
 
   Scenario: Switch back to inline image data
     Given exporting images as header files is enabled
@@ -44,3 +48,16 @@ Feature: Code generation settings
     Given exporting images as header files is enabled
     When an image is changed or removed or the platform is changed
     Then the downloadable headers match the current generated code
+
+  Scenario: Export MicroPython image modules
+    Given a MicroPython screen contains images
+    When the user enables "Include image files"
+    Then each used image is available as a Python module
+    And the generated code imports its bitmap data from that module
+
+  Scenario: Export ESPHome image files
+    Given an ESPHome screen contains images
+    When the user enables "Include image files"
+    Then each used image is available as a PNG file
+    And the generated YAML references the downloaded filename
+    And drawing commands reference the corresponding image ID

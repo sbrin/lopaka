@@ -8,7 +8,7 @@ import { TextLayer } from '/src/core/layers/text.layer';
 import { PlatformTemplates } from '/src/types';
 import { packedHexColor565, toCppVariableName } from '/src/utils';
 import { AbstractDrawingRenderer, PixelatedDrawingRenderer } from '../draw/renderers';
-import type {ImageHeader} from './image-headers';
+import type {ImageDeclaration} from './image-files';
 
 export type TPlatformFeatures = {
     hasCustomFontSize: boolean;
@@ -74,16 +74,17 @@ export abstract class Platform {
     protected templates: PlatformTemplates;
     protected currentTemplate: string = 'Default';
     protected settings = {};
-    protected imageHeaders: ImageHeader[] = [];
-    public getImageHeaders(): readonly ImageHeader[] {
-        return this.imageHeaders;
-    }
 
     protected parser: AbstractParser;
     public displays: Display[] = displays;
     public sourceMapParser: SourceMapParser = new SourceMapParser();
 
-    abstract generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string;
+    abstract generateSourceCode(
+        layers: AbstractLayer[],
+        ctx?: OffscreenCanvasRenderingContext2D,
+        screenTitle?: string,
+        imageDeclaration?: ImageDeclaration
+    ): string;
 
     importSourceCode(sourceCode: string): { states: any[]; warnings: string[] } {
         return this.parser.importSourceCode(sourceCode);
@@ -223,11 +224,7 @@ export abstract class Platform {
     }
 
     public setTemplateSetting(name: string, value: boolean): void {
-        const settings = this.templates[this.currentTemplate].settings;
-        settings[name] = value;
-        if (name === 'export_images' && value && 'include_images' in settings) {
-            settings.include_images = true;
-        }
+        this.templates[this.currentTemplate].settings[name] = value;
     }
 
     public getFonts(): TPlatformFont[] {

@@ -1,7 +1,7 @@
 if settings.include_images
     each decl in declarations 
         if decl.type == 'bitmap'
-            | !{decl.data.name} = bytearray(!{decl.data.value})
+            | !{imageDeclaration(decl.data.name, `${decl.data.name} = bytearray(${decl.data.value})`)}
             |
 if settings.declare_vars
     each decl in declarations 

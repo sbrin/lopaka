@@ -1,4 +1,4 @@
-import {createImageExport} from './image-headers';
+import {inlineImage, type ImageDeclaration} from './image-files';
 import {getLayerProperties} from '/src/core/decorators/mapping';
 import {AbstractImageLayer} from '/src/core/layers/abstract-image.layer';
 import {AbstractLayer} from '/src/core/layers/abstract.layer';
@@ -41,7 +41,12 @@ export class TFTeSPIPlatform extends Platform {
         },
     };
 
-    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
+    generateSourceCode(
+        layers: AbstractLayer[],
+        ctx?: OffscreenCanvasRenderingContext2D,
+        screenTitle?: string,
+        imageDeclaration: ImageDeclaration = inlineImage
+    ): string {
         const declarations: {type: string; data: any}[] = [];
         const xbmps = [];
         const xbmpsNames = [];
@@ -125,13 +130,11 @@ export class TFTeSPIPlatform extends Platform {
                 return props;
             });
         const settings = Object.assign({}, this.settings, this.templates[this.currentTemplate].settings);
-        const images = createImageExport(settings.export_images);
-        this.imageHeaders = images.headers;
         const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
             settings,
-            imageDeclaration: images.declare,
+            imageDeclaration,
             packColor: (color) => this.packColor(color),
             defaultColor: this.features.defaultColor,
             clear_screen_method: this.getClearScreenMethod(this.features.screenBgColor),

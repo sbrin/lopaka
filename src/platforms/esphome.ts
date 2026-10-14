@@ -1,9 +1,10 @@
+import {inlineImage, type ImageDeclaration} from './image-files';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {TextLayer} from '../core/layers/text.layer';
 import {ttfFonts} from '../draw/fonts/fontTypes';
-import {imgDataToXBMP, toCppVariableName} from '../utils';
+import {toCppVariableName} from '../utils';
 import {Platform} from './platform';
 import defaultTemplate from './templates/esphome/default.pug';
 import {EsphomeParser} from './parsers/esphome.parser';
@@ -27,6 +28,7 @@ export class EsphomePlatform extends Platform {
                 comments: true,
                 include_fonts: true,
                 include_images: true,
+                export_images: false,
                 declare_vars: true,
             },
         },
@@ -65,30 +67,39 @@ export class EsphomePlatform extends Platform {
         return declarations.sort((a, b) => a.data.name.localeCompare(b.data.name));
     }
 
-    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
+    generateSourceCode(
+        layers: AbstractLayer[],
+        ctx?: OffscreenCanvasRenderingContext2D,
+        screenTitle?: string,
+        imageDeclaration: ImageDeclaration = inlineImage
+    ): string {
         const declarations: {type: string; data: any}[] = [];
-        const xbmps = [];
-        const xbmpsNames = [];
+        const imageKeys = [];
+        const imageNames = [];
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
-                    const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y).join(',');
-                    if (xbmps.includes(XBMP)) {
-                        props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
+                    const imageKey = `${layer.size.x}x${layer.size.y}:` + Array.from(layer.data.data).join(',');
+                    if (imageKeys.includes(imageKey)) {
+                        props.imageName = imageNames[imageKeys.indexOf(imageKey)];
                     } else {
-                        const name = 'img_' + (layer.imageName ?? toCppVariableName(layer.name));
+                        const baseName = 'img_' + toCppVariableName(layer.imageName ?? layer.name);
+                        let name = baseName;
+                        let suffix = 2;
+                        while (imageNames.includes(name)) name = baseName + '_' + suffix++;
                         declarations.push({
                             type: 'bitmap',
                             data: {
                                 name: name,
                                 value: layer.imageName ?? toCppVariableName(layer.name),
+                                file: imageDeclaration(name, `images/${layer.imageName ?? toCppVariableName(layer.name)}.png`, layer.data),
                                 size: layer.size.x + 'x' + layer.size.y,
                             },
                         });
-                        xbmps.push(XBMP);
-                        xbmpsNames.push(name);
+                        imageKeys.push(imageKey);
+                        imageNames.push(name);
                         props.imageName = name;
                     }
                 } else if (layer instanceof TextLayer) {
@@ -123,6 +134,7 @@ export class EsphomePlatform extends Platform {
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
+            imageDeclaration,
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

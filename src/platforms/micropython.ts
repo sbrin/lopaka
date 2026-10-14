@@ -1,3 +1,4 @@
+import {inlineImage, type ImageDeclaration} from './image-files';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
@@ -26,6 +27,7 @@ export class MicropythonPlatform extends Platform {
                 wrap: true,
                 comments: true,
                 include_images: true,
+                export_images: false,
                 declare_vars: true,
             },
         },
@@ -42,7 +44,12 @@ export class MicropythonPlatform extends Platform {
         this.features.screenBgColor = '#000000';
     }
 
-    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
+    generateSourceCode(
+        layers: AbstractLayer[],
+        ctx?: OffscreenCanvasRenderingContext2D,
+        screenTitle?: string,
+        imageDeclaration: ImageDeclaration = inlineImage
+    ): string {
         const declarations: {type: string; data: any}[] = [];
         const xbmps = [];
         const xbmpsNames = [];
@@ -77,6 +84,7 @@ export class MicropythonPlatform extends Platform {
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
+            imageDeclaration,
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

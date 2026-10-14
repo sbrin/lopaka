@@ -11,8 +11,8 @@ import imageTemplate from '/src/platforms/templates/lvgl/image.pug';
 import { TextLayer } from '/src/core/layers/text.layer';
 import { bdfSources, gfxSources } from '/src/draw/fonts/fontTypes';
 import { FontFormat } from '/src/draw/fonts/font';
-import { applySavedCodeSettings } from './code-settings';
-import type { ImageHeader } from '/src/platforms/image-headers';
+import { applySavedCodeSettings, setCodeSetting } from './code-settings';
+import type { ImageFile } from '/src/platforms/image-files';
 
 const props = defineProps<{
     updates: number;
@@ -54,12 +54,11 @@ const imageList = computed(() => {
         : ([] as PaintLayer[]);
 });
 
-const imageHeaders = computed(() => {
+const imageFiles = computed(() => {
     // Use the same generation path and layer filtering as the code panel.
     void props.updates;
     void template.value;
-    session.generateCode();
-    return session.platforms[platform.value].getImageHeaders();
+    return session.generateCode().files;
 });
 
 const template = ref(
@@ -90,7 +89,7 @@ watch(platform, (val) => {
 
 function setSetting(event: Event, name: any) {
     const target = event.target as HTMLInputElement;
-    session.platforms[platform.value].setTemplateSetting(name, target.checked);
+    setCodeSetting(settings.value, name, target.checked);
     session.virtualScreen.redraw();
     session.state.immidiateUpdates++;
 
@@ -166,9 +165,18 @@ function downloadImage(image: PaintLayer) {
     triggerDownload(url, `${name}.c`);
 }
 
-function downloadImageHeader(header: ImageHeader) {
-    const url = URL.createObjectURL(new Blob([header.content], {type: 'text/plain'}));
-    triggerDownload(url, header.filename);
+function downloadImageFile(file: ImageFile) {
+    if (typeof file.content === 'string') {
+        triggerDownload(URL.createObjectURL(new Blob([file.content], {type: 'text/plain'})), file.filename);
+        return;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = file.content.width;
+    canvas.height = file.content.height;
+    canvas.getContext('2d').putImageData(file.content, 0, 0);
+    canvas.toBlob((blob) => {
+        if (blob) triggerDownload(URL.createObjectURL(blob), file.filename);
+    }, 'image/png');
 }
 
 const LABELS = {
@@ -208,6 +216,7 @@ const LABELS = {
             </div>
             <div
                 v-for="(value, key) in settings"
+                v-show="key !== 'export_images' || settings.include_images"
                 class="form-control"
             >
                 <label class="label label-xs cursor-pointer justify-start py-1">
@@ -244,16 +253,16 @@ const LABELS = {
                 </div>
             </div>
         </template>
-        <template v-if="imageHeaders.length">
+        <template v-if="imageFiles.length">
             <div class="text-md mb-1">Images</div>
             <div class="flex flex-col gap-2">
                 <button
-                    v-for="header in imageHeaders"
-                    :key="header.filename"
+                    v-for="file in imageFiles"
+                    :key="file.filename"
                     type="button"
                     class="text-sm link text-gray-400 text-left truncate"
-                    @click="downloadImageHeader(header)"
-                >{{ header.filename }}</button>
+                    @click="downloadImageFile(file)"
+                >{{ file.filename }}</button>
             </div>
         </template>
         <template v-if="session.getPlatformFeatures(platform).hasImages && imageList.length">

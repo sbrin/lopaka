@@ -1,3 +1,4 @@
+import {generateCodeFiles} from '../components/fui/code-settings';
 import { reactive, UnwrapRef } from 'vue';
 import { TPlatformFeatures } from 'src/platforms/platform';
 import { getFont, loadFont } from '../draw/fonts';
@@ -315,16 +316,17 @@ export class Session {
         this.state.isPublic = enabled;
     };
 
-    generateCode = (): TSourceCode => {
+    generateCode = () => {
         const { platform, screenTitle } = this.state;
-        const code = this.platforms[platform].generateSourceCode(
+        const {source, files} = generateCodeFiles(
+            this.platforms[platform],
             this.layersManager.sorted.filter(
                 (layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()
             ),
             this.virtualScreen.ctx,
             screenTitle
         );
-        return this.platforms[platform].sourceMapParser.parse(code);
+        return {...this.platforms[platform].sourceMapParser.parse(source), files};
     };
 
     setScreenTitle = (title: string) => {
