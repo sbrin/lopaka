@@ -1,3 +1,4 @@
+import {applyLayerTitle, parseSourceComments} from './source-comments';
 import {Point} from '../../core/point';
 import {LVGL_DEFAULT_TTF_FONT_SIZE} from '../lvgl/constants';
 import {AbstractParser} from './abstract-parser';
@@ -44,6 +45,7 @@ export class LVGLParser extends AbstractParser {
 
         // Phase 2: Collect properties from method calls
         methods.forEach((call) => {
+            const firstState = states.length;
             const args = this.getArgs(call.args, defines, variables);
 
             // Handle legacy display.* rect calls
@@ -58,6 +60,7 @@ export class LVGLParser extends AbstractParser {
                         fill: call.functionName === 'fillRect',
                         color: this.parseDirectColor(color),
                     });
+                    applyLayerTitle(states, firstState, call.title, 'rect: ');
                     return;
                 }
                 case 'fillRoundRect':
@@ -71,6 +74,7 @@ export class LVGLParser extends AbstractParser {
                         radius: parseInt(radius),
                         color: this.parseDirectColor(color),
                     });
+                    applyLayerTitle(states, firstState, call.title, 'rect: ');
                     return;
                 }
             }
@@ -189,7 +193,7 @@ export class LVGLParser extends AbstractParser {
 
     private discoverWidgets(sourceCode: string): Map<string, LVGLWidget> {
         const widgets = new Map<string, LVGLWidget>();
-        const cleanedCode = sourceCode.replace(/\/\/[^\n]*\n/g, '\n').replace(/\/\*[\s\S]*?\*\//g, '');
+        const {code: cleanedCode, titleAt} = parseSourceComments(sourceCode);
         let match: RegExpExecArray | null;
 
         // Reset regex state
@@ -209,11 +213,14 @@ export class LVGLParser extends AbstractParser {
                 parentVar = parentArg;
             }
 
+            const state: Record<string, any> = {};
+            const title = titleAt(match.index);
+            applyLayerTitle([state], 0, title, `${widgetType}: `);
             widgets.set(varName, {
                 varName,
                 widgetType,
                 parentVar,
-                state: {},
+                state,
             });
         }
 
