@@ -19,5 +19,7 @@ describe('Adafruit platform', () => {
 
         expect(source).toContain('void draw_Polygon_01_test(void)');
         expect(source).toContain('draw_Polygon_01_test();');
+        expect(source).toContain('tft.drawLine(');
+        expect(source).not.toContain('display.drawLine(');
     });
 });

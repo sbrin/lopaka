@@ -11,8 +11,17 @@ import {InkplatePlatform} from './inkplate';
 import {TextLayer} from '../core/layers/text.layer';
 import {layersMock} from './layers.mock';
 
-const platforms = [AdafruitPlatform, AdafruitMonochromePlatform, ArduinoGFXPlatform,
-    TFTeSPIPlatform, U8g2Platform, FlipperPlatform, MicropythonPlatform, GxEPD2Platform, InkplatePlatform];
+const platforms = [
+    AdafruitPlatform,
+    AdafruitMonochromePlatform,
+    ArduinoGFXPlatform,
+    TFTeSPIPlatform,
+    U8g2Platform,
+    FlipperPlatform,
+    MicropythonPlatform,
+    GxEPD2Platform,
+    InkplatePlatform,
+];
 
 describe.each(platforms.map((Type) => ({Type, name: Type.name})))('$name display object', ({Type}) => {
     for (const template of Object.keys(new Type().getTemplates())) {
@@ -34,7 +43,8 @@ describe.each(platforms.map((Type) => ({Type, name: Type.name})))('$name display
 it('does not rename display names inside text or layer comments', () => {
     const original = layersMock.find((layer) => layer instanceof TextLayer)!;
     const layer = Object.assign(Object.create(Object.getPrototypeOf(original)), original, {
-        text: 'display.print, tft.draw, u8g2.drawStr', name: 'display.print',
+        text: 'display.print, tft.draw, u8g2.drawStr',
+        name: 'display.print',
     });
     const platform = new AdafruitMonochromePlatform();
     platform.setDisplayObjectName('myDisplay');
@@ -43,12 +53,15 @@ it('does not rename display names inside text or layer comments', () => {
     expect(source).toContain('// display.print');
 });
 
-it.each(['9screen', 'my display', 'display;evil()', 'class', 'for', 'True', 'a.b', 'a->b'])('rejects invalid name %s', (name) => {
-    const platform = new U8g2Platform();
-    platform.setDisplayObjectName('myDisplay');
-    expect(platform.setDisplayObjectName(name)).toBe(false);
-    expect(platform.getDisplayObjectName()).toBe('myDisplay');
-});
+it.each(['9screen', 'my display', 'display;evil()', 'class', 'for', 'True', 'a.b', 'a->b'])(
+    'rejects invalid name %s',
+    (name) => {
+        const platform = new U8g2Platform();
+        platform.setDisplayObjectName('myDisplay');
+        expect(platform.setDisplayObjectName(name)).toBe(false);
+        expect(platform.getDisplayObjectName()).toBe('myDisplay');
+    }
+);
 
 it('stores independent names for each platform and keeps names across syntax changes', () => {
     const u8g2 = new U8g2Platform();
@@ -62,11 +75,38 @@ it('stores independent names for each platform and keeps names across syntax cha
 
 describe.each([AdafruitPlatform, U8g2Platform])('%s GNU keyword validation', (PlatformClass) => {
     it.each([
-        'typeof', 'typeof_unqual', '__typeof', '__typeof__', '__typeof_unqual', '__typeof_unqual__',
-        '__asm', '__asm__', '__inline', '__inline__', '__alignof', '__alignof__',
-        '__attribute', '__attribute__', '__auto_type', '__extension__', '__thread', '__label__',
-        '__const', '__const__', '__volatile', '__volatile__', '__signed', '__signed__',
-        '__restrict', '__restrict__', '__complex', '__complex__', '__real', '__real__', '__imag', '__imag__',
+        'typeof',
+        'typeof_unqual',
+        '__typeof',
+        '__typeof__',
+        '__typeof_unqual',
+        '__typeof_unqual__',
+        '__asm',
+        '__asm__',
+        '__inline',
+        '__inline__',
+        '__alignof',
+        '__alignof__',
+        '__attribute',
+        '__attribute__',
+        '__auto_type',
+        '__extension__',
+        '__thread',
+        '__label__',
+        '__const',
+        '__const__',
+        '__volatile',
+        '__volatile__',
+        '__signed',
+        '__signed__',
+        '__restrict',
+        '__restrict__',
+        '__complex',
+        '__complex__',
+        '__real',
+        '__real__',
+        '__imag',
+        '__imag__',
     ])('rejects %s without changing the last valid name', (name) => {
         const platform = new PlatformClass();
         platform.setDisplayObjectName('myDisplay');

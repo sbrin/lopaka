@@ -89,9 +89,11 @@ export abstract class Platform {
     }
 
     private isDisplayObjectName(value: string): boolean {
-        return /^[A-Za-z_][A-Za-z0-9_]*$/.test(value)
-            && !DISPLAY_OBJECT_KEYWORDS.has(value)
-            && !DISPLAY_OBJECT_GNU_KEYWORDS.has(value);
+        return (
+            /^[A-Za-z_][A-Za-z0-9_]*$/.test(value) &&
+            !DISPLAY_OBJECT_KEYWORDS.has(value) &&
+            !DISPLAY_OBJECT_GNU_KEYWORDS.has(value)
+        );
     }
     protected parser: AbstractParser;
     public displays: Display[] = displays;

@@ -92,7 +92,7 @@ export class U8g2Platform extends Platform {
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
-            displayObject: this.customDisplayObject,
+            displayObject: this.getDisplayObjectName(),
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

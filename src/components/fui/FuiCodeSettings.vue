@@ -192,7 +192,10 @@ const LABELS = {
         <div v-if="supportsDisplayObject" class="mb-1">
             <label class="flex items-center gap-2 text-sm">
                 <span class="shrink-0">Display object</span>
-                <span class="tooltip tooltip-bottom no-animation flex-1 min-w-0 before:w-full before:whitespace-normal before:z-10" data-tip="Graphics library name or alias">
+                <span
+                    class="tooltip tooltip-bottom no-animation flex-1 min-w-0 before:w-full before:whitespace-normal before:z-10"
+                    data-tip="Graphics library name or alias"
+                >
                     <input
                         class="input input-xs input-bordered w-full min-w-0"
                         type="text"
