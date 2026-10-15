@@ -1,4 +1,4 @@
-import {inlineImage, type ImageDeclaration} from './image-files';
+import {createImageDeclaration, type ImageFile} from './image-files';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
@@ -71,24 +71,27 @@ export class EsphomePlatform extends Platform {
         layers: AbstractLayer[],
         ctx?: OffscreenCanvasRenderingContext2D,
         screenTitle?: string,
-        imageDeclaration: ImageDeclaration = inlineImage
+        onImage?: (file: ImageFile) => void
     ): string {
+        const settings = this.getTemplateSettings();
+        const imageDeclaration = createImageDeclaration(
+            !!(settings.export_images && settings.include_images), 'png', onImage
+        );
         const declarations: {type: string; data: any}[] = [];
-        const imageKeys = [];
-        const imageNames = [];
+        const imageNames = new Map<string, string>();
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
                     const imageKey = `${layer.size.x}x${layer.size.y}:` + Array.from(layer.data.data).join(',');
-                    if (imageKeys.includes(imageKey)) {
-                        props.imageName = imageNames[imageKeys.indexOf(imageKey)];
+                    if (imageNames.has(imageKey)) {
+                        props.imageName = imageNames.get(imageKey);
                     } else {
                         const baseName = 'img_' + toCppVariableName(layer.imageName ?? layer.name);
                         let name = baseName;
                         let suffix = 2;
-                        while (imageNames.includes(name)) name = baseName + '_' + suffix++;
+                        while (declarations.some((decl) => decl.data.name === name)) name = baseName + '_' + suffix++;
                         declarations.push({
                             type: 'bitmap',
                             data: {
@@ -98,8 +101,7 @@ export class EsphomePlatform extends Platform {
                                 size: layer.size.x + 'x' + layer.size.y,
                             },
                         });
-                        imageKeys.push(imageKey);
-                        imageNames.push(name);
+                        imageNames.set(imageKey, name);
                         props.imageName = name;
                     }
                 } else if (layer instanceof TextLayer) {
@@ -134,7 +136,6 @@ export class EsphomePlatform extends Platform {
                 return props;
             });
         const source = this.templates[this.currentTemplate].template({
-            imageDeclaration,
             declarations,
             layers: layerData,
             settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),

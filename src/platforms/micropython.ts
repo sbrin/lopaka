@@ -1,4 +1,4 @@
-import {inlineImage, type ImageDeclaration} from './image-files';
+import {createImageDeclaration, type ImageFile} from './image-files';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
@@ -48,8 +48,12 @@ export class MicropythonPlatform extends Platform {
         layers: AbstractLayer[],
         ctx?: OffscreenCanvasRenderingContext2D,
         screenTitle?: string,
-        imageDeclaration: ImageDeclaration = inlineImage
+        onImage?: (file: ImageFile) => void
     ): string {
+        const settings = this.getTemplateSettings();
+        const imageDeclaration = createImageDeclaration(
+            !!(settings.export_images && settings.include_images), 'py', onImage
+        );
         const declarations: {type: string; data: any}[] = [];
         const xbmps = [];
         const xbmpsNames = [];

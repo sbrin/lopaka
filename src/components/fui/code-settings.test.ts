@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {FreestylePlatform} from '../../platforms/freestyle';
 import {Uint32RawPlatform} from '../../platforms/uint32-raw';
-import {applySavedCodeSettings, generateCodeFiles} from './code-settings';
+import {applySavedCodeSettings, getImageFiles} from './code-settings';
 
 describe('code settings', () => {
     it('keeps platform defaults when there are no saved choices', () => {
@@ -21,12 +21,7 @@ describe('code settings', () => {
     });
 });
 
-it('generates code for platforms without template settings', () => {
-    expect(generateCodeFiles(new FreestylePlatform(), [])).toEqual({source: '', files: []});
-    const ctx = {
-        canvas: {width: 1, height: 1},
-        getImageData: () => ({width: 1, height: 1, data: new Uint8ClampedArray([255, 255, 255, 255])}),
-    } as unknown as OffscreenCanvasRenderingContext2D;
-    const platform = new Uint32RawPlatform();
-    expect(generateCodeFiles(platform, [], ctx)).toEqual({source: platform.generateSourceCode([], ctx), files: []});
+it('returns no files for platforms without export settings', () => {
+    expect(getImageFiles(new FreestylePlatform(), [])).toEqual([]);
+    expect(getImageFiles(new Uint32RawPlatform(), [])).toEqual([]);
 });

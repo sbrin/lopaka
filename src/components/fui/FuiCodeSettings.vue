@@ -11,7 +11,7 @@ import imageTemplate from '/src/platforms/templates/lvgl/image.pug';
 import { TextLayer } from '/src/core/layers/text.layer';
 import { bdfSources, gfxSources } from '/src/draw/fonts/fontTypes';
 import { FontFormat } from '/src/draw/fonts/font';
-import { applySavedCodeSettings, setCodeSetting } from './code-settings';
+import { applySavedCodeSettings, getImageFiles, setCodeSetting } from './code-settings';
 import type { ImageFile } from '/src/platforms/image-files';
 
 const props = defineProps<{
@@ -48,17 +48,21 @@ const fontsList = computed(() => {
     return props.updates ? Array.from(uniqueFonts) : [];
 });
 
-const imageList = computed(() => {
-    return props.updates
-        ? (session.layersManager.layers.filter((layer) => layer.getType() === 'paint') as PaintLayer[])
-        : ([] as PaintLayer[]);
-});
-
-const imageFiles = computed(() => {
-    // Use the same generation path and layer filtering as the code panel.
+const imageList = computed<ImageFile[]>(() => {
+    // Refresh downloads when the screen or code template changes.
     void props.updates;
     void template.value;
-    return session.generateCode().files;
+    if (session.getPlatformFeatures(platform.value).hasImages) {
+        return session.layersManager.layers
+            .filter((layer) => layer.getType() === 'paint')
+            .map((layer) => createLvglImageFile(layer as PaintLayer));
+    }
+    return getImageFiles(
+        session.platforms[platform.value],
+        session.layersManager.sorted.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
+        session.virtualScreen.ctx,
+        session.state.screenTitle
+    );
 });
 
 const template = ref(
@@ -140,7 +144,7 @@ function downloadFont(font) {
     }
 }
 
-function downloadImage(image: PaintLayer) {
+function createLvglImageFile(image: PaintLayer): ImageFile {
     // Normalize the image name for C identifiers.
     const name = toCppVariableName(image.name);
     // Decide whether to include alpha based on the layer color mode.
@@ -159,10 +163,7 @@ function downloadImage(image: PaintLayer) {
         imageDataSize: exportData.dataSize,
         imageColorFormat: exportData.colorFormat,
     });
-    // Trigger the file download as a .c source file.
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    triggerDownload(url, `${name}.c`);
+    return {filename: `${name}.c`, content};
 }
 
 function downloadImageFile(file: ImageFile) {
@@ -253,37 +254,26 @@ const LABELS = {
                 </div>
             </div>
         </template>
-        <template v-if="imageFiles.length">
-            <div class="text-md mb-1">Images</div>
-            <div class="flex flex-col gap-2">
-                <button
-                    v-for="file in imageFiles"
-                    :key="file.filename"
-                    type="button"
-                    class="text-sm link text-gray-400 text-left truncate"
-                    @click="downloadImageFile(file)"
-                >{{ file.filename }}</button>
-            </div>
-        </template>
-        <template v-if="session.getPlatformFeatures(platform).hasImages && imageList.length">
+        <template v-if="imageList.length">
             <div class="text-md mb-1">Images</div>
             <div class="flex flex-col gap-2">
                 <div
                     class="flex flex-row gap-1"
                     v-for="image in imageList"
-                    :key="image.name"
+                    :key="image.filename"
                 >
                     <Icon
                         type="clip"
                         sm
                         class="text-gray-400"
                     />
-                    <div
-                        class="text-sm link text-gray-400 truncate"
-                        @click="downloadImage(image)"
+                    <button
+                        type="button"
+                        class="text-sm link text-gray-400 text-left truncate"
+                        @click="downloadImageFile(image)"
                     >
-                        {{ image.name + '.c' }}
-                    </div>
+                        {{ image.filename }}
+                    </button>
                 </div>
             </div>
         </template>

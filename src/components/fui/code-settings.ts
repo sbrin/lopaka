@@ -1,22 +1,19 @@
 import type {Platform} from '../../platforms/platform';
 import type {AbstractLayer} from '../../core/layers/abstract.layer';
-import {createImageExport} from '../../platforms/image-files';
-import {MicropythonPlatform} from '../../platforms/micropython';
-import {EsphomePlatform} from '../../platforms/esphome';
+import type {ImageFile} from '../../platforms/image-files';
 
-export function generateCodeFiles(
+export function getImageFiles(
     platform: Platform,
     layers: AbstractLayer[],
     ctx?: OffscreenCanvasRenderingContext2D,
     screenTitle?: string
-) {
-    const settings = platform.getTemplates()?.[platform.getTemplate()]?.settings ?? {};
-    let format: 'h' | 'py' | 'png' = 'h';
-    if (platform instanceof MicropythonPlatform) format = 'py';
-    if (platform instanceof EsphomePlatform) format = 'png';
-    const images = createImageExport(!!(settings.export_images && settings.include_images), format);
-    const source = platform.generateSourceCode(layers, ctx, screenTitle, images.declare);
-    return {source, files: images.files};
+): ImageFile[] {
+    const settings = platform.getTemplates()?.[platform.getTemplate()]?.settings;
+    if (!settings?.export_images || !settings.include_images) return [];
+    const files: ImageFile[] = [];
+    // Collect the same declarations used by the code generator, without storing files on the platform.
+    platform.generateSourceCode(layers, ctx, screenTitle, (file) => files.push(file));
+    return files;
 }
 
 export type CodeSettings = Record<string, boolean>;

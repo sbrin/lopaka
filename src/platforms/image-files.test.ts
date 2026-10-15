@@ -1,4 +1,4 @@
-import {generateCodeFiles, setCodeSetting} from '../components/fui/code-settings';
+import {getImageFiles, setCodeSetting} from '../components/fui/code-settings';
 import type {Platform} from './platform';
 import type {AbstractLayer} from '../core/layers/abstract.layer';
 import {describe, expect, it} from 'vitest';
@@ -12,9 +12,16 @@ import {GxEPD2Platform} from './gxepd2';
 import {TFTeSPIPlatform} from './tft-espi';
 import {U8g2Platform} from './u8g2';
 import {layersMock} from './layers.mock';
-import {createImageHeader, createImageExport} from './image-files';
+import {createImageHeader, createImageDeclaration, type ImageFile} from './image-files';
 import {MicropythonPlatform} from './micropython';
 import {EsphomePlatform} from './esphome';
+
+// Exercise code and download generation independently and compare their results.
+function generateCodeFiles(platform: Platform, layers: AbstractLayer[]) {
+    const source = platform.generateSourceCode([...layers]);
+    const files = getImageFiles(platform, [...layers]);
+    return {source, files};
+}
 
 const results = new WeakMap<Platform, ReturnType<typeof generateCodeFiles>>();
 function generate(platform: Platform, layers: AbstractLayer[]) {
@@ -133,7 +140,7 @@ it.each(
     const external = generate(platform, [image]);
     expect(results.get(platform)?.files ?? []).toHaveLength(1);
     const header = (results.get(platform)?.files ?? [])[0];
-    const declaration = header.content.match(/^static const uint16_t .+;$/m)?.[0];
+    const declaration = (header.content as string).match(/^static const uint16_t .+;$/m)?.[0];
     expect(declaration).toBeTruthy();
     expect(declaration).toMatch(/0x[0-9A-F]{4},0x[0-9A-F]{4}/);
     expect(external.replace(`#include "${header.filename}"`, declaration!)).toBe(inline);
@@ -200,7 +207,7 @@ it('exports ESPHome pixel data with matching PNG paths and distinct IDs', () => 
     expect(files.map((file) => file.filename)).toEqual(['img_logo.png', 'img_logo_2.png']);
     files.forEach((file, index) => {
         expect(file.content).toEqual(images[index].data);
-        expect(source).toContain(`  - platform: file\n    file: "${file.filename}"\n    id:`);
+        expect(source).toContain(`  - file: "${file.filename}"\n    id:`);
         expect(source).toContain(`file: "${file.filename}"`);
         expect(source).toContain(`id: ${file.filename.slice(0, -4)}`);
         expect(source).toContain(`id(${file.filename.slice(0, -4)})`);
@@ -212,8 +219,9 @@ it('exports ESPHome pixel data with matching PNG paths and distinct IDs', () => 
 });
 
 it('keeps Python imports valid when filenames collide ignoring case', () => {
-    const exporter = createImageExport(true, 'py');
-    expect(exporter.declare('image_Logo', 'image_Logo = bytearray(b"a")')).toBe('from image_Logo import image_Logo');
-    expect(exporter.declare('image_logo', 'image_logo = bytearray(b"b")')).toBe('from image_logo_2 import image_logo');
-    expect(exporter.files.map((file) => file.filename)).toEqual(['image_Logo.py', 'image_logo_2.py']);
+    const files: ImageFile[] = [];
+    const declare = createImageDeclaration(true, 'py', (file) => files.push(file));
+    expect(declare('image_Logo', 'image_Logo = bytearray(b"a")')).toBe('from image_Logo import image_Logo');
+    expect(declare('image_logo', 'image_logo = bytearray(b"b")')).toBe('from image_logo_2 import image_logo');
+    expect(files.map((file) => file.filename)).toEqual(['image_Logo.py', 'image_logo_2.py']);
 });

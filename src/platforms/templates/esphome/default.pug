@@ -20,13 +20,7 @@ if settings.include_images && declarations.some(decl => decl.type == 'bitmap')
     |
     each decl in declarations 
         if decl.type == 'bitmap'
-            if settings.export_images
-                |   - platform: file
-                |     file: "!{decl.data.file}"
-                |
-            else
-                |   - file: "!{decl.data.file}"
-                |
+            |   - file: "!{decl.data.file}"
             |     id: !{decl.data.name}
             |     resize: !{decl.data.size}
             |     type: BINARY
