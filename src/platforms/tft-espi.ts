@@ -1,9 +1,9 @@
-import {createImageDeclaration, type ImageFile} from './image-files';
+import {getImageList, getImageData} from './image-files';
 import {getLayerProperties} from '/src/core/decorators/mapping';
 import {AbstractImageLayer} from '/src/core/layers/abstract-image.layer';
 import {AbstractLayer} from '/src/core/layers/abstract.layer';
 import {adafruitFonts, gfxFonts} from '../draw/fonts/fontTypes';
-import {flattenImageDataToBackground, imgDataToRGB565, imgDataToXBMP, toCppVariableName} from '../utils';
+import {toCppVariableName} from '../utils';
 import {Platform} from './platform';
 import defaultTemplate from './templates/tft-espi/default.pug';
 import {getFont} from '../draw/fonts';
@@ -44,74 +44,28 @@ export class TFTeSPIPlatform extends Platform {
     generateSourceCode(
         layers: AbstractLayer[],
         ctx?: OffscreenCanvasRenderingContext2D,
-        screenTitle?: string,
-        onImage?: (file: ImageFile) => void
+        screenTitle?: string
     ): string {
         const settings = Object.assign({}, this.settings, this.templates[this.currentTemplate].settings);
-        const imageDeclaration = createImageDeclaration(
-            !!(settings.export_images && settings.include_images), 'h', onImage
-        );
+        const images = getImageList(layers, 'tft-espi');
         const declarations: {type: string; data: any}[] = [];
-        const xbmps = [];
-        const xbmpsNames = [];
-        const rgb565Bitmaps: string[] = [];
-        const rgb565Names: string[] = [];
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
-                    if (layer.colorMode === 'rgb') {
-                        // Flatten RGB data when alpha is disabled so backgrounds render correctly.
-                        const sourceData =
-                            layer.alphaChannel === false
-                                ? flattenImageDataToBackground(layer.data, this.features.screenBgColor ?? '#000000')
-                                : layer.data;
-                        const bitmap565 = imgDataToRGB565(sourceData, 0, 0, layer.size.x, layer.size.y, 'low').join(
-                            ','
-                        );
-                        if (rgb565Bitmaps.includes(bitmap565)) {
-                            props.imageName = rgb565Names[rgb565Bitmaps.indexOf(bitmap565)];
-                        } else {
-                            const name = layer.name ? toCppVariableName(layer.name) : 'paint';
-                            const nameRegexp = new RegExp(`${name}_?\d*`);
-                            const countWithSameName = rgb565Names.filter((n) => nameRegexp.test(n)).length;
-                            const varName = `image_${
-                                name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')
-                            }_pixels`;
-                            declarations.push({
-                                type: 'bitmap565',
-                                data: {
-                                    name: varName,
-                                    value: bitmap565,
-                                },
-                            });
-                            rgb565Bitmaps.push(bitmap565);
-                            rgb565Names.push(varName);
-                            props.imageName = varName;
-                        }
-                    } else {
-                        const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y, true).join(',');
-                        if (xbmps.includes(XBMP)) {
-                            props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
-                        } else {
-                            const name = layer.name ? toCppVariableName(layer.name) : 'paint';
-                            const nameRegexp = new RegExp(`${name}_?\d*`);
-                            const countWithSameName = xbmpsNames.filter((n) => nameRegexp.test(n)).length;
-                            const varName = `image_${
-                                name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')
-                            }_bits`;
-                            declarations.push({
-                                type: 'bitmap',
-                                data: {
-                                    name: varName,
-                                    value: XBMP,
-                                },
-                            });
-                            xbmps.push(XBMP);
-                            xbmpsNames.push(varName);
-                            props.imageName = varName;
-                        }
+                    const image = images.find((image) => image.layers.includes(layer));
+                    if (!image) return props;
+                    props.imageName = image.name;
+                    if (!declarations.some((decl) => decl.data.name === image.name)) {
+                        declarations.push({
+                            type: image.type,
+                            data: {
+                                name: image.name,
+                                filename: image.filename,
+                                value: settings.export_images ? '' : getImageData(image, 'tft-espi', this.features.screenBgColor),
+                            },
+                        });
                     }
                 } else if (layer instanceof TextLayer) {
                     if (layer.font.name !== 'adafruit') {
@@ -137,7 +91,6 @@ export class TFTeSPIPlatform extends Platform {
             declarations,
             layers: layerData,
             settings,
-            imageDeclaration,
             packColor: (color) => this.packColor(color),
             defaultColor: this.features.defaultColor,
             clear_screen_method: this.getClearScreenMethod(this.features.screenBgColor),

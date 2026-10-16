@@ -8,7 +8,6 @@ import { TextLayer } from '/src/core/layers/text.layer';
 import { PlatformTemplates } from '/src/types';
 import { packedHexColor565, toCppVariableName } from '/src/utils';
 import { AbstractDrawingRenderer, PixelatedDrawingRenderer } from '../draw/renderers';
-import type {ImageFile} from './image-files';
 
 export type TPlatformFeatures = {
     hasCustomFontSize: boolean;
@@ -82,8 +81,7 @@ export abstract class Platform {
     abstract generateSourceCode(
         layers: AbstractLayer[],
         ctx?: OffscreenCanvasRenderingContext2D,
-        screenTitle?: string,
-        onImage?: (file: ImageFile) => void
+        screenTitle?: string
     ): string;
 
     importSourceCode(sourceCode: string): { states: any[]; warnings: string[] } {

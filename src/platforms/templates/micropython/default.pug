@@ -1,7 +1,12 @@
 if settings.include_images
     each decl in declarations 
         if decl.type == 'bitmap'
-            | !{imageDeclaration(decl.data.name, `${decl.data.name} = bytearray(${decl.data.value})`)}
+            if settings.export_images
+                | from !{decl.data.filename.slice(0, -3)} import !{decl.data.name}
+                |
+            else
+                | !{decl.data.name} = bytearray(!{decl.data.value})
+                |
             |
 if settings.declare_vars
     each decl in declarations 

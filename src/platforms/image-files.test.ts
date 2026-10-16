@@ -1,4 +1,4 @@
-import {getImageFiles, setCodeSetting} from '../components/fui/code-settings';
+import {setCodeSetting} from '../components/fui/code-settings';
 import type {Platform} from './platform';
 import type {AbstractLayer} from '../core/layers/abstract.layer';
 import {describe, expect, it} from 'vitest';
@@ -12,14 +12,19 @@ import {GxEPD2Platform} from './gxepd2';
 import {TFTeSPIPlatform} from './tft-espi';
 import {U8g2Platform} from './u8g2';
 import {layersMock} from './layers.mock';
-import {createImageHeader, createImageDeclaration, type ImageFile} from './image-files';
+import {createImageHeader, getImageList, createImageFile} from './image-files';
 import {MicropythonPlatform} from './micropython';
 import {EsphomePlatform} from './esphome';
+import {LVGLPlatform} from './lvgl';
 
 // Exercise code and download generation independently and compare their results.
 function generateCodeFiles(platform: Platform, layers: AbstractLayer[]) {
     const source = platform.generateSourceCode([...layers]);
-    const files = getImageFiles(platform, [...layers]);
+    const settings = platform.getTemplateSettings();
+    const id = (platform.constructor as typeof AdafruitPlatform).id;
+    const files = settings.include_images && settings.export_images
+        ? getImageList(layers, id).map((image) => createImageFile(image, id, platform))
+        : [];
     return {source, files};
 }
 
@@ -218,10 +223,74 @@ it('exports ESPHome pixel data with matching PNG paths and distinct IDs', () => 
     expect(generateCodeFiles(platform, images).files).toEqual([]);
 });
 
-it('keeps Python imports valid when filenames collide ignoring case', () => {
-    const files: ImageFile[] = [];
-    const declare = createImageDeclaration(true, 'py', (file) => files.push(file));
-    expect(declare('image_Logo', 'image_Logo = bytearray(b"a")')).toBe('from image_Logo import image_Logo');
-    expect(declare('image_logo', 'image_logo = bytearray(b"b")')).toBe('from image_logo_2 import image_logo');
-    expect(files.map((file) => file.filename)).toEqual(['image_Logo.py', 'image_logo_2.py']);
+it('keeps only layer references in the list and reads current pixels on download', () => {
+    const original = layersMock.find((layer) => layer instanceof AbstractImageLayer)!;
+    const layer = Object.assign(Object.create(Object.getPrototypeOf(original)), original, {
+        size: new Point(1, 1),
+        data: {width: 1, height: 1, data: new Uint8ClampedArray([255, 255, 255, 255])},
+    });
+    const [image] = getImageList([layer], AdafruitPlatform.id);
+    expect(image.layer).toBe(layer);
+    expect('content' in image || 'value' in image).toBe(false);
+    const platform = new AdafruitPlatform();
+    const before = createImageFile(image, AdafruitPlatform.id, platform).content;
+    layer.data.data.fill(0);
+    expect(createImageFile(image, AdafruitPlatform.id, platform).content).not.toBe(before);
+});
+
+it('excludes overlay images and groups identical layers under one download', () => {
+    const original = layersMock.find((layer) => layer instanceof AbstractImageLayer)!;
+    const duplicate = Object.assign(Object.create(Object.getPrototypeOf(original)), original);
+    const overlay = Object.assign(Object.create(Object.getPrototypeOf(original)), original, {
+        modifiers: {...original.modifiers, overlay: {getValue: () => true}},
+    });
+    const images = getImageList([original, duplicate, overlay], 'u8g2');
+    expect(images).toHaveLength(1);
+    expect(images[0].layers).toEqual([original, duplicate]);
+});
+
+it('downloads LVGL images with descriptor names matching drawing code', () => {
+    const original = layersMock.find((layer) => layer instanceof AbstractImageLayer)!;
+    const layers = [0, 1].map((index) => Object.assign(Object.create(Object.getPrototypeOf(original)), original, {
+        name: 'logo', index,
+    }));
+    const platform = new LVGLPlatform();
+    const source = platform.generateSourceCode([...layers]);
+    const images = getImageList(layers, 'lvgl');
+    expect(images.map((image) => image.filename)).toEqual(['logo.c', 'logo_1.c']);
+    for (const image of images) {
+        const file = createImageFile(image, 'lvgl', platform);
+        expect(file.content).toContain('image_' + image.name + '_dsc');
+        expect(source).toContain('image_' + image.name + '_dsc');
+    }
+});
+
+it('uses matching Python module filenames when names differ only by case', () => {
+    const original = layersMock.find((layer) => layer instanceof AbstractImageLayer)!;
+    const layers = ['Logo', 'logo'].map((name, index) => Object.assign(Object.create(Object.getPrototypeOf(original)), original, {
+        name, index, size: new Point(1, 1),
+        data: {width: 1, height: 1, data: new Uint8ClampedArray([index * 255, index * 255, index * 255, 255])},
+    }));
+    const platform = new MicropythonPlatform();
+    platform.getTemplateSettings().export_images = true;
+    const images = getImageList(layers, 'micropython');
+    const source = platform.generateSourceCode(layers);
+    expect(new Set(images.map((image) => image.filename.toLowerCase())).size).toBe(2);
+    for (const image of images) {
+        expect(source).toContain('from ' + image.filename.slice(0, -3) + ' import ' + image.name);
+        expect(createImageFile(image, 'micropython', platform).content).toContain(image.name + ' = bytearray(');
+    }
+});
+
+it('keeps symbols unique when a layer name already ends in a number', () => {
+    const original = layersMock.find((layer) => layer instanceof AbstractImageLayer)!;
+    const layers = ['logo_1', 'logo'].map((name, index) => Object.assign(Object.create(Object.getPrototypeOf(original)), original, {
+        name, index, size: new Point(1, 1),
+        data: {width: 1, height: 1, data: new Uint8ClampedArray([index * 255, 0, 0, 255])},
+    }));
+    for (const id of ['adafruit_gfx', 'micropython', 'esphome', 'lvgl']) {
+        const images = getImageList(layers, id);
+        expect(new Set(images.map((image) => image.name)).size).toBe(2);
+        expect(new Set(images.map((image) => image.filename)).size).toBe(2);
+    }
 });

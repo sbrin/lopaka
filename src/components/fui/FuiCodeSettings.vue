@@ -4,15 +4,13 @@
 >
 import { computed, ref, toRefs, watch } from 'vue';
 import { useSession } from '../../core/session';
-import { buildLvglImageExport, logEvent, toCppVariableName } from '../../utils';
+import { logEvent } from '../../utils';
 import Icon from '/src/components/layout/Icon.vue';
-import { PaintLayer } from '/src/core/layers/paint.layer';
-import imageTemplate from '/src/platforms/templates/lvgl/image.pug';
 import { TextLayer } from '/src/core/layers/text.layer';
 import { bdfSources, gfxSources } from '/src/draw/fonts/fontTypes';
 import { FontFormat } from '/src/draw/fonts/font';
-import { applySavedCodeSettings, getImageFiles, setCodeSetting } from './code-settings';
-import type { ImageFile } from '/src/platforms/image-files';
+import { applySavedCodeSettings, setCodeSetting } from './code-settings';
+import {getImageList, createImageFile, type ImageAsset} from '/src/platforms/image-files';
 
 const props = defineProps<{
     updates: number;
@@ -48,21 +46,10 @@ const fontsList = computed(() => {
     return props.updates ? Array.from(uniqueFonts) : [];
 });
 
-const imageList = computed<ImageFile[]>(() => {
-    // Refresh downloads when the screen or code template changes.
+const imageList = computed(() => {
     void props.updates;
-    void template.value;
-    if (session.getPlatformFeatures(platform.value).hasImages) {
-        return session.layersManager.layers
-            .filter((layer) => layer.getType() === 'paint')
-            .map((layer) => createLvglImageFile(layer as PaintLayer));
-    }
-    return getImageFiles(
-        session.platforms[platform.value],
-        session.layersManager.sorted.filter((layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()),
-        session.virtualScreen.ctx,
-        session.state.screenTitle
-    );
+    if (platform.value !== 'lvgl' && !(settings.value?.include_images && settings.value?.export_images)) return [];
+    return getImageList(session.layersManager.layers, platform.value);
 });
 
 const template = ref(
@@ -144,29 +131,8 @@ function downloadFont(font) {
     }
 }
 
-function createLvglImageFile(image: PaintLayer): ImageFile {
-    // Normalize the image name for C identifiers.
-    const name = toCppVariableName(image.name);
-    // Decide whether to include alpha based on the layer color mode.
-    const includeAlpha = image.colorMode === 'rgb' ? image.alphaChannel : false;
-    // Build the LVGL export payload with the requested alpha handling.
-    const exportData = buildLvglImageExport(
-        image.data,
-        session.getPlatformFeatures().screenBgColor,
-        includeAlpha
-    );
-    const content = imageTemplate({
-        imageName: name,
-        imageData565: exportData.bytes.join(', '),
-        imageWidth: image.data.width,
-        imageHeight: image.data.height,
-        imageDataSize: exportData.dataSize,
-        imageColorFormat: exportData.colorFormat,
-    });
-    return {filename: `${name}.c`, content};
-}
-
-function downloadImageFile(file: ImageFile) {
+function downloadImage(image: ImageAsset) {
+    const file = createImageFile(image, platform.value, session.platforms[platform.value]);
     if (typeof file.content === 'string') {
         triggerDownload(URL.createObjectURL(new Blob([file.content], {type: 'text/plain'})), file.filename);
         return;
@@ -270,7 +236,7 @@ const LABELS = {
                     <button
                         type="button"
                         class="text-sm link text-gray-400 text-left truncate"
-                        @click="downloadImageFile(image)"
+                        @click="downloadImage(image)"
                     >
                         {{ image.filename }}
                     </button>

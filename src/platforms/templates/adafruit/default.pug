@@ -8,11 +8,21 @@ if settings.include_fonts
 if settings.include_images
     each decl in declarations
         if decl.type == 'bitmap'
-            | !{imageDeclaration(decl.data.name, `static const unsigned char PROGMEM ${decl.data.name}[] = {${decl.data.value}};`)}
+            if settings.export_images
+                | #include "!{decl.data.filename}"
+                |
+            else
+                | static const unsigned char PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+                |
             |
             |
         if decl.type == 'bitmap565'
-            | !{imageDeclaration(decl.data.name, `static const uint16_t PROGMEM ${decl.data.name}[] = {${decl.data.value}};`)}
+            if settings.export_images
+                | #include "!{decl.data.filename}"
+                |
+            else
+                | static const uint16_t PROGMEM !{decl.data.name}[] = {!{decl.data.value}};
+                |
             |
             |
 if settings.declare_vars

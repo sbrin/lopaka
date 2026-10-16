@@ -1,3 +1,4 @@
+import {getImageList} from './image-files';
 import { getLayerProperties } from '../core/decorators/mapping';
 import { AbstractImageLayer } from '../core/layers/abstract-image.layer';
 import { AbstractLayer } from '../core/layers/abstract.layer';
@@ -79,19 +80,15 @@ export class LVGLPlatform extends Platform {
 
     generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
         const declarations: { type: string; data: any }[] = [];
-        const rgb565Names: string[] = [];
+        const images = getImageList(layers, 'lvgl');
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
-                    const name = layer.name ? toCppVariableName(layer.name) : 'paint';
-                    const nameRegexp = new RegExp(`${name}_?\d*`);
-                    const countWithSameName = rgb565Names.filter((n) => nameRegexp.test(n)).length;
-                    const varName = `image_${name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')
-                        }_dsc`;
-                    rgb565Names.push(varName);
-                    props.imageName = varName;
+                    const image = images.find((image) => image.layers.includes(layer));
+                    if (!image) return props;
+                    props.imageName = `image_${image.name}_dsc`;
                 } else if (
                     // Include fonts referenced by text and text area layers.
                     (layer instanceof TextLayer || layer instanceof TextAreaLayer) &&

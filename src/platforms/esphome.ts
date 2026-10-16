@@ -1,4 +1,4 @@
-import {createImageDeclaration, type ImageFile} from './image-files';
+import {getImageList} from './image-files';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
@@ -70,39 +70,28 @@ export class EsphomePlatform extends Platform {
     generateSourceCode(
         layers: AbstractLayer[],
         ctx?: OffscreenCanvasRenderingContext2D,
-        screenTitle?: string,
-        onImage?: (file: ImageFile) => void
+        screenTitle?: string
     ): string {
         const settings = this.getTemplateSettings();
-        const imageDeclaration = createImageDeclaration(
-            !!(settings.export_images && settings.include_images), 'png', onImage
-        );
+        const images = getImageList(layers, 'esphome');
         const declarations: {type: string; data: any}[] = [];
-        const imageNames = new Map<string, string>();
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
-                    const imageKey = `${layer.size.x}x${layer.size.y}:` + Array.from(layer.data.data).join(',');
-                    if (imageNames.has(imageKey)) {
-                        props.imageName = imageNames.get(imageKey);
-                    } else {
-                        const baseName = 'img_' + toCppVariableName(layer.imageName ?? layer.name);
-                        let name = baseName;
-                        let suffix = 2;
-                        while (declarations.some((decl) => decl.data.name === name)) name = baseName + '_' + suffix++;
+                    const image = images.find((image) => image.layers.includes(layer));
+                    if (!image) return props;
+                    props.imageName = image.name;
+                    if (!declarations.some((decl) => decl.data.name === image.name)) {
                         declarations.push({
-                            type: 'bitmap',
+                            type: image.type,
                             data: {
-                                name: name,
-                                value: layer.imageName ?? toCppVariableName(layer.name),
-                                file: imageDeclaration(name, `images/${layer.imageName ?? toCppVariableName(layer.name)}.png`, layer.data),
+                                name: image.name,
+                                file: settings.export_images ? image.filename : `images/${layer.imageName ?? toCppVariableName(layer.name)}.png`,
                                 size: layer.size.x + 'x' + layer.size.y,
                             },
                         });
-                        imageNames.set(imageKey, name);
-                        props.imageName = name;
                     }
                 } else if (layer instanceof TextLayer) {
                     // ESPHome uses system fonts or custom fonts defined in the YAML config
