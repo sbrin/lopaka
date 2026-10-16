@@ -1,10 +1,11 @@
+import {getImageList, getImageData} from './image-files';
 import {TextLayer} from '../core/layers/text.layer';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {FontFormat} from '../draw/fonts/font';
 import {bdfFonts} from '../draw/fonts/fontTypes';
-import {imgDataToXBMP, toCppVariableName} from '../utils';
+import {toCppVariableName} from '../utils';
 import {FlipperParser} from './parsers/flipper.parser';
 import {Platform} from './platform';
 import defaultTemplate from './templates/flipper/default.pug';
@@ -81,38 +82,37 @@ export class FlipperPlatform extends Platform {
                 wrap: true,
                 declare_vars: true,
                 include_images: true,
+                export_images: false,
                 comments: true,
             },
         },
     };
 
-    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
+    generateSourceCode(
+        layers: AbstractLayer[],
+        ctx?: OffscreenCanvasRenderingContext2D,
+        screenTitle?: string
+    ): string {
+        const settings = Object.assign({}, this.settings, this.templates[this.currentTemplate].settings);
+        const images = getImageList(layers, 'flipper');
         const declarations: {type: string; data: any}[] = [];
-        const xbmps = [];
-        const xbmpsNames = [];
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
-                    const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y).join(',');
-                    if (xbmps.includes(XBMP)) {
-                        props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
-                    } else {
-                        const name = layer.name ? toCppVariableName(layer.name) : 'layer';
-                        const nameRegexp = new RegExp(`${name}_?\d*`);
-                        const countWithSameName = xbmpsNames.filter((n) => nameRegexp.test(n)).length;
-                        const varName = `image_${name + `_${countWithSameName}`}_bits`;
+                    const image = images.find((image) => image.layers.includes(layer));
+                    if (!image) return props;
+                    props.imageName = image.name;
+                    if (!declarations.some((decl) => decl.data.name === image.name)) {
                         declarations.push({
-                            type: 'bitmap',
+                            type: image.type,
                             data: {
-                                name: varName,
-                                value: XBMP,
+                                name: image.name,
+                                filename: image.filename,
+                                value: settings.export_images ? '' : getImageData(image, 'flipper', this.features.screenBgColor),
                             },
                         });
-                        xbmps.push(XBMP);
-                        xbmpsNames.push(varName);
-                        props.imageName = varName;
                     }
                 } else if (layer instanceof TextLayer) {
                     props.fontName = flipperOldFontNames[layer.font.name] ?? layer.font.name;
@@ -124,7 +124,7 @@ export class FlipperPlatform extends Platform {
         const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
-            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
+            settings,
             screenTitle: screenTitle ? toCppVariableName(screenTitle) : '',
         });
         return source;

@@ -73,11 +73,16 @@ export abstract class Platform {
     protected templates: PlatformTemplates;
     protected currentTemplate: string = 'Default';
     protected settings = {};
+
     protected parser: AbstractParser;
     public displays: Display[] = displays;
     public sourceMapParser: SourceMapParser = new SourceMapParser();
 
-    abstract generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string;
+    abstract generateSourceCode(
+        layers: AbstractLayer[],
+        ctx?: OffscreenCanvasRenderingContext2D,
+        screenTitle?: string
+    ): string;
 
     importSourceCode(sourceCode: string): { states: any[]; warnings: string[] } {
         return this.parser.importSourceCode(sourceCode);

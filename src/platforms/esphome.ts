@@ -1,9 +1,10 @@
+import {getImageList} from './image-files';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {TextLayer} from '../core/layers/text.layer';
 import {ttfFonts} from '../draw/fonts/fontTypes';
-import {imgDataToXBMP, toCppVariableName} from '../utils';
+import {toCppVariableName} from '../utils';
 import {Platform} from './platform';
 import defaultTemplate from './templates/esphome/default.pug';
 import {EsphomeParser} from './parsers/esphome.parser';
@@ -27,6 +28,7 @@ export class EsphomePlatform extends Platform {
                 comments: true,
                 include_fonts: true,
                 include_images: true,
+                export_images: false,
                 declare_vars: true,
             },
         },
@@ -65,31 +67,31 @@ export class EsphomePlatform extends Platform {
         return declarations.sort((a, b) => a.data.name.localeCompare(b.data.name));
     }
 
-    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
+    generateSourceCode(
+        layers: AbstractLayer[],
+        ctx?: OffscreenCanvasRenderingContext2D,
+        screenTitle?: string
+    ): string {
+        const settings = this.getTemplateSettings();
+        const images = getImageList(layers, 'esphome');
         const declarations: {type: string; data: any}[] = [];
-        const xbmps = [];
-        const xbmpsNames = [];
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
-                    const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y).join(',');
-                    if (xbmps.includes(XBMP)) {
-                        props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
-                    } else {
-                        const name = 'img_' + (layer.imageName ?? toCppVariableName(layer.name));
+                    const image = images.find((image) => image.layers.includes(layer));
+                    if (!image) return props;
+                    props.imageName = image.name;
+                    if (!declarations.some((decl) => decl.data.name === image.name)) {
                         declarations.push({
-                            type: 'bitmap',
+                            type: image.type,
                             data: {
-                                name: name,
-                                value: layer.imageName ?? toCppVariableName(layer.name),
+                                name: image.name,
+                                file: settings.export_images ? image.filename : `images/${layer.imageName ?? toCppVariableName(layer.name)}.png`,
                                 size: layer.size.x + 'x' + layer.size.y,
                             },
                         });
-                        xbmps.push(XBMP);
-                        xbmpsNames.push(name);
-                        props.imageName = name;
                     }
                 } else if (layer instanceof TextLayer) {
                     // ESPHome uses system fonts or custom fonts defined in the YAML config
