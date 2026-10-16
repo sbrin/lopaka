@@ -1,4 +1,4 @@
-import {getImageList, getImageData} from './image-files';
+import {getImageAsset, getImageList, getImageData} from './image-files';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
@@ -59,8 +59,7 @@ export class AdafruitPlatform extends Platform {
             .map((layer) => {
                 const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
-                    const image = images.find((image) => image.layers.includes(layer));
-                    if (!image) return props;
+                    const image = getImageAsset(layer, (this.constructor as typeof AdafruitPlatform).id, images);
                     props.imageName = image.name;
                     if (!declarations.some((decl) => decl.data.name === image.name)) {
                         declarations.push({
@@ -68,7 +67,7 @@ export class AdafruitPlatform extends Platform {
                             data: {
                                 name: image.name,
                                 filename: image.filename,
-                                value: settings.export_images ? '' : getImageData(image, 'adafruit_gfx', this.features.screenBgColor),
+                                value: settings.export_images ? '' : getImageData(image, 'adafruit_gfx', this.features),
                             },
                         });
                     }

@@ -12,7 +12,7 @@ import {GxEPD2Platform} from './gxepd2';
 import {TFTeSPIPlatform} from './tft-espi';
 import {U8g2Platform} from './u8g2';
 import {layersMock} from './layers.mock';
-import {createImageHeader, getImageList, createImageFile} from './image-files';
+import {createImageHeader, getImageAsset, getImageList, createImageFile} from './image-files';
 import {MicropythonPlatform} from './micropython';
 import {EsphomePlatform} from './esphome';
 import {LVGLPlatform} from './lvgl';
@@ -293,4 +293,18 @@ it('keeps symbols unique when a layer name already ends in a number', () => {
         expect(new Set(images.map((image) => image.name)).size).toBe(2);
         expect(new Set(images.map((image) => image.filename)).size).toBe(2);
     }
+});
+
+it('resolves a layer to the same asset used for downloads, including aliases and colliding names', () => {
+    const original = layersMock.find((layer) => layer instanceof AbstractImageLayer)!;
+    const layers = [0, 255, 0].map((value, index) => Object.assign(Object.create(Object.getPrototypeOf(original)), original, {
+        name: 'logo', index, size: new Point(1, 1),
+        data: {width: 1, height: 1, data: new Uint8ClampedArray([value, value, value, 255])},
+    }));
+    const images = getImageList(layers, 'adafruit_gfx');
+    expect(images).toHaveLength(2);
+    expect(getImageAsset(layers[0], 'adafruit_gfx', images)).toBe(images[0]);
+    expect(getImageAsset(layers[1], 'adafruit_gfx', images)).toBe(images[1]);
+    expect(getImageAsset(layers[2], 'adafruit_gfx', images)).toBe(images[0]);
+    expect(images[0].filename).not.toBe(images[1].filename);
 });
