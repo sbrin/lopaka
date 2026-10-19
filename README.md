@@ -13,6 +13,8 @@ Draw any graphics and use generated code in your Arduino, ESP32 or STM32project!
 - [Installation](#installation)
 - [Credits](#credits)
 - [How to Contribute](#how-can-you-help)
+- [Contributing Guidelines](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ## Features
 
@@ -94,6 +96,8 @@ For a full list of contributors, see the [contributors graph](https://github.com
 
 
 ## How can you help
+
+See the [contributing guide](CONTRIBUTING.md) for development setup, tests, and pull requests. Please also follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 Users feedback is the most precious thing for us. Feel free to start a [Discussion](https://github.com/sbrin/lopaka/discussions), [submit an Issue](https://github.com/sbrin/lopaka/issues), or fill in the [Feedback form](https://airtable.com/apps27BkejrUF0DWT/shryaJaGovGUA03XA).
 
