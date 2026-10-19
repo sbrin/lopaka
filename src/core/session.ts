@@ -317,14 +317,14 @@ export class Session {
 
     generateCode = (): TSourceCode => {
         const { platform, screenTitle } = this.state;
-        const code = this.platforms[platform].generateSourceCode(
+        const source = this.platforms[platform].generateSourceCode(
             this.layersManager.sorted.filter(
                 (layer) => !layer.modifiers.overlay || !layer.modifiers.overlay.getValue()
             ),
             this.virtualScreen.ctx,
             screenTitle
         );
-        return this.platforms[platform].sourceMapParser.parse(code);
+        return this.platforms[platform].sourceMapParser.parse(source);
     };
 
     setScreenTitle = (title: string) => {

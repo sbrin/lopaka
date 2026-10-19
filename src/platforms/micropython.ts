@@ -1,9 +1,10 @@
+import {getImageList, getImageData} from './image-files';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {TextLayer} from '../core/layers/text.layer';
 import {gfxFonts} from '../draw/fonts/fontTypes';
-import {imgDataToBuffer, imgDataToXBMP, toCppVariableName} from '../utils';
+import {toCppVariableName} from '../utils';
 // import {U8g2Parser} from './parsers/u8g2.parser';
 import {Platform} from './platform';
 import defaultTemplate from './templates/micropython/default.pug';
@@ -26,6 +27,7 @@ export class MicropythonPlatform extends Platform {
                 wrap: true,
                 comments: true,
                 include_images: true,
+                export_images: false,
                 declare_vars: true,
             },
         },
@@ -42,34 +44,31 @@ export class MicropythonPlatform extends Platform {
         this.features.screenBgColor = '#000000';
     }
 
-    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
+    generateSourceCode(
+        layers: AbstractLayer[],
+        ctx?: OffscreenCanvasRenderingContext2D,
+        screenTitle?: string
+    ): string {
+        const settings = this.getTemplateSettings();
+        const images = getImageList(layers, 'micropython');
         const declarations: {type: string; data: any}[] = [];
-        const xbmps = [];
-        const xbmpsNames = [];
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
-                    const XBMP = imgDataToBuffer(layer.data, 0, 0, layer.size.x, layer.size.y);
-
-                    if (xbmps.includes(XBMP)) {
-                        props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
-                    } else {
-                        const name = layer.name ? toCppVariableName(layer.name) : 'paint';
-                        const nameRegexp = new RegExp(`${name}_?\d*`);
-                        const countWithSameName = xbmpsNames.filter((n) => nameRegexp.test(n)).length;
-                        const varName = `image_${name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')}_bits`;
+                    const image = images.find((image) => image.layers.includes(layer));
+                    if (!image) return props;
+                    props.imageName = image.name;
+                    if (!declarations.some((decl) => decl.data.name === image.name)) {
                         declarations.push({
-                            type: 'bitmap',
+                            type: image.type,
                             data: {
-                                name: varName,
-                                value: XBMP,
+                                name: image.name,
+                                filename: image.filename,
+                                value: settings.export_images ? '' : getImageData(image, 'micropython', this.features.screenBgColor),
                             },
                         });
-                        xbmps.push(XBMP);
-                        xbmpsNames.push(varName);
-                        props.imageName = varName;
                     }
                 }
                 this.processLayerModifiers(layer, props);

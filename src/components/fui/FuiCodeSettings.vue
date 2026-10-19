@@ -4,14 +4,13 @@
 >
 import { computed, ref, toRefs, watch } from 'vue';
 import { useSession } from '../../core/session';
-import { buildLvglImageExport, logEvent, toCppVariableName } from '../../utils';
+import { logEvent } from '../../utils';
 import Icon from '/src/components/layout/Icon.vue';
-import { PaintLayer } from '/src/core/layers/paint.layer';
-import imageTemplate from '/src/platforms/templates/lvgl/image.pug';
 import { TextLayer } from '/src/core/layers/text.layer';
 import { bdfSources, gfxSources } from '/src/draw/fonts/fontTypes';
 import { FontFormat } from '/src/draw/fonts/font';
-import { applySavedCodeSettings } from './code-settings';
+import { applySavedCodeSettings, setCodeSetting } from './code-settings';
+import {getImageList, createImageFile, type ImageAsset} from '/src/platforms/image-files';
 
 const props = defineProps<{
     updates: number;
@@ -48,9 +47,9 @@ const fontsList = computed(() => {
 });
 
 const imageList = computed(() => {
-    return props.updates
-        ? (session.layersManager.layers.filter((layer) => layer.getType() === 'paint') as PaintLayer[])
-        : ([] as PaintLayer[]);
+    void props.updates;
+    if (platform.value !== 'lvgl' && !(settings.value?.include_images && settings.value?.export_images)) return [];
+    return getImageList(session.layersManager.layers, platform.value);
 });
 
 const template = ref(
@@ -66,18 +65,22 @@ watch(template, (val) => {
         session.platforms[platform.value].setTemplate(val);
         // session.virtualScreen.redraw();
         localStorage.setItem(`lopaka_${platform.value}_code_template`, val);
+        session.state.immidiateUpdates++;
     }
 });
 
 watch(platform, (val) => {
     if (val) {
-        template.value = session.platforms[platform.value].getTemplate();
+        const selectedPlatform = session.platforms[val];
+        template.value = localStorage.getItem(`lopaka_${val}_code_template`) ?? selectedPlatform.getTemplate();
+        selectedPlatform.setTemplate(template.value);
+        applySavedCodeSettings(selectedPlatform.getTemplateSettings(), JSON.parse(localStorage.getItem(`lopaka_${val}_code_settings`) ?? '{}'));
     }
 });
 
 function setSetting(event: Event, name: any) {
     const target = event.target as HTMLInputElement;
-    session.platforms[platform.value].setTemplateSetting(name, target.checked);
+    setCodeSetting(settings.value, name, target.checked);
     session.virtualScreen.redraw();
     session.state.immidiateUpdates++;
 
@@ -128,29 +131,19 @@ function downloadFont(font) {
     }
 }
 
-function downloadImage(image: PaintLayer) {
-    // Normalize the image name for C identifiers.
-    const name = toCppVariableName(image.name);
-    // Decide whether to include alpha based on the layer color mode.
-    const includeAlpha = image.colorMode === 'rgb' ? image.alphaChannel : false;
-    // Build the LVGL export payload with the requested alpha handling.
-    const exportData = buildLvglImageExport(
-        image.data,
-        session.getPlatformFeatures().screenBgColor,
-        includeAlpha
-    );
-    const content = imageTemplate({
-        imageName: name,
-        imageData565: exportData.bytes.join(', '),
-        imageWidth: image.data.width,
-        imageHeight: image.data.height,
-        imageDataSize: exportData.dataSize,
-        imageColorFormat: exportData.colorFormat,
-    });
-    // Trigger the file download as a .c source file.
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    triggerDownload(url, `${name}.c`);
+function downloadImage(image: ImageAsset) {
+    const file = createImageFile(image, platform.value, session.platforms[platform.value]);
+    if (typeof file.content === 'string') {
+        triggerDownload(URL.createObjectURL(new Blob([file.content], {type: 'text/plain'})), file.filename);
+        return;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = file.content.width;
+    canvas.height = file.content.height;
+    canvas.getContext('2d').putImageData(file.content, 0, 0);
+    canvas.toBlob((blob) => {
+        if (blob) triggerDownload(URL.createObjectURL(blob), file.filename);
+    }, 'image/png');
 }
 
 const LABELS = {
@@ -158,6 +151,7 @@ const LABELS = {
     progmem: 'Declare as PROGMEM',
     include_fonts: 'Include fonts',
     include_images: 'Declare images',
+    export_images: 'Include image files',
     declare_vars: 'Declare variables',
     comments: 'Layer titles',
     clear_screen: 'Clear/Fill display',
@@ -173,7 +167,7 @@ const LABELS = {
                 <label class="label label-xs">
                     <div class="text-sm">Syntax</div>
                     <select
-                        class="select select-xs select-bordered ml-2"
+                        class="select select-xs select-bordered ml-2 min-w-0"
                         v-model="template"
                         @change="changeTemplate"
                     >
@@ -189,6 +183,7 @@ const LABELS = {
             </div>
             <div
                 v-for="(value, key) in settings"
+                v-show="key !== 'export_images' || settings.include_images"
                 class="form-control"
             >
                 <label class="label label-xs cursor-pointer justify-start py-1">
@@ -225,25 +220,26 @@ const LABELS = {
                 </div>
             </div>
         </template>
-        <template v-if="session.getPlatformFeatures(platform).hasImages && imageList.length">
+        <template v-if="imageList.length">
             <div class="text-md mb-1">Images</div>
             <div class="flex flex-col gap-2">
                 <div
                     class="flex flex-row gap-1"
                     v-for="image in imageList"
-                    :key="image.name"
+                    :key="image.filename"
                 >
                     <Icon
                         type="clip"
                         sm
                         class="text-gray-400"
                     />
-                    <div
-                        class="text-sm link text-gray-400 truncate"
+                    <button
+                        type="button"
+                        class="text-sm link text-gray-400 text-left truncate"
                         @click="downloadImage(image)"
                     >
-                        {{ image.name + '.c' }}
-                    </div>
+                        {{ image.filename }}
+                    </button>
                 </div>
             </div>
         </template>

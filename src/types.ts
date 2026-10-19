@@ -32,6 +32,7 @@ export interface PlatformTemplates {
             wrap?: boolean;
             include_fonts?: boolean;
             include_images?: boolean;
+            export_images?: boolean;
             comments?: boolean;
             declare_vars?: boolean;
             clear_screen?: boolean;

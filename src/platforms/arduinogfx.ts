@@ -1,8 +1,9 @@
+import {getImageList, getImageData} from './image-files';
 import {getLayerProperties} from '../core/decorators/mapping';
 import {AbstractImageLayer} from '../core/layers/abstract-image.layer';
 import {AbstractLayer} from '../core/layers/abstract.layer';
 import {adafruitFonts, gfxFonts} from '../draw/fonts/fontTypes';
-import {imgDataToRGB565, imgDataToXBMP, packedHexColor565, toCppVariableName} from '../utils';
+import {packedHexColor565, toCppVariableName} from '../utils';
 import {ArduinoGFXParser} from './parsers/arduinogfx.parser';
 import {Platform} from './platform';
 import defaultTemplate from './templates/arduinogfx/default.pug';
@@ -31,6 +32,7 @@ export class ArduinoGFXPlatform extends Platform {
                 wrap: true,
                 include_fonts: true,
                 include_images: true,
+                export_images: false,
                 declare_vars: true,
                 comments: true,
                 clear_screen: true,
@@ -38,63 +40,31 @@ export class ArduinoGFXPlatform extends Platform {
         },
     };
 
-    generateSourceCode(layers: AbstractLayer[], ctx?: OffscreenCanvasRenderingContext2D, screenTitle?: string): string {
+    generateSourceCode(
+        layers: AbstractLayer[],
+        ctx?: OffscreenCanvasRenderingContext2D,
+        screenTitle?: string
+    ): string {
+        const settings = Object.assign({}, this.settings, this.templates[this.currentTemplate].settings);
+        const images = getImageList(layers, 'arduino_gfx');
         const declarations: {type: string; data: any}[] = [];
-        const xbmps = [];
-        const xbmpsNames = [];
-        const rgb565Bitmaps: string[] = [];
-        const rgb565Names: string[] = [];
         const layerData = layers
             .sort((a: AbstractLayer, b: AbstractLayer) => a.index - b.index)
             .map((layer) => {
                 const props = getLayerProperties(layer);
                 if (layer instanceof AbstractImageLayer) {
-                    if (layer.colorMode === 'rgb') {
-                        const bitmap565 = imgDataToRGB565(layer.data, 0, 0, layer.size.x, layer.size.y, 'high').join(
-                            ','
-                        );
-                        if (rgb565Bitmaps.includes(bitmap565)) {
-                            props.imageName = rgb565Names[rgb565Bitmaps.indexOf(bitmap565)];
-                        } else {
-                            const name = layer.name ? toCppVariableName(layer.name) : 'paint';
-                            const nameRegexp = new RegExp(`${name}_?\d*`);
-                            const countWithSameName = rgb565Names.filter((n) => nameRegexp.test(n)).length;
-                            const varName = `image_${
-                                name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')
-                            }_pixels`;
-                            declarations.push({
-                                type: 'bitmap565',
-                                data: {
-                                    name: varName,
-                                    value: bitmap565,
-                                },
-                            });
-                            rgb565Bitmaps.push(bitmap565);
-                            rgb565Names.push(varName);
-                            props.imageName = varName;
-                        }
-                    } else {
-                        const XBMP = imgDataToXBMP(layer.data, 0, 0, layer.size.x, layer.size.y, true).join(',');
-                        if (xbmps.includes(XBMP)) {
-                            props.imageName = xbmpsNames[xbmps.indexOf(XBMP)];
-                        } else {
-                            const name = layer.name ? toCppVariableName(layer.name) : 'paint';
-                            const nameRegexp = new RegExp(`${name}_?\d*`);
-                            const countWithSameName = xbmpsNames.filter((n) => nameRegexp.test(n)).length;
-                            const varName = `image_${
-                                name + (countWithSameName || name == 'paint' ? `_${countWithSameName}` : '')
-                            }_bits`;
-                            declarations.push({
-                                type: 'bitmap',
-                                data: {
-                                    name: varName,
-                                    value: XBMP,
-                                },
-                            });
-                            xbmps.push(XBMP);
-                            xbmpsNames.push(varName);
-                            props.imageName = varName;
-                        }
+                    const image = images.find((image) => image.layers.includes(layer));
+                    if (!image) return props;
+                    props.imageName = image.name;
+                    if (!declarations.some((decl) => decl.data.name === image.name)) {
+                        declarations.push({
+                            type: image.type,
+                            data: {
+                                name: image.name,
+                                filename: image.filename,
+                                value: settings.export_images ? '' : getImageData(image, 'arduino_gfx', this.features.screenBgColor),
+                            },
+                        });
                     }
                 } else if (layer instanceof TextLayer) {
                     if (layer.font.name !== 'adafruit') {
@@ -126,7 +96,7 @@ export class ArduinoGFXPlatform extends Platform {
         const source = this.templates[this.currentTemplate].template({
             declarations,
             layers: layerData,
-            settings: Object.assign({}, this.settings, this.templates[this.currentTemplate].settings),
+            settings,
             defaultColor: this.packColor(this.features.defaultColor),
             clear_screen_method: this.getClearScreenMethod(this.features.screenBgColor),
             screenTitle: screenTitle ? toCppVariableName(screenTitle) : '',

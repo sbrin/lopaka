@@ -20,7 +20,7 @@ if settings.include_images && declarations.some(decl => decl.type == 'bitmap')
     |
     each decl in declarations 
         if decl.type == 'bitmap'
-            |   - file: "images/!{decl.data.value}.png"
+            |   - file: "!{decl.data.file}"
             |     id: !{decl.data.name}
             |     resize: !{decl.data.size}
             |     type: BINARY

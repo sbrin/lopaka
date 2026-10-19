@@ -414,6 +414,7 @@ function onMouseClick() {
     height: 0;
     min-height: 100%;
     overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 
 .fui-editor__canvas {
